@@ -19,7 +19,7 @@
 <textarea name=message rows=10 cols=70 wrap=hard>
 Dear @accountant_name@,
 
-please find attached a @cost_type@ for project(s):
+please find attached a @cost_type@ for the project(s):
 
 @select_projects;noquote@
 
