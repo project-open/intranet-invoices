@@ -116,7 +116,7 @@ select
         cc.country_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
-	im_category_from_id(ci.template_id) as invoice_template
+	im_category_from_id(ci.template_id) as template
 from
 	im_invoices_active i,
 	im_costs ci,
@@ -171,7 +171,7 @@ set invoice_data_html "
         </tr>
         <tr> 
           <td class=roweven> $cost_type template:</td>
-          <td class=roweven>$invoice_template</td>
+          <td class=roweven>$template</td>
         </tr>
         <tr> 
           <td class=roweven> $cost_type type:</td>
@@ -453,12 +453,12 @@ append item_html "
 
 
 # ---------------------------------------------------------------
-# 10. Format using an invoice_template
+# 10. Format using a template
 # ---------------------------------------------------------------
 
 if {[exists_and_not_null render_template_id]} {
 
-    # format using an invoice template
+    # format using a template
     set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
     append invoice_template_path "/"
     append invoice_template_path [db_string sel_invoice "select category from im_categories where category_id=:render_template_id"]
@@ -478,7 +478,7 @@ if {[exists_and_not_null render_template_id]} {
 } else {
 
     # for the "Preview" button only
-    set render_template_id $invoice_template_id
+    set render_template_id $template_id
 
     # No render template defined - render using default html style
     set page_body "

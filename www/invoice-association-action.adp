@@ -37,18 +37,3 @@
   </tr>
 </table>
 </form>
-
-
-<!--
-        i.invoice_date + i.payment_days as calculated_due_date,
-        pm_cat.category as invoice_payment_method,
-        pm_cat.category_description as invoice_payment_method_desc,
-        im_name_from_user_id(c.accounting_contact_id) as customer_contact_name,
-        im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
-        c.customer_name,
-        cc.country_name,
-        im_category_from_id(i.invoice_status_id) as invoice_status,
-        im_category_from_id(i.invoice_type_id) as invoice_type,
-        im_category_from_id(i.invoice_template_id) as invoice_template
-
---<

@@ -16,7 +16,7 @@ ad_page_contract {
 } {
     { return_url "/intranet-invoices/" }
     del_invoice:multiple,optional
-    invoice_status:array,optional
+    cost_status:array,optional
     submit
 }
 
@@ -34,11 +34,11 @@ switch $submit {
 
     "Save" {
 	# Save the stati for the invoices on this list
-	foreach invoice_id [array names invoice_status] {
-	    set invoice_status_id $invoice_status($invoice_id)
-	    ns_log Notice "set invoice_status($invoice_id) = $invoice_status_id"
+	foreach invoice_id [array names cost_status] {
+	    set cost_status_id $cost_status($invoice_id)
+	    ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
 
-	    db_dml update_invoice_status "update im_invoices set invoice_status_id=:invoice_status_id where invoice_id=:invoice_id"
+	    db_dml update_cost_status "update im_invoices set cost_status_id=:cost_status_id where invoice_id=:invoice_id"
 	}
 
 	ad_returnredirect $return_url

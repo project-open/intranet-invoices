@@ -191,9 +191,9 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
-set template_select [im_invoice_template_select template_id $template_id]
-set status_select [im_invoice_status_select cost_status_id $cost_status_id]
-set type_select [im_invoice_type_select cost_type_id $cost_type_id]
+set template_select [im_cost_template_select template_id $template_id]
+set status_select [im_cost_status_select cost_status_id $cost_status_id]
+set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
 set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
 

@@ -15,20 +15,16 @@ ad_page_contract {
     - Bill from PO and
     - Invoice from Quote.
     The page allows the user to select the original document
-    and creates a copy with the new invoice_type_id.
+    and creates a copy with the new cost_type_id.
     Also, a new document nr is created (it's unique).
 
     @param invoice_id - Indicates a specific financial document
            to be taken as the base for the copy
-    @invoice_type_id Document type for the new document
-    @from_invoice_type_id Document type of the original
-    @project_id Restricts the search for originals to a project
-    @customer_id Restricts the search for originals to a company
 
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
-    invoice_type_id:integer
+    cost_type_id:integer
     { return_url "/intranet-invoice/"}
 }
 
@@ -42,15 +38,15 @@ if {![im_permission $user_id view_invoices]} {
     <li>You don't have sufficient privileges to see this page."    
 }
 
-switch $invoice_type_id {
-    702 {
-	set to_invoice_type_id [im_invoice_type_invoice]
+switch $cost_type_id {
+    3702 {
+	set to_cost_type_id [im_cost_type_invoice]
     }
-    706 {
-	set to_invoice_type_id [im_invoice_type_bill]
+    3706 {
+	set to_cost_type_id [im_cost_type_bill]
     }
     default {
-	ad_return_complaint 1 "<li>Bad Document Type $invoice_type_id:<br>
+	ad_return_complaint 1 "<li>Bad Document Type $cost_type_id:<br>
         We expect either a Quote or a Purchase Order as the document type."
     }
 }
@@ -59,8 +55,8 @@ switch $invoice_type_id {
 set todays_date [db_string get_today "select sysdate from dual"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_copy"
-set invoice_type_name [db_string invoice_type_name "select im_category_from_id(:invoice_type_id) from dual"]
-set from_invoice_type_name [db_string invoice_type_name "select im_category_from_id(:from_invoice_type_id) from dual"]
+set cost_type_name [db_string cost_type_name "select im_category_from_id(:cost_type_id) from dual"]
+set from_cost_type_name [db_string cost_type_name "select im_category_from_id(:from_cost_type_id) from dual"]
 
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
@@ -111,7 +107,7 @@ where
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 if {$invoice_or_quote_p} {
     set company_id $customer_id
 } else {
@@ -246,9 +242,9 @@ for {set i 0} {$i < 3} {incr i} {
 # ---------------------------------------------------------------
 
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
-set template_select [im_invoice_template_select invoice_template_id $invoice_template_id]
-set status_select [im_invoice_status_select invoice_status_id $invoice_status_id]
-set type_select [im_invoice_type_select invoice_type_id $invoice_type_id]
+set template_select [im_cost_template_select template_id $template_id]
+set status_select [im_cost_status_select cost_status_id $cost_status_id]
+set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
 set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
 

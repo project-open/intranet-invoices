@@ -103,7 +103,7 @@ BEGIN
         customer_id             => :customer_id,
         provider_id             => :provider_id,
         invoice_date            => sysdate,
-        invoice_template_id     => :invoice_template_id,
+        invoice_template_id     => :template_id,
         cost_status_id		=> :cost_status_id,
         cost_type_id		=> :cost_type_id,
         payment_method_id       => :payment_method_id,

@@ -93,7 +93,7 @@ select
 	cc.country_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type,
-	im_category_from_id(ci.template_id) as invoice_template
+	im_category_from_id(ci.template_id) as template
 from
 	im_invoices i,
 	im_costs ci,

@@ -51,9 +51,9 @@ SELECT
 	cg.group_name as customer_name,
 	im_email_from_user_id(i.creator_id) as creator_email,
 	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
-	im_category_from_id(i.invoice_template_id) as invoice_template,
-	im_category_from_id(i.invoice_status_id) as invoice_status,
-	im_category_from_id(i.invoice_type_id) as invoice_type,
+	im_category_from_id(i.template_id) as template,
+	im_category_from_id(i.cost_status_id) as cost_status,
+	im_category_from_id(i.cost_type_id) as cost_type,
 	im_category_from_id(i.payment_method_id) as payment_method,
 	im_email_from_user_id(i.last_modifying_user) as last_modifying_user_email
 FROM
@@ -95,7 +95,7 @@ values (19013,190,NULL,'invoice_currency','$invoice_currency','','',13,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
-values (19014,190,NULL,'invoice_template','$invoice_template','','',14,'');
+values (19014,190,NULL,'template','$template','','',14,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
@@ -103,7 +103,7 @@ values (19015,190,NULL,'invoice_status','$invoice_status','','',15,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
-values (19017,190,NULL,'invoice_type','$invoice_type','','',17,'');
+values (19017,190,NULL,'cost_type','$cost_type','','',17,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)

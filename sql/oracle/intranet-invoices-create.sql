@@ -354,27 +354,6 @@ where
 commit;
 
 
-create or replace view im_invoice_templates as 
-select 
-	category_id as invoice_template_id, 
-	category as invoice_template, 
-	category_description as invoice_template_description
-from im_categories 
-where category_type = 'Intranet Invoice Template';
-
-create or replace view im_invoice_status as 
-select
-	category_id as invoice_status_id, 
-	category as invoice_status
-from im_categories 
-where category_type = 'Intranet Invoice Status' and
-	category_id not in (600, 612);
-
-create or replace view im_invoice_type as 
-select category_id as invoice_type_id, category as invoice_type
-from im_categories 
-where category_type = 'Intranet Invoice Type';
-
 create or replace view im_payment_type as 
 select category_id as payment_type_id, category as payment_type
 from im_categories 
@@ -424,7 +403,7 @@ extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Docume
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'Preview',
-'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$invoice_template_id>
+'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$template_id>
 $invoice_nr</A>"','','',2,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
@@ -500,48 +479,13 @@ commit;
 
 -- Invoice Status
 delete from im_categories where category_id >= 600 and category_id < 700;
-INSERT INTO im_categories VALUES (600,'In Process',
-'Needs pruning periodically.',
-'Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (602,'Created',
-'Set after the successful creation',
-'Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (604,'Outstanding',
-'Set after sending the invoice to the client',
-'Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (606,'Past Due',
-'Set when an outstanding invoice gets past due',
-'Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (608,'Partially Paid',
-'','Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (610,'Paid',
-'','Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (612,'Deleted',
-'','Intranet Invoice Status','category','t','f');
-INSERT INTO im_categories VALUES (614,'Filed',
-'','Intranet Invoice Status','category','t','f');
+-- now being replaced by "Intranet Cost Status"
 -- reserved until 699
 
 
 -- Invoice Type
 delete from im_categories where category_id >= 700 and category_id < 800;
-INSERT INTO im_categories VALUES (700,'Customer Invoice','','Intranet Invoice Type','category','t','f');
-INSERT INTO im_categories VALUES (702,'Quote','','Intranet Invoice Type','category','t','f');
-INSERT INTO im_categories VALUES (704,'Provider Bill','','Intranet Invoice Type','category','t','f');
-INSERT INTO im_categories VALUES (706,'Purchase Order','','Intranet Invoice Type','category','t','f');
-
-INSERT INTO im_categories VALUES (708,'Customer Documents','','Intranet Invoice Type','category','t','f');
-INSERT INTO im_categories VALUES (710,'Provider Documents','','Intranet Invoice Type','category','t','f');
--- reserved until 799
-
--- "Customer Invoice" and "Quote" are "Customer Documents"
-insert into im_category_hierarchy values (708,700);
-insert into im_category_hierarchy values (708,702);
-
--- "Provider Bills" and "Purchase Orders" are "Provider Documents"
-insert into im_category_hierarchy values (710,704);
-insert into im_category_hierarchy values (710,706);
-
+-- now being replaced by "Intranet Cost Type"
 
 
 -- Invoice Payment Method
@@ -564,12 +508,6 @@ INSERT INTO im_categories VALUES (810,'La Caixa EUR',
 'Intranet Invoice Payment Method','category','t','f');
 commit;
 -- reserved until 899
-
--- Invoice Templates
-delete from im_categories where category_id >= 900 and category_id < 1000;
-INSERT INTO im_categories VALUES (900,'invoice-english.adp','','Intranet Invoice Template','category','t','f');
-INSERT INTO im_categories VALUES (902,'invoice-spanish.adp','','Intranet Invoice Template','category','t','f');
--- reserved until 999
 
 -- Payment Type
 delete from im_categories where category_id >= 1000 and category_id < 1100;
@@ -636,7 +574,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers',
 	name =>		'Customers',
-	url =>		'/intranet-invoices/list?invoice_type_id=708',
+	url =>		'/intranet-invoices/list?invoice_type_id=3708',
 	sort_order =>	10,
 	parent_menu_id => v_finance_menu
     );
@@ -651,7 +589,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers',
 	name =>		'Providers',
-	url =>		'/intranet-invoices/list?invoice_type_id=710',
+	url =>		'/intranet-invoices/list?invoice_type_id=3710',
 	sort_order =>	20,
 	parent_menu_id => v_finance_menu
     );
@@ -711,7 +649,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice',
 	name =>		'New Customer Invoice from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=700',
+	url =>		'/intranet-invoices/new?invoice_type_id=3700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -726,7 +664,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice_from_quote',
 	name =>		'New Customer Invoice from Quote',
-	url =>		'/intranet-invoices/new-copy?invoice_type_id=700\&from_invoice_type_id=702',
+	url =>		'/intranet-invoices/new-copy?invoice_type_id=3700\&from_invoice_type_id=3702',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -741,7 +679,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_quote',
 	name =>		'New Quote from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=702',
+	url =>		'/intranet-invoices/new?invoice_type_id=3702',
 	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -791,7 +729,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill',
 	name =>		'New Provider Bill from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=704',
+	url =>		'/intranet-invoices/new?invoice_type_id=3704',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -806,7 +744,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill_from_po',
 	name =>		'New Provider Bill from Purchase Order',
-	url =>		'/intranet-invoices/new-copy?invoice_type_id=704\&from_invoice_type_id=706',
+	url =>		'/intranet-invoices/new-copy?invoice_type_id=3704\&from_invoice_type_id=3706',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -821,7 +759,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_po',
 	name =>		'New Purchase Order from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=706',
+	url =>		'/intranet-invoices/new?invoice_type_id=3706',
 	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );
