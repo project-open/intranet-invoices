@@ -222,11 +222,11 @@ if { [db_table_exists im_payments] } {
 	(select
 		sum(amount) as payment_amount, 
 		max(currency) as payment_currency,
-		invoice_id 
+		cost_item_id 
 	 from im_payments
-	 group by invoice_id
+	 group by cost_item_id
 	) pa\n"
-    append extra_where "and i.invoice_id=pa.invoice_id(+)\n"
+    append extra_where "and i.invoice_id=pa.cost_item_id(+)\n"
 }
 
 # -----------------------------------------------------------------
