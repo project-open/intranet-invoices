@@ -63,6 +63,8 @@ set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 set cost_note ""
 
+set tax_format "90.9"
+set vat_format "90.9"
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
@@ -84,8 +86,8 @@ if {$invoice_id} {
     db_1row invoices_info_query ""
 
     set invoice_mode "exists"
-    set button_text "[_ intranet-invoices.Edit_cost_type]"
-    set page_title "[_ intranet-invoices.Edit_cost_type_1]"
+    set page_title "[_ intranet-invoices.Edit_cost_type]"
+    set button_text $page_title
     set context_bar [ad_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     # Check if there is a single currency being used in the invoice

@@ -17,7 +17,7 @@ ad_page_contract {
     { invoice_id:integer 0}
     { object_id:integer 0}
     { show_all_comments 0 }
-    { render_template_id:optional,integer "" }
+    { render_template_id:integer "" }
     { return_url "" }
 }
 
@@ -35,6 +35,13 @@ if {![im_permission $user_id view_invoices]} {
     [_ intranet-invoices.lt_Please_contact_your_s]"
     return
 }
+
+#if {"" == $render_template_id} {
+#    ad_return_complaint 1 "[_ intranet-invoices.No_Template_Defined]"
+#    return
+#}
+
+
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
 set bgcolor(0) " class=invoiceroweven"
@@ -52,7 +59,7 @@ set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default ""]
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
