@@ -91,41 +91,30 @@ WHERE
 	invoice_id=:invoice_id"
 
 } else {
-    
+
+
+    # Let's create the new invoice first
     db_dml create_invoice "
-INSERT INTO im_invoices (
-	invoice_id, 
-	invoice_nr,
-	customer_id, 
-	provider_id, 
-	invoice_date,
-	payment_days,
-	payment_method_id,
-	invoice_template_id,
-	vat,
-	tax,
-	invoice_status_id, 
-	invoice_type_id, 
-	last_modified, 
-	last_modifying_user, 
-	modified_ip_address
-) VALUES (
-	:invoice_id, 
-	:invoice_nr,
-	:customer_id, 
-	:provider_id, 
-	:invoice_date,
-	:payment_days,
-	:payment_method_id,
-	:invoice_template_id,
-	:vat,
-	:tax,
-	:invoice_status_created, 
-	:invoice_type_id, 
-	sysdate,
-	:user_id,
-	'[ad_conn peeraddr]'
-)"
+DECLARE
+    v_invoice_id        integer;
+BEGIN
+    v_invoice_id := im_invoice.new (
+        invoice_id              => :invoice_id,
+        creation_user           => :user_id,
+        creation_ip             => '[ad_conn peeraddr]',
+        invoice_nr              => :invoice_nr,
+        customer_id             => :customer_id,
+        provider_id             => :provider_id,
+        invoice_date            => sysdate,
+        invoice_template_id     => :invoice_template_id,
+        invoice_status_id       => :invoice_status_created,
+        invoice_type_id         => :invoice_type_id,
+        payment_method_id       => :payment_method_id,
+        payment_days            => :payment_days,
+        vat                     => :vat,
+        tax                     => :tax
+    );
+END;"
 
 }
 

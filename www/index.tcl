@@ -147,7 +147,7 @@ if { ![empty_string_p $customer_id] && $customer_id != 0 } {
     lappend criteria "i.customer_id=:customer_id"
 }
 if { ![empty_string_p $letter] && [string compare $letter "ALL"] != 0 && [string compare $letter "SCROLL"] != 0 } {
-    lappend criteria "im_first_letter_default_to_a(ug.group_name)=:letter"
+    lappend criteria "im_first_letter_default_to_a(c.customer_name)=:letter"
 }
 
 
@@ -272,8 +272,8 @@ if {[string compare $letter "ALL"]} {
     # query results
     set total_in_limited [db_string invoices_total_in_limited "
 	select count(*) 
-        from im_invoices p, user_groups ug 
-        where p.group_id=ug.group_id $where_clause"]
+        from im_invoices p
+        where 1=1 $where_clause"]
 
     set selection "select z.* from ($limited_query) z $order_by_clause"
 }	
