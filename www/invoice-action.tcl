@@ -54,6 +54,13 @@ switch $submit {
 	#	- Delete from project-invoice-map!!!
 	#
 	set in_clause_list [list]
+
+	# Maybe the list of invoices was empty...
+	if {![info exists del_invoice]} { 
+	    ad_returnredirect $return_url
+	    return
+	}
+
 	foreach invoice_id $del_invoice {
 	    lappend in_clause_list $invoice_id
 	}
