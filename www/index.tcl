@@ -73,11 +73,6 @@ set return_url [im_url_with_query]
 set amp "&"
 set cur_format "99,999.99"
 
-#if {![im_permission $user_id view_invoices]} {
-#    ad_return_complaint "Insufficient Privileges" "
-#    <li>You don't have sufficient privileges to see this page."    
-#}
-
 set invoice_status_created [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
 
 if {$status_id == 0} {

@@ -1,4 +1,9 @@
-# /www/intranet/invoices/view.tcl
+# /packages/intranet-invoices/www/view.tcl
+#
+# Copyright (C) 2003-2004 Project/Open
+#
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
 
 ad_page_contract {
     View all the info about a specific project
@@ -7,10 +12,7 @@ ad_page_contract {
 	   in plain HTML format or formatted using an .adp template
     @param show_all_comments whether to show all comments
 
-    @author mbryzek@arsdigita.com
-    @creation-date Jan 2000
-
-    @cvs-id view.tcl,v 3.50.2.17 2000/10/26 20:14:19 tony Exp
+    @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
     { show_all_comments 0 }
@@ -158,7 +160,7 @@ set receipient_html "
         <tr> 
           <td  class=rowodd>Company name</td>
           <td  class=rowodd>
-            <A href=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>
+            <A href=/intranet/customers/view?group_id=$customer_id>$customer_name</A>
           </td>
         </tr>
         <tr> 
@@ -213,10 +215,10 @@ select
 	p.*
 from
 	im_projects p,
-	im_project_invoice_map m
+	acs_rels r
 where
-	m.invoice_id=:invoice_id
-	and m.project_id=p.project_id
+	r.object_id_one = p.project_id
+	and r.object_id_two = :invoice_id
 "
 
 db_foreach project_list $project_list_sql {
@@ -229,6 +231,17 @@ db_foreach project_list $project_list_sql {
         </tr>
 "
 }
+
+
+#append project_list_html "
+#        <tr>
+#          <td align=left colspan=2>
+#	    <A href=/intranet-invoices/add-project-to-invoice?invoice_id=$invoice_id>
+#	      Add a project
+#	    </A>
+#          </td>
+#        </tr>"
+
 
 # ---------------------------------------------------------------
 # 3. Select and format Invoice Items
