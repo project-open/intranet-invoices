@@ -342,8 +342,8 @@ append item_html "
         </tr>
 "
 
+if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
 append item_html "
-        <tr><td colspan=$colspan>&nbsp;</td></tr>
         <tr>
 	  <td valign=top>[_ intranet-invoices.Payment_Terms]</td>
           <td valign=top colspan=[expr $colspan-1]> 
@@ -353,7 +353,10 @@ append item_html "
         <tr>
 	  <td valign=top>[_ intranet-invoices.Payment_Method_1]</td>
           <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
-        </tr>
+        </tr>\n"
+}
+
+append item_html "
         <tr>
 	  <td valign=top>[_ intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>

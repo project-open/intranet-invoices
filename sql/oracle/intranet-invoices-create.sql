@@ -410,8 +410,8 @@ begin
     -- needs to be the first submenu in order to get selected
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_companies',
-	name =>		'Companies',
+	label =>	'invoices_customers',
+	name =>		'Customers',
 	url =>		'/intranet-invoices/list?cost_type_id=3708',
 	sort_order =>	10,
 	parent_menu_id => v_finance_menu
@@ -472,8 +472,8 @@ begin
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_companies_new_invoice',
-	name =>		'New Company Invoice from scratch',
+	label =>	'invoices_customers_new_invoice',
+	name =>		'New Customer Invoice from scratch',
 	url =>		'/intranet-invoices/new?cost_type_id=3700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
@@ -487,8 +487,8 @@ begin
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_companies_new_invoice_from_quote',
-	name =>		'New Company Invoice from Quote',
+	label =>	'invoices_customers_new_invoice_from_quote',
+	name =>		'New Customer Invoice from Quote',
 	url =>		'/intranet-invoices/new-copy?cost_type_id=3700\&from_cost_type_id=3702',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu

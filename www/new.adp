@@ -31,18 +31,20 @@
 	            <input type=text name=invoice_date size=15 value='@effective_date@'>
 	          </td>
 	        </tr>
+
+<if @invoice_or_bill_p@>
 	        <tr> 
 	          <td class=roweven>#intranet-invoices.Payment_terms#</td>
 	          <td class=roweven> 
 	            <input type=text name=payment_days size=5 value='@payment_days@'>
 	            #intranet-invoices.days#</td>
 	        </tr>
-<if @invoice_or_bill_p@>
 	        <tr> 
 	          <td class=rowodd>#intranet-invoices.Payment_Method#</td>
 	          <td class=rowodd>@payment_method_select;noquote@</td>
 	        </tr>
 </if>
+
 	        <tr> 
 	          <td class=roweven> #intranet-invoices.cost_type_template#</td>
 	          <td class=roweven>@template_select;noquote@</td>

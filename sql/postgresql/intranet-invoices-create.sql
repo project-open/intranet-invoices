@@ -439,8 +439,8 @@ begin
         null,				-- creation_ip
         null,				-- context_id
 	''intranet-invoices'',		-- package_name
-	''invoices_companies'',		-- label
-	''Companies'',			-- name
+	''invoices_customers'',		-- label
+	''Customers'',			-- name
 	''/intranet-invoices/list?cost_type_id=3708'',	-- url
 	10,						-- sort_order
 	v_finance_menu,					-- parent_menu_id
@@ -520,8 +520,8 @@ begin
         null,                           -- creation_ip
         null,                           -- context_id
 	''intranet-invoices'',		-- package_name
-	''invoices_companies_new_invoice'',	-- label
-	''New Company Invoice from scratch'',	-- name
+	''invoices_customers_new_invoice'',	-- label
+	''New Customer Invoice from scratch'',	-- name
 	''/intranet-invoices/new?cost_type_id=3700'',	-- url
 	10,						-- sort_order
 	v_invoices_new_menu,				-- parent_menu_id
@@ -542,8 +542,8 @@ begin
         null,                           -- creation_ip
         null,                           -- context_id
 	''intranet-invoices'',		-- package_name
-	''invoices_companies_new_invoice_from_quote'',	-- label
-	''New Company Invoice from Quote'',		-- name
+	''invoices_customers_new_invoice_from_quote'',	-- label
+	''New Customer Invoice from Quote'',		-- name
 	''/intranet-invoices/new-copy?cost_type_id=3700\&from_cost_type_id=3702'',	-- url
 	20,										-- sort_order
 	v_invoices_new_menu,								-- parent_menu_id

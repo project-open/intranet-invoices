@@ -73,6 +73,7 @@ set return_url [im_url_with_query]
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
 set cur_format "99,999.99"
+set date_format "YYYY-MM-DD"
 set local_url "list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
@@ -229,18 +230,6 @@ set extra_select ""
 set extra_from ""
 set extra_where ""
 
-if { [db_table_exists im_payments] } {
-    append extra_select ", pa.payment_amount, pa.payment_currency\n"
-    append extra_from ", 
-	(select
-		sum(amount) as payment_amount, 
-		max(currency) as payment_currency,
-		cost_id 
-	 from im_payments
-	 group by cost_id
-	) pa\n"
-    append extra_where "and i.invoice_id=pa.cost_id\n"
-}
 
 # -----------------------------------------------------------------
 # Main SQL
@@ -249,11 +238,13 @@ if { [db_table_exists im_payments] } {
 set sql "
 select
         i.*,
-	(to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days) as due_date_calculated,
+	(to_date(to_char(i.invoice_date,:date_format),:date_format) + i.payment_days) as due_date_calculated,
 	o.object_type,
-	ii.invoice_amount,
-	ii.invoice_currency,
-	to_char(ii.invoice_amount,:cur_format) as invoice_amount_formatted,
+	ci.amount as invoice_amount,
+	ci.currency as invoice_currency,
+	ci.paid_amount as payment_amount,
+	ci.paid_currency as payment_currency,
+	to_char(ci.amount,:cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
         c.company_name,
@@ -262,27 +253,20 @@ select
 	p.company_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
         im_category_from_id(i.cost_type_id) as cost_type,
-	sysdate - (to_date(to_char(i.invoice_date, 'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days) as overdue
+	to_date(:today, :date_format) - (to_date(to_char(i.invoice_date, :date_format),:date_format) + i.payment_days) as overdue
 	$extra_select
 from
         im_invoices_active i,
-        dual,
+        im_costs ci,
 	acs_objects o,
         im_companies c,
-        im_companies p,
-        (select
-                invoice_id,
-                sum(item_units * price_per_unit) as invoice_amount,
-		max(currency) as invoice_currency
-         from im_invoice_items
-         group by invoice_id
-        ) ii
+        im_companies p
 	$extra_from
 where
 	i.invoice_id = o.object_id
+	and i.invoice_id = ci.cost_id
  	and i.customer_id=c.company_id
         and i.provider_id=p.company_id
-        and i.invoice_id=ii.invoice_id
 	$company_where
         $where_clause
 	$extra_where

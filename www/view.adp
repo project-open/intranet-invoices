@@ -50,14 +50,15 @@
           </td>
 	</tr>
         <tr>
-          <td  class=rowodd>@cost_type@ Nr.:</td>
+          <td  class=rowodd>#intranet-invoices.cost_type_nr#.:</td>
           <td  class=rowodd>@invoice_nr@</td>
         </tr>
         <tr> 
-          <td  class=roweven>@cost_type@ Date:</td>
+          <td  class=roweven>#intranet-invoices.cost_type_date#:</td>
           <td  class=roweven>@invoice_date_pretty@</td>
         </tr>
 
+<if @invoice_or_bill_p@>
         <tr> 
           <td  class=rowodd>#intranet-invoices.cost_type_due_date#</td>
           <td  class=rowodd>@due_date@</td>
@@ -73,6 +74,9 @@
           <td class=rowodd>@invoice_payment_method@</td>
 	</tr>
 
+</if>
+
+
 	<tr>
           <td class=roweven>#intranet-invoices.cost_type_template#</td>
           <td class=roweven>@template@</td>
@@ -84,7 +88,7 @@
         </tr>
 
         <tr> 
-          <td class=rowodd>@cost_type@ Status:</td>
+          <td class=rowodd>#intranet-invoices.cost_type_status#:</td>
           <td class=rowodd>@cost_status@</td>
         </tr>
 
