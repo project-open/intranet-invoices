@@ -1,6 +1,7 @@
 <master src="../../intranet-core/www/master">
 <property name=title>#intranet-invoices.Add_a_user#</property>
 <property name="context">@context;noquote@</property>
+<property name="main_navbar_label">finance</property>
 
 <H1>#intranet-invoices.lt_Send_cost_type_via_Em#</H1>
 

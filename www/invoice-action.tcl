@@ -56,10 +56,7 @@ switch $submit {
         foreach cost_id $del_cost {
             set otype $object_type($cost_id)
             # ToDo: Security
-            db_dml delete_cost_item "
-                begin
-                        ${otype}.del(:cost_id);
-                end;"
+            db_string delete_cost_item ""
             lappend in_clause_list $cost_id
         }
         set cost_where_list "([join $in_clause_list ","])"

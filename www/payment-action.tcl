@@ -30,8 +30,7 @@ if {"" != $del} {
     ns_log Notice "payment-action: delete payments: $payment_id"
 
     foreach pid $payment_id {
-	
-	db_dml delete_payment "delete from im_payments where payment_id=:pid"
+	db_dml delete_payment "delete from im_payments where payment_id = :pid"
     }
     ad_returnredirect $return_url
     return

@@ -1,5 +1,6 @@
 <master src="../../intranet-core/www/master">
 <property name="title">@page_title;noquote@</property>
+<property name="main_navbar_label">finance</property>
 
 <%= [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""] %>
 
@@ -40,11 +41,11 @@
 </table>
 
 <!-- Invoice Data and Receipient Tables -->
-<table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width=100%>
+<table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width="100%">
   <tr valign=top> 
     <td>
 
-	<table border=0 cellPadding=0 cellspacing=2 width=100%>
+	<table border=0 cellPadding=0 cellspacing=2 width="100%">
         <tr>
 	  <td align=middle class=rowtitle colspan=2>#intranet-invoices.cost_type_Data#
           </td>
@@ -103,7 +104,7 @@
     </td>
     <td></td>
     <td align=right>
-      <table border=0 cellspacing=2 cellpadding=0 width=100%>
+      <table border=0 cellspacing=2 cellpadding=0 width="100%">
 
         <tr><td align=center valign=top class=rowtitle colspan=2> #intranet-invoices.Recipient#</td></tr>
         <tr> 
@@ -150,9 +151,9 @@
   </tr>
 </table>
 
-<table cellpadding=0 cellspacing=2 border=0 width=100%>
+<table cellpadding=0 cellspacing=2 border=0 width="100%">
 <tr><td align=right>
-  <table cellpadding=1 cellspacing=2 border=0 width=100%>
+  <table cellpadding=1 cellspacing=2 border=0 width="100%">
     @item_html;noquote@
   </table>
 </td></tr>

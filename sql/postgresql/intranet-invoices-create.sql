@@ -270,7 +270,7 @@ begin
 	where		invoice_id = p_invoice_id;
 
 	-- Erase the CostItem
-	select im_cost__del(p_invoice_id);
+	PERFORM im_cost__delete(p_invoice_id);
 	return 0;
 end;' language 'plpgsql';
 
