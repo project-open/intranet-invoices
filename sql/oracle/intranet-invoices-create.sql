@@ -37,6 +37,8 @@
 -- well as the status of the projects tasks of those 
 -- projects (if the project-tasks module is installed).
 
+set escape \
+
 ---------------------------------------------------------
 -- Invoices
 --
@@ -251,11 +253,6 @@ is
 end im_invoice;
 /
 show errors
-
-
-
-
-
 
 
 
@@ -488,27 +485,31 @@ insert into im_view_columns values (3001,30,NULL,'Invoice #',
 
 insert into im_view_columns values (3003,30,NULL,'Preview',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$invoice_template_id>
-$invoice_nr</A>"','','',2,'');
+$invoice_nr</A>"','','',3,'');
+
+insert into im_view_columns values (3004,30,NULL,'Provider',
+'"<A HREF=/intranet/customers/view?customer_id=$provider_id>$provider_name</A>"',
+'','',4,'');
 
 insert into im_view_columns values (3005,30,NULL,'Client',
 '"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"',
-'','',3,'');
+'','',5,'');
 
 insert into im_view_columns values (3007,30,NULL,'Due Date',
 '[if {$overdue > 0} {
 	set t "<font color=red>$due_date_calculated</font>"
 } else {
 	set t "$due_date_calculated"
-}]','','',4,'');
+}]','','',7,'');
 
 insert into im_view_columns values (3011,30,NULL,'Amount',
-'$invoice_amount_formatted $invoice_currency','','',6,'');
+'$invoice_amount_formatted $invoice_currency','','',11,'');
 
 insert into im_view_columns values (3013,30,NULL,'Paid',
-'$payment_amount $payment_currency','','',7,'');
+'$payment_amount $payment_currency','','',13,'');
 
 insert into im_view_columns values (3017,30,NULL,'Status',
-'[im_invoice_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',13,'');
+'[im_invoice_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
 
 insert into im_view_columns values (3098,30,NULL,'Del',
 '[if {[string equal "" $payment_amount]} {
@@ -568,12 +569,21 @@ INSERT INTO im_categories VALUES (614,'Filed',
 
 -- Invoice Type
 delete from im_categories where category_id >= 700 and category_id < 800;
-INSERT INTO im_categories VALUES (700,'Normal','','Intranet Invoice Type','category','t','f');
+INSERT INTO im_categories VALUES (700,'Customer Invoice','','Intranet Invoice Type','category','t','f');
+INSERT INTO im_categories VALUES (702,'Quote','','Intranet Invoice Type','category','t','f');
+INSERT INTO im_categories VALUES (704,'Provider Bill','','Intranet Invoice Type','category','t','f');
+INSERT INTO im_categories VALUES (706,'Purchase Order','','Intranet Invoice Type','category','t','f');
 -- reserved until 799
 
 
 -- Invoice Payment Method
 delete from im_categories where category_id >= 800 and category_id < 900;
+
+INSERT INTO im_categories VALUES (800,'Undefined',
+'Not defined yet','Intranet Invoice Payment Method','category','t','f');
+INSERT INTO im_categories VALUES (802,'Cash',
+'Cash or cash equivalent','Intranet Invoice Payment Method','category','t','f');
+
 INSERT INTO im_categories VALUES (804,'Cheque EUR',
 'Check in EUR payable to company','Intranet Invoice Payment Method','category','t','f');
 INSERT INTO im_categories VALUES (806,'Cheque USD',
@@ -601,29 +611,26 @@ commit;
 -- reserved until 1099
 
 
----------------------------------------------------------
--- Register the component in the core TCL pages
---
--- These DB-entries allow the pages of Project/Open Core
--- to render the forum components in the Home, Users, Projects
--- and Customer pages.
---
--- The TCL code in the "component_tcl" field is executed
--- via "im_component_bay" in an "uplevel" statemente, exactly
--- as if it would be written inside the .adp <%= ... %> tag.
--- I know that's relatively dirty, but TCL doesn't provide
--- another way of "late binding of component" ...
 
+---------------------------------------------------------
+-- Invoice Menus and Components
+--
 
 -- delete potentially existing menus and plugins if this
 -- file is sourced multiple times during development...
 
+-- delete the intranet-payments menus because they are 
+-- located below intranet-invoices modules and would
+-- cause a RI error.
+
 BEGIN
     im_component_plugin.del_module(module_name => 'intranet-invoices');
+    im_menu.del_module(module_name => 'intranet-payments');
     im_menu.del_module(module_name => 'intranet-invoices');
 END;
 /
 commit;
+
 
 
 -- Setup the "Invoice" main menu entry
@@ -658,7 +665,7 @@ begin
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices',
-	name =>		'Invoices',
+	name =>		'Finance',
 	url =>		'/intranet-invoices/',
 	sort_order =>	80,
 	parent_menu_id => v_main_menu
@@ -671,7 +678,7 @@ begin
     acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
 
     -- -----------------------------------------------------
-    -- Invoices Submenus
+    -- Invoices Submenu
     -- -----------------------------------------------------
 
     -- needs to be the first submenu in order to get selected
@@ -679,7 +686,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_list',
 	name =>		'Invoices',
-	url =>		'/intranet-invoices/index',
+	url =>		'/intranet-invoices/list?invoice_type_id=700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_menu
     );
@@ -692,10 +699,53 @@ begin
 
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
+	label =>	'quote_list',
+	name =>		'Quotes',
+	url =>		'/intranet-invoices/list?invoice_type_id=702',
+	sort_order =>	12,
+	parent_menu_id => v_invoices_menu
+    );
+    acs_permission.grant_permission(v_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_menu, v_freelancers, 'read');
+
+    v_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'bill_list',
+	name =>		'Provider Bills',
+	url =>		'/intranet-invoices/list?invoice_type_id=704',
+	sort_order =>	14,
+	parent_menu_id => v_invoices_menu
+    );
+    acs_permission.grant_permission(v_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_menu, v_freelancers, 'read');
+
+    v_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'po_list',
+	name =>		'POs',
+	url =>		'/intranet-invoices/list?invoice_type_id=706',
+	sort_order =>	16,
+	parent_menu_id => v_invoices_menu
+    );
+    acs_permission.grant_permission(v_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_menu, v_freelancers, 'read');
+
+
+    v_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
 	label =>	'invoices_new',
-	name =>		'New Invoice',
-	url =>		'/intranet-invoices/new',
-	sort_order =>	80,
+	name =>		'New',
+	url =>		'/intranet-invoices/',
+	sort_order =>	90,
 	parent_menu_id => v_invoices_menu
     );
     acs_permission.grant_permission(v_menu, v_admins, 'read');
@@ -705,6 +755,131 @@ begin
 end;
 /
 commit;
+
+
+-- Setup the "Invoice New" items for the basic Financial items
+--
+declare
+        -- Menu IDs
+        v_menu                  integer;
+        v_invoices_new_menu	integer;
+	v_invoices_menu		integer;
+
+        -- Groups
+        v_employees             integer;
+        v_accounting            integer;
+        v_senman                integer;
+        v_customers             integer;
+        v_freelancers           integer;
+        v_proman                integer;
+        v_admins                integer;
+begin
+
+    select group_id into v_admins from groups where group_name = 'P/O Admins';
+    select group_id into v_senman from groups where group_name = 'Senior Managers';
+    select group_id into v_accounting from groups where group_name = 'Accounting';
+    select group_id into v_customers from groups where group_name = 'Customers';
+    select group_id into v_freelancers from groups where group_name = 'Freelancers';
+
+    select menu_id
+    into v_invoices_new_menu
+    from im_menus
+    where label='invoices_new';
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_invoice',
+	name =>		'New Customer Invoice',
+	url =>		'/intranet-invoices/new?invoice_type_id=700',
+	sort_order =>	10,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_invoice_from_quote',
+	name =>		'New Customer Invoice from Quote',
+	url =>		'/intranet-invoices/new-copy?invoice_type_id=700\&from_invoice_type_id=702',
+	sort_order =>	12,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_quote',
+	name =>		'New Quote',
+	url =>		'/intranet-invoices/new?invoice_type_id=702',
+	sort_order =>	20,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_bill_from_po',
+	name =>		'New Provider Bill',
+	url =>		'/intranet-invoices/new?invoice_type_id=704',
+	sort_order =>	30,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_bill',
+	name =>		'New Provider Bill from Purchase Order',
+	url =>		'/intranet-invoices/new-copy?invoice_type_id=704\&from_invoice_type_id=706',
+	sort_order =>	32,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'new_po',
+	name =>		'New Purchase Order',
+	url =>		'/intranet-invoices/new?invoice_type_id=706',
+	sort_order =>	40,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+end;
+/
+commit;
+
 
 
 -- Show the invoice component in project page

@@ -30,6 +30,10 @@ ad_proc -public im_invoice_type_quote {} { return 702 }
 ad_proc -public im_invoice_type_bill {} { return 704 }
 ad_proc -public im_invoice_type_po {} { return 706 }
 
+# Payment Methods
+ad_proc -public im_payment_method_undefined {} { return 800 }
+ad_proc -public im_payment_method_cash {} { return 802 }
+
 
 ad_proc -public im_package_invoices_id { } {
 } {
@@ -251,7 +255,7 @@ order by
 	append invoice_html "
 <tr$bgcolor([expr $ctr % 2])>
   <td colspan=$colspan align=center>
-    <I>No invoices yet for this project</I>
+    <I>No financial documents yet for this project</I>
   </td>
 </tr>\n"
 	incr ctr
@@ -273,8 +277,19 @@ order by
 	append invoice_html "
 <tr>
   <td colspan=$colspan align=left>
-    <A href=/intranet-invoices/new?project_id=$project_id>
-      Create a new invoice for this project
+    <A href=/intranet-invoices/index?project_id=$project_id>
+      Create a new document for this project
+    </A>
+  </td>
+</tr>\n"
+    }
+
+    if {"" != $customer_id} {
+    append invoice_html "
+<tr>
+  <td colspan=$colspan align=right>
+    <A href=/intranet-invoices/index?customer_id=$customer_id>
+      Create a new document for this customer
     </A>
   </td>
 </tr>\n"

@@ -18,6 +18,7 @@ ad_page_contract {
     { object_id:integer 0}
     { show_all_comments 0 }
     { render_template_id:optional,integer "" }
+    { return_url "" }
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -34,9 +35,8 @@ if {![im_permission $user_id view_customers]} {
     Please contact your system administrator if you feel that this is an error.
     return
 }
-set page_title "One invoice"
-set context_bar [ad_context_bar [list /intranet-invoices/ "Invoices"] $page_title]
-set return_url [im_url_with_query]
+if {"" == $return_url} { set return_url [im_url_with_query] }
+
 
 set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
@@ -131,9 +131,12 @@ where
 "
 
 if { ![db_0or1row projects_info_query $query] } {
-    ad_return_complaint 1 "Can't find the invoice id of $invoice_id"
+    ad_return_complaint 1 "Can't find the document# $invoice_id"
     return
 }
+
+set page_title "One $invoice_type"
+set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title]
 
 
 # ---------------------------------------------------------------
@@ -141,17 +144,17 @@ if { ![db_0or1row projects_info_query $query] } {
 # ---------------------------------------------------------------
 
 set invoice_data_html "
-        <tr><td align=middle class=rowtitle colspan=2>Invoice Data</td></tr>
+        <tr><td align=middle class=rowtitle colspan=2>$invoice_type Data</td></tr>
         <tr>
-          <td  class=rowodd>Invoice nr.:</td>
+          <td  class=rowodd>$invoice_type nr.:</td>
           <td  class=rowodd>$invoice_nr</td>
         </tr>
         <tr> 
-          <td  class=roweven>Invoice date:</td>
+          <td  class=roweven>$invoice_type date:</td>
           <td  class=roweven>$invoice_date</td>
         </tr>
 <!--        <tr> 
-          <td  class=rowodd>Invoice due date:</td>
+          <td  class=rowodd>$invoice_type due date:</td>
           <td  class=rowodd>$due_date</td>
         </tr>
 -->
@@ -164,8 +167,12 @@ set invoice_data_html "
           <td class=rowodd>$invoice_payment_method</td>
         </tr>
         <tr> 
-          <td class=roweven> Invoice template:</td>
+          <td class=roweven> $invoice_type template:</td>
           <td class=roweven>$invoice_template</td>
+        </tr>
+        <tr> 
+          <td class=roweven> $invoice_type type:</td>
+          <td class=roweven>$invoice_type</td>
         </tr>
 "
 
@@ -221,7 +228,7 @@ set receipient_html "
 
 set project_list_html "
         <tr>
-          <td align=middle class=rowtitle colspan=2>Invoice Projects</td>
+          <td align=middle class=rowtitle colspan=2>Related Projects</td>
         </tr>"
 
 set project_list_sql "
@@ -247,14 +254,14 @@ db_foreach project_list $project_list_sql {
 }
 
 
-#append project_list_html "
-#        <tr>
-#          <td align=left colspan=2>
-#	    <A href=/intranet-invoices/add-project-to-invoice?invoice_id=$invoice_id>
-#	      Add a project
-#	    </A>
-#          </td>
-#        </tr>"
+append project_list_html "
+        <tr>
+          <td align=left colspan=2>
+	    <A href=/intranet-invoices/add-project-to-invoice?invoice_id=$invoice_id>
+	      Add a related Project
+	    </A>
+          </td>
+        </tr>"
 
 
 # ---------------------------------------------------------------
@@ -266,7 +273,7 @@ if {[db_table_exists im_payments]} {
 
     set payment_list_html "
         <tr>
-          <td align=middle class=rowtitle colspan=2>Invoice Payments</td>
+          <td align=middle class=rowtitle colspan=2>Related Payments</td>
         </tr>"
 
     set payment_list_sql "
@@ -454,8 +461,8 @@ if {[exists_and_not_null render_template_id]} {
     append invoice_template_path [db_string sel_invoice "select category from im_categories where category_id=:render_template_id"]
 
    if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
-	ad_return_complaint "Unknown Invoice Template" "
-	<li>Invoice template '$invoice_template_path' doesn't exist or is not readable
+	ad_return_complaint "Unknown $invoice_type Template" "
+	<li>$invoice_type template '$invoice_template_path' doesn't exist or is not readable
 	for the web server. Please notify your system administrator."
 	return
     }
@@ -483,14 +490,27 @@ if {[exists_and_not_null render_template_id]} {
           <table border=0 cellPadding=0 cellspacing=2 width=100%>
 	    $invoice_data_html
 
-	    <tr><td colspan=2 align=right>
+	    <tr>
+              <td colspan=2 align=right>
+
+                <table>
+                  <tr>
+                    <td>  
+
 		<form action=new method=POST>
 		  <A HREF=/intranet-invoices/view?[export_url_vars return_url invoice_id render_template_id]>Preview</A>
 
 		  [export_form_vars return_id invoice_id]
 		  <input type=submit value='Edit'>
 		</form>
-	    </td></tr>
+
+                    </td>
+                  </tr>
+                </table>
+
+
+	      </td>
+            </tr>
           </table>
 
           <table border=0 cellPadding=0 cellspacing=2>

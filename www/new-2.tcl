@@ -20,9 +20,9 @@ ad_page_contract {
     invoice_nr
     invoice_date
     { invoice_status_id 602 }
-    { invoice_type_id 700 }
+    { invoice_type_id "[im_invoice_type_invoice]" }
     payment_days:integer
-    payment_method_id:integer
+    { payment_method_id:integer "[im_payment_method_undefined]" }
     invoice_template_id:integer
     vat
     tax
@@ -38,20 +38,39 @@ ad_page_contract {
 }
 
 # ---------------------------------------------------------------
+# Determine whether it's an Invoice or a Bill
+# ---------------------------------------------------------------
+
+# Invoices and Quotes have a "Customer" fields.
+set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
+ns_log Notice "intranet-invoices/new-2: invoice_or_quote_p=$invoice_or_quote_p"
+
+# Invoices and Bills have a "Payment Terms" field.
+set invoice_or_bill_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_bill]]
+ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
+
+if {$invoice_or_quote_p} {
+    set company_id $customer_id
+} else {
+    set company_id $provider_id
+}
+
+# ---------------------------------------------------------------
 # Defaults & Security
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id add_invoices]} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
+    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
+    return
 }
 
-set invoice_status_created [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
+# Invoices and Bills need a payment method, quotes and POs not
+if {$invoice_or_bill_p && !$payment_method_id} {
+    ad_return_complaint 1 "<li>No payment method specified"
+    return
+}
 
-set invoice_status_in_process [db_string invoice_status "select category_id from im_categories where category_type='Intranet Invoice Status' and upper(category)='IN PROCESS'"]
-
-set project_status_invoiced [db_string project_status "select category_id from im_categories where category_type='Intranet Project Status' and upper(category)='INVOICED'"]
 
 set customer_internal [db_string customer_internal "select customer_id from im_customers where lower(customer_path) = 'internal'" -default 0]
 if {!$customer_internal} {
@@ -85,7 +104,7 @@ BEGIN
         provider_id             => :provider_id,
         invoice_date            => sysdate,
         invoice_template_id     => :invoice_template_id,
-        invoice_status_id       => :invoice_status_created,
+        invoice_status_id       => [im_invoice_status_created],
         invoice_type_id         => :invoice_type_id,
         payment_method_id       => :payment_method_id,
         payment_days            => :payment_days,

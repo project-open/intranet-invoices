@@ -1,4 +1,4 @@
-# /packages/intranet-invoices/www/new.tcl
+# /packages/intranet-invoices/www/new-copy.tcl
 #
 # Copyright (C) 2003-2004 Project/Open
 #
@@ -10,21 +10,28 @@
 # ---------------------------------------------------------------
 
 ad_page_contract { 
-    Receives the list of tasks to invoice, creates a draft invoice
-    (status: "In Process") and displays it.
-    Provides a button to advance to new-2.tcl, which takes the final
-    steps of invoice generation by setting the state of the invoice
-    to "Created" and the state of the associates im_tasks to "Invoiced".
+    Creates a new financial document from an existing one.
+    Typically you create:
+    - Bill from PO and
+    - Invoice from Quote.
+    The page allows the user to select the original document
+    and creates a copy with the new invoice_type_id.
+    Also, a new document nr is created (it's unique).
+
+    @param invoice_id - Indicates a specific financial document
+           to be taken as the base for the copy
+    @invoice_type_id Document type for the new document
+    @from_invoice_type_id Document type of the original
+    @project_id Restricts the search for originals to a project
+    @customer_id Restricts the search for originals to a company
 
     @author frank.bergmann@project-open.com
 } {
-    { include_task:multiple "" }
     { invoice_id:integer 0}
     { invoice_type_id:integer "[im_invoice_type_invoice]" }
-    { customer_id:integer 0}
-    { provider_id:integer 0}
-    { project_id:integer 0}
-    { invoice_currency ""}
+    { from_invoice_type_id:integer "[im_invoice_type_invoice]" }
+    { project_id 0 }
+    { customer_id 0 }
     { return_url "/intranet-invoice/"}
 }
 
@@ -32,21 +39,20 @@ ad_page_contract {
 # 2. Defaults & Security
 # ---------------------------------------------------------------
 
-# User id already verified by filters
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
 }
 
-set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
 set page_focus "im_header_form.keywords"
-set view_name "invoice_tasks"
+set view_name "invoice_copy"
+set invoice_type_name [db_string invoice_type_name "select im_category_from_id(:invoice_type_id) from dual"]
+set from_invoice_type_name [db_string invoice_type_name "select im_category_from_id(:from_invoice_type_id) from dual"]
 
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
-set required_field "<font color=red size=+1><B>*</B></font>"
 
 
 # Tricky case: Sombebody has called this page from a project
@@ -73,21 +79,15 @@ if {0 != $project_id} {
 #
 if {$invoice_id} {
     # We are editing an already existing invoice
+    #
+    set invoice_mode "exists"
+    set button_text "Edit $invoice_type_name"
+    set page_title "Edit $invoice_type_name"
+    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     db_1row invoices_info_query "
-select
-	i.invoice_nr,
-	i.customer_id,
-	i.provider_id,
-	i.invoice_date,
-	i.payment_days,
-	i.vat,
-	i.tax,
-	i.payment_method_id,
-	i.invoice_template_id,
-	i.invoice_status_id,
-	i.invoice_type_id,
-	im_category_from_id(i.invoice_type_id) as invoice_type,
+select 
+	i.*,
 	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
 	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
 	c.customer_name as customer_name,
@@ -101,16 +101,13 @@ from
 where 
         i.invoice_id=:invoice_id
 	and i.customer_id=c.customer_id(+)
-	and i.provider_id=p.customer_id(+)"
-
-    set invoice_mode "exists"
-    set button_text "Edit $invoice_type"
-    set page_title "Edit $invoice_type"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
+	and i.provider_id=p.customer_id(+)
+    "
 
     # Check if there is a single currency being used in the invoice
     # and get it.
     # This should always be the case, but doesn't need to...
+
     if {"" == $invoice_currency} {
 	catch {
 	    db_1row invoices_currency_query "
@@ -132,9 +129,8 @@ where
     # Build the list of selected tasks ready for invoices
     set invoice_mode "new"
     set in_clause_list [list]
-    set invoice_type [db_string invoice_type "select im_category_from_id(:invoice_type_id) from dual"]
-    set button_text "New $invoice_type"
-    set page_title "New $invoice_type"
+    set button_text "New $invoice_type_name"
+    set page_title "New $invoice_type_name"
     set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     set invoice_id [im_new_object_id]
@@ -154,31 +150,35 @@ where
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-# Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
-
-# Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_bill]]
-
 if {$invoice_or_quote_p} {
     set company_id $customer_id
 } else {
     set company_id $provider_id
 }
 
-
 # ---------------------------------------------------------------
-# Calculate the selects for the ADP page
+# Gather customer data from customer_id (both edit or new modes)
 # ---------------------------------------------------------------
 
-set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
-set template_select [im_invoice_template_select invoice_template_id $invoice_template_id]
-set status_select [im_invoice_status_select invoice_status_id $invoice_status_id]
-set type_select [im_invoice_type_select invoice_type_id $invoice_type_id]
-set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
-set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
-
-
+db_0or1row invoices_info_query "
+select 
+        o.*,
+	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
+	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
+	c.customer_name as company_name,
+	c.customer_path as company_short_name,
+        cc.country_name company_country_name
+from
+	im_customers c, 
+        im_offices o,
+        country_codes cc
+where 
+        c.customer_id = :customer_id
+        and c.main_office_id=o.office_id(+)
+        and o.address_country_code=cc.iso(+)
+"
+ns_log Notice "after looking up customer #$customer_id"
 
 
 # ---------------------------------------------------------------
@@ -330,6 +330,20 @@ for {set i 0} {$i < 3} {incr i} {
 
     incr ctr
 }
+
+
+
+
+# ---------------------------------------------------------------
+# Calculate the selects for the ADP page
+# ---------------------------------------------------------------
+
+set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
+set template_select [im_invoice_template_select invoice_template_id $invoice_template_id]
+set status_select [im_invoice_status_select invoice_status_id $invoice_status_id]
+set type_select [im_invoice_type_select invoice_type_id $invoice_type_id]
+set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
+set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
 
 
 db_release_unused_handles
