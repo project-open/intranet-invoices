@@ -13,11 +13,6 @@ ad_library {
     @author frank.bergann@project-open.com
 }
 
-# Payment Methods
-ad_proc -public im_payment_method_undefined {} { return 800 }
-ad_proc -public im_payment_method_cash {} { return 802 }
-
-
 ad_proc -public im_package_invoices_id { } {
 } {
     return [util_memoize "im_package_invoices_id_helper"]
