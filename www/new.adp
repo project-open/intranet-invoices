@@ -86,7 +86,7 @@
 		  <td class=roweven>#intranet-invoices.Provider_1#</td>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
-		<input type=hidden name=company_id value=@company_id@>
+		<input type=hidden name=customer_id value=@customer_id@>
 
 </else>
 

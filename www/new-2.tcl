@@ -14,7 +14,7 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
-    { company_id:integer "" }
+    { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
     invoice_nr
@@ -51,7 +51,7 @@ set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_typ
 ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
-    set company_id $company_id
+    set company_id $customer_id
 } else {
     set company_id $provider_id
 }
@@ -73,7 +73,7 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
 }
 
 if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
-if {"" == $company_id || 0 == $company_id} { set company_id [im_company_internal] }
+if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_internal] }
 
 
 set project_id ""
@@ -110,7 +110,7 @@ update im_costs
 set
 	project_id	= :project_id,
 	cost_name	= :invoice_nr,
-	customer_id	= :company_id,
+	customer_id	= :customer_id,
 	cost_nr		= :invoice_id,
 	provider_id	= :provider_id,
 	cost_status_id	= :cost_status_id,
