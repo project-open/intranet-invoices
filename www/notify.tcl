@@ -36,7 +36,7 @@ if {![im_permission $user_id view_invoices]} {
 # --------------------------------------------------------
 
 set system_name [ad_system_name]
-set object_name [db_string project_name "select acs_object.name(:invoice_id) from dual"]
+set object_name [db_string project_name ""]
 set page_title "[_ intranet-invoices.Notify_user]"
 set context [list $page_title]
 set current_user_name [db_string cur_user "select im_name_from_user_id(:user_id) from dual"]

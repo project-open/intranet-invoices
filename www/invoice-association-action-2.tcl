@@ -29,17 +29,7 @@ if {![im_permission $user_id add_invoices]} {
 # ---------------------------------------------------------------
 # Update association
 # ---------------------------------------------------------------
-
-db_dml insert_association "
-    DECLARE
-	v_rel_id	integer;
-    BEGIN
-	v_rel_id := acs_rel.new(
-		object_id_one => :object_id,
-		object_id_two => :invoice_id
-	);
-    END;
-"
+set association_id [db_exec_plsql insert_association {} ]
 
 db_release_unused_handles
 ad_returnredirect $return_url
