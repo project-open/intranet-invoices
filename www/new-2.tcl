@@ -27,7 +27,7 @@ ad_page_contract {
     tax
     item_sort_order:array
     item_name:array
-    item_units:integer,array
+    item_units:float,array
     item_uom_id:integer,array
     item_type_id:integer,array
     item_project_id:integer,array
