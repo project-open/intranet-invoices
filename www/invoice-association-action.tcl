@@ -56,19 +56,7 @@ set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title
 if {"" != $del_action && [info exists object_ids]} {
     foreach object_id [array names object_ids] {
 	ns_log Notice "intranet-invoices/invoice-associtation-action: deleting object_id=$object_id"
-	db_dml delete_association "
-	DECLARE
-		v_rel_id	integer;
-	BEGIN
-		for row in (
-			select distinct r.rel_id
-			from	acs_rels r
-			where	r.object_id_one = :object_id
-				and r.object_id_two = :invoice_id
-		) loop
-			acs_rel.del(row.rel_id);
-		end loop;
-	END;"
+	db_exec_plsql delete_association {}
     }
     ad_returnredirect $return_url
     ad_abort_script
