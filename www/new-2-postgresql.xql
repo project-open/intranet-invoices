@@ -17,7 +17,7 @@
                 :provider_id,		-- provider_id
 		null,			-- company_contact_id
                 :invoice_date,		-- invoice_date
-		'EUR'			-- currency
+		'EUR',			-- currency
                 :template_id,		-- invoice_template_id
                 :cost_status_id,	-- invoice_status_id
                 :cost_type_id,		-- invoice_type_id

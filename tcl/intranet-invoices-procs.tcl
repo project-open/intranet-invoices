@@ -146,25 +146,10 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
     set bgcolor(0) "class=roweven"
     set bgcolor(1) "class=rowodd"
 
-    set object_list_sql "
-	select distinct
-	   	o.object_id,
-		acs_object.name(o.object_id) as object_name,
-		u.url
-	from
-	        acs_objects o,
-	        acs_rels r,
-		im_biz_object_urls u
-	where
-	        r.object_id_one = o.object_id
-	        and r.object_id_two = :invoice_id
-		and u.object_type = o.object_type
-		and u.url_type = 'view'
-    "
-
+    
     set ctr 0
     set object_list_html ""
-    db_foreach object_list $object_list_sql {
+    db_foreach object_list {} {
 	append object_list_html "
         <tr $bgcolor([expr $ctr % 2])>
           <td>

@@ -81,38 +81,7 @@ if {0 != $project_id} {
 if {$invoice_id} {
     # We are editing an already existing invoice
 
-    db_1row invoices_info_query "
-select
-	i.invoice_nr,
-	ci.company_id,
-	ci.provider_id,
-	ci.effective_date,
-	ci.payment_days,
-	ci.vat,
-	ci.tax,
-	ci.note as cost_note,
-	i.payment_method_id,
-	ci.template_id,
-	ci.cost_status_id,
-	ci.cost_type_id,
-	im_category_from_id(ci.cost_type_id) as cost_type,
-	im_name_from_user_id(i.company_contact_id) as company_contact_name,
-	im_email_from_user_id(i.company_contact_id) as company_contact_email,
-	c.company_name as company_name,
-	c.company_path as company_short_name,
-	p.company_name as provider_name,
-	p.company_path as provider_short_name
-from
-	im_invoices i, 
-	im_costs ci,
-	im_companies c,
-	im_companies p
-where 
-        i.invoice_id=:invoice_id
-	and ci.company_id = c.company_id(+)
-	and ci.provider_id = p.company_id(+)
-	and i.invoice_id = ci.cost_id
-"
+    db_1row invoices_info_query ""
 
     set invoice_mode "exists"
     set button_text "Edit $cost_type"
@@ -227,23 +196,6 @@ if {[string equal $invoice_mode "new"]} {
 # 8. Get the old invoice items for an already existing invoice
 # ---------------------------------------------------------------
 
-    set invoice_item_sql "
-select
-	i.*,
-	p.*,
-	p.project_nr as project_short_name,
-	im_category_from_id(i.item_uom_id) as item_uom,
-	im_category_from_id(i.item_type_id) as item_type
-from
-	im_invoice_items i,
-	im_projects p
-where
-	i.invoice_id = :invoice_id
-	and i.project_id=p.project_id(+)
-order by
-	i.project_id
-"
-
     # start formatting the list of sums with the header...
     set task_sum_html "
         <tr align=center> 
@@ -260,7 +212,7 @@ order by
     set old_project_id 0
     set colspan 6
     set target_language_id ""
-    db_foreach invoice_item $invoice_item_sql {
+    db_foreach invoice_item "" {
 
 	# insert intermediate headers for every project
 	if {$old_project_id != $project_id} {
