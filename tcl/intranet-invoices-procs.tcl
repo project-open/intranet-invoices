@@ -179,6 +179,7 @@ select
 	pa.payment_amount,
 	pa.payment_currency,
         im_category_from_id(i.invoice_status_id) as invoice_status,
+        im_category_from_id(i.invoice_type_id) as invoice_type,
 	i.invoice_date + payment_days as calculated_due_date
 from
 	im_invoices i,
@@ -209,15 +210,15 @@ order by
 <table border=0>
   <tr>
     <td colspan=$colspan class=rowtitle align=center>
-      Recent Invoices
+      Financial Documents
     </td>
   </tr>
   <tr class=rowtitle>
-    <td align=center class=rowtitle>Invoice #</td>
+    <td align=center class=rowtitle>Document</td>
+    <td align=center class=rowtitle>Type</td>
     <td align=center class=rowtitle>Due</td>
     <td align=center class=rowtitle>Amount</td>
     <td align=center class=rowtitle>Paid</td>
-    <td align=center class=rowtitle>Status</td>
   </tr>
 "
     set ctr 1
@@ -225,10 +226,10 @@ order by
 	append invoice_html "
 <tr$bgcolor([expr $ctr % 2])>
   <td><A href=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A></td>
+  <td>$invoice_type</td>
   <td>$calculated_due_date</td>
   <td>$invoice_amount $invoice_currency</td>
   <td>$payment_amount $payment_currency</td>
-  <td>$invoice_status</td>
 </tr>\n"
 	incr ctr
 	if {$ctr > $max_invoices} { break }
