@@ -20,7 +20,9 @@ ad_page_contract {
 } {
     { include_task:multiple "" }
     { invoice_id:integer 0}
+    { invoice_type_id:integer "[im_invoice_type_invoice]" }
     { customer_id:integer 0}
+    { provider_id:integer 0}
     { project_id:integer 0}
     { invoice_currency ""}
     { return_url "/intranet-invoice/"}
@@ -29,12 +31,6 @@ ad_page_contract {
 # ---------------------------------------------------------------
 # 2. Defaults & Security
 # ---------------------------------------------------------------
-
-if {[info exists include_task]} {
-    ns_log Notice "new: include_task=$include_task"
-} else {
-    ns_log Notice "new: include_task does not exist"
-}
 
 # User id already verified by filters
 set user_id [ad_maybe_redirect_for_registration]
@@ -47,15 +43,11 @@ set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_tasks"
+set invoice_type_name [db_string invoice_type_name "select im_category_from_id(:invoice_type_id) from dual"]
 
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
-
-# Get some categories for a new invoice
-set invoice_status_created_id [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
-set invoice_type_normal_id [db_string invoice_type "select invoice_type_id from im_invoice_type where upper(invoice_type)='NORMAL'"]
-
 
 
 # Tricky case: Sombebody has called this page from a project
@@ -73,7 +65,6 @@ if {0 != $project_id} {
     set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
 }
 
-
 # ---------------------------------------------------------------
 # 3. Gather invoice data
 #	a: if the invoice already exists
@@ -85,23 +76,27 @@ if {$invoice_id} {
     # We are editing an already existing invoice
     #
     set invoice_mode "exists"
-    set button_text "Edit Invoice"
-    set page_title "Edit Invoice"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "Invoices"] $page_title]
+    set button_text "Edit $invoice_type_name"
+    set page_title "Edit $invoice_type_name"
+    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     db_1row invoices_info_query "
 select 
 	i.*,
 	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
 	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
-	c.customer_name,
-	c.customer_path as customer_short_name
+	c.customer_name as customer_name,
+	c.customer_path as customer_short_name,
+	p.customer_name as provider_name,
+	p.customer_path as provider_short_name
 from
 	im_invoices i, 
-	im_customers c
+	im_customers c,
+	im_customers p
 where 
         i.invoice_id=:invoice_id
 	and i.customer_id=c.customer_id(+)
+	and i.provider_id=p.customer_id(+)
     "
 
     # Check if there is a single currency being used in the invoice
@@ -129,14 +124,13 @@ where
     # Build the list of selected tasks ready for invoices
     set invoice_mode "new"
     set in_clause_list [list]
-    set button_text "Create Invoice"
-    set page_title "New Invoice"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "Invoices"] $page_title]
+    set button_text "New $invoice_type_name"
+    set page_title "New $invoice_type_name"
+    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     set invoice_id [im_new_object_id]
     set invoice_nr [im_next_invoice_nr]
-    set invoice_status_id $invoice_status_created_id
-    set invoice_type_id $invoice_type_normal_id
+    set invoice_status_id [im_invoice_status_created]
     set invoice_date $todays_date
     set payment_days [ad_parameter -package_id [im_package_invoices_id] "DefaultPaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
@@ -148,18 +142,28 @@ where
 }
 
 # ---------------------------------------------------------------
-# 4. Gather customer data from customer_id (both edit or new modes)
+# Determine whether it's an Invoice or a Bill
+# ---------------------------------------------------------------
+
+set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
+if {$invoice_or_quote_p} {
+    set company_id $customer_id
+} else {
+    set company_id $provider_id
+}
+
+# ---------------------------------------------------------------
+# Gather customer data from customer_id (both edit or new modes)
 # ---------------------------------------------------------------
 
 db_0or1row invoices_info_query "
 select 
-	c.*,
         o.*,
-	im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
-	im_name_from_user_id(c.accounting_contact_id) as customer_contact_name,
-	c.customer_name,
-	c.customer_path as customer_short_name,
-        cc.country_name
+	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
+	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
+	c.customer_name as company_name,
+	c.customer_path as company_short_name,
+        cc.country_name company_country_name
 from
 	im_customers c, 
         im_offices o,
@@ -171,65 +175,6 @@ where
 "
 ns_log Notice "after looking up customer #$customer_id"
 
-
-# ---------------------------------------------------------------
-# 5. Render the "Invoice Data" and "Customer" blocks
-# ---------------------------------------------------------------
-set invoice_data_html "
-        <tr><td align=middle class=rowtitle colspan=2>Invoice Data</td></tr>
-        <tr>
-          <td  class=rowodd>Invoice nr.:</td>
-          <td  class=rowodd> 
-            <input type=text name=invoice_nr size=15 value='$invoice_nr'>
-          </td>
-        </tr>
-        <tr> 
-          <td  class=roweven>Invoice date:</td>
-          <td  class=roweven> 
-            <input type=text name=invoice_date size=15 value='$invoice_date'>
-          </td>
-        </tr>
-<!--        <tr> 
-          <td  class=rowodd>Invoice due date:</td>
-          <td  class=rowodd> 
-            <input type=text name=due_date size=15 value='$due_date'>
-          </td>
-        </tr>
--->
-        <tr> 
-          <td class=roweven>Payment terms</td>
-          <td class=roweven> 
-            <input type=text name=payment_days size=5 value='$payment_days'>
-            days date of invoice</td>
-        </tr>
-        <tr> 
-          <td class=rowodd>Payment Method</td>
-          <td class=rowodd>[im_invoice_payment_method_select payment_method_id $payment_method_id]</td>
-        </tr>
-        <tr> 
-          <td class=roweven> Invoice template:</td>
-          <td class=roweven>[im_invoice_template_select invoice_template_id $invoice_template_id]</td>
-        </tr>
-        <tr> 
-          <td class=rowodd> Invoice status</td>
-          <td class=rowodd>[im_invoice_status_select invoice_status_id $invoice_status_id]</td>
-        </tr>
-        <tr> 
-          <td class=roweven> Invoice type</td>
-          <td class=roweven>[im_invoice_type_select invoice_type_id $invoice_type_id]</td>
-        </tr>
-"
-
-    set customer_html "
-<tr>
-  <td align=center valign=top class=rowtitle colspan=2>Customer</td>
-</tr>
-<tr>
-  <td class=roweven>Customer:</tr>
-  <td class=roweven>[im_customer_select customer_id $customer_id]</td>
-</tr>
-<input type=hidden name=provider_id value=0>
-"
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items
@@ -381,103 +326,20 @@ for {set i 0} {$i < 3} {incr i} {
     incr ctr
 }
 
-# ---------------------------------------------------------------
-# 9. Render VAT and TAX
-# ---------------------------------------------------------------
 
-set grand_total_html "
-        <tr>
-          <td> 
-          </td>
-          <td colspan=99 align=right> 
-            <table border=0 cellspacing=1 cellpadding=0>
-              <tr> 
-                <td>VAT&nbsp;</td>
-                <td><input type=text name=vat value='$vat' size=4> % &nbsp;</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr> 
-          <td> 
-          </td>
-          <td colspan=99 align=right> 
-            <table border=0 cellspacing=1 cellpadding=0>
-              <tr> 
-                <td>TAX&nbsp;</td>
-                <td><input type=text name=tax value='$tax' size=4> % &nbsp;</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr> 
-          <td>&nbsp; </td>
-          <td colspan=6 align=right> 
-              <input type=submit name=submit value='$button_text'>
-          </td>
-        </tr>
-"
+
 
 # ---------------------------------------------------------------
-# 10. Join all parts together
+# Calculate the selects for the ADP page
 # ---------------------------------------------------------------
 
-ns_log Notice "new: before joining the parts together"
-
-set page_body "
-[im_invoices_navbar "none" "/intranet/invoices/index" "" "" [list]]
-
-<form action=new-2 method=POST>
-[export_form_vars invoice_id project_id return_url]
-
-  <!-- Invoice Data and Customer Tables -->
-
-<!-- outer table -->
-<table border=0 width=100%>
-<tr><td>
-
-  <table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width=100%>
-    <tr valign=top> 
-      <td>
-
-        <table border=0 cellPadding=0 cellspacing=2 width=100%>
-	  $invoice_data_html
-<!--	  <tr><td colspan=2 align=right><input type=submit value='Update'></td></tr> -->
-        </table>
-
-      </td>
-      <td></td>
-      <td align=right>
-        <table border=0 cellspacing=2 cellpadding=0 width=100%>
-          $customer_html</td>
-        </table>
-    </tr>
-  </table>
-
-</td></tr>
-<!-- outer table -->
-<tr><td>
-
-  <!-- the list of task sums, distinguised by type and UOM -->
-  <table width=100%>
-    <tr>
-      <td align=right>
- 	<table border=0 cellspacing=2 cellpadding=1 width=100%>
-          $task_sum_html
-          $grand_total_html
-        </table>
-      </td>
-    </tr>
-  </table>
+set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
+set template_select [im_invoice_template_select invoice_template_id $invoice_template_id]
+set status_select [im_invoice_status_select invoice_status_id $invoice_status_id]
+set type_select [im_invoice_type_select invoice_type_id $invoice_type_id]
+set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
+set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
 
 
-<!-- outer table -->
-</td></tr>
-</table>
-
-</form>
-"
-
-ns_log Notice "new: before doc_return"
 db_release_unused_handles
-doc_return  200 text/html [im_return_template]
+
