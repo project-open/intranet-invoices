@@ -49,7 +49,7 @@ set customer_project_nr_exists [db_column_exists im_projects customer_project_nr
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default ""]
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
