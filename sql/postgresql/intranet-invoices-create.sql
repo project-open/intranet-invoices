@@ -687,7 +687,7 @@ select inline_0 ();
 drop function inline_0 ();
 
 
-@../common/intranet-invoices-create.sql
+@../common/intranet-invoices-common.sql
 @../common/intranet-invoices-backup.sql
 
 commit;
