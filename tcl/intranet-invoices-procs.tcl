@@ -13,6 +13,24 @@ ad_library {
     @author frank.bergann@project-open.com
 }
 
+# Frequently used Invoices Stati
+ad_proc -public im_invoice_status_in_process {} { return 600 }
+ad_proc -public im_invoice_status_created {} { return 602 }
+ad_proc -public im_invoice_status_outstanding {} { return 604 }
+ad_proc -public im_invoice_status_past_due {} { return 606 }
+ad_proc -public im_invoice_status_partially_paid {} { return 608 }
+ad_proc -public im_invoice_status_paid {} { return 610 }
+ad_proc -public im_invoice_status_deleted {} { return 612 }
+ad_proc -public im_invoice_status_filed {} { return 614 }
+
+
+# Frequently used Invoice Types
+ad_proc -public im_invoice_type_invoice {} { return 700 }
+ad_proc -public im_invoice_type_quote {} { return 702 }
+ad_proc -public im_invoice_type_bill {} { return 704 }
+ad_proc -public im_invoice_type_po {} { return 706 }
+
+
 ad_proc -public im_package_invoices_id { } {
 } {
     return [util_memoize "im_package_invoices_id_helper"]
@@ -180,7 +198,7 @@ from
 	) pa
 where
 	$where_clause
-	and i.invoice_status_id not in (600)
+	and i.invoice_status_id not in ([im_invoice_status_in_process])
         and i.invoice_id=ii.invoice_id(+)
 	and i.invoice_id=pa.invoice_id(+)
 order by
