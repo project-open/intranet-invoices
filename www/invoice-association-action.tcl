@@ -20,6 +20,7 @@ ad_page_contract {
 } {
     { invoice_id:integer 0 }
     { project_id:integer 0 }
+    { customer_id:integer 0 }
     { del_action "" }
     { add_project_action "" }
     { object_ids:array,optional }
@@ -46,7 +47,7 @@ set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
-set page_title "Associate Invoice with Project"
+set page_title "Associate Invoice with a Project"
 set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
 # ---------------------------------------------------------------
@@ -66,33 +67,18 @@ if {"" != $del_action && [info exists object_ids]} {
 # Get everything about the invoice
 # ---------------------------------------------------------------
 
+set customer_id_org $customer_id
+
 append query "
 select
-	i.*,
-	ci.*,
-	c.*,
-	o.*,
-	to_date(to_char(ci.effective_date,'yyyymmdd'),'yyyymmdd') + ci.payment_days as calculated_due_date,
-	pm_cat.category as invoice_payment_method,
-	pm_cat.category_description as invoice_payment_method_desc,
-	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
-	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
-	c.company_name,
-	im_category_from_id(ci.cost_status_id) as cost_status,
-	im_category_from_id(ci.cost_type_id) as cost_type,
-	im_category_from_id(ci.template_id) as template
+	ic.customer_id,
+	i.invoice_nr
 from
 	im_invoices i,
-	im_costs ci,
-	im_companies c,
-	im_offices o,
-	im_categories pm_cat
+	im_costs ic
 where
 	i.invoice_id = :invoice_id
-	and i.invoice_id = ci.cost_id
-	and i.payment_method_id = pm_cat.category_id
-	and ci.customer_id = c.company_id
-	and c.main_office_id=o.office_id
+	and ic.cost_id = i.invoice_id
 "
 
 if { ![db_0or1row projects_info_query $query] } {
@@ -100,13 +86,12 @@ if { ![db_0or1row projects_info_query $query] } {
     return
 }
 
-if { ![db_0or1row "get country_name" "select cc.country_name \
-	from country_codes cc \
-	where cc.iso = :address_country_code"]} {
-    set country_name ""
-}
+if {0 != $customer_id_org} { set customer_id $customer_id_org }
 
-set project_select [im_project_select object_id $project_id "" "" "" "" $company_id]
+set customer_name [db_string customer_name "select company_name from im_companies where company_id=:customer_id" -default ""]
+
+set project_select [im_project_select object_id $project_id "" "" "" "" $customer_id]
+set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 
 db_release_unused_handles
 

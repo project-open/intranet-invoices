@@ -201,7 +201,7 @@ ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
 set order_by_clause ""
 switch $order_by {
-    "Document #" { set order_by_clause "order by invoice_nr" }
+    "Document #" { set order_by_clause "order by invoice_nr DESC" }
     "Preview" { set order_by_clause "order by invoice_nr" }
     "Provider" { set order_by_clause "order by provider_name" }
     "Client" { set order_by_clause "order by company_name" }
@@ -443,6 +443,13 @@ db_foreach invoices_info_query $selection {
     } else {
 	set url_string "<a href=\"$url\">$url</a>"
     }
+
+    # Don't show paid invices over due in red:
+    if {$invoice_status_id == [im_cost_status_paid] || \
+	$invoice_status_id == [im_cost_status_filed]} {
+	set overdue 0
+    }
+
 
     # Append together a line of data based on the "column_vars" parameter list
     append table_body_html "<tr$bgcolor([expr $ctr % 2])>\n"

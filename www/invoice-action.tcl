@@ -27,10 +27,6 @@ if {![im_permission $user_id add_invoices]} {
     return
 }
 
-set task_status_delivered [db_string task_status_delivered "select task_status_id from im_task_status where upper(task_status)='DELIVERED'"]
-set project_status_delivered [db_string project_status_delivered "select project_status_id from im_project_status where upper(project_status)='DELIVERED'"]
-
-ns_log Notice "invoice-action: submit=$submit"
 switch $submit {
 
     "Save" {
