@@ -154,7 +154,7 @@ where
     set invoice_nr [im_next_invoice_nr]
     set invoice_status_id [im_invoice_status_created]
     set invoice_date $todays_date
-    set payment_days [ad_parameter -package_id [im_package_invoices_id] "DefaultPaymentDays" "" 30] 
+    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCustomerInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
