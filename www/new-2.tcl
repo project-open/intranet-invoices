@@ -19,13 +19,13 @@ ad_page_contract {
     { project_id:integer 0 }
     invoice_nr
     invoice_date
-    { cost_status_id "[im_cost_status_created]" }
-    cost_type_id
+    cost_status_id:integer 
+    cost_type_id:integer
     payment_days:integer
     { payment_method_id:integer "" }
     template_id:integer
-    vat
-    tax
+    vat:float
+    tax:float
     item_sort_order:array
     item_name:array
     item_units:float,array
@@ -102,10 +102,10 @@ BEGIN
         invoice_nr              => :invoice_nr,
         customer_id             => :customer_id,
         provider_id             => :provider_id,
-        invoice_date            => sysdate,
+        invoice_date            => :invoice_date,
         invoice_template_id     => :template_id,
-        cost_status_id		=> :cost_status_id,
-        cost_type_id		=> :cost_type_id,
+        invoice_status_id	=> :cost_status_id,
+        invoice_type_id		=> :cost_type_id,
         payment_method_id       => :payment_method_id,
         payment_days            => :payment_days,
 	amount			=> 0,
@@ -115,6 +115,45 @@ BEGIN
 END;"
 
 }
+
+# Update the invoice itself
+db_dml update_invoice "
+update im_invoices 
+set 
+	invoice_nr	= :invoice_nr,
+	payment_method_id = :payment_method_id
+where
+	invoice_id = :invoice_id
+"
+
+db_dml update_costs "
+update im_costs
+set
+	project_id	= :project_id,
+	cost_name	= :invoice_nr,
+	customer_id	= :customer_id,
+	provider_id	= :provider_id,
+	cost_status_id	= :cost_status_id,
+	cost_type_id	= :cost_type_id,
+	template_id	= :template_id,
+	effective_date	= :invoice_date,
+	start_block	= ( select max(start_block) 
+			    from im_start_months 
+			    where start_block < :invoice_date),
+	payment_days	= :payment_days,
+	vat		= :vat,
+	tax		= :tax,
+	variable_cost_p = 't'
+where
+	cost_id = :invoice_id
+"
+
+set ttt "
+
+
+
+"
+
 
 # ---------------------------------------------------------------
 # Create the im_invoice_items for the invoice
