@@ -476,9 +476,6 @@ insert into im_views (view_id, view_name, visible_for)
 values (30, 'invoice_list', 'view_finance');
 insert into im_views (view_id, view_name, visible_for) 
 values (31, 'invoice_new', 'view_finance');
-insert into im_views (view_id, view_name, visible_for) 
-values (32, 'payment_list', 'view_finance');
-
 
 
 -- Invoice List Page
