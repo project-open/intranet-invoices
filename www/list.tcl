@@ -80,6 +80,7 @@ if {$cost_status_id == 0} {
     set cost_status_id $cost_status_created
 }
 
+set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual"]
 
 if { [empty_string_p $how_many] || $how_many < 1 } {
     set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
