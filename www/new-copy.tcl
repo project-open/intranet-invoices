@@ -13,8 +13,8 @@ ad_page_contract {
     Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
-    source_invoice_id:integer
-    target_cost_type_id:integer
+    source_invoice_id:integer,optional
+    cost_type_id:integer
     { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
 }
@@ -28,6 +28,15 @@ if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
 }
+
+
+# The user hasn't yet specified the source invoice from which
+# we want to copy. So let's redirect and this page is going
+# to refer us back to this one.
+if {![info exists source_invoice_id]} {
+    ad_returnredirect new-copy-custselect?[export_url_vars cost_type_id blurb return_url]
+}
+
 
 set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
@@ -45,10 +54,7 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 
 db_1row invoices_info_query "
 select
-	-- get the target cost type
-	:target_cost_type_id as cost_type_id,
-	im_category_from_id(:target_cost_type_id) as cost_type,
-	-- normal continuation
+	im_category_from_id(:cost_type_id) as cost_type,
 	i.invoice_nr as org_invoice_nr,
 	ci.company_id,
 	ci.provider_id,

@@ -38,6 +38,9 @@ insert into im_views (view_id, view_name, visible_for)
 values (30, 'invoice_list', 'view_finance');
 insert into im_views (view_id, view_name, visible_for) 
 values (31, 'invoice_new', 'view_finance');
+-- 32 reserved for payment_list
+insert into im_views (view_id, view_name, visible_for) 
+values (33, 'invoice_select', 'view_finance');
 
 
 -- Invoice List Page
@@ -86,8 +89,8 @@ extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
 		<input type=checkbox name=del_cost value=$invoice_id>
 		<input type=hidden name=object_type.$invoice_id value=$object_type>"
 }]','','',99,'');
---
-commit;
+
+
 
 
 -- Invoice New Page (shows Projects)
@@ -113,8 +116,37 @@ extra_select, extra_where, sort_order, visible_for) values (3115,31,NULL,'Sel',
 '"<input type=checkbox name=select_project value=$project_id>"',
 '','',8,'');
 
+
+
+-- Invoice Select Page
 --
-commit;
+delete from im_view_columns where column_id > 3300 and column_id < 3399;
+--
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3301,33,NULL,'Document #',
+'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
+'','',1,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3303,33,NULL,'Type',
+'$cost_type','','',3,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3304,33,NULL,'Provider',
+'"<A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A>"',
+'','',4,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3305,33,NULL,'Customer',
+'"<A HREF=/intranet/companies/view?company_id=$customer_id>$customer_name</A>"',
+'','',5,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3307,33,NULL,'Due Date',
+'$due_date_calculated','','',7,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3311,33,NULL,'Amount',
+'"$invoice_amount_formatted $invoice_currency"','','',11,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3317,33,NULL,'Status',
+'$invoice_status','','',17,'');
+
 
 
 -- Invoice Status
@@ -146,14 +178,12 @@ INSERT INTO im_categories VALUES (808,'Patagon EUR',
 INSERT INTO im_categories VALUES (810,'La Caixa EUR',
 'Wire transfer without charges for the beneficiary, IBAN: ..., Caja de Ahorros y Pensiones de Barcelona.',
 'Intranet Invoice Payment Method','category','t','f');
-commit;
 -- reserved until 899
 
 -- Payment Type
 delete from im_categories where category_id >= 1000 and category_id < 1100;
 INSERT INTO im_categories VALUES (1000,'Bank Transfer','','Intranet Payment Type','category','t','f');
 INSERT INTO im_categories VALUES (1002,'Cheque','','Intranet Payment Type','category','t','f');
-commit;
 -- reserved until 1099
 
 
