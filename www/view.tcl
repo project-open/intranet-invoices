@@ -244,6 +244,56 @@ db_foreach project_list $project_list_sql {
 
 
 # ---------------------------------------------------------------
+# Payments list
+# ---------------------------------------------------------------
+
+set payment_list_html ""
+if {[db_table_exists im_payments]} {
+
+    set payment_list_html "
+        <tr>
+          <td align=middle class=rowtitle colspan=2>Invoice Payments</td>
+        </tr>"
+
+    set payment_list_sql "
+select
+	p.*,
+	im_category_from_id(p.payment_type_id) as payment_type
+from
+	im_payments p
+where
+	p.invoice_id = :invoice_id
+"
+
+    set payment_ctr 0
+    db_foreach payment_list $payment_list_sql {
+	append payment_list_html "
+        <tr $bgcolor([expr $payment_ctr % 2])>
+          <td>
+	    <A href=/intranet-payments/view?payment_id=$payment_id>
+	      $received_date
+ 	    </A>
+	  </td>
+          <td>
+	      $amount $currency $payment_type
+          </td>
+        </tr>\n"
+	incr payment_ctr
+    }
+
+
+    append payment_list_html "
+        <tr $bgcolor([expr $payment_ctr % 2])>
+          <td align=left colspan=2>
+	    <A href=/intranet-payments/new?invoice_id=$invoice_id>
+	      Add a payment
+	    </A>
+          </td>
+        </tr>
+    "
+}
+
+# ---------------------------------------------------------------
 # 3. Select and format Invoice Items
 # ---------------------------------------------------------------
 
@@ -420,6 +470,9 @@ if {[exists_and_not_null render_template_id]} {
 
           <table border=0 cellPadding=0 cellspacing=2>
 	    $project_list_html
+	    <tr><td colspan=2>&nbsp;</td></tr>
+	    $payment_list_html
+	    <tr><td colspan=2>&nbsp;</td></tr>
           </table>
 
 
