@@ -223,6 +223,9 @@ if { ![empty_string_p $where_clause] } {
 set payment_amount ""
 set payment_currency ""
 
+# How many trans tasks are related to this invoice?
+set trans_tasks 0
+
 set extra_select ""
 set extra_from ""
 set extra_where ""

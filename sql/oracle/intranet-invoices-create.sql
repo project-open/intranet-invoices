@@ -257,6 +257,11 @@ is
 	delete from 	im_invoice_items
 	where		invoice_id = del.invoice_id;
 
+	-- Delete relationships with projects and other objects
+	delete from	acs_rels
+	where		object_id_one = del.invoice_id
+			or object_id_two = del.invoice_id;
+
 	-- Erase the invoice itself
 	delete from 	im_invoices
 	where		invoice_id = del.invoice_id;
