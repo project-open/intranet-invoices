@@ -142,6 +142,79 @@ where
 }
 
 
+
+# ---------------------------------------------------------------
+# Components
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
+    Returns a HTML table containing a list of objects
+    associated with a particular financial document.
+} {
+
+    set bgcolor(0) "class=roweven"
+    set bgcolor(1) "class=rowodd"
+
+    set object_list_sql "
+	select distinct
+	   	o.object_id,
+		acs_object.name(o.object_id) as object_name,
+		u.url
+	from
+	        acs_objects o,
+	        acs_rels r,
+		im_biz_object_urls u
+	where
+	        r.object_id_one = o.object_id
+	        and r.object_id_two = :invoice_id
+		and u.object_type = o.object_type
+		and u.url_type = 'view'
+    "
+
+    set ctr 0
+    set object_list_html ""
+    db_foreach object_list $object_list_sql {
+	append object_list_html "
+        <tr $bgcolor([expr $ctr % 2])>
+          <td>
+            <A href=\"$url$object_id\">$object_name</A>
+          </td>
+          <td>
+            <input type=checkbox name=object_ids.$object_id>
+          </td>
+        </tr>\n"
+	incr ctr
+    }
+
+    if {0 == $ctr} {
+	append object_list_html "
+        <tr $bgcolor([expr $ctr % 2])>
+          <td><i>No objects found</i></td>
+        </tr>\n"
+    }
+
+    return "
+      <form action=invoice-association-action method=post>
+      [export_form_vars invoice_id return_url]
+      <table border=0 cellspacing=1 cellpadding=1>
+        <tr>
+          <td align=middle class=rowtitle colspan=2>Related Projects</td>
+        </tr>
+        $object_list_html
+        <tr>
+          <td align=right>
+            <input type=submit name=add_project_action value='Add a Project'>
+            </A>
+          </td>
+          <td>
+            <input type=submit name=del_action value='Del'>
+          </td>
+        </tr>
+      </table>
+      </form>
+    "
+}
+
 ad_proc im_invoices_customer_component { user_id customer_id } {
     Returns a HTML table containing a list of invoices for a particular
     customer.
