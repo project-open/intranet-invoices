@@ -370,20 +370,6 @@ where category_type = 'Intranet Invoice Payment Method';
 
 
 ------------------------------------------------------
--- Procedures
---
-
-create or replace function im_invoice_calculate_currency (v_customer_id IN integer)
-RETURN varchar IS
-BEGIN
-	return 'EUR';
-END;
-/
-show errors;
-
-
-
-
 -- Invoice Views
 --
 insert into im_views (view_id, view_name, visible_for) 
@@ -408,7 +394,7 @@ $invoice_nr</A>"','','',2,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
-'$invoice_type','','',3,'');
+'$cost_type','','',3,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provider',
@@ -438,7 +424,7 @@ extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
-'[im_invoice_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
+'[im_cost_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
@@ -574,7 +560,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers',
 	name =>		'Customers',
-	url =>		'/intranet-invoices/list?invoice_type_id=3708',
+	url =>		'/intranet-invoices/list?cost_type_id=3708',
 	sort_order =>	10,
 	parent_menu_id => v_finance_menu
     );
@@ -589,7 +575,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers',
 	name =>		'Providers',
-	url =>		'/intranet-invoices/list?invoice_type_id=3710',
+	url =>		'/intranet-invoices/list?cost_type_id=3710',
 	sort_order =>	20,
 	parent_menu_id => v_finance_menu
     );
