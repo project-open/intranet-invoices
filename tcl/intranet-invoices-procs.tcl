@@ -61,7 +61,7 @@ from
 	 where substr(invoice_nr, 1,7)=to_char(sysdate, 'YYYY_MM')
 	 UNION 
 	 select '0000' as nr from dual
-	) as t) as i
+	) t) i
 where
         ascii(substr(i.nr,1,1)) > 47 and
         ascii(substr(i.nr,1,1)) < 58 and
