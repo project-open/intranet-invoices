@@ -1,14 +1,17 @@
-# /tcl/intranet-invoice.tcl
+# /packages/intranet-invoicing/tcl/intranet-invoice.tcl
+#
+# Copyright (C) 2003-2004 Project/Open
+#
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
+
 
 ad_library {
     Bring together all "components" (=HTML + SQL code)
     related to Invoices
 
-    @author fraber@fraber.de
-    @creation-date  27 June 2003
+    @author frank.bergann@project-open.com
 }
-
-
 
 
 ad_proc -public im_invoices_navbar { default_letter base_url next_page_url prev_page_url export_var_list } {
@@ -81,7 +84,7 @@ select
 	to_char(sysdate, 'YYYY_MM')||'_'||
 	trim(to_char(1+max(i.nr),'0000')) as invoice_nr
 from
-	(select substr(invoice_nr,9,4) as nr from im_invoices_active 
+	(select substr(invoice_nr,9,4) as nr from im_invoices
 	 where substr(invoice_nr, 1,7)=to_char(sysdate, 'YYYY_MM')
 	 UNION 
 	 select '0000' as nr from dual
@@ -97,12 +100,28 @@ where
         ascii(substr(i.nr,4,1)) < 58
 "
     set invoice_nr [db_string next_invoice_nr $sql -default ""]
+    ns_log Notice "im_next_invoice_nr: invoice_nr=$invoice_nr"
 
     return $invoice_nr
 }
 
 
-ad_proc im_invoice_component { {customer_id ""} {project_id ""} } {
+ad_proc im_invoices_customer_component { customer_id } {
+    Returns a HTML table containing a list of invoices for a particular
+    customer.
+} {
+    return [im_invoices_base_component $customer_id ""]
+}
+
+ad_proc im_invoices_project_component { project_id } {
+    Returns a HTML table containing a list of invoices for a particular
+    particular project.
+} {
+    return [im_invoices_base_component "" $project_id]
+}
+
+
+ad_proc im_invoices_base_component { {customer_id ""} {project_id ""} } {
     Returns a HTML table containing a list of invoices for a particular
     customer or a particular project.
 } {
@@ -172,7 +191,7 @@ order by
     db_foreach recent_invoices $invoices_sql {
 	append invoice_html "
 <tr$bgcolor([expr $ctr % 2])>
-  <td><A href=/intranet/invoices/view?invoice_id=$invoice_id>$invoice_nr</A></td>
+  <td><A href=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A></td>
   <td>$calculated_due_date</td>
   <td>$invoice_amount $invoice_currency</td>
   <td>$payment_amount $payment_currency</td>
@@ -187,7 +206,7 @@ order by
 	append invoice_html "
 <tr$bgcolor([expr $ctr % 2])>
   <td colspan=$colspan>
-    <A HREF=/intranet/invoices/index?status_id=0&[export_url_vars status_id customer_id project_id]>
+    <A HREF=/intranet-invoices/index?status_id=0&[export_url_vars status_id customer_id project_id]>
       more invoices...
     </A>
   </td>
@@ -201,13 +220,37 @@ order by
     <I>No invoices yet for this project</I>
   </td>
 </tr>\n"
+	incr ctr
+    }
+
+    if {"" != $customer_id} {
+	append invoice_html "
+<tr>
+  <td colspan=$colspan align=left>
+    <A href=/intranet-invoices/new?customer_id=$customer_id>
+      Create a new invoice from scratch
+    </A>
+  </td>
+</tr>\n"
+    }
+
+    if {"" != $project_id} {
+	append invoice_html "
+<tr>
+  <td colspan=$colspan align=left>
+    <A href=/intranet-invoices/new?project_id=$project_id>
+      Create a new invoice for this project
+    </A>
+  </td>
+</tr>\n"
     }
 
     append invoice_html "</table>\n"
     return $invoice_html
 }
 
-ad_proc im_invoice_select { select_name { default "" } { status "" } { exclude_status "" } } {
+
+ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_status "" } } {
     
     Returns an html select box named $select_name and defaulted to
     $default with a list of all the invoices in the system. If status is

@@ -1,4 +1,10 @@
 # /packages/intranet-invoices/www/index.tcl
+#
+# Copyright (C) 2003-2004 Project/Open
+#
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
+
 
 # ---------------------------------------------------------------
 # 1. Page Contract
@@ -15,8 +21,7 @@ ad_page_contract {
     @param start_idx the starting index for query
     @param how_many how many rows to return
 
-    @author mbryzek@arsdigita.com
-    @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
+    @author frank.bergmann@project-open.com
 } {
     { order_by "Invoice #" }
     { status_id:integer 0 } 
@@ -310,11 +315,6 @@ set filter_html "
 set colspan [expr [llength $column_headers] + 1]
 
 set table_header_html ""
-#<tr>
-#  <td align=center valign=top colspan=$colspan><font size=-1>
-#    [im_groups_alpha_bar [im_invoice_group_id] $letter "start_idx"]</font>
-#  </td>
-#</tr>"
 
 # Format the header names with links that modify the
 # sort order of the SQL query.

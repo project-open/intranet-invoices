@@ -1,14 +1,11 @@
--- Copyright (C) 1999-2004 ArsDigita, Frank Bergmann and others
+-- /packages/intranet-invoices/sql/oracle/intranet-invoices-drop.sql
 --
--- This program is free software. You can redistribute it 
--- and/or modify it under the terms of the GNU General 
--- Public License as published by the Free Software Foundation; 
--- either version 2 of the License, or (at your option) 
--- any later version. This program is distributed in the 
--- hope that it will be useful, but WITHOUT ANY WARRANTY; 
--- without even the implied warranty of MERCHANTABILITY or 
--- FITNESS FOR A PARTICULAR PURPOSE. 
--- See the GNU General Public License for more details.
+-- Copyright (C) 2003-2004 Project/Open
+--
+-- All rights reserved. Please check
+-- http://www.project-open.com/license/ for details.
+--
+-- @author frank.bergmann@project-open.com
 
 
 BEGIN
@@ -18,7 +15,7 @@ END;
 /
 commit;
 
-delete from im_project_invoice_map;
+delete from acs_rels r where r.object_id_two in (select invoice_id from im_invoices;)
 delete from im_invoice_items;
 delete from im_invoices;
 
@@ -30,7 +27,6 @@ drop sequence im_prices_seq;
 drop sequence im_invoices_seq;
 drop sequence im_invoice_items_seq;
 
-drop table im_project_invoice_map;
 drop table im_invoice_items;
 
 drop table im_invoices_audit;
