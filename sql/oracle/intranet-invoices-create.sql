@@ -297,17 +297,57 @@ create table im_invoice_items (
 -- acs_rels: object_id_one=project_id, object_id_two=invoice_id
 
 
+
+
+------------------------------------------------------
+-- Permissions and Privileges
+--
+
+begin
+    acs_privilege.create_privilege('view_invoices','View Invoices','View Invoices');
+    acs_privilege.create_privilege('add_invoices','View Invoices','View Invoices');
+end;
+/
+show errors;
+
+
+BEGIN
+    im_priv_create('view_invoices','Accounting');
+    im_priv_create('view_invoices','P/O Admins');
+    im_priv_create('view_invoices','Senior Managers');
+END;
+/
+show errors;
+
+BEGIN
+    im_priv_create('add_invoices','Accounting');
+    im_priv_create('add_invoices','P/O Admins');
+    im_priv_create('add_invoices','Senior Managers');
+END;
+/
+show errors;
+
+
 ------------------------------------------------------
 -- Views to Business Objects
 --
-
-
 -- all invoices that are not deleted (600) nor that have
 -- been lost during creation (612).
 create or replace view im_invoices_active as 
-select i.*
-from im_invoices i
-where i.invoice_status_id not in (600, 612);
+select	i.*,
+	ci.*,
+	ci.effective_date + ci.payment_days as due_date,
+	ci.effective_date as invoice_date,
+	ci.item_status_id as invoice_status_id,
+	ci.item_type_id as invoice_type_id,
+	ci.template_id as invoice_template_id
+from 
+	im_invoices i,
+	im_cost_items ci
+where
+	ci.item_id = i.invoice_id
+	and ci.item_status_id not in (3712);
+commit;
 
 
 create or replace view im_invoice_templates as 

@@ -117,7 +117,7 @@ select
 	im_category_from_id(i.invoice_type_id) as invoice_type, 
 	im_category_from_id(i.invoice_template_id) as invoice_template
 from
-	im_invoices i,
+	im_invoices_active i,
         im_customers c,
         im_offices o,
         country_codes cc,

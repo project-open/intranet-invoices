@@ -19,7 +19,7 @@ ad_page_contract {
     { project_id:integer 0 }
     invoice_nr
     invoice_date
-    { invoice_status_id 602 }
+    { invoice_status_id "[im_invoice_status_created]" }
     { invoice_type_id "[im_invoice_type_invoice]" }
     payment_days:integer
     { payment_method_id:integer "[im_payment_method_undefined]" }
@@ -104,7 +104,7 @@ BEGIN
         provider_id             => :provider_id,
         invoice_date            => sysdate,
         invoice_template_id     => :invoice_template_id,
-        invoice_status_id       => [im_invoice_status_created],
+        invoice_status_id       => :invoice_status_id,
         invoice_type_id         => :invoice_type_id,
         payment_method_id       => :payment_method_id,
         payment_days            => :payment_days,
@@ -114,30 +114,6 @@ BEGIN
 END;"
 
 }
-
-
-    db_dml update_im_invoices "
-UPDATE im_invoices 
-SET 
-	invoice_nr=:invoice_nr,
-	customer_id=:customer_id,
-	provider_id=:provider_id,
-	invoice_date=:invoice_date,
-	payment_days=:payment_days,
-	payment_method_id=:payment_method_id,
-	invoice_template_id=:invoice_template_id,
-	vat=:vat,
-	tax=:tax,
-	invoice_status_id=:invoice_status_id,
-	invoice_type_id=:invoice_type_id,
-	last_modified=sysdate,
-	last_modifying_user=:user_id,
-	modified_ip_address='[ad_conn peeraddr]'
-WHERE
-	invoice_id=:invoice_id"
-
-
-
 
 # ---------------------------------------------------------------
 # Create the im_invoice_items for the invoice
