@@ -61,10 +61,10 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id add_invoices]} {
-    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
-    return
-}
+#if {![im_permission $user_id add_invoices]} {
+#    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
+#    return
+#}
 
 # Invoices and Bills need a payment method, quotes and POs don't.
 if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {
@@ -92,29 +92,7 @@ set invoice_exists_p [db_string invoice_count "select count(*) from im_invoices 
 if {!$invoice_exists_p} {
 
     # Let's create the new invoice
-    db_dml create_invoice "
-	DECLARE
-	    v_invoice_id        integer;
-	BEGIN
-	    v_invoice_id := im_invoice.new (
-	        invoice_id              => :invoice_id,
-	        creation_user           => :user_id,
-	        creation_ip             => '[ad_conn peeraddr]',
-	        invoice_nr              => :invoice_nr,
-	        company_id             => :company_id,
-	        provider_id             => :provider_id,
-	        invoice_date            => :invoice_date,
-	        invoice_template_id     => :template_id,
-	        invoice_status_id	=> :cost_status_id,
-	        invoice_type_id		=> :cost_type_id,
-	        payment_method_id       => :payment_method_id,
-	        payment_days            => :payment_days,
-		amount			=> 0,
-	        vat                     => :vat,
-	        tax                     => :tax,
-	        note			=> :note
-	    );
-	END;"
+    set invoice_id [db_exec_plsql create_invoice ""]
 }
 
 # Update the invoice itself
@@ -201,24 +179,13 @@ foreach nr $item_list {
 # ---------------------------------------------------------------
 
 foreach project_id $select_project {
-    db_dml insert_acs_rels "
-        DECLARE
-                v_rel_id        integer;
-		v_rel_exists	integer;
-        BEGIN
-		select	count(*)
-		into	v_rel_exists
-		from	acs_rels
-		where	object_id_one = :project_id
-			and object_id_two = :invoice_id;
-
-		if 0 = v_rel_exists then
-	                v_rel_id := acs_rel.new(
-	                        object_id_one => :project_id,
-	                        object_id_two => :invoice_id
-	                );
-		end if;
-        END;"
+    db_1row "get relations" "select  count(*) as  v_rel_exists
+                from    acs_rels
+                where   object_id_one = :project_id
+                        and object_id_two = :invoice_id"
+    if {0 = $v_rel_exists} {
+	    set rel_id [db_exec_plsql create_rel ""]
+    }
 }
 
 # ---------------------------------------------------------------

@@ -233,7 +233,7 @@ if { [db_table_exists im_payments] } {
 	 from im_payments
 	 group by cost_id
 	) pa\n"
-    append extra_where "and i.invoice_id=pa.cost_id(+)\n"
+    append extra_where "and i.invoice_id=pa.cost_id\n"
 }
 
 # -----------------------------------------------------------------
@@ -243,23 +243,24 @@ if { [db_table_exists im_payments] } {
 set sql "
 select
         i.*,
-	(i.invoice_date + i.payment_days) as due_date_calculated,
+	(to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days) as due_date_calculated,
 	o.object_type,
 	ii.invoice_amount,
 	ii.invoice_currency,
 	to_char(ii.invoice_amount,:cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
-      	im_name_from_user_id(i.company_contact_id) company_contact_name,
+      	im_name_from_user_id(i.company_contact_id) as company_contact_name,
         c.company_name,
         c.company_path as company_short_name,
 	p.company_name as provider_name,
 	p.company_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
         im_category_from_id(i.cost_type_id) as cost_type,
-	sysdate - (i.invoice_date + i.payment_days) as overdue
+	sysdate - (to_date(to_char(i.invoice_date, 'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days) as overdue
 	$extra_select
 from
         im_invoices_active i,
+        dual,
 	acs_objects o,
         im_companies c,
         im_companies p,
@@ -273,9 +274,9 @@ from
 	$extra_from
 where
 	i.invoice_id = o.object_id
- 	and i.company_id=c.company_id(+)
-        and i.provider_id=p.company_id(+)
-        and i.invoice_id=ii.invoice_id(+)
+ 	and i.company_id=c.company_id
+        and i.provider_id=p.company_id
+        and i.invoice_id=ii.invoice_id
 	$company_where
         $where_clause
 	$extra_where
@@ -445,6 +446,9 @@ set bgcolor(0) " class=roweven "
 set bgcolor(1) " class=rowodd "
 set ctr 0
 set idx $start_idx
+
+ns_log notice "******** $selection ********"
+
 db_foreach invoices_info_query $selection {
     set url [im_maybe_prepend_http $url]
     if { [empty_string_p $url] } {

@@ -8,7 +8,6 @@
 # ---------------------------------------------------------------
 # 1. Page Contract
 # ---------------------------------------------------------------
-
 ad_page_contract { 
     Receives the list of tasks to invoice, creates a draft invoice
     (status: "In Process") and displays it.
@@ -47,10 +46,12 @@ if {"" != $create_invoice_from_template} {
 
 # User id already verified by filters
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id view_invoices]} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
-}
+
+#ns_log notice "**************** $user_id permission [im_permission $user_id view_invoices]**********"
+#if {![im_permission $user_id view_invoices]} {
+#    ad_return_complaint "Insufficient Privileges" "
+#    <li>You don't have sufficient privileges to see this page."    
+#}
 
 set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
@@ -60,6 +61,7 @@ set view_name "invoice_tasks"
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
+set cost_note ""
 
 
 # Tricky case: Sombebody has called this page from a project

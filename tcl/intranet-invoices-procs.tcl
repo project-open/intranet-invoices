@@ -54,14 +54,14 @@ ad_proc -public im_next_invoice_nr { } {
 } {
     set sql "
 select
-	to_char(sysdate, 'YYYY_MM')||'_'||
-	trim(to_char(1+max(i.nr),'0000')) as invoice_nr
+	trim(i.nr) as last_invoice_nr
 from
-	(select substr(invoice_nr,9,4) as nr from im_invoices
+        dual,
+	(select max(t.nr) as nr from (select substr(invoice_nr,9,4) as nr from im_invoices, dual
 	 where substr(invoice_nr, 1,7)=to_char(sysdate, 'YYYY_MM')
 	 UNION 
 	 select '0000' as nr from dual
-	) i
+	) as t) as i
 where
         ascii(substr(i.nr,1,1)) > 47 and
         ascii(substr(i.nr,1,1)) < 58 and
@@ -72,8 +72,17 @@ where
         ascii(substr(i.nr,4,1)) > 47 and
         ascii(substr(i.nr,4,1)) < 58
 "
+    set last_invoice_nr [db_string max_invoice_nr $sql -default ""]
+    set next_number [expr $last_invoice_nr + 1]
+    ns_log notice "********** next_number is $next_number *************"
+set sql "
+select
+        to_char(sysdate, 'YYYY_MM')||'_'||
+        trim(to_char($next_number,'0000')) as invoice_nr
+from
+        dual
+"
     set invoice_nr [db_string next_invoice_nr $sql -default ""]
-    ns_log Notice "im_next_invoice_nr: invoice_nr=$invoice_nr"
 
     return $invoice_nr
 }

@@ -268,9 +268,10 @@ begin
 
 	-- Erase the CostItem
 	select im_cost__del(p_invoice_id);
+	return 0;
 end;' language 'plpgsql';
 
-create or replace function name (integer)
+create or replace function im_invoice__name (integer)
 returns varchar as '
 declare
 	p_invoice_id alias for $1;	-- invoice_id
@@ -362,6 +363,9 @@ where category_type = 'Intranet Invoice Payment Method';
 ------------------------------------------------------
 -- Invoice Views
 --
+select acs_privilege__create_privilege('view_finance','View finance','View finanace');
+select acs_privilege__create_privilege('add_finance','Add finance','Add finance');
+
 insert into im_views (view_id, view_name, visible_for) 
 values (30, 'invoice_list', 'view_finance');
 insert into im_views (view_id, view_name, visible_for) 
