@@ -61,11 +61,25 @@ switch $submit {
 		# im_trans_invoice.del(...)
 		#
 		if { [db_table_exists im_trans_tasks] } {
-		    db_dml delete_trans_tasks "
+
+		    db_dml reset_affected_projects "
+			update im_projects
+			set project_status_id = [im_project_status_delivered]
+			where project_id in (
+				select distinct project_id 
+				from im_trans_tasks 
+				where invoice_id=:cost_id
+			)
+		    "
+
+		    # Mark the im_trans_tasks as not invoiced by
+		    # deleting their invoice_id field.
+		    db_dml reset_trans_tasks "
 			update im_trans_tasks
 			set invoice_id = null
 			where invoice_id = :cost_id
                     "
+
 		}
 
 		# ToDo: Security
