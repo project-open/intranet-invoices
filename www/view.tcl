@@ -424,7 +424,7 @@ append item_html "
 if {[exists_and_not_null render_template_id]} {
 
     # format using an invoice template
-    set invoice_template_path [ad_parameter InvoiceTemplatePathUnix intranet "/tmp/templates/"]
+    set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
     append invoice_template_path "/"
     append invoice_template_path [db_string sel_invoice "select category from im_categories where category_id=:render_template_id"]
 

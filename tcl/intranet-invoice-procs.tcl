@@ -13,6 +13,17 @@ ad_library {
     @author frank.bergann@project-open.com
 }
 
+ad_proc -public im_package_invoices_id { } {
+} {
+    return [util_memoize "im_package_invoices_id_helper"]
+}
+
+ad_proc -private im_package_invoices_id_helper {} {
+    return [db_string im_package_core_id {
+        select package_id from apm_packages
+        where package_key = 'intranet-invoices'
+    } -default 0]
+}
 
 ad_proc -public im_invoices_navbar { default_letter base_url next_page_url prev_page_url export_var_list } {
     Returns rendered HTML code for a horizontal sub-navigation

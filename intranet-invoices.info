@@ -18,7 +18,10 @@
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/web/sls/fs/templates" description="Path for Invoicing templates"/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/web/intranet/filestorage/templates" description="Path for Invoicing templates"/>
+
+            <parameter datatype="integer"  min_n_values="1"  max_n_values="1"  name="DefaultPaymentDays"  default="30" description="DefaultPaymentDays"/>
+
         </parameters>
 
     </version>

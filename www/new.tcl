@@ -138,7 +138,7 @@ where
     set invoice_status_id $invoice_status_created_id
     set invoice_type_id $invoice_type_normal_id
     set invoice_date $todays_date
-    set payment_days [ad_parameter "DefaultPaymentDays" intranet 30] 
+    set payment_days [ad_parameter -package_id [im_package_invoices_id] "DefaultPaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
