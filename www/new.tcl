@@ -54,7 +54,7 @@ set user_id [ad_maybe_redirect_for_registration]
 #}
 
 set return_url [im_url_with_query]
-set todays_date [db_string get_today "select sysdate from dual"]
+set todays_date [db_string get_today "select to_char(sysdate,'YYYY-MM-DD') from dual"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_tasks"
 

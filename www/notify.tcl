@@ -65,7 +65,7 @@ where
 
 
 if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invoice]} {
-    set company_id $company_id
+    set company_id $customer_id
 } else {
     set company_id $provider_id
 }

@@ -73,6 +73,10 @@ where
         ascii(substr(i.nr,4,1)) < 58
 "
     set last_invoice_nr [db_string max_invoice_nr $sql -default ""]
+    set last_invoice_nr [string trimleft $last_invoice_nr "0"] 
+    if {[empty_string_p $last_invoice_nr]} {
+	set last_invoice_nr 0
+    }
     set next_number [expr $last_invoice_nr + 1]
     ns_log notice "********** next_number is $next_number *************"
 set sql "
@@ -165,7 +169,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
     if {0 == $ctr} {
 	append object_list_html "
         <tr $bgcolor([expr $ctr % 2])>
-          <td><i>No objects found</i></td>
+          <td><i>[_ intranet-invoices.No_objects_found]</i></td>
         </tr>\n"
     }
 
@@ -174,16 +178,16 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
       [export_form_vars invoice_id return_url]
       <table border=0 cellspacing=1 cellpadding=1>
         <tr>
-          <td align=middle class=rowtitle colspan=2>Related Projects</td>
+          <td align=middle class=rowtitle colspan=2>[_ intranet-invoices.Related_Projects]</td>
         </tr>
         $object_list_html
         <tr>
           <td align=right>
-            <input type=submit name=add_project_action value='Add a Project'>
+            <input type=submit name=add_project_action value='[_ intranet-invoices.Add_a_Project]'>
             </A>
           </td>
           <td>
-            <input type=submit name=del_action value='Del'>
+            <input type=submit name=del_action value='[_ intranet-invoices.Del]'>
           </td>
         </tr>
       </table>

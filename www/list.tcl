@@ -430,6 +430,8 @@ if { ![empty_string_p $query_string] } {
 append table_header_html "<tr>\n"
 foreach col $column_headers {
     regsub -all " " $col "_" col_key
+    regsub -all "#" $col_key "hash_simbol" col_key
+    #set col_key [lang::util::suggest_key $col]
     if { [string compare $order_by $col] == 0 } {
 	append table_header_html "  <td class=rowtitle>[_ intranet-invoices.$col_key]</td>\n"
     } else {

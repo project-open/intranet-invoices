@@ -19,7 +19,7 @@
 	i.invoice_nr,
 	ci.customer_id,
 	ci.provider_id,
-	ci.effective_date,
+	to_char(ci.effective_date,'YYYY-MM-DD') as effective_date,
 	ci.payment_days,
 	ci.vat,
 	ci.tax,

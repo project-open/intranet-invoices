@@ -52,7 +52,7 @@
         </tr>
         <tr> 
           <td  class=roweven>#intranet-invoices.cost_type_date#</td>
-          <td  class=roweven>@invoice_date@</td>
+          <td  class=roweven>@invoice_date_pretty@</td>
         </tr>
 <!--        <tr> 
           <td  class=rowodd>#intranet-invoices.cost_type_due_date#</td>
@@ -79,7 +79,7 @@
 	<tr><td colspan=2 align=right>
 	  <form action=new method=POST>
 	    <%= [export_form_vars return_id invoice_id cost_type_id] %>
-	    <input type=submit name=edit_invoice value='Edit'>
+	    <input type=submit name=edit_invoice value='#intranet-invoices.Edit#'>
 	  </form>
 	</td></tr>
 	</table>
@@ -93,7 +93,7 @@
         <tr> 
           <td  class=rowodd>#intranet-invoices.Company_name#</td>
           <td  class=rowodd>
-            <A href="/intranet/companies/view?company_id=@company_id@">@company_name@</A>
+            <A href="/intranet/companies/view?company_id=@comp_id@">@company_name@</A>
           </td>
         </tr>
         <tr> 

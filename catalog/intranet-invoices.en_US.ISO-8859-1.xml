@@ -2,10 +2,12 @@
 <message_catalog package_key="intranet-invoices" package_version="2.1.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
+  <msg key="Add_a_Project">Add a Project</msg>
   <msg key="Add_a_user">Add a user</msg>
   <msg key="Admin_Links">Admin Links</msg>
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
+  <msg key="Client">Client</msg>
   <msg key="Company">Company</msg>
   <msg key="Company_1">Company:</msg>
   <msg key="Company_name">Company name</msg>
@@ -23,8 +25,12 @@
   <msg key="days">days</msg>
   <msg key="Del">Del</msg>
   <msg key="Description">Description</msg>
+  <msg key="Document_">Document #</msg>
+  <msg key="Document_hash_simbol">Document #</msg>
   <msg key="Document_Status">Document Status:</msg>
   <msg key="Document_Type">Document Type:</msg>
+  <msg key="Due_Date">Due Date</msg>
+  <msg key="Edit">Edit</msg>
   <msg key="Edit_cost_type">Edit %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
@@ -34,6 +40,7 @@
   <msg key="Financial_Documents">Financial Documents</msg>
   <msg key="From">From:</msg>
   <msg key="Go">Go</msg>
+  <msg key="Hour">Hour</msg>
   <msg key="Line">Line</msg>
   <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
@@ -69,14 +76,22 @@ Best regards,
   <msg key="lt_You_have_insufficient">You have insufficient privileges to see this page</msg>
   <msg key="lt_You_have_insufficient_1">You have insufficient privileges to view this page.</msg>
   <msg key="lt_You_need_to_specify_a">You need to specify a invoice_id</msg>
+  <msg key="New_Company_Invoice_from_Quote">New Company Invoice from Quote</msg>
+  <msg key="New_Company_Invoice_from_scratch">New Company Invoice from scratch</msg>
   <msg key="New_cost_type">New %cost_type%</msg>
+  <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
+  <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
+  <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>
+  <msg key="New_Quote_from_scratch">New Quote from scratch</msg>
   <msg key="Next_Page">Next Page</msg>
   <msg key="No_command_specified">No command specified</msg>
+  <msg key="No_objects_found">No objects found</msg>
   <msg key="No_payments_found">No payments found</msg>
   <msg key="Note">Note:</msg>
   <msg key="Notify_user">Notify user</msg>
   <msg key="One_cost_type">One %cost_type%</msg>
   <msg key="Our_Ref">Our Ref.</msg>
+  <msg key="Paid">Paid</msg>
   <msg key="Payment_Method">Payment Method</msg>
   <msg key="Payment_Method_1">Payment Method:</msg>
   <msg key="Payment_Terms">Payment Terms:</msg>
@@ -90,7 +105,11 @@ Best regards,
   <msg key="Rate">Rate</msg>
   <msg key="Recipient">Recipient</msg>
   <msg key="Related_Payments">Related Payments</msg>
+  <msg key="Related_Projects">Related Projects</msg>
+  <msg key="S-Line">S-Line</msg>
   <msg key="Save">Save</msg>
+  <msg key="Status">Status</msg>
+  <msg key="Subtotal">Subtotal</msg>
   <msg key="TAX">TAX</msg>
   <msg key="TAXnbsp">TAX&amp;nbsp;</msg>
   <msg key="To">To:</msg>

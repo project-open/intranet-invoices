@@ -26,7 +26,7 @@ ad_page_contract {
     template_id:integer
     vat:float
     tax:float
-    note
+    {note ""}
     item_sort_order:array
     item_name:array
     item_units:float,array
@@ -72,8 +72,8 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
     return
 }
 
-if {"" == $provider_id} { set provider_id [im_company_internal] }
-if {"" == $company_id} { set company_id [im_company_internal] }
+if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
+if {"" == $company_id || 0 == $company_id} { set company_id [im_company_internal] }
 
 
 set project_id ""
@@ -183,7 +183,7 @@ foreach project_id $select_project {
                 from    acs_rels
                 where   object_id_one = :project_id
                         and object_id_two = :invoice_id"
-    if {0 = $v_rel_exists} {
+    if {0 ==  $v_rel_exists} {
 	    set rel_id [db_exec_plsql create_rel ""]
     }
 }

@@ -28,7 +28,6 @@ if {0 == $invoice_id} {
     ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
-
 if {![im_permission $user_id view_companies]} {
     ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
@@ -72,7 +71,7 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 if {$invoice_or_quote_p} {
     # A Company document
-    set company_or_provider_join "and i.company_id = c.company_id"
+    set company_or_provider_join "and i.customer_id = c.company_id"
     set provider_company "Company"
 } else {
     # A provider document
@@ -93,6 +92,7 @@ select
         c.*,
 	c.company_id as company_id,
         o.*,
+        to_char(i.invoice_date,'YYYY-MM-DD') as invoice_date_pretty,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
 	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
 	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
@@ -116,7 +116,7 @@ if { ![db_0or1row projects_info_query $query] } {
     ad_return_complaint 1 "[_ intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
-
+set comp_id "$company_id"
 set query "
 select
         pm_cat.category as invoice_payment_method,
@@ -168,7 +168,6 @@ where cost_id = :invoice_id
 
 set payment_list_html ""
 if {[db_table_exists im_payments]} {
-
     set cost_id $invoice_id
     set payment_list_html "
 	<form action=payment-action method=post>
@@ -183,6 +182,7 @@ if {[db_table_exists im_payments]} {
     set payment_list_sql "
 select
 	p.*,
+        to_char(p.received_date,'YYYY-MM-DD') as received_date_pretty,
 	im_category_from_id(p.payment_type_id) as payment_type
 from
 	im_payments p
@@ -196,7 +196,7 @@ where
         <tr $bgcolor([expr $payment_ctr % 2])>
           <td>
 	    <A href=/intranet-payments/view?payment_id=$payment_id>
-	      $received_date
+	      $received_date_pretty
  	    </A>
 	  </td>
           <td>
@@ -269,14 +269,12 @@ set ctr 1
 set colspan 7
 if {!$company_project_nr_exists} { set colspan [expr $colspan-1]}
 
-
-db_foreach invoice_items $invoice_items_sql {
-
+db_foreach invoice_items {} {
     append item_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>$item_name</td>
           <td align=right>$item_units</td>
-          <td align=left>$item_uom</td>
+          <td align=left>[_ intranet-core.$item_uom]</td>
           <td align=right>[im_date_format_locale $price_per_unit 2 3]&nbsp;$currency</td>\n"
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
@@ -313,7 +311,7 @@ set colspan_sub [expr $colspan - 1]
 # Add a subtotal
 append item_html "
         <tr> 
-          <td class=rowplain colspan=$colspan_sub align=right><B>Subtotal</B></td>
+          <td class=rowplain colspan=$colspan_sub align=right><B>[_ intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B> [im_date_format_locale $subtotal 2 2] $currency</B></td>
         </tr>
 "
@@ -321,8 +319,8 @@ append item_html "
 #if {0 != $vat} {
     append item_html "
         <tr>
-          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: $vat %&nbsp;</td>
-          <td class=roweven align=right>$vat_amount $currency</td>
+          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
+          <td class=roweven align=right>[format "%0.2f" $vat_amount] $currency</td>
         </tr>
 "
 #}
@@ -330,8 +328,8 @@ append item_html "
 if {0 != $tax} {
     append item_html "
         <tr> 
-          <td colspan=$colspan_sub align=right>[_ intranet-invoices.TAX]: $tax %&nbsp;</td>
-          <td class=roweven align=right>$tax_amount $currency</td>
+          <td colspan=$colspan_sub align=right>[_ intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
+          <td class=roweven align=right>[format "%0.2f" $tax_amount] $currency</td>
         </tr>
     "
 }
@@ -362,7 +360,6 @@ append item_html "
 	  </td>
         </tr>
 "
-
 
 # ---------------------------------------------------------------
 # 10. Format using a template
