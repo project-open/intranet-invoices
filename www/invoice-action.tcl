@@ -55,12 +55,26 @@ switch $submit {
 
         foreach cost_id $del_cost {
             set otype $object_type($cost_id)
-            # ToDo: Security
-            db_dml delete_cost_item "
-                begin
-                        ${otype}.del(:cost_id);
-                end;"
-            lappend in_clause_list $cost_id
+
+	    db_transaction {
+		# ToDo: This delete option should go into
+		# im_trans_invoice.del(...)
+		#
+		if { [db_table_exists im_trans_tasks] } {
+		    db_dml delete_trans_tasks "
+			update im_trans_tasks
+			set invoice_id = null
+			where invoice_id = :cost_id
+                    "
+		}
+
+		# ToDo: Security
+		db_dml delete_cost_item "
+	                begin
+	                        ${otype}.del(:cost_id);
+	                end;"
+		lappend in_clause_list $cost_id
+	    }
         }
         set cost_where_list "([join $in_clause_list ","])"
 
