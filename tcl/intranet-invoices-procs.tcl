@@ -196,4 +196,116 @@ where
 }
 
 
+# ---------------------------------------------------------------
+# Workflow
+# ---------------------------------------------------------------
 
+ad_proc -private im_invoice_po_workflow {} {
+    Create a workflow for invoices between the states
+    created, confirmed and filed.
+} {
+    set spec {
+        purchase-order {
+            pretty_name "Purchase Order"
+            package_key "intranet-invoices"
+            object_type "im_invoice"
+            callbacks { 
+		# leave these blank for now
+                # bug-tracker.FormatLogTitle 
+                # bug-tracker.BugNotificationInfo
+            }
+            roles {
+                provider {
+                    pretty_name "Provider"
+                    callbacks { 
+			workflow.CreationUser 
+			# leave these blank for now
+                        # workflow.Role_DefaultAssignees_CreationUser
+                    }
+                }
+                manager {
+                    pretty_name "Manager"
+                    callbacks { 
+			# leave these blank for now
+                        # workflow.Role_DefaultAssignees_CreationUser
+                    }
+                }
+            }
+            states {
+                open {
+                    pretty_name "Open"
+                    # hide_fields { resolution fixed_in_version }
+                }
+                confirmed {
+                    pretty_name "Confirmed"
+                }
+                closed {
+                    pretty_name "Closed"
+                }
+                deleted {
+                    pretty_name "Deleted"
+                }
+            }
+            actions {
+                create {
+                    pretty_name "Create"
+                    pretty_past_tense "Created"
+                    new_state "open"
+                    initial_action_p t
+                }
+                confirm {
+                    pretty_name "Confirm"
+                    pretty_past_tense "Confirmed"
+                    privileges { write }
+                    always_enabled_p t
+                    edit_fields { 
+			# not sure what to do here
+                        #component_id 
+                        #summary 
+                        #found_in_version
+                        #role_assignee
+                        #fix_for_version
+                        #resolution 
+                        #fixed_in_version 
+                    }
+                }
+                modify {
+                    pretty_name "Modify"
+                    pretty_past_tense "Modified"
+                    privileges { write }
+                    enabled_states { confirmed }
+                    modify_fields { 
+			# not sure what to do here
+                        #component_id 
+                        #summary 
+                        #found_in_version
+                        #role_assignee
+                        #fix_for_version
+                        #resolution 
+                        #fixed_in_version 
+                    }
+                    privileges { write }
+                    new_state "open"
+                }
+                close {
+                    pretty_name "Close"
+                    pretty_past_tense "Closed"
+                    # what is this doing?
+		        assigned_role "submitter"
+                    assigned_states { resolved }
+                    new_state "closed"
+                    privileges { write }
+                }
+            }
+        }
+    }
+    return workflow_id [workflow::fsm::new_from_spec -spec $spec]
+}
+
+ad_proc -public im_invoice_po_workflow_start {} {
+    Start a workflow for a specific purchase order
+} {
+    set workflow_spec [im_invoice_po_workflow]
+    set workflow_id [workflow::fsm::new_from_spec -spec $workflow_spec]
+    return $workflow_id
+}
