@@ -226,7 +226,7 @@ commit;
 delete from im_view_columns where view_id = 192;
 delete from im_views where view_id = 192;
 insert into im_views (view_id, view_name, view_sql
-) values (192, 'im_prices', '
+) values (192, 'im_trans_prices', '
 SELECT
 	p.*,
 	im_category_from_id(p.uom_id) as uom,
@@ -235,7 +235,7 @@ SELECT
 	im_category_from_id(p.source_language_id) as source_language,
 	im_category_from_id(p.subject_area_id) as subject_area
 FROM
-	im_prices p,
+	im_trans_prices p,
 	user_groups cg
 WHERE
 	p.customer_id = cg.group_id
