@@ -104,8 +104,8 @@ from
 where
 	i.invoice_id = :invoice_id
 	and i.invoice_id = ci.cost_id
-	and i.payment_method_id=pm_cat.category_id(+)
-	and ci.customer_id=c.customer_id(+)
+	and i.payment_method_id = pm_cat.category_id(+)
+	and ci.customer_id = c.customer_id(+)
 	and c.main_office_id=o.office_id(+)
 	and o.address_country_code=cc.iso(+)
 "
@@ -116,7 +116,7 @@ if { ![db_0or1row projects_info_query $query] } {
 }
 
 
-set project_select [im_project_select object_id $project_id "Open" "" "" ""]
+set project_select [im_project_select object_id $project_id "" "" "" "" $customer_id]
 
 db_release_unused_handles
 

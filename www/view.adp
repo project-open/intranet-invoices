@@ -9,10 +9,7 @@
 	  <%= [im_invoices_object_list_component $user_id $invoice_id $return_url] %>
   </td>
   <td>
-	  <table border=0 cellPadding=1 cellspacing=1>
 	    @payment_list_html;noquote@
-	    <tr><td colspan=2>&nbsp;</td></tr>
-	  </table>
   </td>
   <td>
 	<table border=0 cellPadding=1 cellspacing=1>

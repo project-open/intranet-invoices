@@ -134,9 +134,15 @@ set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title
 set payment_list_html ""
 if {[db_table_exists im_payments]} {
 
+    set cost_id $invoice_id
     set payment_list_html "
+	<form action=payment-action method=post>
+	[export_form_vars cost_id return_url]
+	<table border=0 cellPadding=1 cellspacing=1>
         <tr>
-          <td align=middle class=rowtitle colspan=2>Related Payments</td>
+          <td align=middle class=rowtitle colspan=3>
+	    Related Payments
+	  </td>
         </tr>"
 
     set payment_list_sql "
@@ -159,22 +165,26 @@ where
  	    </A>
 	  </td>
           <td>
-	      $amount $currency $payment_type
+	      $amount $currency
           </td>
+	  <td>
+	    <input type=checkbox name=payment_id value=$payment_id>
+	  </td>
         </tr>\n"
 	incr payment_ctr
     }
 
-
+    if {!$payment_ctr} {
+	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>No payments found</i></td></tr>\n"
+    }
     append payment_list_html "
         <tr $bgcolor([expr $payment_ctr % 2])>
-          <td align=left colspan=2>
-	    <A href=/intranet-payments/new?invoice_id=$invoice_id>
-	      Add a payment
-	    </A>
+          <td align=right colspan=3>
+	    <input type=submit name=add value=\"Add a Payment\">
+	    <input type=submit name=del value=\"Del\">
           </td>
         </tr>
-    "
+	</table>\n"
 }
 
 # ---------------------------------------------------------------
