@@ -247,7 +247,20 @@ ad_proc im_invoices_base_component { user_id {customer_id ""} {project_id ""} } 
   
     set where_conds [list]
     if {"" != $customer_id} { lappend where_conds "i.customer_id=:customer_id" }
-    if {"" != $project_id} { lappend where_conds "i.invoice_id in (select distinct invoice_id from im_invoice_items where project_id=:project_id)" }
+    if {"" != $project_id} { 
+	# Select the invoice_id's of invoice_items and
+	# invoices explicitely associated with a project.
+	lappend where_conds "
+	i.invoice_id in (
+		select distinct invoice_id 
+		from im_invoice_items 
+		where project_id=:project_id
+	    UNION
+		select distinct object_id_two as invoice_id
+		from acs_rels
+		where object_id_one = :project_id
+	)" 
+    }
     set where_clause [join $where_conds "\n	and "]
     if {"" == $where_clause} { set where_clause "1=1" }
 
