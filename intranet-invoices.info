@@ -8,18 +8,18 @@
     <singleton-p>t</singleton-p>
     <auto-mount>intranet-invoices</auto-mount>
 
-    <version name="2.1.0" url="http://openacs.org/repository/download/apm/intranet-invoices-2.1.0.apm">
+    <version name="2.1.3" url="http://openacs.org/repository/download/apm/intranet-invoices-2.1.3.apm">
         <owner url="mailto:fraber@fraber.de">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">Project/Open</vendor>
 
-        <provides url="intranet-invoices" version="2.1.0"/>
+        <provides url="intranet-invoices" version="2.1.3"/>
         <requires url="intranet-core" version="2.1.0"/>
         <requires url="intranet-payments" version="2.1.0"/>
 
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/web/intranet/filestorage/templates" description="Path for Invoicing templates"/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/web/projop/filestorage/templates" description="Path for Invoicing templates"/>
 
         </parameters>
 
