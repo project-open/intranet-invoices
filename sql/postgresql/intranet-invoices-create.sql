@@ -1,0 +1,802 @@
+-- /package/intranet-invoices/sql/oracle/intranet-invoices-create.sql
+--
+-- Copyright (c) 2003-2004 Project/Open
+--
+-- All rights reserved. Please check
+-- http://www.project-open.com/license/ for details.
+--
+-- @author frank.bergmann@project-open.com
+
+-- Invoices module for Project/Open
+--
+-- Defines:
+--	im_invoices			Invoice biz object container
+--	im_invoice_items		Invoice lines
+--	im_projects_invoices_map	Maps projects -> invoices
+--
+
+-- An invoice basically is a container of im_invoice_lines.
+-- The problem is that invoices can be vastly different 
+-- from business to business, and that invoices may emerge
+-- as a result of negotiations between the comapany and the
+-- client, so that basically nothing is really fixed or
+-- consistent with the project data.
+--
+-- So the idea of this module is to _generate_ the invoices
+-- automatically and consistently from the project data,
+-- but to allow invoices to be edit manually in every respect.
+--
+-- Options to create invoices include:
+--	- exactly one invoice for each project
+--	- include multipe projects in one invoice
+--	- multiple invoices per project (partial invoices)
+--	- invoices without project
+--
+-- As a side effect of creating an invoice, the status of
+-- the associated projects may be set to "invoiced", as
+-- well as the status of the projects tasks of those 
+-- projects (if the project-tasks module is installed).
+
+---------------------------------------------------------
+-- Invoices
+--
+-- Invoices group together several "Tasks" (possibly from different
+-- projects). 
+--
+-- Access permissions to invoices are granted to members
+-- of owners of the "view_finance" permission token, and
+-- to group members of the client.
+--
+-- Please note that it is a manual task to set the invoice
+-- status to "paid", because the due_amount 
+-- (sum(invoice_lines.amount)) is almost never going to
+-- match the paid amount (sum(im_payments.fee)).
+--
+create table im_invoices (
+	invoice_id		integer
+				constraint im_invoices_pk
+				primary key
+				constraint im_invoices_id_fk
+				references im_costs,
+	company_contact_id	integer 
+				constraint im_invoices_contact
+				references users,
+	invoice_nr		varchar(40)
+				constraint im_invoices_nr_un unique,
+	payment_method_id	integer
+				constraint im_invoices_payment
+				references im_categories,
+	-- the PO of a provider bill or the quote of an invoice
+	reference_document_id	integer
+				constraint im_invoices_reference_doc
+				references im_invoices
+);
+
+
+
+-----------------------------------------------------------
+-- Invoice Items
+--
+-- - Invoice items reflect the very fuzzy structure of invoices,
+--   that may contain basicly everything that fits in one line
+--   and has a price.
+-- - Invoice items can created manually or generated from
+--   "invoicable items" such as im_trans_tasks, timesheet information
+--    or similar.
+-- All fields (number of units, price, description) need to be 
+-- human editable because invoicing is so messy...
+
+create sequence im_invoice_items_seq start 1;
+create table im_invoice_items (
+	item_id			integer
+				constraint im_invoices_items_pk
+				primary key,
+	item_name		varchar(200),
+				-- project_id if != null is used to access project details
+				-- for invoice generation, such as the company PO# etc.
+	project_id		integer
+				constraint im_invoices_items_project
+				references im_projects,
+	invoice_id		integer not null 
+				constraint im_invoices_items_invoice
+				references im_invoices,
+	item_units		numeric(12,1),
+	item_uom_id		integer not null 
+				constraint im_invoices_items_uom
+				references im_categories,
+	price_per_unit 		numeric(12,3),
+	currency		char(3) 
+				constraint im_invoices_items_currency
+				references currency_codes(ISO),
+	sort_order		integer,
+	item_type_id		integer
+				constraint im_invoices_items_item_type
+				references im_categories,
+	item_status_id		integer
+				constraint im_invoices_items_item_status
+				references im_categories,
+	description		varchar(4000),
+		-- Make sure we can''t create duplicate entries per invoice
+		constraint im_invoice_items_un
+		unique (item_name, invoice_id, project_id, item_uom_id)
+);
+
+
+
+---------------------------------------------------------
+-- Invoice Object
+---------------------------------------------------------
+
+-- Nothing spectactular, just to be able to use acs_rels
+-- between projects and invoices and to add custom fields
+-- later. We are not even going to use the permission
+-- system right now.
+
+-- begin
+
+select acs_object_type__create_type (
+	'im_invoice',		-- object_type
+	'Invoice',		-- pretty_name
+	'Invoices',		-- pretty_plural
+	'acs_object',		-- supertype
+	'im_invoices',		-- table_name
+	'invoice_id',		-- id_column
+	'im_invoice',		-- package_name
+	'f',			-- abstract_p
+	null,			-- type_extension_table
+	'im_invoice.name'	-- name_method
+    );
+
+
+
+
+-- create or replace package body im_invoice
+-- is
+create or replace function im_invoice__new (
+	integer,
+	varchar,
+	timestamptz,
+	integer,
+	varchar,
+	integer,
+	varchar,
+	integer,
+	integer,
+	integer,
+	timestamptz,
+	char(3),
+	integer,
+	integer,
+	integer,
+	integer,
+	integer,
+	numeric,
+	numeric,
+	numeric,
+	varchar
+    ) 
+returns integer as '
+declare
+	p_invoice_id		alias for $1;		-- invoice_id default null
+	p_object_type		alias for $2;		-- object_type default ''im_invoice''
+	p_creation_date		alias for $3;		-- creation_date default now()
+	p_creation_user		alias for $4;		-- creation_user
+	p_creation_ip		alias for $5;		-- creation_ip default null
+	p_context_id		alias for $6;		-- context_id default null
+	p_invoice_nr		alias for $7;		-- invoice_nr
+	p_company_id		alias for $8;		-- company_id
+	p_provider_id		alias for $9;		-- provider_id
+	p_company_contact_id	alias for $10;		-- company_contact_id default null
+	p_invoice_date		alias for $11;		-- invoice_date now()
+	p_invoice_currency	alias for $12;		-- invoice_currency default ''EUR''
+	p_invoice_template_id	alias for $13;		-- invoice_template_id default null
+	p_invoice_status_id	alias for $14;		-- invoice_status_id default 602
+	p_invoice_type_id	alias for $15;		-- invoice_type_id default 700
+	p_payment_method_id	alias for $16;		-- payment_method_id default null
+	p_payment_days		alias for $17;		-- payment_days default 30
+	p_amount		alias for $18;		-- amount
+	p_vat			alias for $19;		-- vat default 0
+	p_tax			alias for $20;		-- tax default 0
+	p_note			alias for $21;		-- note
+
+	v_invoice_id		integer;
+    begin
+	v_invoice_id := im_cost__new (
+		p_invoice_id,	     -- cost_id
+		p_object_type,	     -- object_type
+		p_creation_date,     -- creation_date
+		p_creation_user,     -- creation_user
+		p_creation_ip,	     -- creation_ip
+		p_context_id,	     -- context_id
+		
+		p_invoice_nr,	     -- cost_name
+		null,		     -- parent_id
+		null,		     --	project_id
+		p_company_id,	     -- company_id
+		p_provider_id,	     -- provider_id
+		null,		     -- investment_id
+		
+		p_invoice_status_id, -- cost_status_id
+		p_invoice_type_id,   -- cost_type_id
+		p_invoice_template_id,	-- template_id
+		
+		p_invoice_date,		-- effective_date
+		p_payment_days,		-- payment_days
+		p_amount,		-- amount
+		p_invoice_currency,	-- currency
+		p_vat,			-- vat
+		p_tax,			-- tax
+
+		''f'',			-- variable_cost_p
+		''f'',			-- needs_redistribution_p
+		''f'',			-- redistributed_p
+		''f'',			-- planning_p
+		null,			-- planning_type_id
+
+		p_note,			-- note
+		null			-- description
+	);
+
+	insert into im_invoices (
+		invoice_id,
+		company_contact_id, 
+		invoice_nr,
+		payment_method_id
+	) values (
+		v_invoice_id,
+		p_company_contact_id, 
+		p_invoice_nr,
+		p_payment_method_id
+	);
+
+	return v_invoice_id;
+end;' language 'plpgsql';
+
+    -- Delete a single invoice (if we know its ID...)
+create or replace function  im_invoice__delete (integer)
+returns integer as '
+declare
+	p_invoice_id alias for $1;	-- invoice_id
+begin
+	-- Erase the im_invoice_item associated with the id
+	delete from 	im_invoice_items
+	where		invoice_id = p_invoice_id;
+
+	-- Erase the invoice itself
+	delete from 	im_invoices
+	where		invoice_id = p_invoice_id;
+
+	-- Erase the CostItem
+	select im_cost__del(p_invoice_id);
+end;' language 'plpgsql';
+
+create or replace function name (integer)
+returns varchar as '
+declare
+	p_invoice_id alias for $1;	-- invoice_id
+	v_name	varchar(40);
+begin
+	select	invoice_nr
+	into	v_name
+	from	im_invoices
+	where	invoice_id = p_invoice_id;
+
+	return v_name;
+end;' language 'plpgsql';
+
+
+------------------------------------------------------
+-- Projects <-> Invoices Map
+--
+-- Several projects may be invoiced in a single invoice,
+-- while a single project may be invoices several times,
+-- particularly if it is a big project.
+--
+-- So there is a N:M relation between these two, and we
+-- need a mapping table. This table allows us to
+-- avoid inserting a "invoice_id" column in the im_projects
+-- table, thus reducing the dependency between the "core"
+-- module and the "invoices" module, allowing for example
+-- for several different invoices modules.
+--
+-- 040403 fraber: We are now using acs_rels instead of
+-- im_project_invoice_map:
+-- acs_rels: object_id_one=project_id, object_id_two=invoice_id
+
+
+
+
+------------------------------------------------------
+-- Permissions and Privileges
+--
+
+select acs_privilege__create_privilege('view_invoices','View Invoices','View Invoices');
+select acs_privilege__create_privilege('add_invoices','View Invoices','View Invoices');
+
+
+select im_priv_create('view_invoices','Accounting');
+select im_priv_create('view_invoices','P/O Admins');
+select im_priv_create('view_invoices','Senior Managers');
+
+select im_priv_create('add_invoices','Accounting');
+select im_priv_create('add_invoices','P/O Admins');
+select im_priv_create('add_invoices','Senior Managers');
+
+
+------------------------------------------------------
+-- Views to Business Objects
+--
+-- all invoices that are not deleted (600) nor that have
+-- been lost during creation (612).
+create or replace view im_invoices_active as 
+select	i.*,
+	ci.*,
+	to_date(to_char(ci.effective_date,'YYYY-MM-DD'),'YYYY-MM-DD') + ci.payment_days as due_date,
+	ci.effective_date as invoice_date,
+	ci.cost_status_id as invoice_status_id,
+	ci.cost_type_id as invoice_type_id,
+	ci.template_id as invoice_template_id
+from 
+	im_invoices i,
+	im_costs ci
+where
+	ci.cost_id = i.invoice_id
+	and ci.cost_status_id not in (3712);
+
+
+create or replace view im_payment_type as 
+select category_id as payment_type_id, category as payment_type
+from im_categories 
+where category_type = 'Intranet Payment Type';
+
+create or replace view im_invoice_payment_method as 
+select 
+	category_id as payment_method_id, 
+	category as payment_method, 
+	category_description as payment_description
+from im_categories 
+where category_type = 'Intranet Invoice Payment Method';
+
+
+
+------------------------------------------------------
+-- Invoice Views
+--
+insert into im_views (view_id, view_name, visible_for) 
+values (30, 'invoice_list', 'view_finance');
+insert into im_views (view_id, view_name, visible_for) 
+values (31, 'invoice_new', 'view_finance');
+
+
+-- Invoice List Page
+--
+delete from im_view_columns where column_id > 3000 and column_id < 3099;
+--
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
+'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
+'','',1,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'Preview',
+'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$template_id>
+$invoice_nr</A>"','','',2,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
+'$cost_type','','',3,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provider',
+'"<A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A>"',
+'','',4,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Client',
+'"<A HREF=/intranet/companies/view?company_id=$company_id>$company_name</A>"',
+'','',5,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',
+'[if {$overdue > 0} {
+	set t "<font color=red>$due_date_calculated</font>"
+} else {
+	set t "$due_date_calculated"
+}]','','',7,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3011,30,NULL,'Amount',
+'"$invoice_amount_formatted $invoice_currency"','','',11,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
+'"$payment_amount $payment_currency"','','',13,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
+'[im_cost_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
+'[if {[string equal "" $payment_amount]} {
+	set ttt "
+		<input type=checkbox name=del_cost value=$invoice_id>
+		<input type=hidden name=object_type.$invoice_id value=$object_type>"
+}]','','',99,'');
+--
+
+-- Invoice New Page (shows Projects)
+--
+delete from im_view_columns where column_id > 3100 and column_id < 3199;
+--
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3101,31,NULL,'Project #',
+'"<A HREF=/intranet/projects/view?project_id=$project_id>$project_nr</A>"','','',1,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3103,31,NULL,'Client',
+'"<A HREF=/intranet/companies/view?company_id=$company_id>$company_name</A>"','','',2,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3107,31,NULL,'Project Name','$project_name','','',4,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3109,31,NULL,'Type','$project_type','','',5,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3111,31,NULL,'Status','$project_status','','',6,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3113,31,NULL,'Delivery Date','$end_date','','',7,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3115,31,NULL,'Sel',
+'"<input type=checkbox name=select_project value=$project_id>"',
+'','',8,'');
+
+--
+
+-- Invoice Status
+delete from im_categories where category_id >= 600 and category_id < 700;
+-- now being replaced by "Intranet Cost Status"
+-- reserved until 699
+
+
+-- Invoice Type
+delete from im_categories where category_id >= 700 and category_id < 800;
+-- now being replaced by "Intranet Cost Type"
+
+
+-- Invoice Payment Method
+delete from im_categories where category_id >= 800 and category_id < 900;
+
+INSERT INTO im_categories VALUES (800,'Undefined',
+'Not defined yet','Intranet Invoice Payment Method','category','t','f');
+INSERT INTO im_categories VALUES (802,'Cash',
+'Cash or cash equivalent','Intranet Invoice Payment Method','category','t','f');
+
+INSERT INTO im_categories VALUES (804,'Cheque EUR',
+'Check in EUR payable to company','Intranet Invoice Payment Method','category','t','f');
+INSERT INTO im_categories VALUES (806,'Cheque USD',
+'Check in US$ payable to company','Intranet Invoice Payment Method','category','t','f');
+INSERT INTO im_categories VALUES (808,'Patagon EUR',
+'Wire transfer without charges for the beneficiary, IBAN: ..., Patagon Bank S.A. Madrid.',
+'Intranet Invoice Payment Method','category','t','f');
+INSERT INTO im_categories VALUES (810,'La Caixa EUR',
+'Wire transfer without charges for the beneficiary, IBAN: ..., Caja de Ahorros y Pensiones de Barcelona.',
+'Intranet Invoice Payment Method','category','t','f');
+
+-- reserved until 899
+
+-- Payment Type
+delete from im_categories where category_id >= 1000 and category_id < 1100;
+INSERT INTO im_categories VALUES (1000,'Bank Transfer','','Intranet Payment Type','category','t','f');
+INSERT INTO im_categories VALUES (1002,'Cheque','','Intranet Payment Type','category','t','f');
+
+-- reserved until 1099
+
+
+
+---------------------------------------------------------
+-- Invoice Menus
+--
+-- delete potentially existing menus and plugins if this
+-- file is sourced multiple times during development...
+-- delete the intranet-payments menus because they are 
+-- located below intranet-invoices modules and would
+-- cause a RI error.
+
+-- BEGIN
+    select im_component_plugin__del_module('intranet-invoices');
+    select im_menu__del_module('intranet-payments');
+    select im_menu__del_module('intranet-invoices');
+-- END;
+
+-- commit;
+
+
+-- prompt *** Setup the invoice menus
+--
+create or replace function inline_0 ()
+returns integer as '
+declare
+	-- Menu IDs
+	v_menu			integer;
+	v_main_menu 		integer;
+	v_finance_menu		integer;
+
+	-- Groups
+	v_employees	integer;
+	v_accounting	integer;
+	v_senman	integer;
+	v_customers	integer;
+	v_freelancers	integer;
+	v_proman		integer;
+	v_admins		integer;
+begin
+
+    select group_id into v_admins from groups where group_name = ''P/O Admins'';
+    select group_id into v_senman from groups where group_name = ''Senior Managers'';
+    select group_id into v_accounting from groups where group_name = ''Accounting'';
+    select group_id into v_customers from groups where group_name = ''Customers'';
+    select group_id into v_freelancers from groups where group_name = ''Freelancers'';
+
+    select menu_id
+    into v_finance_menu
+    from im_menus
+    where label=''finance'';
+
+    -- -----------------------------------------------------
+    -- Invoices Submenu
+    -- -----------------------------------------------------
+
+    -- needs to be the first submenu in order to get selected
+    v_menu := im_menu__new (
+	null,				-- menu_id
+        ''acs_object'',			-- object_type
+	now(),				-- creation_date
+        null,				-- creation_user
+        null,				-- creation_ip
+        null,				-- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_companies'',		-- label
+	''Companies'',			-- name
+	''/intranet-invoices/list?cost_type_id=3708'',	-- url
+	10,						-- sort_order
+	v_finance_menu,					-- parent_menu_id
+	null						-- visible_tcl
+    );
+    PERFORM acs_permission__grant_permission(v_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_freelancers, ''read'');
+
+
+    v_menu := im_menu__new (
+	null,				-- menu_id
+        ''acs_object'',			-- object_type
+	now(),				-- creation_date
+        null,				-- creation_user
+        null,				-- creation_ip
+        null,				-- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_providers'',		-- label
+	''Providers'',			-- name
+	''/intranet-invoices/list?cost_type_id=3710'',	-- url
+	20,						-- sort_order
+	v_finance_menu,					-- parent_menu_id
+	null						-- visible_tcl
+    );
+    PERFORM acs_permission__grant_permission(v_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_menu, v_freelancers, ''read'');
+    return 0;
+end;' language 'plpgsql';
+
+select inline_0 ();
+
+drop function inline_0 ();
+
+
+-- Setup the "Invoices New" admin menu for Company Documents
+--
+create or replace function inline_0 ()
+returns integer as '
+declare
+	-- Menu IDs
+	v_menu			integer;
+	v_invoices_new_menu	integer;
+	v_finance_menu		integer;
+
+	-- Groups
+	v_employees		integer;
+	v_accounting		integer;
+	v_senman		integer;
+	v_customers		integer;
+	v_freelancers		integer;
+	v_proman		integer;
+	v_admins		integer;
+begin
+
+    select group_id into v_admins from groups where group_name = ''P/O Admins'';
+    select group_id into v_senman from groups where group_name = ''Senior Managers'';
+    select group_id into v_accounting from groups where group_name = ''Accounting'';
+    select group_id into v_customers from groups where group_name = ''Customers'';
+    select group_id into v_freelancers from groups where group_name = ''Freelancers'';
+
+    select menu_id
+    into v_invoices_new_menu
+    from im_menus
+    where label=''invoices_companies'';
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_companies_new_invoice'',	-- label
+	''New Company Invoice from scratch'',	-- name
+	''/intranet-invoices/new?cost_type_id=3700'',	-- url
+	10,						-- sort_order
+	v_invoices_new_menu,				-- parent_menu_id
+	null						-- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_companies_new_invoice_from_quote'',	-- label
+	''New Company Invoice from Quote'',		-- name
+	''/intranet-invoices/new-copy?cost_type_id=3700\&from_cost_type_id=3702'',	-- url
+	20,										-- sort_order
+	v_invoices_new_menu,								-- parent_menu_id
+	null										-- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_companies_new_quote'',  -- label
+	''New Quote from scratch'',	   -- name
+	''/intranet-invoices/new?cost_type_id=3702'',	-- url
+	30,						-- sort_order
+	v_invoices_new_menu,				-- parent_menu_id
+	null						-- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+    return 0;
+end;' language 'plpgsql';
+
+select inline_0 ();
+
+drop function inline_0 ();
+
+
+
+-- Setup the "Invoices New" admin menu for Company Documents
+--
+create or replace function inline_0 ()
+returns integer as '
+declare
+	-- Menu IDs
+	v_menu			integer;
+	v_invoices_new_menu	integer;
+	v_finance_menu		integer;
+
+	-- Groups
+	v_employees		integer;
+	v_accounting		integer;
+	v_senman		integer;
+	v_customers		integer;
+	v_freelancers		integer;
+	v_proman		integer;
+	v_admins		integer;
+begin
+
+    select group_id into v_admins from groups where group_name = ''P/O Admins'';
+    select group_id into v_senman from groups where group_name = ''Senior Managers'';
+    select group_id into v_accounting from groups where group_name = ''Accounting'';
+    select group_id into v_customers from groups where group_name = ''Customers'';
+    select group_id into v_freelancers from groups where group_name = ''Freelancers'';
+
+    select menu_id
+    into v_invoices_new_menu
+    from im_menus
+    where label=''invoices_providers'';
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_providers_new_bill'', -- label
+	''New Provider Bill from scratch'', -- name
+	''/intranet-invoices/new?cost_type_id=3704'',	-- url
+	10,						-- sort_order
+	v_invoices_new_menu,				-- arent_menu_id
+	null						-- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_providers_new_bill_from_po'',	-- label
+	''New Provider Bill from Purchase Order'',	-- name
+	''/intranet-invoices/new-copy?cost_type_id=3704\&from_cost_type_id=3706'',	-- url
+	20,										-- sort_order
+	v_invoices_new_menu,								-- parent_menu_id
+	null										-- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+
+    v_finance_menu := im_menu__new (
+	null,                           -- menu_id
+        ''acs_object'',                 -- object_type
+        now(),                          -- creation_date
+        null,                           -- creation_user
+        null,                           -- creation_ip
+        null,                           -- context_id
+	''intranet-invoices'',		-- package_name
+	''invoices_providers_new_po'',	-- label
+	''New Purchase Order from scratch'',	-- name
+	''/intranet-invoices/new?cost_type_id=3706'', -- url
+	30,					      -- sort_order
+	v_invoices_new_menu,			      -- parent_menu_id
+	null					      -- visible_tcl
+    );
+
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_admins, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_senman, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_accounting, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_customers, ''read'');
+    PERFORM acs_permission__grant_permission(v_finance_menu, v_freelancers, ''read'');
+    return 0;
+end;' language 'plpgsql';
+
+select inline_0 ();
+
+drop function inline_0 ();
+
+-- Add links to edit im_invoices objects...
+
+insert into im_biz_object_urls (object_type, url_type, url) values (
+'im_invoice','view','/intranet-invoices/view?invoice_id=');
+insert into im_biz_object_urls (object_type, url_type, url) values (
+'im_invoice','edit','/intranet-invoices/new?invoice_id=');
