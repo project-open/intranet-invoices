@@ -2,12 +2,13 @@
 <message_catalog package_key="intranet-invoices" package_version="3.0.0" locale="de_DE" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Neue Zahlung</msg>
-  <msg key="Add_a_Project">Neues Projekt</msg>
+  <msg key="Add_a_Project">Projekte assoziieren</msg>
   <msg key="Add_a_user">Neuer Benutzer</msg>
   <msg key="Admin_Links">Administrationslinks</msg>
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Betrag</msg>
   <msg key="Client">Kunde</msg>
+  <msg key="Clone">Kopieren:</msg>
   <msg key="Company">Firma</msg>
   <msg key="Company_1">Firma</msg>
   <msg key="Company_name">Firmenname</msg>
@@ -46,7 +47,7 @@
   <msg key="Hour">Stunde</msg>
   <msg key="Line">Zeile</msg>
   <msg key="lt_Cant_find_the_documen">Dokument Nr. %invoice_id% nicht gefunden</msg>
-  <msg key="lt_Generate_Invoice_from">Neue Rechnung auf Basis eines Angebots</msg>
+  <msg key="lt_Generate_Invoice_from">Neue Rechnung auf Basis dieses Angebots</msg>
   <msg key="lt_Generate_Provider_Bil">Neue Rechnung auf Basis eines Auftrags</msg>
   <msg key="lt_Insufficient_Privileg">Unzureichende Berechtigungen</msg>
   <msg key="lt_ltaccounting_contact_">&amp;lt;%accounting_contact_email%&amp;gt; </msg>
@@ -66,7 +67,7 @@
   <msg key="lt_You_need_to_specify_a">Sie müssen eine invoice_id angeben</msg>
   <msg key="New_Company_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Company_Invoice_from_scratch">Neue Kundenrechnung</msg>
-  <msg key="New_cost_type">Neue %cost_type% </msg>
+  <msg key="New_cost_type">Bestätigen</msg>
   <msg key="New_Customer_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Customer_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Neue Zuliefererrechnung auf Basis eines Auftrags</msg>
@@ -101,6 +102,7 @@
   <msg key="Select">Auswählen</msg>
   <msg key="Select_Customer">Kunden wählen</msg>
   <msg key="Status">Status</msg>
+  <msg key="Submit">Ausführen</msg>
   <msg key="Subtotal">Zwischensumme</msg>
   <msg key="TAX">Steuer</msg>
   <msg key="TAXnbsp">Steuer&amp;nbsp;</msg>

@@ -8,6 +8,7 @@
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
   <msg key="Client">Client</msg>
+  <msg key="Clone">Clone</msg>
   <msg key="Company">Company</msg>
   <msg key="Company_1">Company:</msg>
   <msg key="Company_name">Company name</msg>
@@ -24,6 +25,7 @@
   <msg key="cost_type_type_1">%cost_type% type:</msg>
   <msg key="Costs">Costs</msg>
   <msg key="Country">Country</msg>
+  <msg key="Customer">Customer</msg>
   <msg key="days">days</msg>
   <msg key="Del">Del</msg>
   <msg key="Description">Description</msg>
@@ -91,6 +93,7 @@ Best regards,
   <msg key="No_command_specified">No command specified</msg>
   <msg key="No_objects_found">No objects found</msg>
   <msg key="No_payments_found">No payments found</msg>
+  <msg key="No_Template_Defined">You haven't defined a design template for your invoice, quote or purchase order. Please go back and select a suitable template.</msg>
   <msg key="Note">Note:</msg>
   <msg key="Notify_user">Notify user</msg>
   <msg key="One_cost_type">One %cost_type%</msg>
@@ -112,7 +115,10 @@ Best regards,
   <msg key="Related_Projects">Related Projects</msg>
   <msg key="S-Line">S-Line</msg>
   <msg key="Save">Save</msg>
+  <msg key="Select">Select</msg>
+  <msg key="Select_Customer">Select a Customer</msg>
   <msg key="Status">Status</msg>
+  <msg key="Submit">Submit</msg>
   <msg key="Subtotal">Subtotal</msg>
   <msg key="TAX">TAX</msg>
   <msg key="TAXnbsp">TAX&amp;nbsp;</msg>
