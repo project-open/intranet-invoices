@@ -51,7 +51,7 @@ set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default ""]
 
-# Invoices and Quotes have a "Company" fields.
+# Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 
 # Invoices and Bills have a "Payment Terms" field.
@@ -71,12 +71,12 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 
 if {$invoice_or_quote_p} {
-    # A Company document
-    set company_or_provider_join "and i.customer_id = c.company_id"
-    set provider_company "Company"
+    # A Customer document
+    set customer_or_provider_join "and i.customer_id = c.company_id"
+    set provider_company "Customer"
 } else {
     # A provider document
-    set company_or_provider_join "and i.provider_id = c.company_id"
+    set customer_or_provider_join "and i.provider_id = c.company_id"
     set provider_company "Provider"
 }
 
@@ -109,7 +109,7 @@ from
 where 
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
-	$company_or_provider_join
+	$customer_or_provider_join
         and c.main_office_id=o.office_id
 "
 
