@@ -415,7 +415,7 @@ extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
 '"$payment_amount $payment_currency"','','',13,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
-'[im_cost_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
+'[im_cost_status_select "cost_status.$invoice_id" $invoice_status_id]','','',17,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
 '[if {[string equal "" $payment_amount]} {
