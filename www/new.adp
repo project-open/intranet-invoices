@@ -70,7 +70,7 @@
 		  <td align=center valign=top class=rowtitle colspan=2>Customer</td>
 		</tr>
 		<tr>
-		  <td class=roweven>Customer:</tr>
+		  <td class=roweven>Customer:</td>
 		  <td class=roweven>@customer_select;noquote@</td>
 		</tr>
 		<input type=hidden name=provider_id value=@provider_id@>
@@ -82,12 +82,20 @@
 		  <td align=center valign=top class=rowtitle colspan=2>Provider</td>
 		</tr>
 		<tr>
-		  <td class=roweven>Provider:</tr>
+		  <td class=roweven>Provider:</td>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
 		<input type=hidden name=customer_id value=@customer_id@>
 
 </else>
+
+
+		<tr>
+		  <td class=rowodd>Note:</td>
+	          <td>
+		    <textarea name=note rows=6 cols=40 wrap=hard>@cost_note@</textarea>
+		  </td>
+		</tr>
 
 
         </table>

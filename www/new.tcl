@@ -88,6 +88,7 @@ select
 	ci.payment_days,
 	ci.vat,
 	ci.tax,
+	ci.note as cost_note,
 	i.payment_method_id,
 	ci.template_id,
 	ci.cost_status_id,

@@ -40,7 +40,7 @@ if {"" != $del} {
 
 if {"" != $add} {
     ns_log Notice "payment-action: add payment"
-    ad_returnredirect "/intranet-payments/new?cost_id=$cost_id"
+    ad_returnredirect "/intranet-payments/new?[export_url_vars cost_id return_url]"
 }
 
 ad_return_complaint 1 "<li>No command specified"

@@ -137,14 +137,14 @@ create table im_invoice_items (
 begin
     acs_object_type.create_type (
 	supertype =>		'acs_object',
-	object_type =>	'im_invoice',
-	pretty_name =>	'Invoice',
+	object_type =>		'im_invoice',
+	pretty_name =>		'Invoice',
 	pretty_plural =>	'Invoices',
-	table_name =>	'im_invoices',
+	table_name =>		'im_invoices',
 	id_column =>		'invoice_id',
-	package_name =>	'im_invoice',
+	package_name =>		'im_invoice',
 	type_extension_table => null,
-	name_method =>	'im_invoice.name'
+	name_method =>		'im_invoice.name'
     );
 end;
 /

@@ -26,6 +26,7 @@ ad_page_contract {
     template_id:integer
     vat:float
     tax:float
+    note
     item_sort_order:array
     item_name:array
     item_units:float,array
@@ -110,7 +111,8 @@ if {!$invoice_exists_p} {
 	        payment_days            => :payment_days,
 		amount			=> 0,
 	        vat                     => :vat,
-	        tax                     => :tax
+	        tax                     => :tax,
+	        note			=> :note
 	    );
 	END;"
 }
@@ -142,6 +144,7 @@ set
 	payment_days	= :payment_days,
 	vat		= :vat,
 	tax		= :tax,
+	note		= :note,
 	variable_cost_p = 't'
 where
 	cost_id = :invoice_id

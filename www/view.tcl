@@ -89,6 +89,7 @@ append query   "
 select
 	i.*,
 	ci.*,
+	ci.note as cost_note,
         c.*,
 	c.customer_id as company_id,
         o.*,
@@ -125,6 +126,21 @@ if { ![db_0or1row projects_info_query $query] } {
 
 set page_title "One $cost_type"
 set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title]
+
+
+# ---------------------------------------------------------------
+# Update the amount paid for this cost_item
+# ---------------------------------------------------------------
+
+db_dml update_cost_items "
+update im_costs
+set paid_amount = (
+        select  sum(amount)
+        from    im_payments
+        where   cost_id = :invoice_id
+)
+where cost_id = :invoice_id
+"
 
 
 # ---------------------------------------------------------------
@@ -184,7 +200,8 @@ where
 	    <input type=submit name=del value=\"Del\">
           </td>
         </tr>
-	</table>\n"
+	</table>
+        </form>\n"
 }
 
 # ---------------------------------------------------------------
@@ -318,6 +335,12 @@ append item_html "
         <tr>
 	  <td valign=top>Payment Method:</td>
           <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
+        </tr>
+        <tr>
+	  <td valign=top>Note:</td>
+          <td valign=top colspan=[expr $colspan-1]>
+	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$cost_note</font></pre>
+	  </td>
         </tr>
 "
 
