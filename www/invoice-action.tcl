@@ -39,7 +39,7 @@ switch $submit {
 	    set cost_status_id $cost_status($invoice_id)
 	    ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
 
-	    db_dml update_cost_status "update im_invoices set cost_status_id=:cost_status_id where invoice_id=:invoice_id"
+	    db_dml update_cost_status "update im_costs set cost_status_id=:cost_status_id where cost_id=:invoice_id"
 	}
 
 	ad_returnredirect $return_url

@@ -45,35 +45,47 @@
     <td>
 
 	<table border=0 cellPadding=0 cellspacing=2 width=100%>
-        <tr><td align=middle class=rowtitle colspan=2>#intranet-invoices.cost_type_Data#</td></tr>
         <tr>
-          <td  class=rowodd>#intranet-invoices.cost_type_nr#</td>
+	  <td align=middle class=rowtitle colspan=2>#intranet-invoices.cost_type_Data#
+          </td>
+	</tr>
+        <tr>
+          <td  class=rowodd>@cost_type@ Nr.:</td>
           <td  class=rowodd>@invoice_nr@</td>
         </tr>
         <tr> 
-          <td  class=roweven>#intranet-invoices.cost_type_date#</td>
+          <td  class=roweven>@cost_type@ Date:</td>
           <td  class=roweven>@invoice_date_pretty@</td>
         </tr>
-<!--        <tr> 
+
+        <tr> 
           <td  class=rowodd>#intranet-invoices.cost_type_due_date#</td>
           <td  class=rowodd>@due_date@</td>
-        </tr>
--->
+	</tr>
+
         <tr> 
           <td class=roweven>#intranet-invoices.Payment_terms#</td>
           <td class=roweven>#intranet-invoices.lt_payment_days_days_dat#</td>
-        </tr>
-        <tr> 
+	</tr>
+
+	<tr>
           <td class=rowodd>#intranet-invoices.Payment_Method#</td>
           <td class=rowodd>@invoice_payment_method@</td>
-        </tr>
-        <tr> 
+	</tr>
+
+	<tr>
           <td class=roweven>#intranet-invoices.cost_type_template#</td>
           <td class=roweven>@template@</td>
-        </tr>
-        <tr> 
+	</tr>
+
+	<tr>
           <td class=roweven>#intranet-invoices.cost_type_type_1#</td>
           <td class=roweven>@cost_type@</td>
+        </tr>
+
+        <tr> 
+          <td class=rowodd>@cost_type@ Status:</td>
+          <td class=rowodd>@cost_status@</td>
         </tr>
 
 	<tr><td colspan=2 align=right>

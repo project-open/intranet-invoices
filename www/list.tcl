@@ -9,7 +9,7 @@ ad_page_contract {
 
     @param order_by invoice display order 
     @param include_subinvoices_p whether to include sub invoices
-    @param invoice_status_id criteria for invoice status
+    @param cost_status_id criteria for invoice status
     @param cost_type_id criteria for cost_type_id
     @param letter criteria for im_first_letter_default_to_a(ug.group_name)
     @param start_idx the starting index for query
@@ -19,7 +19,7 @@ ad_page_contract {
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
     { order_by "Document #" }
-    { invoice_status_id:integer 0 } 
+    { cost_status_id:integer 0 } 
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
@@ -74,11 +74,10 @@ set return_url [im_url_with_query]
 set amp "&"
 set cur_format "99,999.99"
 set local_url "list"
+set cost_status_created [im_cost_status_created]
 
-set invoice_status_created [im_cost_status_created]
-
-if {$invoice_status_id == 0} {
-    set invoice_status_id $invoice_status_created
+if {$cost_status_id == 0} {
+    set cost_status_id $cost_status_created
 }
 
 
@@ -86,6 +85,11 @@ if { [empty_string_p $how_many] || $how_many < 1 } {
     set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
 }
 set end_idx [expr $start_idx + $how_many - 1]
+
+if {![im_permission $user_id view_invoices]} {
+    ad_return_complaint 1 "<li>You have insufficiente privileges to view this page"
+    return
+}
 
 
 # ---------------------------------------------------------------
@@ -149,8 +153,8 @@ set type_types [im_memoize_list select_cost_type_types "
 # ---------------------------------------------------------------
 
 set criteria [list]
-if { ![empty_string_p $invoice_status_id] && $invoice_status_id > 0 } {
-    lappend criteria "i.invoice_status_id=:invoice_status_id"
+if { ![empty_string_p $cost_status_id] && $cost_status_id > 0 } {
+    lappend criteria "i.cost_status_id=:cost_status_id"
 }
 if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
     lappend criteria "i.cost_type_id in (
@@ -203,7 +207,7 @@ switch $order_by {
     "Due Date" { set order_by_clause "order by (ci.effective_date + ci.payment_days)" }
     "Amount" { set order_by_clause "order by ii.invoice_amount" }
     "Paid" { set order_by_clause "order by pa.payment_amount" }
-    "Status" { set order_by_clause "order by invoice_status_id" }
+    "Status" { set order_by_clause "order by cost_status_id" }
     "Type" { set order_by_clause "order by cost_type" }
 }
 
@@ -367,7 +371,7 @@ set filter_html "
 	  <tr>
 	    <td>[_ intranet-invoices.Document_Status]</td>
 	    <td>
-              [im_select invoice_status_id $status_types ""]
+              [im_select cost_status_id $status_types ""]
             </td>
 	  </tr>
 	  <tr>
@@ -412,11 +416,6 @@ set filter_html "
 set colspan [expr [llength $column_headers] + 1]
 
 set table_header_html ""
-#<tr>
-#  <td align=center valign=top colspan=$colspan><font size=-1>
-#    [im_groups_alpha_bar [im_invoice_group_id] $letter "start_idx"]</font>
-#  </td>
-#</tr>"
 
 # Format the header names with links that modify the
 # sort order of the SQL query.

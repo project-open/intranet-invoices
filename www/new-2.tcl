@@ -111,6 +111,7 @@ set
 	project_id	= :project_id,
 	cost_name	= :invoice_nr,
 	customer_id	= :company_id,
+	cost_nr		= :invoice_id,
 	provider_id	= :provider_id,
 	cost_status_id	= :cost_status_id,
 	cost_type_id	= :cost_type_id,

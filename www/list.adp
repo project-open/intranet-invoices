@@ -1,5 +1,5 @@
 <master src="../../intranet-core/www/master">
-<property name=title>Add a user</property>
+<property name=title>List of @cost_type@</property>
 <property name="main_navbar_label">finance</property>
 
 

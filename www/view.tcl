@@ -28,7 +28,8 @@ if {0 == $invoice_id} {
     ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
-if {![im_permission $user_id view_companies]} {
+
+if {![im_permission $user_id view_invoices]} {
     ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
     [_ intranet-invoices.lt_Please_contact_your_s]"
