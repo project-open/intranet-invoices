@@ -106,25 +106,29 @@ where
 }
 
 
-ad_proc im_invoices_customer_component { customer_id } {
+ad_proc im_invoices_customer_component { user_id customer_id } {
     Returns a HTML table containing a list of invoices for a particular
     customer.
 } {
-    return [im_invoices_base_component $customer_id ""]
+    return [im_invoices_base_component $user_id $customer_id ""]
 }
 
-ad_proc im_invoices_project_component { project_id } {
+ad_proc im_invoices_project_component { user_id project_id } {
     Returns a HTML table containing a list of invoices for a particular
     particular project.
 } {
-    return [im_invoices_base_component "" $project_id]
+    return [im_invoices_base_component $user_id "" $project_id]
 }
 
 
-ad_proc im_invoices_base_component { {customer_id ""} {project_id ""} } {
+ad_proc im_invoices_base_component { user_id {customer_id ""} {project_id ""} } {
     Returns a HTML table containing a list of invoices for a particular
     customer or a particular project.
 } {
+    if {![im_permission $user_id view_invoices]} {
+	return ""
+    }
+
     set bgcolor(0) " class=roweven "
     set bgcolor(1) " class=rowodd "
     set max_invoices 5
@@ -247,6 +251,22 @@ order by
 
     append invoice_html "</table>\n"
     return $invoice_html
+}
+
+
+ad_proc -public im_invoice_type_select { select_name { default "" } } {
+    Returns an html select box named $select_name and defaulted to
+    $default with a list of all the invoice_types in the system
+} {
+    return [im_category_select "Intranet Invoice Type" $select_name $default]
+}
+
+
+ad_proc -public im_invoice_status_select { select_name { default "" } } {
+    Returns an html select box named $select_name and defaulted to
+    $default with a list of all the invoice status_types in the system
+} {
+    return [im_category_select "Intranet Invoice Status" $select_name $default]
 }
 
 

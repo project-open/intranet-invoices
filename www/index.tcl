@@ -195,15 +195,15 @@ if { ![empty_string_p $where_clause] } {
 # Define extra SQL for payments
 # -----------------------------------------------------------------
 
-set payment_amount ""
-set payment_currency ""
+#set payment_amount ""
+#set payment_currency ""
 
 set extra_select ""
 set extra_from ""
 set extra_where ""
 
 if { [db_table_exists im_payments] } {
-    append extra_select ", pa.payment_amount,pa.payment_currency\n"
+    append extra_select ", pa.payment_amount, pa.payment_currency\n"
     append extra_from ", 
 	(select
 		sum(amount) as payment_amount, 

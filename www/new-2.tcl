@@ -18,6 +18,7 @@ ad_page_contract {
     { provider_id:integer 0 }
     invoice_nr
     invoice_date
+    { invoice_status_id 602 }
     { invoice_type_id 700 }
     payment_days:integer
     payment_method_id:integer
@@ -83,9 +84,9 @@ SET
 	tax=:tax,
 	invoice_status_id=:invoice_status_id,
 	invoice_type_id=:invoice_type_id,
-	last_modified=:last_modified,
-	last_modifying_user=:last_modifying_user,
-	modified_ip_address=:modified_ip_address
+	last_modified=sysdate,
+	last_modifying_user=:user_id,
+	modified_ip_address='[ad_conn peeraddr]'
 WHERE
 	invoice_id=:invoice_id"
 

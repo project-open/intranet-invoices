@@ -52,6 +52,12 @@ set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
+# Get some categories for a new invoice
+set invoice_status_created_id [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
+set invoice_type_normal_id [db_string invoice_type "select invoice_type_id from im_invoice_type where upper(invoice_type)='NORMAL'"]
+
+
+
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the customer of the project and create
 # an invoice from scratch, invoicing all project elements.
@@ -111,15 +117,13 @@ from
 	im_invoice_items i
 where
 	i.invoice_id=:invoice_id"
-	}
-    } err_msg
+	} err_msg
+    }
 
 } else {
 
 # ---------------------------------------------------------------
-# 3. Gather invoice data
-#	b: if the invoice is new
-#	   (and add a new invoice skeleton with status "In Process"
+# Setup the fields for a new invoice
 # ---------------------------------------------------------------
 
     # Build the list of selected tasks ready for invoices
@@ -131,15 +135,11 @@ where
 
     set invoice_id [db_nextval "im_invoices_seq"]
     set invoice_nr [im_next_invoice_nr]
+    set invoice_status_id $invoice_status_created_id
+    set invoice_type_id $invoice_type_normal_id
     set invoice_date $todays_date
     set payment_days [ad_parameter "DefaultPaymentDays" intranet 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
-
-    set invoice_status_created_id [db_string invoice_status "select category_id from im_categories where category_type='Intranet Invoice Status' and upper(category)='CREATED'"]
-    set invoice_status_in_process_id [db_string invoice_status "select category_id from im_categories where category_type='Intranet Invoice Status' and upper(category)='IN PROCESS'"]
-
-    set invoice_type_id [db_string invoice_type "select invoice_type_id from im_invoice_type where upper(invoice_type)='NORMAL'"]
-
     set vat 0
     set tax 0
     set note ""
@@ -209,6 +209,14 @@ set invoice_data_html "
         <tr> 
           <td class=roweven> Invoice template:</td>
           <td class=roweven>[im_invoice_template_select invoice_template_id $invoice_template_id]</td>
+        </tr>
+        <tr> 
+          <td class=rowodd> Invoice status</td>
+          <td class=rowodd>[im_invoice_status_select invoice_status_id $invoice_status_id]</td>
+        </tr>
+        <tr> 
+          <td class=roweven> Invoice type</td>
+          <td class=roweven>[im_invoice_type_select invoice_type_id $invoice_type_id]</td>
         </tr>
 "
 

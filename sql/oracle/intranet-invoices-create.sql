@@ -137,7 +137,7 @@ is
 	invoice_id		in integer default null,
 	object_type		in varchar default 'im_invoice',
 	creation_date		in date default sysdate,
-	creation_user		in integer default null,
+	creation_user		in integer,
 	creation_ip		in varchar default null,
 	context_id		in integer default null,
 	invoice_nr		in varchar,
@@ -170,7 +170,7 @@ is
 	invoice_id		in integer default null,
 	object_type		in varchar default 'im_invoice',
 	creation_date		in date default sysdate,
-	creation_user		in integer default null,
+	creation_user		in integer,
 	creation_ip		in varchar default null,
 	context_id		in integer default null,
 	invoice_nr		in varchar,
@@ -358,6 +358,8 @@ create table im_invoice_items (
 				constraint im_invoices_items_pk
 				primary key,
 	item_name		varchar(200),
+				-- project_id if != null is used to access project details
+				-- for invoice generation, such as the customer PO# etc.
 	project_id		integer
 				constraint im_invoices_items_project
 				references im_projects,
@@ -379,7 +381,10 @@ create table im_invoice_items (
 	item_status_id		integer
 				constraint im_invoices_items_item_status
 				references im_categories,
-	description		varchar(4000)
+	description		varchar(4000),
+		-- Make sure we can't create duplicate entries per invoice
+		constraint im_invoice_items_un
+		unique (item_name, invoice_id, project_id, item_uom_id)
 );
 
 ------------------------------------------------------
@@ -717,7 +722,7 @@ begin
         location =>     'left',
         sort_order =>   10,
         component_tcl => 
-	'im_invoices_project_component $project_id'
+	'im_invoices_project_component $user_id $project_id'
     );
 end;
 /
@@ -734,7 +739,7 @@ begin
         location =>     'left',
         sort_order =>   10,
         component_tcl => 
-	'im_invoices_customer_component $customer_id'
+	'im_invoices_customer_component $user_id $customer_id'
     );
 end;
 /
