@@ -23,7 +23,7 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id add_invoices]} {
-    ad_return_complaint 1 "<li>You have insufficient privileges to see this page"
+    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_have_insufficient]"
     return
 }
 
@@ -43,4 +43,4 @@ if {"" != $add} {
     ad_returnredirect "/intranet-payments/new?[export_url_vars cost_id return_url]"
 }
 
-ad_return_complaint 1 "<li>No command specified"
+ad_return_complaint 1 "<li>[_ intranet-invoices.No_command_specified]"

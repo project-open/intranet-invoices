@@ -27,8 +27,8 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id view_invoices]} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."
+    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[_ intranet-invoices.lt_You_dont_have_suffici]"
 }
 
 # --------------------------------------------------------
@@ -37,7 +37,7 @@ if {![im_permission $user_id view_invoices]} {
 
 set system_name [ad_system_name]
 set object_name [db_string project_name "select acs_object.name(:invoice_id) from dual"]
-set page_title "Notify user"
+set page_title "[_ intranet-invoices.Notify_user]"
 set context [list $page_title]
 set current_user_name [db_string cur_user "select im_name_from_user_id(:user_id) from dual"]
 set current_user_email [db_string cur_user "select im_email_from_user_id(:user_id) from dual"]
@@ -82,11 +82,10 @@ where
 "
 
 if {"" == $accounting_contact_id} {
-    ad_return_complaint 1 "<li>No Accounting Contact Defined<p>
-	The company '$company_name' has not accounting contact defined
-	to whom we could send this $cost_type.<br>
-	Please visit the <A href=/intranet/companies/view?company_id=$company_id>
-	$company_name page</a> and add an accounting contact."
+    set link_to_page "<A href=/intranet/companies/view?company_id=$company_id> [_ intranet-invoices.company_name_page]</a>"
+    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_No_Accounting_Contact]<p>
+	[_ intranet-invoices.lt_The_company_company_n]<br>
+	[_ intranet-invoices.lt_Please_visit_the_link]"
 }
 
 set select_projects ""

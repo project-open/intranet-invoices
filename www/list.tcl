@@ -66,7 +66,7 @@ ad_page_contract {
 set user_id [ad_maybe_redirect_for_registration]
 set current_user_id $user_id
 set today [lindex [split [ns_localsqltimestamp] " "] 0]
-set page_title "Financial Documents"
+set page_title "[_ intranet-invoices.Financial_Documents]"
 set context_bar [ad_context_bar $page_title]
 set page_focus "im_header_form.keywords"
 set return_url [im_url_with_query]
@@ -338,7 +338,8 @@ if {"" != $parent_menu_label} {
     db_foreach menu_select $menu_select_sql {
 	
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
-	append new_document_menu "<li><a href=\"$url\">$name</a></li>\n"
+	regsub -all " " $name "_" name_key
+	append new_document_menu "<li><a href=\"$url\">[_ intranet-invoices.$name_key]</a></li>\n"
     }
 }
 
@@ -360,20 +361,20 @@ set filter_html "
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
-	      Filter Documents
+	      [_ intranet-invoices.Filter_Documents]
 	    </td>
 	  </tr>
 	  <tr>
-	    <td>Document Status:</td>
+	    <td>[_ intranet-invoices.Document_Status]</td>
 	    <td>
               [im_select invoice_status_id $status_types ""]
             </td>
 	  </tr>
 	  <tr>
-	    <td>Document Type:</td>
+	    <td>[_ intranet-invoices.Document_Type]</td>
 	    <td>
               [im_select cost_type_id $type_types ""]
-              <input type=submit value=Go name=submit>
+              <input type=submit value='[_ intranet-invoices.Go]' name=submit>
             </td>
 	  </tr>
 	</table>
@@ -386,7 +387,7 @@ set filter_html "
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
-	      New Company Documents
+	      [_ intranet-invoices.lt_New_Company_Documents]
 	    </td>
 	  </tr>
 	  <tr>
@@ -428,10 +429,11 @@ if { ![empty_string_p $query_string] } {
 
 append table_header_html "<tr>\n"
 foreach col $column_headers {
+    regsub -all " " $col "_" col_key
     if { [string compare $order_by $col] == 0 } {
-	append table_header_html "  <td class=rowtitle>$col</td>\n"
+	append table_header_html "  <td class=rowtitle>[_ intranet-invoices.$col_key]</td>\n"
     } else {
-	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col</a></td>\n"
+	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">[_ intranet-invoices.$col_key]</a></td>\n"
     }
 }
 append table_header_html "</tr>\n"
@@ -478,7 +480,7 @@ db_foreach invoices_info_query $selection {
 if { [empty_string_p $table_body_html] } {
     set table_body_html "
         <tr><td colspan=$colspan><ul><li><b> 
-        There are currently no invoices matching the selected criteria
+        [_ intranet-invoices.lt_There_are_currently_n]
         </b></ul></td></tr>"
 }
 
@@ -512,7 +514,7 @@ if { $start_idx > 1 } {
 #
 if {$ctr==$how_many && $total_in_limited > 0 && $end_idx < $total_in_limited} {
     set next_start_idx [expr $end_idx + 1]
-    set next_page "<a href=$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]>Next Page</a>"
+    set next_page "<a href=$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Next_Page]</a>"
 } else {
     set next_page ""
 }
@@ -526,7 +528,7 @@ if { $start_idx > 1 } {
     if { $previous_start_idx < 1 } {
 	set previous_start_idx 1
     }
-    set previous_page "<a href=$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]>Previous Page</a>"
+    set previous_page "<a href=$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Previous_Page]</a>"
 } else {
     set previous_page ""
 }
@@ -542,10 +544,10 @@ set button_html "
 <tr>
   <td colspan=[expr $colspan - 3]></td>
   <td align=center>
-    <input type=submit name=submit value='Save'>
+    <input type=submit name=submit value='[_ intranet-invoices.Save]'>
   </td>
   <td align=center>
-    <input type=submit name=submit value='Del'>
+    <input type=submit name=submit value='[_ intranet-invoices.Del]'>
   </td>
 </tr>"
 

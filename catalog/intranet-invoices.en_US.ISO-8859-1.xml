@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-invoices" package_version="2.1.0" locale="en_US" charset="ISO-8859-1">
+
+  <msg key="Add_a_Payment">Add a Payment</msg>
+  <msg key="Add_a_user">Add a user</msg>
+  <msg key="Admin_Links">Admin Links</msg>
+  <msg key="Adress">Adress</msg>
+  <msg key="Amount">Amount</msg>
+  <msg key="Company">Company</msg>
+  <msg key="Company_1">Company:</msg>
+  <msg key="Company_name">Company name</msg>
+  <msg key="company_name_page">%company_name% page</msg>
+  <msg key="Contact">Contact</msg>
+  <msg key="cost_type_Data">%cost_type% Data</msg>
+  <msg key="cost_type_date">%cost_type% date:</msg>
+  <msg key="cost_type_due_date">%cost_type% due date:</msg>
+  <msg key="cost_type_nr">%cost_type% nr.:</msg>
+  <msg key="cost_type_status">%cost_type% status</msg>
+  <msg key="cost_type_template">%cost_type% template:</msg>
+  <msg key="cost_type_type">%cost_type% type</msg>
+  <msg key="cost_type_type_1">%cost_type% type:</msg>
+  <msg key="Country">Country</msg>
+  <msg key="days">days</msg>
+  <msg key="Del">Del</msg>
+  <msg key="Description">Description</msg>
+  <msg key="Document_Status">Document Status:</msg>
+  <msg key="Document_Type">Document Type:</msg>
+  <msg key="Edit_cost_type">Edit %cost_type%</msg>
+  <msg key="Edit_cost_type_1">Edit %cost_type</msg>
+  <msg key="Email">Email</msg>
+  <msg key="Fax">Fax</msg>
+  <msg key="Filter_Documents">Filter Documents</msg>
+  <msg key="Finance">Finance</msg>
+  <msg key="Financial_Documents">Financial Documents</msg>
+  <msg key="From">From:</msg>
+  <msg key="Go">Go</msg>
+  <msg key="Line">Line</msg>
+  <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
+  <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
+
+A new %cost_type% has been created for you at:
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
+
+The new document is related to the project(s):
+%select_projects;noquote%
+Please visit the link above and print out the document
+for your personal reference.
+
+Best regards,
+%current_user_name%</msg>
+  <msg key="lt_Generate_Invoice_from">Generate Invoice from Quote</msg>
+  <msg key="lt_Generate_Provider_Bil">Generate Provider Bill from PO</msg>
+  <msg key="lt_Insufficient_Privileg">Insufficient Privileges</msg>
+  <msg key="lt_ltaccounting_contact_">&amp;lt;%accounting_contact_email%&amp;gt;</msg>
+  <msg key="lt_ltcurrent_user_emailg">&amp;lt;%current_user_email%&amp;gt;</msg>
+  <msg key="lt_New_Company_Documents">New Company Documents</msg>
+  <msg key="lt_No_Accounting_Contact">No Accounting Contact Defined</msg>
+  <msg key="lt_payment_days_days_dat">%payment_days% days date of invoice</msg>
+  <msg key="lt_Please_contact_your_s">Please contact your system administrator if you feel that this is an error.</msg>
+  <msg key="lt_Please_visit_the_link">Please visit the %link_to_page% and add an accounting contact.</msg>
+  <msg key="lt_Send_as_email_to_prov">Send as email to %provider_company%</msg>
+  <msg key="lt_Send_cost_type_via_Em">Send %cost_type% via Email</msg>
+  <msg key="lt_system_name_New_cost_">%system_name%: New %cost_type%</msg>
+  <msg key="lt_The_company_company_n">The company '%company_name%' has not accounting contact defined
+	to whom we could send this %cost_type%.</msg>
+  <msg key="lt_There_are_currently_n">There are currently no invoices matching the selected criteria</msg>
+  <msg key="lt_This_invoice_is_past_">This invoice is past due if unpaid after %calculated_due_date%.</msg>
+  <msg key="lt_You_dont_have_suffici">You don't have sufficient privileges to see this page.</msg>
+  <msg key="lt_You_have_insufficient">You have insufficient privileges to see this page</msg>
+  <msg key="lt_You_have_insufficient_1">You have insufficient privileges to view this page.</msg>
+  <msg key="lt_You_need_to_specify_a">You need to specify a invoice_id</msg>
+  <msg key="New_cost_type">New %cost_type%</msg>
+  <msg key="Next_Page">Next Page</msg>
+  <msg key="No_command_specified">No command specified</msg>
+  <msg key="No_payments_found">No payments found</msg>
+  <msg key="Note">Note:</msg>
+  <msg key="Notify_user">Notify user</msg>
+  <msg key="One_cost_type">One %cost_type%</msg>
+  <msg key="Our_Ref">Our Ref.</msg>
+  <msg key="Payment_Method">Payment Method</msg>
+  <msg key="Payment_Method_1">Payment Method:</msg>
+  <msg key="Payment_Terms">Payment Terms:</msg>
+  <msg key="Payment_terms">Payment terms</msg>
+  <msg key="Phone">Phone</msg>
+  <msg key="Preview">Preview</msg>
+  <msg key="Previous_Page">Previous Page</msg>
+  <msg key="Provider">Provider</msg>
+  <msg key="Provider_1">Provider:</msg>
+  <msg key="Qty">Qty.</msg>
+  <msg key="Rate">Rate</msg>
+  <msg key="Recipient">Recipient</msg>
+  <msg key="Related_Payments">Related Payments</msg>
+  <msg key="Save">Save</msg>
+  <msg key="TAX">TAX</msg>
+  <msg key="TAXnbsp">TAX&amp;nbsp;</msg>
+  <msg key="To">To:</msg>
+  <msg key="Total_Due">Total Due</msg>
+  <msg key="Type">Type</msg>
+  <msg key="Unit">Unit</msg>
+  <msg key="Units">Units</msg>
+  <msg key="UOM">UOM</msg>
+  <msg key="VAT">VAT</msg>
+  <msg key="VATnbsp">VAT&amp;nbsp;</msg>
+  <msg key="Yr_Job__PO_No">Yr. Job / P.O. No.</msg>
+  <msg key="Zip">Zip</msg>
+</message_catalog>

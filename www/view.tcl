@@ -25,14 +25,14 @@ set user_id [ad_maybe_redirect_for_registration]
 
 if {0 == $invoice_id} {set invoice_id $object_id}
 if {0 == $invoice_id} {
-    ad_return_complaint 1 "<li>You need to specify a invoice_id"
+    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
 
 if {![im_permission $user_id view_companies]} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You have insufficient privileges to view this page.<BR>
-    Please contact your system administrator if you feel that this is an error."
+    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
+    [_ intranet-invoices.lt_Please_contact_your_s]"
     return
 }
 if {"" == $return_url} { set return_url [im_url_with_query] }
@@ -62,11 +62,11 @@ set target_cost_type_id ""
 set generation_blurb ""
 if {$cost_type_id == [im_cost_type_quote]} {
     set target_cost_type_id [im_cost_type_invoice]
-    set generation_blurb "Generate Invoice from Quote"
+    set generation_blurb "[_ intranet-invoices.lt_Generate_Invoice_from]"
 }
 if {$cost_type_id == [im_cost_type_po]} {
     set target_cost_type_id [im_cost_type_bill]
-    set generation_blurb "Generate Provider Bill from PO"
+    set generation_blurb "[_ intranet-invoices.lt_Generate_Provider_Bil]"
 }
 
 
@@ -113,7 +113,7 @@ where
 "
 
 if { ![db_0or1row projects_info_query $query] } {
-    ad_return_complaint 1 "Can't find the document# $invoice_id"
+    ad_return_complaint 1 "[_ intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
 
@@ -143,8 +143,8 @@ if { ![db_0or1row country_info_query $query] } {
     set country_name ""
 }
 
-set page_title "One $cost_type"
-set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title]
+set page_title "[_ intranet-invoices.One_cost_type]"
+set context_bar [ad_context_bar [list /intranet-invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
 
 # ---------------------------------------------------------------
@@ -176,7 +176,7 @@ if {[db_table_exists im_payments]} {
 	<table border=0 cellPadding=1 cellspacing=1>
         <tr>
           <td align=middle class=rowtitle colspan=3>
-	    Related Payments
+	    [_ intranet-invoices.Related_Payments]
 	  </td>
         </tr>"
 
@@ -210,13 +210,13 @@ where
     }
 
     if {!$payment_ctr} {
-	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>No payments found</i></td></tr>\n"
+	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[_ intranet-invoices.No_payments_found]</i></td></tr>\n"
     }
     append payment_list_html "
         <tr $bgcolor([expr $payment_ctr % 2])>
           <td align=right colspan=3>
-	    <input type=submit name=add value=\"Add a Payment\">
-	    <input type=submit name=del value=\"Del\">
+	    <input type=submit name=add value=\"[_ intranet-invoices.Add_a_Payment]\">
+	    <input type=submit name=del value=\"[_ intranet-invoices.Del]\">
           </td>
         </tr>
 	</table>
@@ -230,19 +230,19 @@ where
 # start formatting the list of sums with the header...
 set item_html "
         <tr align=center>
-          <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-          <td class=rowtitle>Qty.</td>
-          <td class=rowtitle>Unit</td>
-          <td class=rowtitle>Rate</td>\n"
+          <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[_ intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td class=rowtitle>[_ intranet-invoices.Qty]</td>
+          <td class=rowtitle>[_ intranet-invoices.Unit]</td>
+          <td class=rowtitle>[_ intranet-invoices.Rate]</td>\n"
 
 if {$company_project_nr_exists} {
     # Only if intranet-translation has added the field
     append item_html "
-          <td class=rowtitle>Yr. Job / P.O. No.</td>\n"
+          <td class=rowtitle>[_ intranet-invoices.Yr_Job__PO_No]</td>\n"
     }
 append item_html "
-          <td class=rowtitle>Our Ref.</td>
-          <td class=rowtitle>Amount</td>
+          <td class=rowtitle>[_ intranet-invoices.Our_Ref]</td>
+          <td class=rowtitle>[_ intranet-invoices.Amount]</td>
         </tr>
 "
 
@@ -321,7 +321,7 @@ append item_html "
 #if {0 != $vat} {
     append item_html "
         <tr>
-          <td colspan=$colspan_sub align=right>VAT: $vat %&nbsp;</td>
+          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: $vat %&nbsp;</td>
           <td class=roweven align=right>$vat_amount $currency</td>
         </tr>
 "
@@ -330,7 +330,7 @@ append item_html "
 if {0 != $tax} {
     append item_html "
         <tr> 
-          <td colspan=$colspan_sub align=right>TAX: $tax %&nbsp;</td>
+          <td colspan=$colspan_sub align=right>[_ intranet-invoices.TAX]: $tax %&nbsp;</td>
           <td class=roweven align=right>$tax_amount $currency</td>
         </tr>
     "
@@ -338,7 +338,7 @@ if {0 != $tax} {
 
 append item_html "
         <tr> 
-          <td colspan=$colspan_sub align=right><b>Total Due</b></td>
+          <td colspan=$colspan_sub align=right><b>[_ intranet-invoices.Total_Due]</b></td>
           <td class=roweven align=right><b>[im_date_format_locale $grand_total 2 2] $currency</b></td>
         </tr>
 "
@@ -346,17 +346,17 @@ append item_html "
 append item_html "
         <tr><td colspan=$colspan>&nbsp;</td></tr>
         <tr>
-	  <td valign=top>Payment Terms:</td>
+	  <td valign=top>[_ intranet-invoices.Payment_Terms]</td>
           <td valign=top colspan=[expr $colspan-1]> 
-            This invoice is past due if unpaid after $calculated_due_date.
+            [_ intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
         <tr>
-	  <td valign=top>Payment Method:</td>
+	  <td valign=top>[_ intranet-invoices.Payment_Method_1]</td>
           <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
         </tr>
         <tr>
-	  <td valign=top>Note:</td>
+	  <td valign=top>[_ intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>
 	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$cost_note</font></pre>
 	  </td>
