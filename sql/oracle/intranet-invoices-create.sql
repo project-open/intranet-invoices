@@ -54,55 +54,20 @@ set escape \
 -- (sum(invoice_lines.amount)) is almost never going to
 -- match the paid amount (sum(im_payments.fee)).
 --
-create sequence im_invoices_seq start with 1;
 create table im_invoices (
 	invoice_id		integer
 				constraint im_invoices_pk
 				primary key
 				constraint im_invoices_id_fk
-				references acs_objects,
-				-- who should pay?
-	customer_id		not null
-				constraint im_invoices_customer
-				references im_customers,
-				-- who get paid?
-	provider_id		not null
-				constraint im_invoices_provider
-				references im_customers,
-	creator_id		integer
-				constraint im_invoices_creator
-				references users,
+				references im_cost_items,
 	customer_contact_id	integer 
 				constraint im_invoices_contact
 				references users,
 	invoice_nr		varchar(40)
 				constraint im_invoices_nr_un unique,
-	invoice_date		date,
-	due_date		date,
-	invoice_currency	char(3) 
-				constraint im_invoices_currency
-				references currency_codes(ISO),
-	invoice_template_id	integer
-				constraint im_invoices_template
-				references im_categories,
-	invoice_status_id	not null 
-				constraint im_invoices_status
-				references im_categories,
-	invoice_type_id		not null 
-				constraint im_invoices_type
-				references im_categories,
 	payment_method_id	integer
 				constraint im_invoices_payment
-				references im_categories,
-	payment_days		integer,
-	vat			number,
-	tax			number,
-	note			varchar(4000),
-	last_modified		date not null,
-	last_modifying_user	not null 
-				constraint im_invoices_mod_user
-				references users,
-	modified_ip_address	varchar(20) not null
+				references im_categories
 );
 
 
@@ -118,15 +83,15 @@ create table im_invoices (
 
 begin
     acs_object_type.create_type (
-        supertype =>            'acs_object',
-        object_type =>          'im_invoice',
-        pretty_name =>          'Invoice',
-        pretty_plural =>        'Invoices',
-        table_name =>           'im_invoices',
-        id_column =>            'invoice_id',
-        package_name =>         'im_invoice',
-        type_extension_table => null,
-        name_method =>          'im_invoice.name'
+	supertype =>		'acs_object',
+	object_type =>	'im_invoice',
+	pretty_name =>	'Invoice',
+	pretty_plural =>	'Invoices',
+	table_name =>	'im_invoices',
+	id_column =>		'invoice_id',
+	package_name =>	'im_invoice',
+	type_extension_table => null,
+	name_method =>	'im_invoice.name'
     );
 end;
 /
@@ -147,7 +112,6 @@ is
 	provider_id		in integer,
 	customer_contact_id	in integer default null,
 	invoice_date		in date default sysdate,
-	due_date		in date default sysdate+30,
 	invoice_currency	in char default 'EUR',
 	invoice_template_id	in integer default null,
 	invoice_status_id	in integer default 602,
@@ -180,7 +144,6 @@ is
 	provider_id		in integer,
 	customer_contact_id	in integer default null,
 	invoice_date		in date default sysdate,
-	due_date		in date default sysdate+30,
 	invoice_currency	in char default 'EUR',
 	invoice_template_id	in integer default null,
 	invoice_status_id	in integer default 602,
@@ -194,33 +157,37 @@ is
     is
 	v_invoice_id	im_invoices.invoice_id%TYPE;
     begin
-	v_invoice_id := acs_object.new (
-		object_id =>		invoice_id,
-		object_type =>		object_type,
-		creation_date =>	creation_date,
-		creation_user =>	creation_user,
-		creation_ip =>		creation_ip,
-		context_id =>		context_id
+	v_invoice_id := im_cost_item.new (
+		item_id		=> invoice_id,
+		object_type	=> object_type,
+		creation_date	=> creation_date
+		creation_user	=> creation_user,
+		creation_ip	=> creation_ip,
+		context_id	=> context_id,
+		item_name	=> invoice_nr,
+		customer_id	=> customer_id,
+		provider_id	=> provider_id,
+		item_status_id	=> invoice_status_id,
+		item_type_id	=> invoice_type_id,
+		template_id	=> invoice_template_id,
+		effective_date	=> invoice_date,
+		payment_days	=> payment_days,
+		currency	=> invoice_currency,
+		vat		=> vat,
+		tax		=> tax,
+		note		=> note
 	);
 
 	insert into im_invoices (
-		invoice_id, customer_id, provider_id,
-		customer_contact_id, invoice_nr, invoice_date,
-		due_date, invoice_currency, invoice_template_id,
-		invoice_status_id, invoice_type_id,
-		payment_method_id, payment_days,
-		vat, tax, note,
-		creator_id, last_modified, last_modifying_user,
-		modified_ip_address
+		invoice_id,
+		customer_contact_id, 
+		invoice_nr,
+		payment_method_id
 	) values (
-		v_invoice_id, new.customer_id, new.provider_id,
-		new.customer_contact_id, new.invoice_nr, new.invoice_date,
-		new.due_date, new.invoice_currency, new.invoice_template_id,
-		new.invoice_status_id, new.invoice_type_id,
-		new.payment_method_id, new.payment_days,
-		new.vat, new.tax, new.note,
-		new.creation_user, new.creation_date, new.creation_user,
-		new.creation_ip
+		v_invoice_id,
+		new.customer_contact_id, 
+		new.invoice_nr,
+		new.payment_method_id
 	);
 
 	return v_invoice_id;
@@ -230,12 +197,16 @@ is
     procedure del (invoice_id in integer)
     is
     begin
-	-- Erase the im_invoices item associated with the id
+	-- Erase the im_invoice_item associated with the id
+	delete from 	im_invoice_items
+	where		invoice_id = del.invoice_id;
+
+	-- Erase the invoice itself
 	delete from 	im_invoices
 	where		invoice_id = del.invoice_id;
 
-	-- Erase the object
-	acs_object.del(del.invoice_id);
+	-- Erase the CostItem
+	im_cost_item.del(del.invoice_id);
     end del;
 
     function name (invoice_id in integer) return varchar
@@ -647,19 +618,19 @@ commit;
 -- Setup the "Invoice" main menu entry
 --
 declare
-        -- Menu IDs
-        v_menu                  integer;
-        v_main_menu 	        integer;
+	-- Menu IDs
+	v_menu		integer;
+	v_main_menu 		integer;
 	v_invoices_menu		integer;
 
-        -- Groups
-        v_employees             integer;
-        v_accounting            integer;
-        v_senman                integer;
-        v_customers             integer;
-        v_freelancers           integer;
-        v_proman                integer;
-        v_admins                integer;
+	-- Groups
+	v_employees	integer;
+	v_accounting	integer;
+	v_senman		integer;
+	v_customers	integer;
+	v_freelancers	integer;
+	v_proman		integer;
+	v_admins		integer;
 begin
 
     select group_id into v_admins from groups where group_name = 'P/O Admins';
@@ -742,19 +713,19 @@ commit;
 -- Setup the "Invoices New" menu for Customer Documents
 --
 declare
-        -- Menu IDs
-        v_menu                  integer;
-        v_invoices_new_menu	integer;
+	-- Menu IDs
+	v_menu		integer;
+	v_invoices_new_menu	integer;
 	v_invoices_menu		integer;
 
-        -- Groups
-        v_employees             integer;
-        v_accounting            integer;
-        v_senman                integer;
-        v_customers             integer;
-        v_freelancers           integer;
-        v_proman                integer;
-        v_admins                integer;
+	-- Groups
+	v_employees	integer;
+	v_accounting	integer;
+	v_senman		integer;
+	v_customers	integer;
+	v_freelancers	integer;
+	v_proman		integer;
+	v_admins		integer;
 begin
 
     select group_id into v_admins from groups where group_name = 'P/O Admins';
@@ -822,19 +793,19 @@ commit;
 -- Setup the "Invoices New" menu for Customer Documents
 --
 declare
-        -- Menu IDs
-        v_menu                  integer;
-        v_invoices_new_menu	integer;
+	-- Menu IDs
+	v_menu		integer;
+	v_invoices_new_menu	integer;
 	v_invoices_menu		integer;
 
-        -- Groups
-        v_employees             integer;
-        v_accounting            integer;
-        v_senman                integer;
-        v_customers             integer;
-        v_freelancers           integer;
-        v_proman                integer;
-        v_admins                integer;
+	-- Groups
+	v_employees	integer;
+	v_accounting	integer;
+	v_senman		integer;
+	v_customers	integer;
+	v_freelancers	integer;
+	v_proman		integer;
+	v_admins		integer;
 begin
 
     select group_id into v_admins from groups where group_name = 'P/O Admins';
@@ -902,15 +873,15 @@ commit;
 -- Show the invoice component in project page
 --
 declare
-    v_plugin            integer;
+    v_plugin	integer;
 begin
     v_plugin := im_component_plugin.new (
 	plugin_name =>	'Project Invoice Component',
 	package_name =>	'intranet-invoices',
-        page_url =>     '/intranet/projects/view',
-        location =>     'left',
-        sort_order =>   90,
-        component_tcl => 
+	page_url =>     '/intranet/projects/view',
+	location =>     'left',
+	sort_order =>   90,
+	component_tcl => 
 	'im_invoices_project_component $user_id $project_id'
     );
 end;
@@ -919,15 +890,15 @@ end;
 -- Show the invoice component in customers page
 --
 declare
-    v_plugin            integer;
+    v_plugin	integer;
 begin
     v_plugin := im_component_plugin.new (
 	plugin_name =>	'Customer Invoice Component',
 	package_name =>	'intranet-invoices',
-        page_url =>     '/intranet/customers/view',
-        location =>     'left',
-        sort_order =>   90,
-        component_tcl => 
+	page_url =>     '/intranet/customers/view',
+	location =>     'left',
+	sort_order =>   90,
+	component_tcl => 
 	'im_invoices_customer_component $user_id $customer_id'
     );
 end;
