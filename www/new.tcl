@@ -65,14 +65,6 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the customer of the project and create
 # an invoice from scratch, invoicing all project elements.
-#
-# However, invoices are created in very different ways in 
-# each business sector:
-# - Translation: Sum up the im_trans_tasks and determine the
-#   price from im_translation_prices.
-# - IT: Create invoices from scratch, from hours or from 
-#   (monthly|quarterly|...) service fees
-#
 if {0 != $project_id} {
     set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
 }

@@ -67,7 +67,11 @@ create table im_invoices (
 				constraint im_invoices_nr_un unique,
 	payment_method_id	integer
 				constraint im_invoices_payment
-				references im_categories
+				references im_categories,
+	-- the PO of a provider bill or the quote of an invoice
+	reference_document_id	integer
+				constraint im_invoices_reference_doc
+				references im_invoices
 );
 
 
@@ -79,15 +83,10 @@ create table im_invoices (
 --   that may contain basicly everything that fits in one line
 --   and has a price.
 -- - Invoice items can created manually or generated from
---   "invoicable items" such as im_trans_tasks or similar.
+--   "invoicable items" such as im_trans_tasks, timesheet information
+--    or similar.
 -- All fields (number of units, price, description) need to be 
 -- human editable because invoicing is so messy...
---
--- Invoicable Tasks and Invoice Items are similar because they 
--- both represent substructures of a project or an invoice. 
--- However, im_trans_tasks are more formalized (type, status, ...),
--- while Invoice Items contain free text fields, only _derived_
--- from im_trans_tasks and prices. Dirty business world... :-(
 
 create sequence im_invoice_items_seq start with 1;
 create table im_invoice_items (

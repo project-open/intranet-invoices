@@ -32,75 +32,57 @@ if {0 == $invoice_id} {
 if {![im_permission $user_id view_customers]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You have insufficient privileges to view this page.<BR>
-    Please contact your system administrator if you feel that this is an error.
+    Please contact your system administrator if you feel that this is an error."
     return
 }
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
-
 set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
-# set bgcolor(0) " bgcolor=#FFFF99"
-# set bgcolor(1) " bgcolor=#FFFF77"
-
 set cur_format "99,999.009"
-
 set required_field "<font color=red size=+1><B>*</B></font>"
-
 set customer_project_nr_exists [db_column_exists im_projects customer_project_nr]
 
+
 # ---------------------------------------------------------------
-# Auxilary functions
+# Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-ad_proc im_format_cur { cur {min_decimals ""} {max_decimals ""} } {
-	Takes a number in "Amercian" format (decimals separated by ".") and
-	returns a string formatted according to the current locale.
-} {
-    ns_log Notice "im_format_cur($cur, $min_decimals, $max_decimals)"
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default ""]
 
-    # Remove thousands separating comas eventually
-    regsub "\," $cur "" cur
+# Invoices and Quotes have a "Customer" fields.
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 
-    # Check if the number has no decimals (for ocurrence of ".")
-    if {![regexp {\.} $cur]} {
-	# No decimals - set digits to ""
-	set digits $cur
-	set decimals ""
-    } else {
-	# Split the digits from the decimals
-        regexp {([^\.]*)\.(.*)} $cur match digits decimals
-    }
+# Invoices and Bills have a "Payment Terms" field.
+set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
 
-    if {![string equal "" $min_decimals]} {
-
-	# Pad decimals with trailing "0" until they reach $num_decimals
-	while {[string length $decimals] < $min_decimals} {
-	    append decimals "0"
-	}
-    }
-
-    if {![string equal "" $max_decimals]} {
-	# Adjust decimals by cutting off digits if too long:
-	if {[string length $decimals] > $max_decimals} {
-	    set decimals [string range $decimals 0 [expr $max_decimals-1]]
-	}
-    }
-
-    # Format the digits
-    if {[string equal "" $digits]} {
-	set digits "0"
-    }
-
-    return "$digits.$decimals"
+# CostType for "Generate Invoice from Quote" or "Generate Bill from PO"
+set target_cost_type_id ""
+set generation_blurb ""
+if {$cost_type_id == [im_cost_type_quote]} {
+    set target_cost_type_id [im_cost_type_invoice]
+    set generation_blurb "Generate Invoice from Quote"
+}
+if {$cost_type_id == [im_cost_type_po]} {
+    set target_cost_type_id [im_cost_type_bill]
+    set generation_blurb "Generate Provider Bill from PO"
 }
 
+
+if {$invoice_or_quote_p} {
+    # A Customer document
+    set customer_or_provider_join "and i.customer_id = c.customer_id(+)"
+} else {
+    # A provider document
+    set customer_or_provider_join "and i.provider_id = c.customer_id(+)"
+}
 
 # ---------------------------------------------------------------
 # 1. Get everything about the invoice
 # ---------------------------------------------------------------
- 
+
+
 append query   "
 select
 	i.*,
@@ -128,7 +110,7 @@ where
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
 	and i.payment_method_id=pm_cat.category_id(+)
-        and i.customer_id=c.customer_id(+)
+	$customer_or_provider_join
         and c.main_office_id=o.office_id(+)
         and o.address_country_code=cc.iso(+)
 "
@@ -140,131 +122,6 @@ if { ![db_0or1row projects_info_query $query] } {
 
 set page_title "One $cost_type"
 set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title]
-
-
-# ---------------------------------------------------------------
-# 2. Render the "Invoice Data" block
-# ---------------------------------------------------------------
-
-set invoice_data_html "
-        <tr><td align=middle class=rowtitle colspan=2>$cost_type Data</td></tr>
-        <tr>
-          <td  class=rowodd>$cost_type nr.:</td>
-          <td  class=rowodd>$invoice_nr</td>
-        </tr>
-        <tr> 
-          <td  class=roweven>$cost_type date:</td>
-          <td  class=roweven>$invoice_date</td>
-        </tr>
-<!--        <tr> 
-          <td  class=rowodd>$cost_type due date:</td>
-          <td  class=rowodd>$due_date</td>
-        </tr>
--->
-        <tr> 
-          <td class=roweven>Payment terms</td>
-          <td class=roweven>$payment_days days date of invoice</td>
-        </tr>
-        <tr> 
-          <td class=rowodd>Payment Method</td>
-          <td class=rowodd>$invoice_payment_method</td>
-        </tr>
-        <tr> 
-          <td class=roweven> $cost_type template:</td>
-          <td class=roweven>$template</td>
-        </tr>
-        <tr> 
-          <td class=roweven> $cost_type type:</td>
-          <td class=roweven>$cost_type</td>
-        </tr>
-"
-
-set receipient_html "
-        <tr><td align=center valign=top class=rowtitle colspan=2> Recipient</td></tr>
-        <tr> 
-          <td  class=rowodd>Company name</td>
-          <td  class=rowodd>
-            <A href=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>
-          </td>
-        </tr>
-        <tr> 
-          <td  class=roweven>VAT</td>
-          <td  class=roweven>$vat_number</td>
-        </tr>
-        <tr> 
-          <td  class=rowodd> Contact</td>
-          <td  class=rowodd>
-            <A href=/intranet/users/view?user_id=$accounting_contact_id>$customer_contact_name</A>
-          </td>
-        </tr>
-        <tr> 
-          <td  class=roweven>Adress</td>
-          <td  class=roweven>$address_line1 <br> $address_line2</td>
-        </tr>
-        <tr> 
-          <td  class=rowodd>Zip</td>
-          <td  class=rowodd>$address_postal_code</td>
-        </tr>
-        <tr> 
-          <td  class=roweven>Country</td>
-          <td  class=roweven>$country_name</td>
-
-        </tr>
-        <tr> 
-          <td  class=rowodd>Phone</td>
-          <td  class=rowodd>$phone</td>
-        </tr>
-        <tr> 
-          <td  class=roweven>Fax</td>
-          <td  class=roweven>$fax</td>
-        </tr>
-        <tr> 
-          <td  class=rowodd>Email</td>
-          <td  class=rowodd>$customer_contact_email</td>
-        </tr>
-"
-
-
-# ---------------------------------------------------------------
-# Project List
-# ---------------------------------------------------------------
-
-set project_list_html "
-        <tr>
-          <td align=middle class=rowtitle colspan=2>Related Projects</td>
-        </tr>"
-
-set project_list_sql "
-select
-	p.*
-from
-	im_projects p,
-	acs_rels r
-where
-	r.object_id_one = p.project_id
-	and r.object_id_two = :invoice_id
-"
-
-db_foreach project_list $project_list_sql {
-    append project_list_html "
-        <tr>
-          <td class=rowodd>
-	    <A href=/intranet/projects/view?project_id=$project_id>$project_nr</A>
-	  </td>
-          <td class=rowodd>$project_name</td>
-        </tr>
-"
-}
-
-
-append project_list_html "
-        <tr>
-          <td align=left colspan=2>
-	    <A href=/intranet-invoices/add-project-to-invoice?invoice_id=$invoice_id>
-	      Associate with a Project
-	    </A>
-          </td>
-        </tr>"
 
 
 # ---------------------------------------------------------------
@@ -371,7 +228,7 @@ db_foreach invoice_items $invoice_items_sql {
           <td>$item_name</td>
           <td align=right>$item_units</td>
           <td align=left>$item_uom</td>
-          <td align=right>[im_format_cur $price_per_unit 2 3]&nbsp;$currency</td>\n"
+          <td align=right>[im_date_format_locale $price_per_unit 2 3]&nbsp;$currency</td>\n"
     if {$customer_project_nr_exists} {
 	# Only if intranet-translation has added the field
 	append item_html "
@@ -379,7 +236,7 @@ db_foreach invoice_items $invoice_items_sql {
     }
     append item_html "
           <td align=left>$project_short_name</td>
-          <td align=right>[im_format_cur $amount 2 2]&nbsp;$currency</td>
+          <td align=right>[im_date_format_locale $amount 2 2]&nbsp;$currency</td>
 	</tr>"
     incr ctr
 }
@@ -408,7 +265,7 @@ set colspan_sub [expr $colspan - 1]
 append item_html "
         <tr> 
           <td class=rowplain colspan=$colspan_sub align=right><B>Subtotal</B></td>
-          <td class=roweven align=right><B> [im_format_cur $subtotal 2 2] $currency</B></td>
+          <td class=roweven align=right><B> [im_date_format_locale $subtotal 2 2] $currency</B></td>
         </tr>
 "
 
@@ -433,7 +290,7 @@ if {0 != $tax} {
 append item_html "
         <tr> 
           <td colspan=$colspan_sub align=right><b>Total Due</b></td>
-          <td class=roweven align=right><b>[im_format_cur $grand_total 2 2] $currency</b></td>
+          <td class=roweven align=right><b>[im_date_format_locale $grand_total 2 2] $currency</b></td>
         </tr>
 "
 
@@ -456,6 +313,8 @@ append item_html "
 # 10. Format using a template
 # ---------------------------------------------------------------
 
+# Use a specific template ("render_template_id") to render the "preview"
+# of this invoice
 if {[exists_and_not_null render_template_id]} {
 
     # format using a template
@@ -475,82 +334,4 @@ if {[exists_and_not_null render_template_id]} {
     ns_return 200 text/html $out_contents
     return
 
-} else {
-
-    # for the "Preview" button only
-    set render_template_id $template_id
-
-    # No render template defined - render using default html style
-    set page_body "
-[im_costs_navbar "none" "/intranet-invoices/index" "" "" [list]""]
-
-
-<!-- Invoice Data and Receipient Tables -->
-<table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width=100%>
-  <tr valign=top> 
-    <td>
-
-          <table border=0 cellPadding=0 cellspacing=2 width=100%>
-	    $invoice_data_html
-
-	    <tr>
-              <td colspan=2 align=right>
-
-                <table>
-                  <tr>
-                    <td>  
-
-		<form action=new method=POST>
-		  <A HREF=/intranet-invoices/view?[export_url_vars return_url invoice_id render_template_id]>Preview</A>
-
-		  [export_form_vars return_id invoice_id cost_type_id]
-		  <input type=submit name=create_invoice_from_template value='Create Invoice from Quote'>
-		  <input type=submit name=edit_invoice value='Edit'>
-		</form>
-
-                    </td>
-                  </tr>
-                </table>
-
-
-	      </td>
-            </tr>
-          </table>
-
-          [im_invoices_object_list_component $user_id $invoice_id $return_url]
-          <br>
-
-          <table border=0 cellPadding=0 cellspacing=2>
-	    $payment_list_html
-	    <tr><td colspan=2>&nbsp;</td></tr>
-          </table>
-
-
-    </td>
-    <td></td>
-    <td align=right>
-      <table border=0 cellspacing=2 cellpadding=0 width=100%>
-        $receipient_html</td>
-      </table>
-  </tr>
-</table>
-
-<table cellpadding=0 cellspacing=2 border=0 width=100%>
-<tr><td align=right>
-  <table cellpadding=1 cellspacing=2 border=0 width=100%>
-    $item_html
-  </table>
-</td></tr>
-</table>
-"
-
-    db_release_unused_handles
-    doc_return  200 text/html [im_return_template]
-    return
-
-}
-
-
-
-
-
+} 

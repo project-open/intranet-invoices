@@ -10,21 +10,12 @@
 # ---------------------------------------------------------------
 
 ad_page_contract { 
-    Creates a new financial document from an existing one.
-    Typically you create:
-    - Bill from PO and
-    - Invoice from Quote.
-    The page allows the user to select the original document
-    and creates a copy with the new cost_type_id.
-    Also, a new document nr is created (it's unique).
-
-    @param invoice_id - Indicates a specific financial document
-           to be taken as the base for the copy
-
+    Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
-    cost_type_id:integer
+    target_cost_type_id:integer
+    { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
 }
 
@@ -33,44 +24,43 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id view_invoices]} {
+if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
 }
 
-switch $cost_type_id {
-    3702 {
-	set to_cost_type_id [im_cost_type_invoice]
-    }
-    3706 {
-	set to_cost_type_id [im_cost_type_bill]
-    }
-    default {
-	ad_return_complaint 1 "<li>Bad Document Type $cost_type_id:<br>
-        We expect either a Quote or a Purchase Order as the document type."
-    }
-}
-
-
+set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
 set page_focus "im_header_form.keywords"
-set view_name "invoice_copy"
-set cost_type_name [db_string cost_type_name "select im_category_from_id(:cost_type_id) from dual"]
-set from_cost_type_name [db_string cost_type_name "select im_category_from_id(:from_cost_type_id) from dual"]
+set view_name "invoice_tasks"
 
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
+set required_field "<font color=red size=+1><B>*</B></font>"
+
 
 # ---------------------------------------------------------------
-# 3. Gather invoice data
+# Get everything about the original document
 # ---------------------------------------------------------------
 
-
-# We are editing an already existing invoice
-#
 db_1row invoices_info_query "
-select 
-	i.*,
+select
+	-- get the target cost type
+	:target_cost_type_id as cost_type_id,
+	im_category_from_id(:target_cost_type_id) as cost_type,
+	-- normal continuation
+	i.invoice_nr,
+	ci.customer_id,
+	ci.provider_id,
+	ci.effective_date,
+	ci.payment_days,
+	ci.vat,
+	ci.tax,
+	ci.amount,
+	ci.currency,
+	i.payment_method_id,
+	ci.template_id,
+	ci.cost_status_id,
 	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
 	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
 	c.customer_name as customer_name,
@@ -79,46 +69,54 @@ select
 	p.customer_path as provider_short_name
 from
 	im_invoices i, 
+	im_costs ci,
 	im_customers c,
 	im_customers p
 where 
         i.invoice_id=:invoice_id
-	and i.customer_id=c.customer_id(+)
-	and i.provider_id=p.customer_id(+)
-    "
+	and ci.customer_id=c.customer_id(+)
+	and ci.provider_id=p.customer_id(+)
+	and i.invoice_id = ci.cost_id
+"
 
-# Check if there is a single currency being used in the invoice
-# and get it.
-# This should always be the case, but doesn't need to...
-
-if {"" == $invoice_currency} {
-    catch {
-	db_1row invoices_currency_query "
-select distinct
-	currency as invoice_currency
-from
-	im_invoice_items i
-where
-	i.invoice_id=:invoice_id"
-    } err_msg
-}
+set invoice_mode "clone"
+set button_text "Clone $cost_type"
+set page_title "Clone $cost_type"
+set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
+# Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
+
+# Invoices and Bills have a "Payment Terms" field.
+set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
+
 if {$invoice_or_quote_p} {
     set company_id $customer_id
 } else {
     set company_id $provider_id
 }
 
+
 # ---------------------------------------------------------------
-# 8. Get the old invoice items for an already existing invoice
+# Calculate the selects for the ADP page
 # ---------------------------------------------------------------
 
-    set invoice_item_sql "
+set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
+set template_select [im_cost_template_select template_id $template_id]
+set status_select [im_cost_status_select cost_status_id $cost_status_id]
+set type_select [im_cost_type_select cost_type_id $cost_type_id]
+set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
+set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
+
+# ---------------------------------------------------------------
+# Select and format the sum of the invoicable items
+# ---------------------------------------------------------------
+
+set invoice_item_sql "
 select
 	i.*,
 	p.*,
@@ -135,36 +133,36 @@ order by
 	i.project_id
 "
 
-    # start formatting the list of sums with the header...
-    set task_sum_html "
+# start formatting the list of sums with the header...
+set task_sum_html "
         <tr align=center> 
-          <td class=rowtitle>Order</td>
+          <td class=rowtitle>Line</td>
           <td class=rowtitle>Description</td>
           <td class=rowtitle>Type</td>
           <td class=rowtitle>Units</td>
           <td class=rowtitle>UOM</td>
-          <td class=rowtitle>Rate </td>
+          <td class=rowtitle>Rate</td>
         </tr>
-    "
+"
 
-    set ctr 1
-    set old_project_id 0
-    set colspan 6
-    set target_language_id ""
-    db_foreach invoice_item $invoice_item_sql {
-
-	# insert intermediate headers for every project
-	if {$old_project_id != $project_id} {
-	    append task_sum_html "
+set ctr 1
+set old_project_id 0
+set colspan 6
+set target_language_id ""
+db_foreach invoice_item $invoice_item_sql {
+    
+    # insert intermediate headers for every project
+    if {$old_project_id != $project_id} {
+	append task_sum_html "
 		<tr><td class=rowtitle colspan=$colspan>
 	          <A href=/intranet/projects/view?group_id=$project_id>$project_short_name</A>:
 	          $project_name
 	        </td></tr>\n"
 	
-	    set old_project_id $project_id
-	}
+	set old_project_id $project_id
+    }
 
-	append task_sum_html "
+    append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>
 	    <input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
@@ -191,16 +189,12 @@ order by
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
 "
-	incr ctr
-    }
+    incr ctr
 }
-
 
 # ---------------------------------------------------------------
 # Add some empty new lines for editing purposes
 # ---------------------------------------------------------------
-
-
 
 # Add a fixed number of lines to enter data
 #
@@ -225,7 +219,7 @@ for {set i 0} {$i < 3} {incr i} {
 	  </td>
           <td align=right>
             <!-- rate and currency need to be together so that the line doesn't break -->
-	    <input type=text name=item_rate.$ctr size=3 value='0'>[im_currency_select item_currency.$ctr $invoice_currency]
+	    <input type=text name=item_rate.$ctr size=3 value='0'>[im_currency_select item_currency.$ctr $currency]
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value=''>
@@ -235,19 +229,4 @@ for {set i 0} {$i < 3} {incr i} {
 }
 
 
-
-
-# ---------------------------------------------------------------
-# Calculate the selects for the ADP page
-# ---------------------------------------------------------------
-
-set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
-set template_select [im_cost_template_select template_id $template_id]
-set status_select [im_cost_status_select cost_status_id $cost_status_id]
-set type_select [im_cost_type_select cost_type_id $cost_type_id]
-set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
-set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
-
-
 db_release_unused_handles
-
