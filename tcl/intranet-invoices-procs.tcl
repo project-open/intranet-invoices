@@ -30,50 +30,7 @@ ad_proc -private im_package_invoices_id_helper {} {
     } -default 0]
 }
 
-ad_proc -public im_invoices_navbar { default_letter base_url next_page_url prev_page_url export_var_list } {
-    Returns rendered HTML code for a horizontal sub-navigation
-    bar for /intranet-invoices/.
-    The lower part of the navbar also includes an Alpha bar.<br>
-    Default_letter==none marks a special behavious, printing no alpha-bar.
-} {
-    # -------- Defaults -----------------------------
-    set user_id [ad_get_user_id]
-    set url_stub [ns_urldecode [im_url_with_query]]
-    ns_log Notice "im_invoices_navbar: url_stub=$url_stub"
-
-    set sel "<td class=tabsel>"
-    set nosel "<td class=tabnotsel>"
-    set a_white "<a class=whitelink"
-    set tdsp "<td>&nbsp;</td>"
-
-    # -------- Calculate Alpha Bar with Pass-Through params -------
-    set bind_vars [ns_set create]
-    foreach var $export_var_list {
-        upvar 1 $var value
-        if { [info exists value] } {
-            ns_set put $bind_vars $var $value
-            ns_log Notice "im_invoices_navbar: $var <- $value"
-        }
-    }
-    set alpha_bar [im_alpha_bar $base_url $default_letter $bind_vars]
-    if {[string equal "none" $default_letter]} { set alpha_bar "&nbsp;" }
-    if {![string equal "" $prev_page_url]} {
-        set alpha_bar "<A HREF=$prev_page_url>&lt;&lt;</A>\n$alpha_bar"
-    }
-
-    if {![string equal "" $next_page_url]} {
-        set alpha_bar "$alpha_bar\n<A HREF=$next_page_url>&gt;&gt;</A>\n"
-    }
-
-    # Get the Subnavbar
-    set parent_menu_sql "select menu_id from im_menus where package_name='intranet-invoices' and label='finance'"
-    set parent_menu_id [db_string parent_admin_menu $parent_menu_sql -default 0]
-    set navbar [im_sub_navbar $parent_menu_id "" $alpha_bar "tabnotsel"]
-
-    return "<!-- navbar1 -->\n$navbar<!-- end navbar1 -->"
-}
-
-ad_proc im_next_invoice_nr { } {
+ad_proc -public im_next_invoice_nr { } {
     Returns the next free invoice number
 
     Invoice_nr's look like: 2003_07_123 with the first 4 digits being
