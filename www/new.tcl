@@ -25,7 +25,7 @@ ad_page_contract {
     { include_task:multiple "" }
     { invoice_id:integer 0}
     { cost_type_id:integer "[im_cost_type_invoice]" }
-    { company_id:integer 0}
+    { customer_id:integer 0}
     { provider_id:integer 0}
     { project_id:integer 0}
     { invoice_currency ""}
@@ -68,7 +68,7 @@ set cost_note ""
 # So we need to find out the company of the project and create
 # an invoice from scratch, invoicing all project elements.
 if {0 != $project_id} {
-    set company_id [db_string company_id "select company_id from im_projects where project_id=:project_id"]
+    set customer_id [db_string customer_id "select company_id from im_projects where project_id=:project_id"]
 }
 
 # ---------------------------------------------------------------
@@ -145,7 +145,7 @@ set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_ty
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
 
 if {$invoice_or_quote_p} {
-    set company_id $company_id
+    set company_id $customer_id
 } else {
     set company_id $provider_id
 }
@@ -159,7 +159,7 @@ set payment_method_select [im_invoice_payment_method_select payment_method_id $p
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
 set type_select [im_cost_type_select cost_type_id $cost_type_id]
-set customer_select [im_company_select company_id $company_id "" "Customer"]
+set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 
 # ---------------------------------------------------------------

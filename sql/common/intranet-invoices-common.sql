@@ -60,8 +60,8 @@ extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provid
 '"<A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A>"',
 '','',4,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
-extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Client',
-'"<A HREF=/intranet/companies/view?company_id=$company_id>$company_name</A>"',
+extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Customer',
+'"<A HREF=/intranet/companies/view?company_id=$customer_id>$customer_name</A>"',
 '','',5,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',

@@ -19,7 +19,7 @@ ad_page_contract {
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
     { order_by "Document #" }
-    { cost_status_id:integer 0 } 
+    { cost_status_id:integer "" } 
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
@@ -78,7 +78,7 @@ set local_url "list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
 
-if {$cost_status_id == 0} {
+if {$cost_status_id == ""} {
     set cost_status_id $cost_status_created
 }
 
@@ -136,18 +136,16 @@ set status_types [im_memoize_list select_cost_status_types "
 	from	im_cost_status
 	order by lower(cost_status)
 "]
+set status_types [linsert $status_types 0 0 All]
 
 
 # type_types will be a list of pairs of (cost_type_id, cost_type)
 set type_types [im_memoize_list select_cost_type_types "
-	select	0 as cost_type_id,
-		'All' as cost_type
-	from	dual
-    UNION
 	select	cost_type_id, 
 		cost_type
 	from	im_cost_type
 "]
+set type_types [linsert $type_types 0 0 All]
 
 
 # ---------------------------------------------------------------
@@ -247,7 +245,7 @@ select
 	to_char(ci.amount,:cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
-        c.company_name,
+        c.company_name as customer_name,
         c.company_path as company_short_name,
 	p.company_name as provider_name,
 	p.company_path as provider_short_name,
