@@ -19,7 +19,7 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     { include_task:multiple "" }
-    { invoice_id:integer ""}
+    { invoice_id:integer 0}
     { customer_id:integer 0}
     { project_id:integer ""}
     { invoice_currency ""}
@@ -81,7 +81,7 @@ if {"" != $project_id} {
 
 # Check if we are editing an already existing invoice
 #
-if { [exists_and_not_null invoice_id] } {
+if {$invoice_id} {
     # We are editing an already existing invoice
     #
     set invoice_mode "exists"
@@ -133,7 +133,7 @@ where
     set page_title "New Invoice"
     set context_bar [ad_context_bar [list /intranet/invoices/ "Invoices"] $page_title]
 
-    set invoice_id [db_nextval "im_invoices_seq"]
+    set invoice_id [im_new_object_id]
     set invoice_nr [im_next_invoice_nr]
     set invoice_status_id $invoice_status_created_id
     set invoice_type_id $invoice_type_normal_id

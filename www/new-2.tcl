@@ -27,11 +27,11 @@ ad_page_contract {
     tax
     item_sort_order:array
     item_name:array
-    item_units:array
+    item_units:integer,array
     item_uom_id:integer,array
     item_type_id:integer,array
     item_project_id:integer,array
-    item_rate:array
+    item_rate:float,array
     item_currency:array
     { return_url "/intranet-invoices/" }
 }
@@ -68,32 +68,9 @@ if {!$customer_id} { set customer_id $customer_internal }
 set invoice_exists_p [db_string invoice_count "select count(*) from im_invoices where invoice_id=:invoice_id"]
 
 # Just update the invoice if it already exists:
-if {$invoice_exists_p} {
+if {!$invoice_exists_p} {
 
-    db_dml update_im_invoices "
-UPDATE im_invoices 
-SET 
-	invoice_nr=:invoice_nr,
-	customer_id=:customer_id,
-	provider_id=:provider_id,
-	invoice_date=:invoice_date,
-	payment_days=:payment_days,
-	payment_method_id=:payment_method_id,
-	invoice_template_id=:invoice_template_id,
-	vat=:vat,
-	tax=:tax,
-	invoice_status_id=:invoice_status_id,
-	invoice_type_id=:invoice_type_id,
-	last_modified=sysdate,
-	last_modifying_user=:user_id,
-	modified_ip_address='[ad_conn peeraddr]'
-WHERE
-	invoice_id=:invoice_id"
-
-} else {
-
-
-    # Let's create the new invoice first
+    # Let's create the new invoice
     db_dml create_invoice "
 DECLARE
     v_invoice_id        integer;
@@ -117,6 +94,30 @@ BEGIN
 END;"
 
 }
+
+
+    db_dml update_im_invoices "
+UPDATE im_invoices 
+SET 
+	invoice_nr=:invoice_nr,
+	customer_id=:customer_id,
+	provider_id=:provider_id,
+	invoice_date=:invoice_date,
+	payment_days=:payment_days,
+	payment_method_id=:payment_method_id,
+	invoice_template_id=:invoice_template_id,
+	vat=:vat,
+	tax=:tax,
+	invoice_status_id=:invoice_status_id,
+	invoice_type_id=:invoice_type_id,
+	last_modified=sysdate,
+	last_modifying_user=:user_id,
+	modified_ip_address='[ad_conn peeraddr]'
+WHERE
+	invoice_id=:invoice_id"
+
+
+
 
 # ---------------------------------------------------------------
 # Create the im_invoice_items for the invoice
