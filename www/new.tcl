@@ -106,8 +106,8 @@ from
 	im_customers p
 where 
         i.invoice_id=:invoice_id
-	and ci.customer_id=c.customer_id(+)
-	and ci.provider_id=p.customer_id(+)
+	and ci.customer_id = c.customer_id(+)
+	and ci.provider_id = p.customer_id(+)
 	and i.invoice_id = ci.cost_id
 "
 
@@ -188,8 +188,6 @@ set status_select [im_cost_status_select cost_status_id $cost_status_id]
 set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
 set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
-
-
 
 
 # ---------------------------------------------------------------

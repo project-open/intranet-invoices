@@ -12,8 +12,9 @@
         <owner url="mailto:fraber@fraber.de">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">Project/Open</vendor>
 
-        <provides url="intranet-invoices" version="2.0.1"/>
-        <requires url="intranet-core" version="2.0.1"/>
+        <provides url="intranet-invoices" version="2.1.0"/>
+        <requires url="intranet-core" version="2.1.0"/>
+        <requires url="intranet-payments" version="2.1.0"/>
 
         <callbacks>
         </callbacks>

@@ -200,7 +200,7 @@ switch $order_by {
     "Preview" { set order_by_clause "order by invoice_nr" }
     "Provider" { set order_by_clause "order by provider_name" }
     "Client" { set order_by_clause "order by customer_name" }
-    "Due Date" { set order_by_clause "order by (i.invoice_date+i.payment_days)" }
+    "Due Date" { set order_by_clause "order by (ci.effective_date + ci.payment_days)" }
     "Amount" { set order_by_clause "order by ii.invoice_amount" }
     "Paid" { set order_by_clause "order by pa.payment_amount" }
     "Status" { set order_by_clause "order by invoice_status_id" }
@@ -243,7 +243,7 @@ if { [db_table_exists im_payments] } {
 set sql "
 select
         i.*,
-	i.invoice_date + i.payment_days as due_date_calculated,
+	(i.invoice_date + i.payment_days) as due_date_calculated,
 	o.object_type,
 	ii.invoice_amount,
 	ii.invoice_currency,

@@ -201,11 +201,20 @@ foreach project_id $select_project {
     db_dml insert_acs_rels "
         DECLARE
                 v_rel_id        integer;
+		v_rel_exists	integer;
         BEGIN
-                v_rel_id := acs_rel.new(
-                        object_id_one => :project_id,
-                        object_id_two => :invoice_id
-                );
+		select	count(*)
+		into	v_rel_exists
+		from	acs_rels
+		where	object_id_one = :project_id
+			and object_id_two = :invoice_id;
+
+		if 0 = v_rel_exists then
+	                v_rel_id := acs_rel.new(
+	                        object_id_one => :project_id,
+	                        object_id_two => :invoice_id
+	                );
+		end if;
         END;"
 }
 

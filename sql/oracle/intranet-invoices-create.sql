@@ -385,26 +385,21 @@ insert into im_view_columns (column_id, view_id, group_id, column_name, column_r
 extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
 '','',1,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'Preview',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$template_id>
 $invoice_nr</A>"','','',2,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
 '$cost_type','','',3,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provider',
 '"<A HREF=/intranet/customers/view?customer_id=$provider_id>$provider_name</A>"',
 '','',4,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Client',
 '"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"',
 '','',5,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',
 '[if {$overdue > 0} {
@@ -412,25 +407,22 @@ extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Da
 } else {
 	set t "$due_date_calculated"
 }]','','',7,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3011,30,NULL,'Amount',
-'$invoice_amount_formatted $invoice_currency','','',11,'');
-
+'"$invoice_amount_formatted $invoice_currency"','','',11,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
-'$payment_amount $payment_currency','','',13,'');
-
+'"$payment_amount $payment_currency"','','',13,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
 '[im_cost_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',17,'');
-
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
 '[if {[string equal "" $payment_amount]} {
-	set ttt "<input type=checkbox name=del_cost value=$invoice_id><input type=hidden name=object_type.$invoice_id value=$object_type>"
+	set ttt "
+		<input type=checkbox name=del_cost value=$invoice_id>
+		<input type=hidden name=object_type.$invoice_id value=$object_type>"
 }]','','',99,'');
-
 --
 commit;
 
