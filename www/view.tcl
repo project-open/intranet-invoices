@@ -14,12 +14,20 @@ ad_page_contract {
 
     @author frank.bergmann@project-open.com
 } {
-    invoice_id:integer
+    { invoice_id:integer 0}
+    { object_id:integer 0}
     { show_all_comments 0 }
     { render_template_id:optional,integer "" }
 }
 
 set user_id [ad_maybe_redirect_for_registration]
+
+if {0 == $invoice_id} {set invoice_id $object_id}
+if {0 == $invoice_id} {
+    ad_return_complaint 1 "<li>You need to specify a invoice_id"
+    return
+}
+
 if {![im_permission $user_id view_customers]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You have insufficient privileges to view this page.<BR>
