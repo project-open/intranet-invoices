@@ -1,7 +1,8 @@
 <master src="../../intranet-core/www/master">
 <property name="title">@page_title;noquote@</property>
+<property name="main_navbar_label">finance</property>
 
-<%= [im_invoices_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
+<%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list] "invoices_new"] %>
 
 <table cellpadding=0 cellspacing=0 border=0 width=100%>
 <tr>

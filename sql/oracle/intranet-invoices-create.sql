@@ -575,19 +575,6 @@ begin
     acs_permission.grant_permission(v_menu, v_accounting, 'read');
     acs_permission.grant_permission(v_menu, v_customers, 'read');
     acs_permission.grant_permission(v_menu, v_freelancers, 'read');
-
-    v_menu := im_menu.new (
-	package_name =>	'intranet-invoices',
-	label =>	'invoices_new',
-	name =>		'New',
-	url =>		'/intranet-invoices/',
-	sort_order =>	90,
-	parent_menu_id => v_finance_menu
-    );
-    acs_permission.grant_permission(v_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_menu, v_customers, 'read');
 end;
 /
 commit;

@@ -545,28 +545,3 @@ set button_html "
   </td>
 </tr>"
 
-# ---------------------------------------------------------------
-# 10. Join all parts together
-# ---------------------------------------------------------------
-
-ns_log Notice "intranet-invoices/list: parent_menu_label=$parent_menu_label"
-
-set page_body "
-$filter_html
-[im_costs_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id customer_id start_idx order_by how_many view_name letter] $parent_menu_label ]
-
-<form action=invoice-action method=POST>
-[export_form_vars customer_id invoice_id return_url]
-  <table width=100% cellpadding=2 cellspacing=2 border=0>
-    $table_header_html
-    $table_body_html
-    $table_continuation_html
-    $button_html
-  </table>
-</form>
-
-"
-
-db_release_unused_handles
-
-doc_return  200 text/html [im_return_template]
