@@ -7,8 +7,10 @@
 
 
 ad_page_contract {
-    Purpose: Save invoice changes and set the invoice status to "Created"
-    or higher.
+    Saves invoice changes and set the invoice status to "Created".<br>
+    Please note that there are different forms to create invoices for
+    example in the intranet-trans-invoicing module of the 
+    intranet-server-hosting module.
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
@@ -38,7 +40,7 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id view_invoices]} {
+if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
 }
@@ -59,12 +61,36 @@ if {!$provider_id} { set provider_id $customer_internal }
 if {!$customer_id} { set customer_id $customer_internal }
 
 # ---------------------------------------------------------------
-# 0. Update invoice base data
+# Update invoice base data
 # ---------------------------------------------------------------
 
 set invoice_exists_p [db_string invoice_count "select count(*) from im_invoices where invoice_id=:invoice_id"]
-if {!$invoice_exists_p} {
 
+# Just update the invoice if it already exists:
+if {$invoice_exists_p} {
+
+    db_dml update_im_invoices "
+UPDATE im_invoices 
+SET 
+	invoice_nr=:invoice_nr,
+	customer_id=:customer_id,
+	provider_id=:provider_id,
+	invoice_date=:invoice_date,
+	payment_days=:payment_days,
+	payment_method_id=:payment_method_id,
+	invoice_template_id=:invoice_template_id,
+	vat=:vat,
+	tax=:tax,
+	invoice_status_id=:invoice_status_id,
+	invoice_type_id=:invoice_type_id,
+	last_modified=:last_modified,
+	last_modifying_user=:last_modifying_user,
+	modified_ip_address=:modified_ip_address
+WHERE
+	invoice_id=:invoice_id"
+
+} else {
+    
     db_dml create_invoice "
 INSERT INTO im_invoices (
 	invoice_id, 
@@ -99,29 +125,14 @@ INSERT INTO im_invoices (
 	:user_id,
 	'[ad_conn peeraddr]'
 )"
-    
-} else {
 
-    db_dml update_im_invoices "
-UPDATE im_invoices 
-SET 
-	invoice_nr=:invoice_nr,
-	invoice_date=:invoice_date,
-	payment_days=:payment_days,
-	payment_method_id=:payment_method_id,
-	invoice_template_id=:invoice_template_id,
-	vat=:vat,
-	tax=:tax
-WHERE
-	invoice_id=:invoice_id
-"
 }
 
 # ---------------------------------------------------------------
-# 1. Create the new "im_invoice_items"
+# Create the im_invoice_items for the invoice
 # ---------------------------------------------------------------
 
-    # Delete the old items
+    # Delete the old items if they exist
     db_dml delete_invoice_items "
 	DELETE from im_invoice_items
 	WHERE invoice_id=:invoice_id
@@ -140,7 +151,7 @@ foreach nr $item_list {
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate, $currency)"
 
     # Insert only if it's not an empty line from the edit screen
-    if {"" != [string trim $name] || 0 != $units} {
+    if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
 	set item_id [db_nextval "im_invoice_items_seq"]
 	set insert_invoice_items_sql "
 INSERT INTO im_invoice_items (
@@ -154,18 +165,6 @@ INSERT INTO im_invoice_items (
         db_dml insert_invoice_items $insert_invoice_items_sql
     }
 }
-
-# ---------------------------------------------------------------
-# Update the invoice status from "In Process" to "Created"
-# ---------------------------------------------------------------
-
-# only if 
-db_dml update_invoice_status "
-	UPDATE im_invoices set invoice_status_id=:invoice_status_created
-	WHERE
-		invoice_id=:invoice_id
-		and invoice_status_id=:invoice_status_in_process
-"
 
 db_release_unused_handles
 ad_returnredirect "/intranet-invoices/view?invoice_id=$invoice_id"

@@ -22,7 +22,7 @@ ad_page_contract {
     { invoice_id:integer ""}
     { customer_id:integer 0}
     { project_id:integer ""}
-    { invoice_currency "EUR"}
+    { invoice_currency ""}
     { return_url "/intranet-invoice/"}
 }
 
@@ -97,6 +97,22 @@ where
         i.invoice_id=:invoice_id
 	and i.customer_id=c.customer_id(+)
     "
+
+    # Check if there is a single currency being used in the invoice
+    # and get it.
+    # This should always be the case, but doesn't need to...
+
+    if {"" == $invoice_currency} {
+	catch {
+	    db_1row invoices_currency_query "
+select distinct
+	currency as invoice_currency
+from
+	im_invoice_items i
+where
+	i.invoice_id=:invoice_id"
+	}
+    } err_msg
 
 } else {
 

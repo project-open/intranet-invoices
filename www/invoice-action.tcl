@@ -14,13 +14,18 @@ ad_page_contract {
     @param group_id group id
     @author frank.bergmann@project-open.com
 } {
-    return_url:optional
+    { return_url "/intranet-invoices/" }
     del_invoice:multiple,optional
     invoice_status:array,optional
     submit
 }
 
 set user_id [ad_maybe_redirect_for_registration]
+if {![im_permission $user_id add_invoices]} {
+    ad_return_complaint 1 "<li>You have insufficient privileges to see this page"
+    return
+}
+
 set task_status_delivered [db_string task_status_delivered "select task_status_id from im_task_status where upper(task_status)='DELIVERED'"]
 set project_status_delivered [db_string project_status_delivered "select project_status_id from im_project_status where upper(project_status)='DELIVERED'"]
 
@@ -42,7 +47,7 @@ switch $submit {
 
     "Del" {
 	# "Del" button pressed: delete the marked invoices:
-	#	- Mark the associated im_tasks as "delivered"
+	#	- Mark the associated im_trans_tasks as "delivered"
 	#	  and reset their invoice_id (to be able to
 	#	  delete the invoice).
 	#	- Delete the associated im_invoice_items
@@ -64,19 +69,19 @@ switch $submit {
 	set reset_projects_to_delivered_sql "
 		update im_projects
 		set project_status_id=:project_status_delivered
-		where group_id in (
+		where project_id in (
 			select distinct
 				t.project_id
 			from
-				im_tasks t
+				im_trans_tasks t
 			where
 				t.invoice_id in $invoice_where_list
 		)
 	"
 
 	set reset_tasks_sql "
-		update im_tasks t
-		set invoice_id=null, task_status_id= :task_status_delivered
+		update im_trans_tasks t
+		set invoice_id=null
 		where t.invoice_id in $invoice_where_list
 	"
 
@@ -91,11 +96,16 @@ switch $submit {
 	"
 
 	db_transaction {
-	  db_dml delete_invoice_items $delete_invoice_items_sql
-	  db_dml reset_projects_to_delivered $reset_projects_to_delivered_sql
-	  db_dml reset_tasks $reset_tasks_sql
-	  db_dml delete_map $delete_map_sql
-	  db_dml delete_invoices $delete_invoices_sql
+	    # Changing project state back to "delivered" and 
+	    # changing im_trans_tasks to not-invoice only for translation...
+	    if {[db_table_exists "im_trans_tasks"]} {
+		db_dml reset_projects_to_delivered $reset_projects_to_delivered_sql
+		db_dml reset_tasks $reset_tasks_sql
+	    }
+
+	    db_dml delete_invoice_items $delete_invoice_items_sql
+	    db_dml delete_map $delete_map_sql
+	    db_dml delete_invoices $delete_invoices_sql
 	}
 
 	ad_returnredirect $return_url
