@@ -153,6 +153,7 @@ where
     set vat 0
     set tax 0
     set note ""
+    set cost_note ""
     set payment_method_id ""
     set template_id ""
 }

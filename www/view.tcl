@@ -29,7 +29,7 @@ if {0 == $invoice_id} {
     return
 }
 
-if {![im_permission $user_id view_customers]} {
+if {![im_permission $user_id view_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You have insufficient privileges to view this page.<BR>
     Please contact your system administrator if you feel that this is an error."
