@@ -237,5 +237,20 @@ for {set i 0} {$i < 3} {incr i} {
     incr ctr
 }
 
+# ---------------------------------------------------------------
+# Pass along the number of projects related to this document
+# ---------------------------------------------------------------
+
+set related_project_sql "
+        select  object_id_one as project_id
+        from    acs_rels r
+        where   r.object_id_two = :invoice_id
+"
+
+set select_project_html ""
+db_foreach related_project $related_project_sql {
+        append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
+}
+
 
 db_release_unused_handles

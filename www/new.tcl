@@ -237,7 +237,7 @@ from
 	im_invoice_items i,
 	im_projects p
 where
-	i.invoice_id=:invoice_id
+	i.invoice_id = :invoice_id
 	and i.project_id=p.project_id(+)
 order by
 	i.project_id
@@ -308,10 +308,6 @@ order by
 # Add some empty new lines for editing purposes
 # ---------------------------------------------------------------
 
-
-
-# Add a fixed number of lines to enter data
-#
 for {set i 0} {$i < 3} {incr i} {
     
     append task_sum_html "
@@ -342,6 +338,20 @@ for {set i 0} {$i < 3} {incr i} {
     incr ctr
 }
 
+# ---------------------------------------------------------------
+# Pass along the number of projects related to this document
+# ---------------------------------------------------------------
+
+set related_project_sql "
+	select	object_id_one as project_id
+	from	acs_rels r
+	where	r.object_id_two = :invoice_id
+"
+
+set select_project_html ""
+db_foreach related_project $related_project_sql {
+	append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
+}
 
 db_release_unused_handles
 

@@ -6,6 +6,7 @@
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
 <%= [export_form_vars invoice_id project_id return_url] %>
+@select_project_html;noquote@
 
 <table border=0 width=100%>
 <tr><td>
@@ -72,7 +73,7 @@
 		  <td class=roweven>Customer:</tr>
 		  <td class=roweven>@customer_select;noquote@</td>
 		</tr>
-		<input type=hidden name=provider_id value=0>
+		<input type=hidden name=provider_id value=@provider_id@>
 
 </if>
 <else>
@@ -84,7 +85,7 @@
 		  <td class=roweven>Provider:</tr>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
-		<input type=hidden name=customer_id value=0>
+		<input type=hidden name=customer_id value=@customer_id@>
 
 </else>
 

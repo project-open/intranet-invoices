@@ -5,15 +5,17 @@
 
 <form action=new-2 method=POST>
 <%= [export_form_vars invoice_id project_id return_url] %>
+<!-- Include a list of projects related to this document -->
+@select_project_html;noquote@
 
-<table border=0 width=100%>
+<table border=0 width="100%">
 <tr><td>
 
-  <table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width=100%>
+  <table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0 width="100%">
     <tr valign=top> 
       <td>
 
-        <table border=0 cellPadding=0 cellspacing=2 width=100%>
+        <table border=0 cellPadding=0 cellspacing=2 width="100%">
 
 
 	        <tr><td align=middle class=rowtitle colspan=2>@cost_type@ Data</td></tr>
@@ -59,7 +61,7 @@
       </td>
       <td></td>
       <td align=right>
-        <table border=0 cellspacing=2 cellpadding=0 width=100%>
+        <table border=0 cellspacing=2 cellpadding=0 width="100%">
 
 <if @invoice_or_quote_p@>
 <!-- Let the user select the customer. Provider=Internal -->
@@ -71,7 +73,7 @@
 		  <td class=roweven>Customer:</tr>
 		  <td class=roweven>@customer_select;noquote@</td>
 		</tr>
-		<input type=hidden name=provider_id value=0>
+		<input type=hidden name=provider_id value=@provider_id@>
 
 </if>
 <else>
@@ -83,7 +85,7 @@
 		  <td class=roweven>Provider:</tr>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
-		<input type=hidden name=customer_id value=0>
+		<input type=hidden name=customer_id value=@customer_id@>
 
 </else>
 
@@ -95,10 +97,10 @@
 </td></tr>
 <tr><td>
 
-  <table width=100%>
+  <table width="100%">
     <tr>
       <td align=right>
- 	<table border=0 cellspacing=2 cellpadding=1 width=100%>
+ 	<table border=0 cellspacing=2 cellpadding=1 width="100%">
 
 	<!-- the list of task sums, distinguised by type and UOM -->
 	@task_sum_html;noquote@
