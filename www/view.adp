@@ -25,10 +25,16 @@
 		  <% set render_template_id $template_id %>
 		  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
 		  <A HREF="/intranet-invoices/view?@preview_vars@">Preview</A>
+<if "" ne @generation_blurb@>
 		<li>
 		  <% set blurb $generation_blurb %>
-		  <% set gen_vars [export_url_vars invoice_id target_cost_type_id return_url] %>
+		  <% set source_invoice_id $invoice_id %>
+		  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
 		  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
+</if>
+		<li>
+		  <% set notify_vars [export_url_vars invoice_id return_url] %>
+		  <A HREF="/intranet-invoices/notify?@notify_vars@">Send to @provider_customer@</A>
 	    </td>
 	  </tr>
 	</table>

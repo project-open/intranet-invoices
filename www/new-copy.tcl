@@ -13,7 +13,7 @@ ad_page_contract {
     Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
-    invoice_id:integer
+    source_invoice_id:integer
     target_cost_type_id:integer
     { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
@@ -49,7 +49,7 @@ select
 	:target_cost_type_id as cost_type_id,
 	im_category_from_id(:target_cost_type_id) as cost_type,
 	-- normal continuation
-	i.invoice_nr,
+	i.invoice_nr as org_invoice_nr,
 	ci.customer_id,
 	ci.provider_id,
 	ci.effective_date,
@@ -73,7 +73,7 @@ from
 	im_customers c,
 	im_customers p
 where 
-        i.invoice_id=:invoice_id
+        i.invoice_id = :source_invoice_id
 	and ci.customer_id=c.customer_id(+)
 	and ci.provider_id=p.customer_id(+)
 	and i.invoice_id = ci.cost_id
@@ -83,6 +83,15 @@ set invoice_mode "clone"
 set button_text "Clone $cost_type"
 set page_title "Clone $cost_type"
 set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
+
+
+# ---------------------------------------------------------------
+# Modify some variable between the source and the target invoice
+# ---------------------------------------------------------------
+
+set invoice_nr [im_invoice_nr_variant $org_invoice_nr]
+set new_invoice_id [im_new_object_id]
+
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -127,7 +136,7 @@ from
 	im_invoice_items i,
 	im_projects p
 where
-	i.invoice_id=:invoice_id
+	i.invoice_id = :source_invoice_id
 	and i.project_id=p.project_id(+)
 order by
 	i.project_id

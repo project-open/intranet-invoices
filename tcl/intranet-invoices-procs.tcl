@@ -80,6 +80,51 @@ where
 
 
 
+ad_proc -public im_invoice_nr_variant { invoice_nr } {
+    Returns the next available "variant" of an invoice number.
+    Example: 
+    <ul>
+      <li>2004_08_002 -> 2004_08_002a or
+      <li>2004_08_002a -> 2004_08_002b etc.
+    </ul>
+} {
+    # ToDo: May become slow with a rising number of invoices (> 10.000)
+    set max_extension [db_string max_extension "
+	select max(i.invoice_nr_extension)
+	from
+	        (select
+	                substr(i.invoice_nr,13,13) as invoice_nr_extension
+	        from
+	                im_invoices i
+	        where
+	                substr(i.invoice_nr,1,12) = :invoice_nr	                
+	        ) i
+    "]
+
+    # simple case: no extension yet
+    if {"" == $max_extension} { 
+	ns_log Notice "im_invoice_nr_variant: $invoice_nr: no extension yet"
+	return "${invoice_nr}a" 
+    }
+
+    # second case: "a" .. "y"
+    if {1 == [string length $max_extension] && [string compare $max_extension "z"] < 0} { 
+	ns_log Notice "im_invoice_nr_variant: $invoice_nr: 1 digit: '$max_extension': incrementing"
+	set chr [string first $max_extension "abcdefghijklmnopqrstuvwxyz"]
+	incr chr
+	set new_extension [string range "abcdefghijklmnopqrstuvwxyz" $chr $chr]
+	return "${invoice_nr}$new_extension" 
+    }
+
+    ad_return_complaint 1 "<li>System Error: too many invoice copies<br>
+    This error occurs because you have more then 26 variants of a sinlge
+    financial document (invoice, quote, purchase order, ...).<br>
+    Please change your invoice number and/or notify the Project/Open team."
+    return ""
+}
+
+
+
 # ---------------------------------------------------------------
 # Components
 # ---------------------------------------------------------------

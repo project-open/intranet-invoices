@@ -4,6 +4,7 @@
 <%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
 
 <form action=new-2 method=POST>
+<% set invoice_id $new_invoice_id %>
 <%= [export_form_vars invoice_id project_id return_url] %>
 
 <table border=0 width=100%>

@@ -73,9 +73,11 @@ if {$cost_type_id == [im_cost_type_po]} {
 if {$invoice_or_quote_p} {
     # A Customer document
     set customer_or_provider_join "and i.customer_id = c.customer_id(+)"
+    set provider_customer "Customer"
 } else {
     # A provider document
     set customer_or_provider_join "and i.provider_id = c.customer_id(+)"
+    set provider_customer "Provider"
 }
 
 # ---------------------------------------------------------------
