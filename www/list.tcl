@@ -160,7 +160,7 @@ if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
 	)"
 }
 if { ![empty_string_p $company_id] && $company_id != 0 } {
-    lappend criteria "i.company_id=:company_id"
+    lappend criteria "i.customer_id=:company_id"
 }
 if { ![empty_string_p $provider_id] && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
@@ -189,7 +189,7 @@ lappend company_ids 0
 # Special users ("view_invoices") don't need permissions.
 set company_where ""
 if {![im_permission $user_id view_invoices]} { 
-    set company_where "and (i.company_id in ([join $company_ids ","]) or i.provider_id in ([join $company_ids ","]))"
+    set company_where "and (i.customer_id in ([join $company_ids ","]) or i.provider_id in ([join $company_ids ","]))"
 }
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
@@ -274,7 +274,7 @@ from
 	$extra_from
 where
 	i.invoice_id = o.object_id
- 	and i.company_id=c.company_id
+ 	and i.customer_id=c.company_id
         and i.provider_id=p.company_id
         and i.invoice_id=ii.invoice_id
 	$company_where
