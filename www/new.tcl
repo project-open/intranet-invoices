@@ -204,7 +204,7 @@ if {[string equal $invoice_mode "new"]} {
     # start formatting the list of sums with the header...
     set task_sum_html "
         <tr align=center> 
-          <td class=rowtitle>Order</td>
+          <td class=rowtitle>Line</td>
           <td class=rowtitle>Description</td>
           <td class=rowtitle>Type</td>
           <td class=rowtitle>Units</td>
@@ -248,7 +248,7 @@ order by
     # start formatting the list of sums with the header...
     set task_sum_html "
         <tr align=center> 
-          <td class=rowtitle>Order</td>
+          <td class=rowtitle>Line</td>
           <td class=rowtitle>Description</td>
           <td class=rowtitle>Type</td>
           <td class=rowtitle>Units</td>

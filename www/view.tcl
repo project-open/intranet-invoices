@@ -258,7 +258,7 @@ append project_list_html "
         <tr>
           <td align=left colspan=2>
 	    <A href=/intranet-invoices/add-project-to-invoice?invoice_id=$invoice_id>
-	      Add a related Project
+	      Associate with a Project
 	    </A>
           </td>
         </tr>"
@@ -409,16 +409,16 @@ append item_html "
         </tr>
 "
 
-if {$vat != 0} {
+#if {0 != $vat} {
     append item_html "
         <tr>
           <td colspan=$colspan_sub align=right>VAT: $vat %&nbsp;</td>
           <td class=roweven align=right>$vat_amount $currency</td>
         </tr>
 "
-}
+#}
 
-if {$vat != 0} {
+if {0 != $tax} {
     append item_html "
         <tr> 
           <td colspan=$colspan_sub align=right>TAX: $tax %&nbsp;</td>
@@ -514,9 +514,10 @@ if {[exists_and_not_null render_template_id]} {
             </tr>
           </table>
 
+          [im_invoices_object_list_component $user_id $invoice_id $return_url]
+          <br>
+
           <table border=0 cellPadding=0 cellspacing=2>
-	    $project_list_html
-	    <tr><td colspan=2>&nbsp;</td></tr>
 	    $payment_list_html
 	    <tr><td colspan=2>&nbsp;</td></tr>
           </table>
