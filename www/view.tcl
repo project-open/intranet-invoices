@@ -90,6 +90,7 @@ select
 	i.*,
 	ci.*,
         c.*,
+	c.customer_id as company_id,
         o.*,
 	i.invoice_date + i.payment_days as calculated_due_date,
 	pm_cat.category as invoice_payment_method,

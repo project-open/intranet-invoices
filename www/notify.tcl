@@ -39,8 +39,8 @@ set system_name [ad_system_name]
 set object_name [db_string project_name "select acs_object.name(:invoice_id) from dual"]
 set page_title "Notify user"
 set context [list $page_title]
-set export_vars [export_form_vars invoice_id return_url]
 set current_user_name [db_string cur_user "select im_name_from_user_id(:user_id) from dual"]
+set current_user_email [db_string cur_user "select im_email_from_user_id(:user_id) from dual"]
 
 # Get the SystemUrl without trailing "/"
 set system_url [ad_parameter -package_id [ad_acs_kernel_id] SystemURL ""]
@@ -73,8 +73,8 @@ if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invo
 db_1row company_info "
 select
 	c.*,
-	im_name_from_user_id(c.accounting_contact_id) as accountant_name,
-	im_email_from_user_id(c.accounting_contact_id) as accountant_email
+	im_name_from_user_id(c.accounting_contact_id) as accounting_contact_name,
+	im_email_from_user_id(c.accounting_contact_id) as accounting_contact_email
 from
 	im_customers c
 where
@@ -103,8 +103,9 @@ set select_project_sql "
 		and r.object_id_two = :invoice_id
 "
 db_foreach select_projects $select_project_sql {
-    append select_projects "$project_nr: $project_name\n$system_url/intranet/projects/view?project_id=$project_id\n"
+    append select_projects "- $project_nr: $project_name\n  $system_url/intranet/projects/view?project_id=$project_id\n"
 }
 
-
+set user_id_from_search $accounting_contact_id
+set export_vars [export_form_vars user_id_from_search invoice_id return_url]
 
