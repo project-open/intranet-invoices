@@ -482,35 +482,43 @@ values (31, 'invoice_new', 'view_finance');
 --
 delete from im_view_columns where column_id > 3000 and column_id < 3099;
 --
-insert into im_view_columns values (3001,30,NULL,'Invoice #',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Invoice #',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
 '','',1,'');
 
-insert into im_view_columns values (3003,30,NULL,'Preview',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Preview',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$invoice_template_id>
 $invoice_nr</A>"','','',2,'');
 
-insert into im_view_columns values (3005,30,NULL,'Client',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Client',
 '"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"',
 '','',3,'');
 
-insert into im_view_columns values (3007,30,NULL,'Due Date',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',
 '[if {$overdue > 0} {
 	set t "<font color=red>$due_date_calculated</font>"
 } else {
 	set t "$due_date_calculated"
 }]','','',4,'');
 
-insert into im_view_columns values (3011,30,NULL,'Amount',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3011,30,NULL,'Amount',
 '$invoice_amount_formatted $invoice_currency','','',6,'');
 
-insert into im_view_columns values (3013,30,NULL,'Paid',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
 '$payment_amount $payment_currency','','',7,'');
 
-insert into im_view_columns values (3017,30,NULL,'Status',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
 '[im_invoice_status_select "invoice_status.$invoice_id" $invoice_status_id]','','',13,'');
 
-insert into im_view_columns values (3098,30,NULL,'Del',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
 '[if {[string equal "" $payment_amount]} {
 	set ttt "<input type=checkbox name=del_invoice value=$invoice_id>"
 }]','','',99,'');
@@ -523,15 +531,22 @@ commit;
 --
 delete from im_view_columns where column_id > 3100 and column_id < 3199;
 --
-insert into im_view_columns values (3101,31,NULL,'Project #',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3101,31,NULL,'Project #',
 '"<A HREF=/intranet/projects/view?project_id=$project_id>$project_nr</A>"','','',1,'');
-insert into im_view_columns values (3103,31,NULL,'Client',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3103,31,NULL,'Client',
 '"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"','','',2,'');
-insert into im_view_columns values (3107,31,NULL,'Project Name','$project_name','','',4,'');
-insert into im_view_columns values (3109,31,NULL,'Type','$project_type','','',5,'');
-insert into im_view_columns values (3111,31,NULL,'Status','$project_status','','',6,'');
-insert into im_view_columns values (3113,31,NULL,'Delivery Date','$end_date','','',7,'');
-insert into im_view_columns values (3115,31,NULL,'Sel',
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3107,31,NULL,'Project Name','$project_name','','',4,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3109,31,NULL,'Type','$project_type','','',5,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3111,31,NULL,'Status','$project_status','','',6,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3113,31,NULL,'Delivery Date','$end_date','','',7,'');
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3115,31,NULL,'Sel',
 '"<input type=checkbox name=select_project value=$project_id>"',
 '','',8,'');
 
