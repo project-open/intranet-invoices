@@ -429,7 +429,7 @@ extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
 '[if {[string equal "" $payment_amount]} {
-	set ttt "<input type=checkbox name=del_invoice value=$invoice_id>"
+	set ttt "<input type=checkbox name=del_cost value=$invoice_id><input type=hidden name=object_type.$invoice_id value=$object_type>"
 }]','','',99,'');
 
 --

@@ -244,6 +244,7 @@ set sql "
 select
         i.*,
 	i.invoice_date + i.payment_days as due_date_calculated,
+	o.object_type,
 	ii.invoice_amount,
 	ii.invoice_currency,
 	to_char(ii.invoice_amount,:cur_format) as invoice_amount_formatted,
@@ -259,6 +260,7 @@ select
 	$extra_select
 from
         im_invoices_active i,
+	acs_objects o,
         im_customers c,
         im_customers p,
         (select
@@ -270,7 +272,8 @@ from
         ) ii
 	$extra_from
 where
-        i.customer_id=c.customer_id(+)
+	i.invoice_id = o.object_id
+ 	and i.customer_id=c.customer_id(+)
         and i.provider_id=p.customer_id(+)
         and i.invoice_id=ii.invoice_id(+)
 	$company_where

@@ -16,7 +16,7 @@ ad_page_contract {
     invoice_id:integer
     { customer_id:integer "" }
     { provider_id:integer "" }
-    { project_id:integer "" }
+    { select_project:integer,multiple {} }
     invoice_nr
     invoice_date
     cost_status_id:integer 
@@ -71,15 +71,15 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
     return
 }
 
+if {"" == $provider_id} { set provider_id [im_customer_internal] }
+if {"" == $customer_id} { set customer_id [im_customer_internal] }
 
-set customer_internal [db_string customer_internal "select customer_id from im_customers where lower(customer_path) = 'internal'" -default 0]
-if {!$customer_internal} {
-    ad_return_complaint 1 "<li>Unable to find 'Internal' customer with path 'internal'. <br>Maybe somebody has change the path of the customer?"    
-    return
+
+set project_id ""
+if {1 == [llength $select_project]} {
+    set project_id [lindex $select_project 0]
 }
 
-if {"" == $provider_id} { set provider_id $customer_internal }
-if {"" == $customer_id} { set customer_id $customer_internal }
 
 # ---------------------------------------------------------------
 # Update invoice base data
@@ -92,28 +92,27 @@ if {!$invoice_exists_p} {
 
     # Let's create the new invoice
     db_dml create_invoice "
-DECLARE
-    v_invoice_id        integer;
-BEGIN
-    v_invoice_id := im_invoice.new (
-        invoice_id              => :invoice_id,
-        creation_user           => :user_id,
-        creation_ip             => '[ad_conn peeraddr]',
-        invoice_nr              => :invoice_nr,
-        customer_id             => :customer_id,
-        provider_id             => :provider_id,
-        invoice_date            => :invoice_date,
-        invoice_template_id     => :template_id,
-        invoice_status_id	=> :cost_status_id,
-        invoice_type_id		=> :cost_type_id,
-        payment_method_id       => :payment_method_id,
-        payment_days            => :payment_days,
-	amount			=> 0,
-        vat                     => :vat,
-        tax                     => :tax
-    );
-END;"
-
+	DECLARE
+	    v_invoice_id        integer;
+	BEGIN
+	    v_invoice_id := im_invoice.new (
+	        invoice_id              => :invoice_id,
+	        creation_user           => :user_id,
+	        creation_ip             => '[ad_conn peeraddr]',
+	        invoice_nr              => :invoice_nr,
+	        customer_id             => :customer_id,
+	        provider_id             => :provider_id,
+	        invoice_date            => :invoice_date,
+	        invoice_template_id     => :template_id,
+	        invoice_status_id	=> :cost_status_id,
+	        invoice_type_id		=> :cost_type_id,
+	        payment_method_id       => :payment_method_id,
+	        payment_days            => :payment_days,
+		amount			=> 0,
+	        vat                     => :vat,
+	        tax                     => :tax
+	    );
+	END;"
 }
 
 # Update the invoice itself
@@ -148,22 +147,15 @@ where
 	cost_id = :invoice_id
 "
 
-set ttt "
-
-
-
-"
-
-
 # ---------------------------------------------------------------
 # Create the im_invoice_items for the invoice
 # ---------------------------------------------------------------
 
-    # Delete the old items if they exist
-    db_dml delete_invoice_items "
+# Delete the old items if they exist
+db_dml delete_invoice_items "
 	DELETE from im_invoice_items
 	WHERE invoice_id=:invoice_id
-    "
+"
 
 set item_list [array names item_name]
 foreach nr $item_list {
@@ -181,16 +173,40 @@ foreach nr $item_list {
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
 	set item_id [db_nextval "im_invoice_items_seq"]
 	set insert_invoice_items_sql "
-INSERT INTO im_invoice_items (
-	item_id, item_name, project_id, invoice_id, item_units, item_uom_id, 
-	price_per_unit, currency, sort_order, item_type_id, item_status_id, description
-) VALUES (
-	:item_id, :name, :project_id, :invoice_id, :units, :uom_id, 
-	:rate, :currency, :sort_order, :type_id, null, ''
-)"
+	INSERT INTO im_invoice_items (
+		item_id, item_name, 
+		project_id, invoice_id, 
+		item_units, item_uom_id, 
+		price_per_unit, currency, 
+		sort_order, item_type_id, 
+		item_status_id, description
+	) VALUES (
+		:item_id, :name, 
+		:project_id, :invoice_id, 
+		:units, :uom_id, 
+		:rate, :currency, 
+		:sort_order, :type_id, 
+		null, ''
+	)"
 
         db_dml insert_invoice_items $insert_invoice_items_sql
     }
+}
+
+# ---------------------------------------------------------------
+# Associate the invoice with the project via acs_rels
+# ---------------------------------------------------------------
+
+foreach project_id $select_project {
+    db_dml insert_acs_rels "
+        DECLARE
+                v_rel_id        integer;
+        BEGIN
+                v_rel_id := acs_rel.new(
+                        object_id_one => :project_id,
+                        object_id_two => :invoice_id
+                );
+        END;"
 }
 
 # ---------------------------------------------------------------

@@ -15,8 +15,9 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     { return_url "/intranet-invoices/" }
-    del_invoice:multiple,optional
+    del_cost:multiple,optional
     cost_status:array,optional
+    object_type:array,optional
     submit
 }
 
@@ -46,31 +47,25 @@ switch $submit {
     }
 
     "Del" {
-	# "Del" button pressed: delete the marked invoices:
-	#	- Mark the associated im_trans_tasks as "delivered"
-	#	  and reset their invoice_id (to be able to
-	#	  delete the invoice).
-	#	- Delete the associated im_invoice_items
-	#	- Delete from project-invoice-map
-	#       - Deleter underlying im_cost item
-	#
-	set in_clause_list [list]
+       # Maybe the list of costs was empty...
+        if {![info exists del_cost]} {
+            ad_returnredirect $return_url
+            return
+        }
 
-	# Maybe the list of invoices was empty...
-	if {![info exists del_invoice]} { 
-	    ad_returnredirect $return_url
-	    return
-	}
+        foreach cost_id $del_cost {
+            set otype $object_type($cost_id)
+            # ToDo: Security
+            db_dml delete_cost_item "
+                begin
+                        ${otype}.del(:cost_id);
+                end;"
+            lappend in_clause_list $cost_id
+        }
+        set cost_where_list "([join $in_clause_list ","])"
 
-	foreach invoice_id $del_invoice {
-	    db_dml "
-		begin
-			im_trans_invoice.del(:invoice_id);
-		end;"
-	}
-
-	ad_returnredirect $return_url
-	return
+        ad_returnredirect $return_url
+        return
     }
 
     default {
