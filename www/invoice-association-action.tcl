@@ -87,9 +87,9 @@ select
 	ci.effective_date + ci.payment_days as calculated_due_date,
 	pm_cat.category as invoice_payment_method,
 	pm_cat.category_description as invoice_payment_method_desc,
-	im_name_from_user_id(c.accounting_contact_id) as customer_contact_name,
-	im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
-	c.customer_name,
+	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
+	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
+	c.company_name,
 	cc.country_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type,
@@ -97,7 +97,7 @@ select
 from
 	im_invoices i,
 	im_costs ci,
-	im_customers c,
+	im_companies c,
 	im_offices o,
 	country_codes cc,
 	im_categories pm_cat
@@ -105,7 +105,7 @@ where
 	i.invoice_id = :invoice_id
 	and i.invoice_id = ci.cost_id
 	and i.payment_method_id = pm_cat.category_id(+)
-	and ci.customer_id = c.customer_id(+)
+	and ci.company_id = c.company_id(+)
 	and c.main_office_id=o.office_id(+)
 	and o.address_country_code=cc.iso(+)
 "
@@ -116,7 +116,7 @@ if { ![db_0or1row projects_info_query $query] } {
 }
 
 
-set project_select [im_project_select object_id $project_id "" "" "" "" $customer_id]
+set project_select [im_project_select object_id $project_id "" "" "" "" $company_id]
 
 db_release_unused_handles
 

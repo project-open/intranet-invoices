@@ -16,10 +16,10 @@
   </tr>
   <tr>
     <td>
-      Customer.
+      Company.
     </td>
     <td>
-      <A href="/intranet/customers/view?customer_id=@customer_id@">@customer_name@</A>
+      <A href="/intranet/companies/view?company_id=@company_id@">@company_name@</A>
     </td>
   </tr>
   <tr>

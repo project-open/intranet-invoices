@@ -65,7 +65,7 @@ where
 
 
 if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invoice]} {
-    set company_id $customer_id
+    set company_id $company_id
 } else {
     set company_id $provider_id
 }
@@ -76,17 +76,17 @@ select
 	im_name_from_user_id(c.accounting_contact_id) as accounting_contact_name,
 	im_email_from_user_id(c.accounting_contact_id) as accounting_contact_email
 from
-	im_customers c
+	im_companies c
 where
-	c.customer_id = :company_id
+	c.company_id = :company_id
 "
 
 if {"" == $accounting_contact_id} {
     ad_return_complaint 1 "<li>No Accounting Contact Defined<p>
-	The company '$customer_name' has not accounting contact defined
+	The company '$company_name' has not accounting contact defined
 	to whom we could send this $cost_type.<br>
-	Please visit the <A href=/intranet/customers/view?customer_id=$company_id>
-	$customer_name page</a> and add an accounting contact."
+	Please visit the <A href=/intranet/companies/view?company_id=$company_id>
+	$company_name page</a> and add an accounting contact."
 }
 
 set select_projects ""

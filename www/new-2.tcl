@@ -14,7 +14,7 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
-    { customer_id:integer "" }
+    { company_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
     invoice_nr
@@ -42,7 +42,7 @@ ad_page_contract {
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-# Invoices and Quotes have a "Customer" fields.
+# Invoices and Quotes have a "Company" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 ns_log Notice "intranet-invoices/new-2: invoice_or_quote_p=$invoice_or_quote_p"
 
@@ -51,7 +51,7 @@ set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_typ
 ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
-    set company_id $customer_id
+    set company_id $company_id
 } else {
     set company_id $provider_id
 }
@@ -72,8 +72,8 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
     return
 }
 
-if {"" == $provider_id} { set provider_id [im_customer_internal] }
-if {"" == $customer_id} { set customer_id [im_customer_internal] }
+if {"" == $provider_id} { set provider_id [im_company_internal] }
+if {"" == $company_id} { set company_id [im_company_internal] }
 
 
 set project_id ""
@@ -101,7 +101,7 @@ if {!$invoice_exists_p} {
 	        creation_user           => :user_id,
 	        creation_ip             => '[ad_conn peeraddr]',
 	        invoice_nr              => :invoice_nr,
-	        customer_id             => :customer_id,
+	        company_id             => :company_id,
 	        provider_id             => :provider_id,
 	        invoice_date            => :invoice_date,
 	        invoice_template_id     => :template_id,
@@ -132,7 +132,7 @@ update im_costs
 set
 	project_id	= :project_id,
 	cost_name	= :invoice_nr,
-	customer_id	= :customer_id,
+	company_id	= :company_id,
 	provider_id	= :provider_id,
 	cost_status_id	= :cost_status_id,
 	cost_type_id	= :cost_type_id,

@@ -26,7 +26,7 @@ ad_page_contract {
     { include_task:multiple "" }
     { invoice_id:integer 0}
     { cost_type_id:integer "[im_cost_type_invoice]" }
-    { customer_id:integer 0}
+    { company_id:integer 0}
     { provider_id:integer 0}
     { project_id:integer 0}
     { invoice_currency ""}
@@ -63,10 +63,10 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 
 
 # Tricky case: Sombebody has called this page from a project
-# So we need to find out the customer of the project and create
+# So we need to find out the company of the project and create
 # an invoice from scratch, invoicing all project elements.
 if {0 != $project_id} {
-    set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
+    set company_id [db_string company_id "select company_id from im_projects where project_id=:project_id"]
 }
 
 # ---------------------------------------------------------------
@@ -82,7 +82,7 @@ if {$invoice_id} {
     db_1row invoices_info_query "
 select
 	i.invoice_nr,
-	ci.customer_id,
+	ci.company_id,
 	ci.provider_id,
 	ci.effective_date,
 	ci.payment_days,
@@ -94,21 +94,21 @@ select
 	ci.cost_status_id,
 	ci.cost_type_id,
 	im_category_from_id(ci.cost_type_id) as cost_type,
-	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
-	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
-	c.customer_name as customer_name,
-	c.customer_path as customer_short_name,
-	p.customer_name as provider_name,
-	p.customer_path as provider_short_name
+	im_name_from_user_id(i.company_contact_id) as company_contact_name,
+	im_email_from_user_id(i.company_contact_id) as company_contact_email,
+	c.company_name as company_name,
+	c.company_path as company_short_name,
+	p.company_name as provider_name,
+	p.company_path as provider_short_name
 from
 	im_invoices i, 
 	im_costs ci,
-	im_customers c,
-	im_customers p
+	im_companies c,
+	im_companies p
 where 
         i.invoice_id=:invoice_id
-	and ci.customer_id = c.customer_id(+)
-	and ci.provider_id = p.customer_id(+)
+	and ci.company_id = c.company_id(+)
+	and ci.provider_id = p.company_id(+)
 	and i.invoice_id = ci.cost_id
 "
 
@@ -148,7 +148,7 @@ where
     set invoice_nr [im_next_invoice_nr]
     set cost_status_id [im_cost_status_created]
     set effective_date $todays_date
-    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCustomerInvoicePaymentDays" "" 30] 
+    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
@@ -166,14 +166,14 @@ if {"" == $invoice_currency} {
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-# Invoices and Quotes have a "Customer" fields.
+# Invoices and Quotes have a "Company" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
 
 if {$invoice_or_quote_p} {
-    set company_id $customer_id
+    set company_id $company_id
 } else {
     set company_id $provider_id
 }
@@ -187,8 +187,8 @@ set payment_method_select [im_invoice_payment_method_select payment_method_id $p
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
 set type_select [im_cost_type_select cost_type_id $cost_type_id]
-set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
-set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
+set company_select [im_company_select company_id $company_id "" "Company"]
+set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 
 
 # ---------------------------------------------------------------

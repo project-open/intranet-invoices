@@ -60,7 +60,7 @@ create table im_invoices (
 				primary key
 				constraint im_invoices_id_fk
 				references im_costs,
-	customer_contact_id	integer 
+	company_contact_id	integer 
 				constraint im_invoices_contact
 				references users,
 	invoice_nr		varchar(40)
@@ -95,7 +95,7 @@ create table im_invoice_items (
 				primary key,
 	item_name		varchar(200),
 				-- project_id if != null is used to access project details
-				-- for invoice generation, such as the customer PO# etc.
+				-- for invoice generation, such as the company PO# etc.
 	project_id		integer
 				constraint im_invoices_items_project
 				references im_projects,
@@ -161,9 +161,9 @@ is
 	creation_ip		in varchar default null,
 	context_id		in integer default null,
 	invoice_nr		in varchar,
-	customer_id		in integer,
+	company_id		in integer,
 	provider_id		in integer,
-	customer_contact_id	in integer default null,
+	company_contact_id	in integer default null,
 	invoice_date		in date default sysdate,
 	invoice_currency	in char default 'EUR',
 	invoice_template_id	in integer default null,
@@ -194,9 +194,9 @@ is
 	creation_ip		in varchar default null,
 	context_id		in integer default null,
 	invoice_nr		in varchar,
-	customer_id		in integer,
+	company_id		in integer,
 	provider_id		in integer,
-	customer_contact_id	in integer default null,
+	company_contact_id	in integer default null,
 	invoice_date		in date default sysdate,
 	invoice_currency	in char default 'EUR',
 	invoice_template_id	in integer default null,
@@ -220,7 +220,7 @@ is
 		creation_ip	=> creation_ip,
 		context_id	=> context_id,
 		cost_name	=> invoice_nr,
-		customer_id	=> customer_id,
+		company_id	=> company_id,
 		provider_id	=> provider_id,
 		cost_status_id	=> invoice_status_id,
 		cost_type_id	=> invoice_type_id,
@@ -236,12 +236,12 @@ is
 
 	insert into im_invoices (
 		invoice_id,
-		customer_contact_id, 
+		company_contact_id, 
 		invoice_nr,
 		payment_method_id
 	) values (
 		v_invoice_id,
-		new.customer_contact_id, 
+		new.company_contact_id, 
 		new.invoice_nr,
 		new.payment_method_id
 	);
@@ -394,11 +394,11 @@ extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
 '$cost_type','','',3,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provider',
-'"<A HREF=/intranet/customers/view?customer_id=$provider_id>$provider_name</A>"',
+'"<A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A>"',
 '','',4,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Client',
-'"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"',
+'"<A HREF=/intranet/companies/view?company_id=$company_id>$company_name</A>"',
 '','',5,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',
@@ -436,7 +436,7 @@ extra_select, extra_where, sort_order, visible_for) values (3101,31,NULL,'Projec
 '"<A HREF=/intranet/projects/view?project_id=$project_id>$project_nr</A>"','','',1,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3103,31,NULL,'Client',
-'"<A HREF=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>"','','',2,'');
+'"<A HREF=/intranet/companies/view?company_id=$company_id>$company_name</A>"','','',2,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3107,31,NULL,'Project Name','$project_name','','',4,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
@@ -525,7 +525,7 @@ declare
 	v_employees	integer;
 	v_accounting	integer;
 	v_senman		integer;
-	v_customers	integer;
+	v_companies	integer;
 	v_freelancers	integer;
 	v_proman		integer;
 	v_admins		integer;
@@ -534,7 +534,7 @@ begin
     select group_id into v_admins from groups where group_name = 'P/O Admins';
     select group_id into v_senman from groups where group_name = 'Senior Managers';
     select group_id into v_accounting from groups where group_name = 'Accounting';
-    select group_id into v_customers from groups where group_name = 'Customers';
+    select group_id into v_companies from groups where group_name = 'Companies';
     select group_id into v_freelancers from groups where group_name = 'Freelancers';
 
     select menu_id
@@ -549,8 +549,8 @@ begin
     -- needs to be the first submenu in order to get selected
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_customers',
-	name =>		'Customers',
+	label =>	'invoices_companies',
+	name =>		'Companies',
 	url =>		'/intranet-invoices/list?cost_type_id=3708',
 	sort_order =>	10,
 	parent_menu_id => v_finance_menu
@@ -558,7 +558,7 @@ begin
     acs_permission.grant_permission(v_menu, v_admins, 'read');
     acs_permission.grant_permission(v_menu, v_senman, 'read');
     acs_permission.grant_permission(v_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_menu, v_companies, 'read');
     acs_permission.grant_permission(v_menu, v_freelancers, 'read');
 
 
@@ -573,14 +573,14 @@ begin
     acs_permission.grant_permission(v_menu, v_admins, 'read');
     acs_permission.grant_permission(v_menu, v_senman, 'read');
     acs_permission.grant_permission(v_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_menu, v_companies, 'read');
     acs_permission.grant_permission(v_menu, v_freelancers, 'read');
 end;
 /
 commit;
 
 
--- Setup the "Invoices New" admin menu for Customer Documents
+-- Setup the "Invoices New" admin menu for Company Documents
 --
 declare
 	-- Menu IDs
@@ -592,7 +592,7 @@ declare
 	v_employees		integer;
 	v_accounting		integer;
 	v_senman		integer;
-	v_customers		integer;
+	v_companies		integer;
 	v_freelancers		integer;
 	v_proman		integer;
 	v_admins		integer;
@@ -601,18 +601,18 @@ begin
     select group_id into v_admins from groups where group_name = 'P/O Admins';
     select group_id into v_senman from groups where group_name = 'Senior Managers';
     select group_id into v_accounting from groups where group_name = 'Accounting';
-    select group_id into v_customers from groups where group_name = 'Customers';
+    select group_id into v_companies from groups where group_name = 'Companies';
     select group_id into v_freelancers from groups where group_name = 'Freelancers';
 
     select menu_id
     into v_invoices_new_menu
     from im_menus
-    where label='invoices_customers';
+    where label='invoices_companies';
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_customers_new_invoice',
-	name =>		'New Customer Invoice from scratch',
+	label =>	'invoices_companies_new_invoice',
+	name =>		'New Company Invoice from scratch',
 	url =>		'/intranet-invoices/new?cost_type_id=3700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
@@ -621,13 +621,13 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_customers_new_invoice_from_quote',
-	name =>		'New Customer Invoice from Quote',
+	label =>	'invoices_companies_new_invoice_from_quote',
+	name =>		'New Company Invoice from Quote',
 	url =>		'/intranet-invoices/new-copy?cost_type_id=3700\&from_cost_type_id=3702',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
@@ -636,12 +636,12 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_customers_new_quote',
+	label =>	'invoices_companies_new_quote',
 	name =>		'New Quote from scratch',
 	url =>		'/intranet-invoices/new?cost_type_id=3702',
 	sort_order =>	30,
@@ -651,7 +651,7 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
 end;
@@ -660,7 +660,7 @@ commit;
 
 
 
--- Setup the "Invoices New" admin menu for Customer Documents
+-- Setup the "Invoices New" admin menu for Company Documents
 --
 declare
 	-- Menu IDs
@@ -672,7 +672,7 @@ declare
 	v_employees		integer;
 	v_accounting		integer;
 	v_senman		integer;
-	v_customers		integer;
+	v_companies		integer;
 	v_freelancers		integer;
 	v_proman		integer;
 	v_admins		integer;
@@ -681,7 +681,7 @@ begin
     select group_id into v_admins from groups where group_name = 'P/O Admins';
     select group_id into v_senman from groups where group_name = 'Senior Managers';
     select group_id into v_accounting from groups where group_name = 'Accounting';
-    select group_id into v_customers from groups where group_name = 'Customers';
+    select group_id into v_companies from groups where group_name = 'Companies';
     select group_id into v_freelancers from groups where group_name = 'Freelancers';
 
     select menu_id
@@ -701,7 +701,7 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
     v_finance_menu := im_menu.new (
@@ -716,7 +716,7 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
     v_finance_menu := im_menu.new (
@@ -731,7 +731,7 @@ begin
     acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
     acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
     acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_companies, 'read');
     acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
 end;

@@ -64,14 +64,14 @@
         <table border=0 cellspacing=2 cellpadding=0 width=100%>
 
 <if @invoice_or_quote_p@>
-<!-- Let the user select the customer. Provider=Internal -->
+<!-- Let the user select the company. Provider=Internal -->
 
 		<tr>
-		  <td align=center valign=top class=rowtitle colspan=2>Customer</td>
+		  <td align=center valign=top class=rowtitle colspan=2>Company</td>
 		</tr>
 		<tr>
-		  <td class=roweven>Customer:</tr>
-		  <td class=roweven>@customer_select;noquote@</td>
+		  <td class=roweven>Company:</tr>
+		  <td class=roweven>@company_select;noquote@</td>
 		</tr>
 		<input type=hidden name=provider_id value=@provider_id@>
 
@@ -85,7 +85,7 @@
 		  <td class=roweven>Provider:</tr>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
-		<input type=hidden name=customer_id value=@customer_id@>
+		<input type=hidden name=company_id value=@company_id@>
 
 </else>
 

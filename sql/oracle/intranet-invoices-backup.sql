@@ -9,8 +9,8 @@
 
 -- 100	im_projects
 -- 101	im_project_roles
--- 102	im_customers
--- 103	im_customer_roles
+-- 102	im_companies
+-- 103	im_company_roles
 -- 104	im_offices
 -- 105	im_office_roles
 -- 106	im_categories
@@ -48,9 +48,9 @@ insert into im_views (view_id, view_name, view_sql
 ) values (190, 'im_invoices', '
 SELECT
 	i.*,
-	cg.group_name as customer_name,
+	cg.group_name as company_name,
 	im_email_from_user_id(i.creator_id) as creator_email,
-	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
+	im_email_from_user_id(i.company_contact_id) as company_contact_email,
 	im_category_from_id(i.template_id) as template,
 	im_category_from_id(i.cost_status_id) as cost_status,
 	im_category_from_id(i.cost_type_id) as cost_type,
@@ -60,7 +60,7 @@ FROM
 	im_invoices i,
 	user_groups cg
 WHERE
-	i.customer_id = cg.group_id
+	i.company_id = cg.group_id
 ');
 
 delete from im_view_columns where column_id > 19004 and column_id < 19099;
@@ -71,7 +71,7 @@ values (19001,190,NULL,'invoice_nr','$invoice_nr','','',1,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
-values (19003,190,NULL,'customer_name','$customer_name','','',3,'');
+values (19003,190,NULL,'company_name','$company_name','','',3,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
@@ -79,7 +79,7 @@ values (19005,190,NULL,'creator_email','$creator_email','','',5,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
-values (19007,190,NULL,'customer_contact_email','$customer_contact_email','','',7,'');
+values (19007,190,NULL,'company_contact_email','$company_contact_email','','',7,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
@@ -230,7 +230,7 @@ insert into im_views (view_id, view_name, view_sql
 SELECT
 	p.*,
 	im_category_from_id(p.uom_id) as uom,
-	cg.group_name as customer_name,
+	cg.group_name as company_name,
 	im_category_from_id(p.target_language_id) as target_language,
 	im_category_from_id(p.source_language_id) as source_language,
 	im_category_from_id(p.subject_area_id) as subject_area
@@ -238,7 +238,7 @@ FROM
 	im_trans_prices p,
 	user_groups cg
 WHERE
-	p.customer_id = cg.group_id
+	p.company_id = cg.group_id
 ');
 
 
@@ -250,7 +250,7 @@ values (19201,192,NULL,'uom','$uom','','',1,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
-values (19203,192,NULL,'customer_name','$customer_name','','',3,'');
+values (19203,192,NULL,'company_name','$company_name','','',3,'');
 
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)

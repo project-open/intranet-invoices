@@ -29,7 +29,7 @@ if {0 == $invoice_id} {
     return
 }
 
-if {![im_permission $user_id view_customers]} {
+if {![im_permission $user_id view_companies]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You have insufficient privileges to view this page.<BR>
     Please contact your system administrator if you feel that this is an error."
@@ -42,7 +42,7 @@ set bgcolor(1) " class=invoicerowodd"
 
 set cur_format "99,999.009"
 set required_field "<font color=red size=+1><B>*</B></font>"
-set customer_project_nr_exists [db_column_exists im_projects customer_project_nr]
+set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 
 
 # ---------------------------------------------------------------
@@ -51,7 +51,7 @@ set customer_project_nr_exists [db_column_exists im_projects customer_project_nr
 
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default ""]
 
-# Invoices and Quotes have a "Customer" fields.
+# Invoices and Quotes have a "Company" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 
 # Invoices and Bills have a "Payment Terms" field.
@@ -71,13 +71,13 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 
 if {$invoice_or_quote_p} {
-    # A Customer document
-    set customer_or_provider_join "and i.customer_id = c.customer_id(+)"
-    set provider_customer "Customer"
+    # A Company document
+    set company_or_provider_join "and i.company_id = c.company_id(+)"
+    set provider_company "Company"
 } else {
     # A provider document
-    set customer_or_provider_join "and i.provider_id = c.customer_id(+)"
-    set provider_customer "Provider"
+    set company_or_provider_join "and i.provider_id = c.company_id(+)"
+    set provider_company "Provider"
 }
 
 # ---------------------------------------------------------------
@@ -91,14 +91,14 @@ select
 	ci.*,
 	ci.note as cost_note,
         c.*,
-	c.customer_id as company_id,
+	c.company_id as company_id,
         o.*,
 	i.invoice_date + i.payment_days as calculated_due_date,
 	pm_cat.category as invoice_payment_method,
 	pm_cat.category_description as invoice_payment_method_desc,
-	im_name_from_user_id(c.accounting_contact_id) as customer_contact_name,
-	im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
-        c.customer_name,
+	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
+	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
+        c.company_name,
         cc.country_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
@@ -106,7 +106,7 @@ select
 from
 	im_invoices_active i,
 	im_costs ci,
-        im_customers c,
+        im_companies c,
         im_offices o,
         country_codes cc,
 	im_categories pm_cat
@@ -114,7 +114,7 @@ where
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
 	and i.payment_method_id=pm_cat.category_id(+)
-	$customer_or_provider_join
+	$company_or_provider_join
         and c.main_office_id=o.office_id(+)
         and o.address_country_code=cc.iso(+)
 "
@@ -216,7 +216,7 @@ set item_html "
           <td class=rowtitle>Unit</td>
           <td class=rowtitle>Rate</td>\n"
 
-if {$customer_project_nr_exists} {
+if {$company_project_nr_exists} {
     # Only if intranet-translation has added the field
     append item_html "
           <td class=rowtitle>Yr. Job / P.O. No.</td>\n"
@@ -248,7 +248,7 @@ order by
 
 set ctr 1
 set colspan 7
-if {!$customer_project_nr_exists} { set colspan [expr $colspan-1]}
+if {!$company_project_nr_exists} { set colspan [expr $colspan-1]}
 
 
 db_foreach invoice_items $invoice_items_sql {
@@ -259,10 +259,10 @@ db_foreach invoice_items $invoice_items_sql {
           <td align=right>$item_units</td>
           <td align=left>$item_uom</td>
           <td align=right>[im_date_format_locale $price_per_unit 2 3]&nbsp;$currency</td>\n"
-    if {$customer_project_nr_exists} {
+    if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
 	append item_html "
-          <td align=left>$customer_project_nr</td>\n"
+          <td align=left>$company_project_nr</td>\n"
     }
     append item_html "
           <td align=left>$project_short_name</td>

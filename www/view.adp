@@ -31,7 +31,7 @@
 </if>
 		<li>
 		  <% set notify_vars [export_url_vars invoice_id return_url] %>
-		  <A HREF="/intranet-invoices/notify?@notify_vars@">Send as email to @provider_customer@</A>
+		  <A HREF="/intranet-invoices/notify?@notify_vars@">Send as email to @provider_company@</A>
 	    </td>
 	  </tr>
 	</table>
@@ -93,7 +93,7 @@
         <tr> 
           <td  class=rowodd>Company name</td>
           <td  class=rowodd>
-            <A href="/intranet/customers/view?customer_id=@company_id@">@customer_name@</A>
+            <A href="/intranet/companies/view?company_id=@company_id@">@company_name@</A>
           </td>
         </tr>
         <tr> 
@@ -103,7 +103,7 @@
         <tr> 
           <td  class=rowodd> Contact</td>
           <td  class=rowodd>
-            <A href=/intranet/users/view?user_id=@accounting_contact_id@>@customer_contact_name@</A>
+            <A href=/intranet/users/view?user_id=@accounting_contact_id@>@company_contact_name@</A>
           </td>
         </tr>
         <tr> 
@@ -128,7 +128,7 @@
         </tr>
         <tr> 
           <td  class=rowodd>Email</td>
-          <td  class=rowodd>@customer_contact_email@</td>
+          <td  class=rowodd>@company_contact_email@</td>
         </tr>
       </table>
   </tr>

@@ -21,7 +21,7 @@ ad_page_contract {
     { order_by "Document #" }
     { invoice_status_id:integer 0 } 
     { cost_type_id:integer 0 } 
-    { customer_id:integer 0 } 
+    { company_id:integer 0 } 
     { provider_id:integer 0 } 
     { letter:trim "" }
     { start_idx:integer "1" }
@@ -41,7 +41,7 @@ ad_page_contract {
 #    3. Define Table Columns:
 #	Define the table columns that the user can see.
 #	Again, restrictions may apply for unprivileged users,
-#	for example hiding customer names to freelancers.
+#	for example hiding company names to freelancers.
 #    4. Define Filter Categories:
 #	Extract from the database the filter categories that
 #	are available for a specific user.
@@ -159,27 +159,27 @@ if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
 		where	(child_id=:cost_type_id or parent_id=:cost_type_id)
 	)"
 }
-if { ![empty_string_p $customer_id] && $customer_id != 0 } {
-    lappend criteria "i.customer_id=:customer_id"
+if { ![empty_string_p $company_id] && $company_id != 0 } {
+    lappend criteria "i.company_id=:company_id"
 }
 if { ![empty_string_p $provider_id] && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
 }
 if { ![empty_string_p $letter] && [string compare $letter "ALL"] != 0 && [string compare $letter "SCROLL"] != 0 } {
-    lappend criteria "im_first_letter_default_to_a(c.customer_name)=:letter"
+    lappend criteria "im_first_letter_default_to_a(c.company_name)=:letter"
 }
 
 
 # Get the list of user's companies for which he can see invoices
 set company_ids [db_list users_companies "
 select
-	customer_id
+	company_id
 from
 	acs_rels r,
-	im_customers c
+	im_companies c
 where
 	r.object_id_two = :user_id
-	and r.object_id_one = c.customer_id
+	and r.object_id_one = c.company_id
 "]
 
 lappend company_ids 0
@@ -189,7 +189,7 @@ lappend company_ids 0
 # Special users ("view_invoices") don't need permissions.
 set company_where ""
 if {![im_permission $user_id view_invoices]} { 
-    set company_where "and (i.customer_id in ([join $company_ids ","]) or i.provider_id in ([join $company_ids ","]))"
+    set company_where "and (i.company_id in ([join $company_ids ","]) or i.provider_id in ([join $company_ids ","]))"
 }
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
@@ -199,7 +199,7 @@ switch $order_by {
     "Document #" { set order_by_clause "order by invoice_nr" }
     "Preview" { set order_by_clause "order by invoice_nr" }
     "Provider" { set order_by_clause "order by provider_name" }
-    "Client" { set order_by_clause "order by customer_name" }
+    "Client" { set order_by_clause "order by company_name" }
     "Due Date" { set order_by_clause "order by (ci.effective_date + ci.payment_days)" }
     "Amount" { set order_by_clause "order by ii.invoice_amount" }
     "Paid" { set order_by_clause "order by pa.payment_amount" }
@@ -248,12 +248,12 @@ select
 	ii.invoice_amount,
 	ii.invoice_currency,
 	to_char(ii.invoice_amount,:cur_format) as invoice_amount_formatted,
-    	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
-      	im_name_from_user_id(i.customer_contact_id) customer_contact_name,
-        c.customer_name,
-        c.customer_path as customer_short_name,
-	p.customer_name as provider_name,
-	p.customer_path as provider_short_name,
+    	im_email_from_user_id(i.company_contact_id) as company_contact_email,
+      	im_name_from_user_id(i.company_contact_id) company_contact_name,
+        c.company_name,
+        c.company_path as company_short_name,
+	p.company_name as provider_name,
+	p.company_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
         im_category_from_id(i.cost_type_id) as cost_type,
 	sysdate - (i.invoice_date + i.payment_days) as overdue
@@ -261,8 +261,8 @@ select
 from
         im_invoices_active i,
 	acs_objects o,
-        im_customers c,
-        im_customers p,
+        im_companies c,
+        im_companies p,
         (select
                 invoice_id,
                 sum(item_units * price_per_unit) as invoice_amount,
@@ -273,8 +273,8 @@ from
 	$extra_from
 where
 	i.invoice_id = o.object_id
- 	and i.customer_id=c.customer_id(+)
-        and i.provider_id=p.customer_id(+)
+ 	and i.company_id=c.company_id(+)
+        and i.provider_id=p.company_id(+)
         and i.invoice_id=ii.invoice_id(+)
 	$company_where
         $where_clause
@@ -313,8 +313,8 @@ if {[string compare $letter "ALL"]} {
 
 set new_document_menu ""
 set parent_menu_label ""
-if {$cost_type_id == [im_cost_type_customer_doc]} {
-    set parent_menu_label "invoices_customers"
+if {$cost_type_id == [im_cost_type_company_doc]} {
+    set parent_menu_label "invoices_companies"
 }
 if {$cost_type_id == [im_cost_type_provider_doc]} {
     set parent_menu_label "invoices_providers"
@@ -385,7 +385,7 @@ set filter_html "
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
-	      New Customer Documents
+	      New Company Documents
 	    </td>
 	  </tr>
 	  <tr>
