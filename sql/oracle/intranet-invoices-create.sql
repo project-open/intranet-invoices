@@ -720,7 +720,7 @@ begin
 	package_name =>	'intranet-invoices',
         page_url =>     '/intranet/projects/view',
         location =>     'left',
-        sort_order =>   10,
+        sort_order =>   90,
         component_tcl => 
 	'im_invoices_project_component $user_id $project_id'
     );
@@ -737,7 +737,7 @@ begin
 	package_name =>	'intranet-invoices',
         page_url =>     '/intranet/customers/view',
         location =>     'left',
-        sort_order =>   10,
+        sort_order =>   90,
         component_tcl => 
 	'im_invoices_customer_component $user_id $customer_id'
     );
