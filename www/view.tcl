@@ -48,6 +48,12 @@ set cur_format "99,999.009"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 
+set customer_project_nr_exists [db_column_exists im_projects customer_project_nr]
+
+# ---------------------------------------------------------------
+# Auxilary functions
+# ---------------------------------------------------------------
+
 ad_proc im_format_cur { cur {min_decimals ""} {max_decimals ""} } {
 	Takes a number in "Amercian" format (decimals separated by ".") and
 	returns a string formatted according to the current locale.
@@ -311,8 +317,14 @@ set item_html "
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
           <td class=rowtitle>Qty.</td>
           <td class=rowtitle>Unit</td>
-          <td class=rowtitle>Rate</td>
-          <td class=rowtitle>Yr. Job / P.O. No.</td>
+          <td class=rowtitle>Rate</td>\n"
+
+if {$customer_project_nr_exists} {
+    # Only if intranet-translation has added the field
+    append item_html "
+          <td class=rowtitle>Yr. Job / P.O. No.</td>\n"
+    }
+append item_html "
           <td class=rowtitle>Our Ref.</td>
           <td class=rowtitle>Amount</td>
         </tr>
@@ -321,11 +333,9 @@ set item_html "
 set invoice_items_sql "
 select
         i.*,
-	p.customer_project_nr,
+	p.*,
 	im_category_from_id(i.item_type_id) as item_type,
 	im_category_from_id(i.item_uom_id) as item_uom,
-	p.project_name,
-	p.project_nr,
 	p.project_nr as project_short_name,
 	i.price_per_unit * i.item_units as amount
 from
@@ -336,12 +346,14 @@ where
 	and i.project_id=p.project_id(+)
 order by
 	i.sort_order,
-	p.customer_project_nr, 
 	i.item_type_id
 "
 
 set ctr 1
 set colspan 7
+if {!$customer_project_nr_exists} { set colspan [expr $colspan-1]}
+
+
 db_foreach invoice_items $invoice_items_sql {
 
     append item_html "
@@ -349,8 +361,13 @@ db_foreach invoice_items $invoice_items_sql {
           <td>$item_name</td>
           <td align=right>$item_units</td>
           <td align=left>$item_uom</td>
-          <td align=right>[im_format_cur $price_per_unit 2 3]&nbsp;$currency</td>
-          <td align=left>$customer_project_nr</td>
+          <td align=right>[im_format_cur $price_per_unit 2 3]&nbsp;$currency</td>\n"
+    if {$customer_project_nr_exists} {
+	# Only if intranet-translation has added the field
+	append item_html "
+          <td align=left>$customer_project_nr</td>\n"
+    }
+    append item_html "
           <td align=left>$project_short_name</td>
           <td align=right>[im_format_cur $amount 2 2]&nbsp;$currency</td>
 	</tr>"
@@ -388,7 +405,7 @@ append item_html "
 if {$vat != 0} {
     append item_html "
         <tr>
-          <td colspan=6 align=right>VAT: $vat %&nbsp;</td>
+          <td colspan=$colspan_sub align=right>VAT: $vat %&nbsp;</td>
           <td class=roweven align=right>$vat_amount $currency</td>
         </tr>
 "
@@ -397,7 +414,7 @@ if {$vat != 0} {
 if {$vat != 0} {
     append item_html "
         <tr> 
-          <td colspan=6 align=right>TAX: $tax %&nbsp;</td>
+          <td colspan=$colspan_sub align=right>TAX: $tax %&nbsp;</td>
           <td class=roweven align=right>$tax_amount $currency</td>
         </tr>
     "

@@ -305,7 +305,7 @@ order by
 	    append task_sum_html "
 		<tr><td class=rowtitle colspan=$colspan>
 	          <A href=/intranet/projects/view?group_id=$project_id>$project_short_name</A>:
-	          $customer_project_nr
+	          $project_name
 	        </td></tr>\n"
 	
 	    set old_project_id $project_id
