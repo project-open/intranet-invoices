@@ -282,6 +282,20 @@ ad_proc -public im_invoice_status_select { select_name { default "" } } {
 }
 
 
+ad_proc im_invoice_payment_method_select { select_name { default "" } } {
+    Returns an html select box named $select_name and defaulted to $default 
+    with a list of all the partner statuses in the system
+} {
+    return [im_category_select "Intranet Invoice Payment Method" $select_name $default]
+}
+
+ad_proc im_invoice_template_select { select_name { default "" } } {
+    Returns an html select box named $select_name and defaulted to $default 
+    with a list of all the partner statuses in the system
+} {
+    return [im_category_select "Intranet Invoice Template" $select_name $default]
+}
+
 ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_status "" } } {
     
     Returns an html select box named $select_name and defaulted to
