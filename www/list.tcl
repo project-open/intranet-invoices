@@ -209,8 +209,8 @@ if { ![empty_string_p $where_clause] } {
 # Define extra SQL for payments
 # -----------------------------------------------------------------
 
-#set payment_amount ""
-#set payment_currency ""
+set payment_amount ""
+set payment_currency ""
 
 set extra_select ""
 set extra_from ""
@@ -541,7 +541,7 @@ set button_html "
 
 set page_body "
 $filter_html
-[im_invoices_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id invoice_type_id customer_id start_idx order_by how_many view_name letter]]
+[im_costs_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id invoice_type_id customer_id start_idx order_by how_many view_name letter] $parent_menu_label ]
 
 <form action=invoice-action method=POST>
 [export_form_vars customer_id invoice_id return_url]

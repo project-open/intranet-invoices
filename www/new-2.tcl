@@ -22,7 +22,7 @@ ad_page_contract {
     { invoice_status_id "[im_invoice_status_created]" }
     { invoice_type_id "[im_invoice_type_invoice]" }
     payment_days:integer
-    { payment_method_id:integer "[im_payment_method_undefined]" }
+    { payment_method_id:integer "" }
     invoice_template_id:integer
     vat
     tax
@@ -65,8 +65,8 @@ if {![im_permission $user_id add_invoices]} {
     return
 }
 
-# Invoices and Bills need a payment method, quotes and POs not
-if {$invoice_or_bill_p && !$payment_method_id} {
+# Invoices and Bills need a payment method, quotes and POs don't.
+if {$invoice_or_bill_p && ("" == $payment_method_id || 0 ==$payment_method_id)} {
     ad_return_complaint 1 "<li>No payment method specified"
     return
 }

@@ -72,6 +72,60 @@ create table im_invoices (
 
 
 
+-----------------------------------------------------------
+-- Invoice Items
+--
+-- - Invoice items reflect the very fuzzy structure of invoices,
+--   that may contain basicly everything that fits in one line
+--   and has a price.
+-- - Invoice items can created manually or generated from
+--   "invoicable items" such as im_trans_tasks or similar.
+-- All fields (number of units, price, description) need to be 
+-- human editable because invoicing is so messy...
+--
+-- Invoicable Tasks and Invoice Items are similar because they 
+-- both represent substructures of a project or an invoice. 
+-- However, im_trans_tasks are more formalized (type, status, ...),
+-- while Invoice Items contain free text fields, only _derived_
+-- from im_trans_tasks and prices. Dirty business world... :-(
+
+create sequence im_invoice_items_seq start with 1;
+create table im_invoice_items (
+	item_id			integer
+				constraint im_invoices_items_pk
+				primary key,
+	item_name		varchar(200),
+				-- project_id if != null is used to access project details
+				-- for invoice generation, such as the customer PO# etc.
+	project_id		integer
+				constraint im_invoices_items_project
+				references im_projects,
+	invoice_id		not null 
+				constraint im_invoices_items_invoice
+				references im_invoices,
+	item_units		number(12,1),
+	item_uom_id		not null 
+				constraint im_invoices_items_uom
+				references im_categories,
+	price_per_unit 		number(12,3),
+	currency		char(3) 
+				constraint im_invoices_items_currency
+				references currency_codes(ISO),
+	sort_order		integer,
+	item_type_id		integer
+				constraint im_invoices_items_item_type
+				references im_categories,
+	item_status_id		integer
+				constraint im_invoices_items_item_status
+				references im_categories,
+	description		varchar(4000),
+		-- Make sure we can't create duplicate entries per invoice
+		constraint im_invoice_items_un
+		unique (item_name, invoice_id, project_id, item_uom_id)
+);
+
+
+
 ---------------------------------------------------------
 -- Invoice Object
 ---------------------------------------------------------
@@ -224,59 +278,6 @@ is
 end im_invoice;
 /
 show errors
-
-
------------------------------------------------------------
--- Invoice Items
---
--- - Invoice items reflect the very fuzzy structure of invoices,
---   that may contain basicly everything that fits in one line
---   and has a price.
--- - Invoice items can created manually or generated from
---   "invoicable items" such as im_trans_tasks or similar.
--- All fields (number of units, price, description) need to be 
--- human editable because invoicing is so messy...
---
--- Invoicable Tasks and Invoice Items are similar because they 
--- both represent substructures of a project or an invoice. 
--- However, im_trans_tasks are more formalized (type, status, ...),
--- while Invoice Items contain free text fields, only _derived_
--- from im_trans_tasks and prices. Dirty business world... :-(
-
-create sequence im_invoice_items_seq start with 1;
-create table im_invoice_items (
-	item_id			integer
-				constraint im_invoices_items_pk
-				primary key,
-	item_name		varchar(200),
-				-- project_id if != null is used to access project details
-				-- for invoice generation, such as the customer PO# etc.
-	project_id		integer
-				constraint im_invoices_items_project
-				references im_projects,
-	invoice_id		not null 
-				constraint im_invoices_items_invoice
-				references im_invoices,
-	item_units		number(12,1),
-	item_uom_id		not null 
-				constraint im_invoices_items_uom
-				references im_categories,
-	price_per_unit 		number(12,3),
-	currency		char(3) 
-				constraint im_invoices_items_currency
-				references currency_codes(ISO),
-	sort_order		integer,
-	item_type_id		integer
-				constraint im_invoices_items_item_type
-				references im_categories,
-	item_status_id		integer
-				constraint im_invoices_items_item_status
-				references im_categories,
-	description		varchar(4000),
-		-- Make sure we can't create duplicate entries per invoice
-		constraint im_invoice_items_un
-		unique (item_name, invoice_id, project_id, item_uom_id)
-);
 
 ------------------------------------------------------
 -- Projects <-> Invoices Map
@@ -594,7 +595,7 @@ END;
 commit;
 
 
--- Setup the "Invoice" main menu entry
+prompt *** Setup the invoice menus
 --
 declare
 	-- Menu IDs

@@ -1,7 +1,7 @@
 <master src="../../intranet-core/www/master">
 <property name="title">@page_title;noquote@</property>
 
-<%= [im_invoices_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
+<%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
 
 <form action=new-2 method=POST>
 <%= [export_form_vars invoice_id project_id return_url] %>

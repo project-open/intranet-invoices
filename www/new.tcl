@@ -127,12 +127,10 @@ where
     if {"" == $invoice_currency} {
 	catch {
 	    db_1row invoices_currency_query "
-select distinct
-	currency as invoice_currency
-from
-	im_invoice_items i
-where
-	i.invoice_id=:invoice_id"
+		select distinct
+			currency as invoice_currency
+		from	im_invoice_items i
+		where	i.invoice_id=:invoice_id"
 	} err_msg
     }
 
@@ -162,6 +160,11 @@ where
     set payment_method_id ""
     set invoice_template_id ""
 }
+
+if {"" == $invoice_currency} {
+    set invoice_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+}
+
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -209,7 +212,7 @@ if {[string equal $invoice_mode "new"]} {
           <td class=rowtitle>Type</td>
           <td class=rowtitle>Units</td>
           <td class=rowtitle>UOM</td>
-          <td class=rowtitle>Rate </td>
+          <td class=rowtitle>Rate</td>
         </tr>
     "
 
@@ -253,7 +256,7 @@ order by
           <td class=rowtitle>Type</td>
           <td class=rowtitle>Units</td>
           <td class=rowtitle>UOM</td>
-          <td class=rowtitle>Rate </td>
+          <td class=rowtitle>Rate</td>
         </tr>
     "
 
