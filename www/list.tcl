@@ -75,6 +75,7 @@ set amp "&"
 set cur_format "99,999.99"
 set local_url "list"
 set cost_status_created [im_cost_status_created]
+set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
 
 if {$cost_status_id == 0} {
     set cost_status_id $cost_status_created
@@ -156,6 +157,7 @@ set criteria [list]
 if { ![empty_string_p $cost_status_id] && $cost_status_id > 0 } {
     lappend criteria "i.cost_status_id=:cost_status_id"
 }
+
 if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
     lappend criteria "i.cost_type_id in (
 		select distinct	h.child_id
