@@ -52,6 +52,9 @@
 -- (sum(invoice_lines.amount)) is almost never going to
 -- match the paid amount (sum(im_payments.fee)).
 --
+
+\i ../common/intranet-invoices-common.sql
+
 create table im_invoices (
 	invoice_id		integer
 				constraint im_invoices_pk
@@ -687,8 +690,7 @@ select inline_0 ();
 drop function inline_0 ();
 
 
-@../common/intranet-invoices-common.sql
-@../common/intranet-invoices-backup.sql
+\i ../common/intranet-invoices-backup.sql
 
-commit;
+-- commit;
 
