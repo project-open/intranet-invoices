@@ -24,7 +24,7 @@ ad_page_contract {
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
     { letter:trim "" }
-    { start_idx:integer "1" }
+    { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_list" }
 }
@@ -485,13 +485,11 @@ if { $ctr == $how_many && $end_idx < $total_in_limited } {
     set next_page_url ""
 }
 
-if { $start_idx > 1 } {
+if { $start_idx > 0 } {
     # This means we didn't start with the first row - there is
     # at least 1 previous row. add a previous page link
     set previous_start_idx [expr $start_idx - $how_many]
-    if { $previous_start_idx < 1 } {
-	set previous_start_idx 1
-    }
+    if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page_url "$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]"
 } else {
     set previous_page_url ""
@@ -515,11 +513,9 @@ if {$ctr==$how_many && $total_in_limited > 0 && $end_idx < $total_in_limited} {
 # first row - there is at least 1 previous row.
 # => add a previous page link
 #
-if { $start_idx > 1 } {
+if { $start_idx > 0 } {
     set previous_start_idx [expr $start_idx - $how_many]
-    if { $previous_start_idx < 1 } {
-	set previous_start_idx 1
-    }
+    if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page "<a href=$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Previous_Page]</a>"
 } else {
     set previous_page ""
