@@ -231,9 +231,10 @@ order by
 	append invoice_html "
 <tr>
   <td colspan=$colspan align=left>
-    <A href=/intranet-invoices/new?customer_id=$customer_id>
+<!--    <A href=/intranet-invoices/new?customer_id=$customer_id>
       Create a new invoice for this customer
     </A>
+-->
   </td>
 </tr>\n"
     }
