@@ -73,14 +73,12 @@ set return_url [im_url_with_query]
 set amp "&"
 set cur_format "99,999.99"
 
-if {![im_permission $user_id view_invoices]} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
-}
-
+#if {![im_permission $user_id view_invoices]} {
+#    ad_return_complaint "Insufficient Privileges" "
+#    <li>You don't have sufficient privileges to see this page."    
+#}
 
 set invoice_status_created [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
-
 
 if {$status_id == 0} {
     set status_id $invoice_status_created
@@ -157,6 +155,31 @@ if { ![empty_string_p $letter] && [string compare $letter "ALL"] != 0 && [string
     lappend criteria "im_first_letter_default_to_a(ug.group_name)=:letter"
 }
 
+
+# Get the list of user's companies for which he can see invoices
+set company_ids [db_list users_companies "
+select
+	customer_id
+from
+	acs_rels r,
+	im_customers c
+where
+	r.object_id_two = :user_id
+	and r.object_id_one = c.customer_id
+"]
+
+lappend company_ids 0
+
+# Determine which invoices the user can see.
+# Normally only those of his/her company...
+# Special users ("view_invoices") don't need permissions.
+set company_where ""
+if {![im_permission $user_id view_invoices]} { 
+    set company_where "and (i.customer_id in ([join $company_ids ","]) or i.provider_id in ([join $company_ids ","]))"
+}
+ns_log Notice "/intranet-invoices/index: company_where=$company_where"
+
+
 set order_by_clause ""
 switch $order_by {
     "Invoice #" { set order_by_clause "order by invoice_nr" }
@@ -229,6 +252,7 @@ from
 where
         i.customer_id=c.customer_id(+)
         and i.invoice_id=ii.invoice_id(+)
+	$company_where
         $where_clause
 	$extra_where
 $order_by_clause

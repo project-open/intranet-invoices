@@ -158,7 +158,7 @@ set receipient_html "
         <tr> 
           <td  class=rowodd>Company name</td>
           <td  class=rowodd>
-            <A href=/intranet/customers/view?group_id=$customer_id>$customer_name</A>
+            <A href=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>
           </td>
         </tr>
         <tr> 
