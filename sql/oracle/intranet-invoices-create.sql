@@ -308,7 +308,10 @@ show errors
 
 begin
     acs_privilege.create_privilege('view_invoices','View Invoices','View Invoices');
-    acs_privilege.create_privilege('add_invoices','View Invoices','View Invoices');
+    acs_privilege.add_child('admin', 'view_invoices');
+
+    acs_privilege.create_privilege('add_invoices','Add Invoices','Add Invoices');
+    acs_privilege.add_child('admin', 'add_invoices');
 end;
 /
 show errors;

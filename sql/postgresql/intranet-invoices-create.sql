@@ -312,7 +312,10 @@ end;' language 'plpgsql';
 --
 
 select acs_privilege__create_privilege('view_invoices','View Invoices','View Invoices');
+select acs_privilege__add_child('admin', 'view_invoices');
+
 select acs_privilege__create_privilege('add_invoices','View Invoices','View Invoices');
+select acs_privilege__add_child('admin', 'add_invoices');
 
 
 select im_priv_create('view_invoices','Accounting');
@@ -364,7 +367,10 @@ where category_type = 'Intranet Invoice Payment Method';
 -- Invoice Views
 --
 select acs_privilege__create_privilege('view_finance','View finance','View finanace');
+select acs_privilege__add_child('admin', 'view_finance');
+
 select acs_privilege__create_privilege('add_finance','Add finance','Add finance');
+select acs_privilege__add_child('admin', 'add_finance');
 
 insert into im_views (view_id, view_name, visible_for) 
 values (30, 'invoice_list', 'view_finance');
