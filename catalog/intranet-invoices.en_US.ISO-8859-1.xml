@@ -89,6 +89,8 @@ Best regards,
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
   <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>
   <msg key="New_Quote_from_scratch">New Quote from scratch</msg>
+  <msg key="New_Translation_Invoice">New Translation Invoice</msg>
+  <msg key="New_Translation_Quote">New Translation Quote</msg>
   <msg key="Next_Page">Next Page</msg>
   <msg key="No_command_specified">No command specified</msg>
   <msg key="No_objects_found">No objects found</msg>
