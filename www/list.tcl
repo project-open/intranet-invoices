@@ -123,18 +123,25 @@ db_foreach column_list_sql $column_sql {
 # 4. Define Filter Categories
 # ---------------------------------------------------------------
 
-# status_types will be a list of pairs of (invoice_status_id, invoice_status)
-set status_types [im_memoize_list select_invoice_status_types \
-        "select invoice_status_id, invoice_status
-         from im_invoice_status
-         order by lower(invoice_status)"]
+# status_types will be a list of pairs of (cost_status_id, cost_status)
+set status_types [im_memoize_list select_cost_status_types "
+	select	cost_status_id, 
+		cost_status
+	from	im_cost_status
+	order by lower(cost_status)
+"]
 
 
 # type_types will be a list of pairs of (cost_type_id, cost_type)
-set type_types [im_memoize_list select_cost_type_types \
-        "select cost_type_id, cost_type
-         from im_cost_type
-         order by lower(cost_type)"]
+set type_types [im_memoize_list select_cost_type_types "
+	select	0 as cost_type_id,
+		'All' as cost_type
+	from	dual
+    UNION
+	select	cost_type_id, 
+		cost_type
+	from	im_cost_type
+"]
 
 
 # ---------------------------------------------------------------
@@ -538,6 +545,8 @@ set button_html "
 # ---------------------------------------------------------------
 # 10. Join all parts together
 # ---------------------------------------------------------------
+
+ns_log Notice "intranet-invoices/list: parent_menu_label=$parent_menu_label"
 
 set page_body "
 $filter_html

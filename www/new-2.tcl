@@ -14,9 +14,9 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
-    { customer_id:integer 0 }
-    { provider_id:integer 0 }
-    { project_id:integer 0 }
+    { customer_id:integer "" }
+    { provider_id:integer "" }
+    { project_id:integer "" }
     invoice_nr
     invoice_date
     cost_status_id:integer 
@@ -66,7 +66,7 @@ if {![im_permission $user_id add_invoices]} {
 }
 
 # Invoices and Bills need a payment method, quotes and POs don't.
-if {$invoice_or_bill_p && ("" == $payment_method_id || 0 ==$payment_method_id)} {
+if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {
     ad_return_complaint 1 "<li>No payment method specified"
     return
 }
@@ -78,8 +78,8 @@ if {!$customer_internal} {
     return
 }
 
-if {!$provider_id} { set provider_id $customer_internal }
-if {!$customer_id} { set customer_id $customer_internal }
+if {"" == $provider_id} { set provider_id $customer_internal }
+if {"" == $customer_id} { set customer_id $customer_internal }
 
 # ---------------------------------------------------------------
 # Update invoice base data

@@ -635,7 +635,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice',
 	name =>		'New Customer Invoice from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=3700',
+	url =>		'/intranet-invoices/new?cost_type_id=3700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -650,7 +650,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice_from_quote',
 	name =>		'New Customer Invoice from Quote',
-	url =>		'/intranet-invoices/new-copy?invoice_type_id=3700\&from_invoice_type_id=3702',
+	url =>		'/intranet-invoices/new-copy?cost_type_id=3700\&from_cost_type_id=3702',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -665,7 +665,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_quote',
 	name =>		'New Quote from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=3702',
+	url =>		'/intranet-invoices/new?cost_type_id=3702',
 	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -715,7 +715,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill',
 	name =>		'New Provider Bill from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=3704',
+	url =>		'/intranet-invoices/new?cost_type_id=3704',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -730,7 +730,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill_from_po',
 	name =>		'New Provider Bill from Purchase Order',
-	url =>		'/intranet-invoices/new-copy?invoice_type_id=3704\&from_invoice_type_id=3706',
+	url =>		'/intranet-invoices/new-copy?cost_type_id=3704\&from_cost_type_id=3706',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -745,7 +745,7 @@ begin
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_po',
 	name =>		'New Purchase Order from scratch',
-	url =>		'/intranet-invoices/new?invoice_type_id=3706',
+	url =>		'/intranet-invoices/new?cost_type_id=3706',
 	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );

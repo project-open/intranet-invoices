@@ -51,7 +51,8 @@ switch $submit {
 	#	  and reset their invoice_id (to be able to
 	#	  delete the invoice).
 	#	- Delete the associated im_invoice_items
-	#	- Delete from project-invoice-map!!!
+	#	- Delete from project-invoice-map
+	#       - Deleter underlying im_cost item
 	#
 	set in_clause_list [list]
 
@@ -62,74 +63,10 @@ switch $submit {
 	}
 
 	foreach invoice_id $del_invoice {
-	    lappend in_clause_list $invoice_id
-	}
-	set invoice_where_list "([join $in_clause_list ","])"
-
-	set delete_invoice_items_sql "
-		delete from im_invoice_items i
-		where i.invoice_id in $invoice_where_list
-	"
-
-	# Reset the status of all project to "delivered" that
-	# were included in the invoice
-	set reset_projects_included_sql "
-		update im_projects
-		set project_status_id=:project_status_delivered
-		where project_id in (
-			select distinct
-				r.object_id_one
-			from
-				acs_rels r
-			where
-				r.object_id_two in $invoice_where_list
-		)
-	"
-
-	# Set all projects back to "delivered" that have tasks
-	# that were included in the invoices to delete.
-	set reset_projects_with_tasks_sql "
-		update im_projects
-		set project_status_id=:project_status_delivered
-		where project_id in (
-			select distinct
-				t.project_id
-			from
-				im_trans_tasks t
-			where
-				t.invoice_id in $invoice_where_list
-		)
-	"
-
-	# Reset the status of all invoiced tasks to delivered.
-	set reset_tasks_sql "
-		update im_trans_tasks t
-		set invoice_id=null
-		where t.invoice_id in $invoice_where_list
-	"
-
-	set delete_map_sql "
-		delete from acs_rels r
-		where r.object_id_two in $invoice_where_list
-	"
-
-	set delete_invoices_sql "
-		delete from im_invoices
-		where invoice_id in $invoice_where_list
-	"
-
-	db_transaction {
-	    # Changing project state back to "delivered" and 
-	    # changing im_trans_tasks to not-invoice only for translation...
-	    if {[db_table_exists "im_trans_tasks"]} {
-		db_dml reset_projects_with_tasks $reset_projects_with_tasks_sql
-		db_dml reset_tasks $reset_tasks_sql
-	    }
-
-	    db_dml reset_projects_included $reset_projects_included_sql
-	    db_dml delete_invoice_items $delete_invoice_items_sql
-	    db_dml delete_map $delete_map_sql
-	    db_dml delete_invoices $delete_invoices_sql
+	    db_dml "
+		begin
+			im_trans_invoice.del(:invoice_id);
+		end;"
 	}
 
 	ad_returnredirect $return_url
