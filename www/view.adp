@@ -34,7 +34,7 @@
 </if>
 		<li>
 		  <% set notify_vars [export_url_vars invoice_id return_url] %>
-		  <A HREF="/intranet-invoices/notify?@notify_vars@">Send to @provider_customer@</A>
+		  <A HREF="/intranet-invoices/notify?@notify_vars@">Send as email to @provider_customer@</A>
 	    </td>
 	  </tr>
 	</table>

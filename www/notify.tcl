@@ -1,17 +1,9 @@
-# /packages/intranet-core/www/member-add-2.tcl
+# /packages/intranet-invoices/www/notify.tcl
 #
-# Copyright (C) 1998-2004 various parties
-# The code is based on ArsDigita ACS 3.4
+# Copyright (C) 2003-2004 Project/Open
 #
-# This program is free software. You can redistribute it
-# and/or modify it under the terms of the GNU General
-# Public License as published by the Free Software Foundation;
-# either version 2 of the License, or (at your option)
-# any later version. This program is distributed in the
-# hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
 
 ad_page_contract {
     Purpose: Confirms adding of person to group
@@ -25,41 +17,30 @@ ad_page_contract {
     @author mbryzek@arsdigita.com    
     @author frank.bergmann@project-open.com
 } {
-    user_id_from_search:integer
-    { notify_asignee 0 }
-    object_id:integer
-    role_id:integer
+    invoice_id:integer
     return_url
-    { also_add_to_group_id:integer "" }
 }
+
+# --------------------------------------------------------
+# Security and defaults
+# --------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-
-# expect commands such as: "im_project_permissions" ...
-#
-set object_type [db_string acs_object_type "select object_type from acs_objects where object_id=:object_id"]
-set perm_cmd "${object_type}_permissions \$user_id \$object_id view read write admin"
-eval $perm_cmd
-
-if {!$write} {
-    ad_return_complaint 1 "You have no rights to add members to this object."
-    return
+if {![im_permission $user_id view_invoices]} {
+    ad_return_complaint "Insufficient Privileges" "
+    <li>You don't have sufficient privileges to see this page."
 }
-
-im_biz_object_add_role $user_id_from_search $object_id $role_id
 
 # --------------------------------------------------------
 # Prepare to send out an email alert
 # --------------------------------------------------------
 
 set system_name [ad_system_name]
-set object_name [db_string project_name "select acs_object.name(:object_id) from dual"]
+set object_name [db_string project_name "select acs_object.name(:invoice_id) from dual"]
 set page_title "Notify user"
 set context [list $page_title]
-set export_vars [export_form_vars user_id_from_search object_id role_id return_url]
+set export_vars [export_form_vars invoice_id return_url]
 set current_user_name [db_string cur_user "select im_name_from_user_id(:user_id) from dual"]
-set object_rel_url [db_string object_url "select url from im_biz_object_urls where url_type = 'view' and object_type = :object_type"]
-set role_name [db_string role_name "select im_category_from_id(:role_id) from dual" -default "Member"]
 
 # Get the SystemUrl without trailing "/"
 set system_url [ad_parameter -package_id [ad_acs_kernel_id] SystemURL ""]
@@ -69,23 +50,61 @@ if {[string equal "/" $last_char]} {
     set system_url "[string range $system_url 0 [expr $sysurl_len-2]]"
 }
 
-set object_url "$system_url$object_rel_url$object_id"
-
-db_1row user_name "
+db_1row invoice_info "
 select 
-	im_name_from_user_id(person_id) as user_name_from_search,
-	first_names as first_names_from_search,
-	last_name as last_name_from_search
+	i.*,
+	ci.*,
+	im_category_from_id(ci.cost_type_id) as cost_type
 from
-	persons
+	im_invoices i,
+	im_costs ci
 where
-	person_id=:user_id_from_search"
+	i.invoice_id = ci.cost_id
+	and i.invoice_id = :invoice_id
+"
 
 
-if {"" != $notify_asignee && ![string equal "0" $notify_asignee]} {
-    # Show a textarea to edit the alert at member-add-2.tcl
-    ad_return_template
+if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invoice]} {
+    set company_id $customer_id
 } else {
-    ad_returnredirect $return_url
+    set company_id $provider_id
 }
-return
+
+db_1row company_info "
+select
+	c.*,
+	im_name_from_user_id(c.accounting_contact_id) as accountant_name,
+	im_email_from_user_id(c.accounting_contact_id) as accountant_email
+from
+	im_customers c
+where
+	c.customer_id = :company_id
+"
+
+if {"" == $accounting_contact_id} {
+    ad_return_complaint 1 "<li>No Accounting Contact Defined<p>
+	The company '$customer_name' has not accounting contact defined
+	to whom we could send this $cost_type.<br>
+	Please visit the <A href=/intranet/customers/view?customer_id=$company_id>
+	$customer_name page</a> and add an accounting contact."
+}
+
+set select_projects ""
+set select_project_sql "
+	select
+		p.project_nr,
+		p.project_name,
+		p.project_id
+	from
+		acs_rels r,
+		im_projects p
+	where
+		r.object_id_one = p.project_id
+		and r.object_id_two = :invoice_id
+"
+db_foreach select_projects $select_project_sql {
+    append select_projects "$project_nr: $project_name\n$system_url/intranet/projects/view?project_id=$project_id\n"
+}
+
+
+

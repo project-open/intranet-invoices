@@ -1,33 +1,30 @@
-<master src="master">
+<master src="../../intranet-core/www/master">
 <property name=title>Add a user</property>
 <property name="context">@context;noquote@</property>
 
-<H1>Send Notification</H1>
-@first_names_from_search@ @last_name_from_search@ has been added to @system_name@.
-Edit the message below and hit "Send Email" to 
-notify this user.
+<H1>Send @cost_type@ via Email</H1>
+
+<ul>
+  <li>Preview @cost_type@
+</ul>
 </p>
 
-<form method="post" action="member-notify">
+<form method="post" action="notify-2">
 @export_vars;noquote@
 
 <textarea name=subject rows=1 cols=70 wrap=hard>
-@role_name@ of @object_name@
+@system_name@: New @cost_type@
 </textarea>
 
 <textarea name=message rows=10 cols=70 wrap=hard>
-Dear @first_names_from_search@,
+Dear @accountant_name@,
 
-You have been added as a @role_name@
-to @object_name@
-in @system_name@ 
-at @object_url@
+please find attached a @cost_type@ for project(s):
 
-Please click on the link above for details.
+@select_projects;noquote@
 
 Best regards,
-@current_user_name@
-</textarea>
+@current_user_name@</textarea>
 
 <center>
 <input type="submit" value="Send Email" />
