@@ -64,9 +64,24 @@ switch $submit {
 		where i.invoice_id in $invoice_where_list
 	"
 
+	# Reset the status of all project to "delivered" that
+	# were included in the invoice
+	set reset_projects_included_sql "
+		update im_projects
+		set project_status_id=:project_status_delivered
+		where project_id in (
+			select distinct
+				r.object_id_one
+			from
+				acs_rels r
+			where
+				r.object_id_two in $invoice_where_list
+		)
+	"
+
 	# Set all projects back to "delivered" that have tasks
 	# that were included in the invoices to delete.
-	set reset_projects_to_delivered_sql "
+	set reset_projects_with_tasks_sql "
 		update im_projects
 		set project_status_id=:project_status_delivered
 		where project_id in (
@@ -79,6 +94,7 @@ switch $submit {
 		)
 	"
 
+	# Reset the status of all invoiced tasks to delivered.
 	set reset_tasks_sql "
 		update im_trans_tasks t
 		set invoice_id=null
@@ -99,10 +115,11 @@ switch $submit {
 	    # Changing project state back to "delivered" and 
 	    # changing im_trans_tasks to not-invoice only for translation...
 	    if {[db_table_exists "im_trans_tasks"]} {
-		db_dml reset_projects_to_delivered $reset_projects_to_delivered_sql
+		db_dml reset_projects_with_tasks $reset_projects_with_tasks_sql
 		db_dml reset_tasks $reset_tasks_sql
 	    }
 
+	    db_dml reset_projects_included $reset_projects_included_sql
 	    db_dml delete_invoice_items $delete_invoice_items_sql
 	    db_dml delete_map $delete_map_sql
 	    db_dml delete_invoices $delete_invoices_sql
