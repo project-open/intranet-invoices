@@ -59,7 +59,7 @@ create table im_invoices (
 				constraint im_invoices_pk
 				primary key
 				constraint im_invoices_id_fk
-				references im_cost_items,
+				references im_costs,
 	customer_contact_id	integer 
 				constraint im_invoices_contact
 				references users,
@@ -157,18 +157,18 @@ is
     is
 	v_invoice_id	im_invoices.invoice_id%TYPE;
     begin
-	v_invoice_id := im_cost_item.new (
-		item_id		=> invoice_id,
+	v_invoice_id := im_cost.new (
+		cost_id		=> invoice_id,
 		object_type	=> object_type,
 		creation_date	=> creation_date,
 		creation_user	=> creation_user,
 		creation_ip	=> creation_ip,
 		context_id	=> context_id,
-		item_name	=> invoice_nr,
+		cost_name	=> invoice_nr,
 		customer_id	=> customer_id,
 		provider_id	=> provider_id,
-		item_status_id	=> invoice_status_id,
-		item_type_id	=> invoice_type_id,
+		cost_status_id	=> invoice_status_id,
+		cost_type_id	=> invoice_type_id,
 		template_id	=> invoice_template_id,
 		effective_date	=> invoice_date,
 		payment_days	=> payment_days,
@@ -206,7 +206,7 @@ is
 	where		invoice_id = del.invoice_id;
 
 	-- Erase the CostItem
-	im_cost_item.del(del.invoice_id);
+	im_cost.del(del.invoice_id);
     end del;
 
     function name (invoice_id in integer) return varchar
@@ -338,15 +338,15 @@ select	i.*,
 	ci.*,
 	ci.effective_date + ci.payment_days as due_date,
 	ci.effective_date as invoice_date,
-	ci.item_status_id as invoice_status_id,
-	ci.item_type_id as invoice_type_id,
+	ci.cost_status_id as invoice_status_id,
+	ci.cost_type_id as invoice_type_id,
 	ci.template_id as invoice_template_id
 from 
 	im_invoices i,
-	im_cost_items ci
+	im_costs ci
 where
-	ci.item_id = i.invoice_id
-	and ci.item_status_id not in (3712);
+	ci.cost_id = i.invoice_id
+	and ci.cost_status_id not in (3712);
 commit;
 
 
