@@ -649,7 +649,7 @@ begin
 	''intranet-invoices'',		-- package_name
 	''invoices_providers_new_bill_from_po'',	-- label
 	''New Provider Bill from Purchase Order'',	-- name
-	''intranet-invoices/new-copy?target_cost_type_id=3704\&source_cost_type_id=3706'',	-- url
+	''/intranet-invoices/new-copy?target_cost_type_id=3704\&source_cost_type_id=3706'',	-- url
 	20,										-- sort_order
 	v_invoices_new_menu,								-- parent_menu_id
 	null										-- visible_tcl
