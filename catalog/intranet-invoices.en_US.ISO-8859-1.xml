@@ -81,6 +81,8 @@ Best regards,
   <msg key="New_Company_Invoice_from_Quote">New Company Invoice from Quote</msg>
   <msg key="New_Company_Invoice_from_scratch">New Company Invoice from scratch</msg>
   <msg key="New_cost_type">New %cost_type%</msg>
+  <msg key="New_Customer_Invoice_from_Quote">New Customer Invoice from Quote</msg>
+  <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from scratch</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
   <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>

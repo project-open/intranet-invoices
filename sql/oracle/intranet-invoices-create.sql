@@ -468,7 +468,7 @@ begin
     select menu_id
     into v_invoices_new_menu
     from im_menus
-    where label='invoices_companies';
+    where label='invoices_customers';
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
@@ -502,7 +502,7 @@ begin
 
     v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_companies_new_quote',
+	label =>	'invoices_customers_new_quote',
 	name =>		'New Quote from scratch',
 	url =>		'/intranet-invoices/new?cost_type_id=3702',
 	sort_order =>	30,

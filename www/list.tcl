@@ -305,7 +305,7 @@ if {[string compare $letter "ALL"]} {
 set new_document_menu ""
 set parent_menu_label ""
 if {$cost_type_id == [im_cost_type_company_doc]} {
-    set parent_menu_label "invoices_companies"
+    set parent_menu_label "invoices_customers"
 }
 if {$cost_type_id == [im_cost_type_provider_doc]} {
     set parent_menu_label "invoices_providers"

@@ -73,7 +73,7 @@
 		</tr>
 		<tr>
 		  <td class=roweven>#intranet-invoices.Company_1#</td>
-		  <td class=roweven>@company_select;noquote@</td>
+		  <td class=roweven>@customer_select;noquote@</td>
 		</tr>
 		<input type=hidden name=provider_id value=@provider_id@>
 

@@ -510,7 +510,7 @@ begin
     select menu_id
     into v_invoices_new_menu
     from im_menus
-    where label=''invoices_companies'';
+    where label=''invoices_customers'';
 
     v_finance_menu := im_menu__new (
 	null,                           -- menu_id
@@ -564,7 +564,7 @@ begin
         null,                           -- creation_ip
         null,                           -- context_id
 	''intranet-invoices'',		-- package_name
-	''invoices_companies_new_quote'',  -- label
+	''invoices_customers_new_quote'',  -- label
 	''New Quote from scratch'',	   -- name
 	''/intranet-invoices/new?cost_type_id=3702'',	-- url
 	30,						-- sort_order
