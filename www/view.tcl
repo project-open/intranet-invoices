@@ -104,6 +104,7 @@ ad_proc im_format_cur { cur {min_decimals ""} {max_decimals ""} } {
 append query   "
 select
 	i.*,
+	ci.*,
         c.*,
         o.*,
 	i.invoice_date + i.payment_days as calculated_due_date,
@@ -113,17 +114,19 @@ select
 	im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
         c.customer_name,
         cc.country_name,
-	im_category_from_id(i.invoice_status_id) as invoice_status,
-	im_category_from_id(i.invoice_type_id) as invoice_type, 
-	im_category_from_id(i.invoice_template_id) as invoice_template
+	im_category_from_id(ci.cost_status_id) as cost_status,
+	im_category_from_id(ci.cost_type_id) as cost_type, 
+	im_category_from_id(ci.template_id) as invoice_template
 from
 	im_invoices_active i,
+	im_costs ci,
         im_customers c,
         im_offices o,
         country_codes cc,
 	im_categories pm_cat
 where 
 	i.invoice_id=:invoice_id
+	and ci.cost_id = i.invoice_id
 	and i.payment_method_id=pm_cat.category_id(+)
         and i.customer_id=c.customer_id(+)
         and c.main_office_id=o.office_id(+)
@@ -135,7 +138,7 @@ if { ![db_0or1row projects_info_query $query] } {
     return
 }
 
-set page_title "One $invoice_type"
+set page_title "One $cost_type"
 set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title]
 
 
@@ -144,17 +147,17 @@ set context_bar [ad_context_bar [list /intranet-invoices/ "Finance"] $page_title
 # ---------------------------------------------------------------
 
 set invoice_data_html "
-        <tr><td align=middle class=rowtitle colspan=2>$invoice_type Data</td></tr>
+        <tr><td align=middle class=rowtitle colspan=2>$cost_type Data</td></tr>
         <tr>
-          <td  class=rowodd>$invoice_type nr.:</td>
+          <td  class=rowodd>$cost_type nr.:</td>
           <td  class=rowodd>$invoice_nr</td>
         </tr>
         <tr> 
-          <td  class=roweven>$invoice_type date:</td>
+          <td  class=roweven>$cost_type date:</td>
           <td  class=roweven>$invoice_date</td>
         </tr>
 <!--        <tr> 
-          <td  class=rowodd>$invoice_type due date:</td>
+          <td  class=rowodd>$cost_type due date:</td>
           <td  class=rowodd>$due_date</td>
         </tr>
 -->
@@ -167,12 +170,12 @@ set invoice_data_html "
           <td class=rowodd>$invoice_payment_method</td>
         </tr>
         <tr> 
-          <td class=roweven> $invoice_type template:</td>
+          <td class=roweven> $cost_type template:</td>
           <td class=roweven>$invoice_template</td>
         </tr>
         <tr> 
-          <td class=roweven> $invoice_type type:</td>
-          <td class=roweven>$invoice_type</td>
+          <td class=roweven> $cost_type type:</td>
+          <td class=roweven>$cost_type</td>
         </tr>
 "
 
@@ -283,7 +286,7 @@ select
 from
 	im_payments p
 where
-	p.invoice_id = :invoice_id
+	p.cost_id = :invoice_id
 "
 
     set payment_ctr 0
@@ -461,8 +464,8 @@ if {[exists_and_not_null render_template_id]} {
     append invoice_template_path [db_string sel_invoice "select category from im_categories where category_id=:render_template_id"]
 
    if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
-	ad_return_complaint "Unknown $invoice_type Template" "
-	<li>$invoice_type template '$invoice_template_path' doesn't exist or is not readable
+	ad_return_complaint "Unknown $cost_type Template" "
+	<li>$cost_type template '$invoice_template_path' doesn't exist or is not readable
 	for the web server. Please notify your system administrator."
 	return
     }
@@ -479,7 +482,7 @@ if {[exists_and_not_null render_template_id]} {
 
     # No render template defined - render using default html style
     set page_body "
-[im_invoices_navbar "none" "/intranet-invoices/index" "" "" [list]]
+[im_costs_navbar "none" "/intranet-invoices/index" "" "" [list]""]
 
 
 <!-- Invoice Data and Receipient Tables -->
@@ -500,7 +503,7 @@ if {[exists_and_not_null render_template_id]} {
 		<form action=new method=POST>
 		  <A HREF=/intranet-invoices/view?[export_url_vars return_url invoice_id render_template_id]>Preview</A>
 
-		  [export_form_vars return_id invoice_id invoice_type_id]
+		  [export_form_vars return_id invoice_id cost_type_id]
 		  <input type=submit name=create_invoice_from_template value='Create Invoice from Quote'>
 		  <input type=submit name=edit_invoice value='Edit'>
 		</form>

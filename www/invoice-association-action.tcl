@@ -81,28 +81,31 @@ if {"" != $del_action && [info exists object_ids]} {
 append query "
 select
 	i.*,
+	ci.*,
 	c.*,
 	o.*,
-	i.invoice_date + i.payment_days as calculated_due_date,
+	ci.effective_date + ci.payment_days as calculated_due_date,
 	pm_cat.category as invoice_payment_method,
 	pm_cat.category_description as invoice_payment_method_desc,
 	im_name_from_user_id(c.accounting_contact_id) as customer_contact_name,
 	im_email_from_user_id(c.accounting_contact_id) as customer_contact_email,
 	c.customer_name,
 	cc.country_name,
-	im_category_from_id(i.invoice_status_id) as invoice_status,
-	im_category_from_id(i.invoice_type_id) as invoice_type,
-	im_category_from_id(i.invoice_template_id) as invoice_template
+	im_category_from_id(ci.cost_status_id) as cost_status,
+	im_category_from_id(ci.cost_type_id) as cost_type,
+	im_category_from_id(ci.template_id) as invoice_template
 from
 	im_invoices i,
+	im_costs ci,
 	im_customers c,
 	im_offices o,
 	country_codes cc,
 	im_categories pm_cat
 where
-	i.invoice_id=:invoice_id
+	i.invoice_id = :invoice_id
+	and i.invoice_id = ci.cost_id
 	and i.payment_method_id=pm_cat.category_id(+)
-	and i.customer_id=c.customer_id(+)
+	and ci.customer_id=c.customer_id(+)
 	and c.main_office_id=o.office_id(+)
 	and o.address_country_code=cc.iso(+)
 "

@@ -172,6 +172,7 @@ is
 	invoice_type_id		in integer default 700,
 	payment_method_id	in integer default null,
 	payment_days		in integer default 30,
+	amount			in number default 0,
 	vat			in number default 0,
 	tax			in number default 0,
 	note			in varchar default null
@@ -204,6 +205,7 @@ is
 	invoice_type_id		in integer default 700,
 	payment_method_id	in integer default null,
 	payment_days		in integer default 30,
+	amount			in number,
 	vat			in number default 0,
 	tax			in number default 0,
 	note			in varchar default null
@@ -226,6 +228,7 @@ is
 		template_id	=> invoice_template_id,
 		effective_date	=> invoice_date,
 		payment_days	=> payment_days,
+		amount		=> amount,
 		currency	=> invoice_currency,
 		vat		=> vat,
 		tax		=> tax,
@@ -832,44 +835,6 @@ begin
 end;
 /
 commit;
-
-
-
--- Show the invoice component in project page
---
-declare
-    v_plugin	integer;
-begin
-    v_plugin := im_component_plugin.new (
-	plugin_name =>	'Project Invoice Component',
-	package_name =>	'intranet-invoices',
-	page_url =>     '/intranet/projects/view',
-	location =>     'left',
-	sort_order =>   90,
-	component_tcl => 
-	'im_invoices_project_component $user_id $project_id'
-    );
-end;
-/
-
--- Show the invoice component in customers page
---
-declare
-    v_plugin	integer;
-begin
-    v_plugin := im_component_plugin.new (
-	plugin_name =>	'Customer Invoice Component',
-	package_name =>	'intranet-invoices',
-	page_url =>     '/intranet/customers/view',
-	location =>     'left',
-	sort_order =>   90,
-	component_tcl => 
-	'im_invoices_customer_component $user_id $customer_id'
-    );
-end;
-/
-commit;
-
 
 -- Add links to edit im_invoices objects...
 

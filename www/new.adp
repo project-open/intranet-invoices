@@ -16,17 +16,17 @@
         <table border=0 cellPadding=0 cellspacing=2 width=100%>
 
 
-	        <tr><td align=middle class=rowtitle colspan=2>@invoice_type@ Data</td></tr>
+	        <tr><td align=middle class=rowtitle colspan=2>@cost_type@ Data</td></tr>
 	        <tr>
-	          <td  class=rowodd>@invoice_type@ nr.:</td>
+	          <td  class=rowodd>@cost_type@ nr.:</td>
 	          <td  class=rowodd> 
 	            <input type=text name=invoice_nr size=15 value='@invoice_nr@'>
 	          </td>
 	        </tr>
 	        <tr> 
-	          <td  class=roweven>@invoice_type@ date:</td>
+	          <td  class=roweven>@cost_type@ date:</td>
 	          <td  class=roweven> 
-	            <input type=text name=invoice_date size=15 value='@invoice_date@'>
+	            <input type=text name=invoice_date size=15 value='@effective_date@'>
 	          </td>
 	        </tr>
 	        <tr> 
@@ -42,15 +42,15 @@
 	        </tr>
 </if>
 	        <tr> 
-	          <td class=roweven> @invoice_type@ template:</td>
+	          <td class=roweven> @cost_type@ template:</td>
 	          <td class=roweven>@template_select;noquote@</td>
 	        </tr>
 	        <tr> 
-	          <td class=rowodd>@invoice_type@ status</td>
+	          <td class=rowodd>@cost_type@ status</td>
 	          <td class=rowodd>@status_select;noquote@</td>
 	        </tr>
 	        <tr> 
-	          <td class=roweven>@invoice_type@ type</td>
+	          <td class=roweven>@cost_type@ type</td>
 	          <td class=roweven>@type_select;noquote@</td>
 	        </tr>
 

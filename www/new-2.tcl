@@ -19,11 +19,11 @@ ad_page_contract {
     { project_id:integer 0 }
     invoice_nr
     invoice_date
-    { invoice_status_id "[im_invoice_status_created]" }
-    { invoice_type_id "[im_invoice_type_invoice]" }
+    { cost_status_id "[im_cost_status_created]" }
+    cost_type_id
     payment_days:integer
     { payment_method_id:integer "" }
-    invoice_template_id:integer
+    template_id:integer
     vat
     tax
     item_sort_order:array
@@ -42,11 +42,11 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 # Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 ns_log Notice "intranet-invoices/new-2: invoice_or_quote_p=$invoice_or_quote_p"
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_bill]]
+set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
 ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
@@ -104,10 +104,11 @@ BEGIN
         provider_id             => :provider_id,
         invoice_date            => sysdate,
         invoice_template_id     => :invoice_template_id,
-        invoice_status_id       => :invoice_status_id,
-        invoice_type_id         => :invoice_type_id,
+        cost_status_id		=> :cost_status_id,
+        cost_type_id		=> :cost_type_id,
         payment_method_id       => :payment_method_id,
         payment_days            => :payment_days,
+	amount			=> 0,
         vat                     => :vat,
         tax                     => :tax
     );
@@ -152,6 +153,23 @@ INSERT INTO im_invoice_items (
         db_dml insert_invoice_items $insert_invoice_items_sql
     }
 }
+
+# ---------------------------------------------------------------
+# Update the invoice amount based on the invoice items
+# ---------------------------------------------------------------
+
+set update_invoice_amount_sql "
+update im_costs
+set amount = (
+	select sum(price_per_unit * item_units)
+	from im_invoice_items
+	where invoice_id = :invoice_id
+	group by invoice_id
+)
+where cost_id = :invoice_id
+"
+
+db_dml update_invoice_amount $update_invoice_amount_sql
 
 db_release_unused_handles
 ad_returnredirect "/intranet-invoices/view?invoice_id=$invoice_id"

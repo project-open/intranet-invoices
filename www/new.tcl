@@ -25,7 +25,7 @@ ad_page_contract {
 } {
     { include_task:multiple "" }
     { invoice_id:integer 0}
-    { invoice_type_id:integer "[im_invoice_type_invoice]" }
+    { cost_type_id:integer "[im_cost_type_invoice]" }
     { customer_id:integer 0}
     { provider_id:integer 0}
     { project_id:integer 0}
@@ -40,7 +40,7 @@ ad_page_contract {
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
-    ad_returnredirect [export_vars -base "new-copy" {invoice_id invoice_type_id}]
+    ad_returnredirect [export_vars -base "new-copy" {invoice_id cost_type_id}]
     ad_script_abort
 }
 
@@ -90,17 +90,17 @@ if {$invoice_id} {
     db_1row invoices_info_query "
 select
 	i.invoice_nr,
-	i.customer_id,
-	i.provider_id,
-	i.invoice_date,
-	i.payment_days,
-	i.vat,
-	i.tax,
+	ci.customer_id,
+	ci.provider_id,
+	ci.effective_date,
+	ci.payment_days,
+	ci.vat,
+	ci.tax,
 	i.payment_method_id,
-	i.invoice_template_id,
-	i.invoice_status_id,
-	i.invoice_type_id,
-	im_category_from_id(i.invoice_type_id) as invoice_type,
+	ci.template_id,
+	ci.cost_status_id,
+	ci.cost_type_id,
+	im_category_from_id(ci.cost_type_id) as cost_type,
 	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
 	im_email_from_user_id(i.customer_contact_id) as customer_contact_email,
 	c.customer_name as customer_name,
@@ -109,16 +109,19 @@ select
 	p.customer_path as provider_short_name
 from
 	im_invoices i, 
+	im_costs ci,
 	im_customers c,
 	im_customers p
 where 
         i.invoice_id=:invoice_id
-	and i.customer_id=c.customer_id(+)
-	and i.provider_id=p.customer_id(+)"
+	and ci.customer_id=c.customer_id(+)
+	and ci.provider_id=p.customer_id(+)
+	and i.invoice_id = ci.cost_id
+"
 
     set invoice_mode "exists"
-    set button_text "Edit $invoice_type"
-    set page_title "Edit $invoice_type"
+    set button_text "Edit $cost_type"
+    set page_title "Edit $cost_type"
     set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     # Check if there is a single currency being used in the invoice
@@ -143,22 +146,22 @@ where
     # Build the list of selected tasks ready for invoices
     set invoice_mode "new"
     set in_clause_list [list]
-    set invoice_type [db_string invoice_type "select im_category_from_id(:invoice_type_id) from dual"]
-    set button_text "New $invoice_type"
-    set page_title "New $invoice_type"
+    set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual"]
+    set button_text "New $cost_type"
+    set page_title "New $cost_type"
     set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
     set invoice_id [im_new_object_id]
     set invoice_nr [im_next_invoice_nr]
-    set invoice_status_id [im_invoice_status_created]
-    set invoice_date $todays_date
+    set cost_status_id [im_cost_status_created]
+    set effective_date $todays_date
     set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCustomerInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
     set note ""
     set payment_method_id ""
-    set invoice_template_id ""
+    set template_id ""
 }
 
 if {"" == $invoice_currency} {
@@ -171,10 +174,10 @@ if {"" == $invoice_currency} {
 # ---------------------------------------------------------------
 
 # Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_quote]]
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $invoice_type_id == [im_invoice_type_invoice] || $invoice_type_id == [im_invoice_type_bill]]
+set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
@@ -188,9 +191,9 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
-set template_select [im_invoice_template_select invoice_template_id $invoice_template_id]
-set status_select [im_invoice_status_select invoice_status_id $invoice_status_id]
-set type_select [im_invoice_type_select invoice_type_id $invoice_type_id]
+set template_select [im_invoice_template_select template_id $template_id]
+set status_select [im_invoice_status_select cost_status_id $cost_status_id]
+set type_select [im_invoice_type_select cost_type_id $cost_type_id]
 set customer_select [im_customer_select customer_id $customer_id "" "Customer"]
 set provider_select [im_customer_select provider_id $provider_id "" "Provider"]
 

@@ -13,26 +13,6 @@ ad_library {
     @author frank.bergann@project-open.com
 }
 
-# Frequently used Invoices Stati
-ad_proc -public im_invoice_status_in_process {} { return 600 }
-ad_proc -public im_invoice_status_created {} { return 602 }
-ad_proc -public im_invoice_status_outstanding {} { return 604 }
-ad_proc -public im_invoice_status_past_due {} { return 606 }
-ad_proc -public im_invoice_status_partially_paid {} { return 608 }
-ad_proc -public im_invoice_status_paid {} { return 610 }
-ad_proc -public im_invoice_status_deleted {} { return 612 }
-ad_proc -public im_invoice_status_filed {} { return 614 }
-
-
-# Frequently used Invoice Types
-ad_proc -public im_invoice_type_invoice {} { return 700 }
-ad_proc -public im_invoice_type_quote {} { return 702 }
-ad_proc -public im_invoice_type_bill {} { return 704 }
-ad_proc -public im_invoice_type_po {} { return 706 }
-ad_proc -public im_invoice_type_customer_doc {} { return 708 }
-ad_proc -public im_invoice_type_provider_doc {} { return 710 }
-
-
 # Payment Methods
 ad_proc -public im_payment_method_undefined {} { return 800 }
 ad_proc -public im_payment_method_cash {} { return 802 }
@@ -215,208 +195,11 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
     "
 }
 
-ad_proc im_invoices_customer_component { user_id customer_id } {
-    Returns a HTML table containing a list of invoices for a particular
-    customer.
-} {
-    return [im_invoices_base_component $user_id $customer_id ""]
-}
-
-ad_proc im_invoices_project_component { user_id project_id } {
-    Returns a HTML table containing a list of invoices for a particular
-    particular project.
-} {
-    return [im_invoices_base_component $user_id "" $project_id]
-}
-
-
-ad_proc im_invoices_base_component { user_id {customer_id ""} {project_id ""} } {
-    Returns a HTML table containing a list of invoices for a particular
-    customer or a particular project.
-} {
-    if {![im_permission $user_id view_invoices]} {
-	return ""
-    }
-
-    set bgcolor(0) " class=roweven "
-    set bgcolor(1) " class=rowodd "
-    set max_invoices 5
-    set colspan 5
-
-    # ----------------- Compose SQL Query --------------------------------
-  
-    set where_conds [list]
-    if {"" != $customer_id} { lappend where_conds "i.customer_id=:customer_id" }
-    if {"" != $project_id} { 
-	# Select the invoice_id's of invoice_items and
-	# invoices explicitely associated with a project.
-	lappend where_conds "
-	i.invoice_id in (
-		select distinct invoice_id 
-		from im_invoice_items 
-		where project_id=:project_id
-	    UNION
-		select distinct object_id_two as invoice_id
-		from acs_rels
-		where object_id_one = :project_id
-	)" 
-    }
-    set where_clause [join $where_conds "\n	and "]
-    if {"" == $where_clause} { set where_clause "1=1" }
-
-    set invoices_sql "
-select
-	i.*,
-	ii.invoice_amount,
-	ii.invoice_currency,
-	pa.payment_amount,
-	pa.payment_currency,
-        im_category_from_id(i.invoice_status_id) as invoice_status,
-        im_category_from_id(i.invoice_type_id) as invoice_type,
-	i.invoice_date + payment_days as calculated_due_date
-from
-	im_invoices i,
-        (select
-                invoice_id,
-                sum(item_units * price_per_unit) as invoice_amount,
-		max(currency) as invoice_currency
-         from im_invoice_items
-         group by invoice_id
-        ) ii,
-	(select
-		sum(amount) as payment_amount, 
-		max(currency) as payment_currency,
-		invoice_id 
-	 from im_payments
-	 group by invoice_id
-	) pa
-where
-	$where_clause
-	and i.invoice_status_id not in ([im_invoice_status_in_process])
-        and i.invoice_id=ii.invoice_id(+)
-	and i.invoice_id=pa.invoice_id(+)
-order by
-	invoice_nr desc
-"
-
-    set invoice_html "
-<table border=0>
-  <tr>
-    <td colspan=$colspan class=rowtitle align=center>
-      Financial Documents
-    </td>
-  </tr>
-  <tr class=rowtitle>
-    <td align=center class=rowtitle>Document</td>
-    <td align=center class=rowtitle>Type</td>
-    <td align=center class=rowtitle>Due</td>
-    <td align=center class=rowtitle>Amount</td>
-    <td align=center class=rowtitle>Paid</td>
-  </tr>
-"
-    set ctr 1
-    db_foreach recent_invoices $invoices_sql {
-	append invoice_html "
-<tr$bgcolor([expr $ctr % 2])>
-  <td><A href=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A></td>
-  <td>$invoice_type</td>
-  <td>$calculated_due_date</td>
-  <td>$invoice_amount $invoice_currency</td>
-  <td>$payment_amount $payment_currency</td>
-</tr>\n"
-	incr ctr
-	if {$ctr > $max_invoices} { break }
-    }
-
-
-    if {$ctr > $max_invoices} {
-	append invoice_html "
-<tr$bgcolor([expr $ctr % 2])>
-  <td colspan=$colspan>
-    <A HREF=/intranet-invoices/index?status_id=0&[export_url_vars status_id customer_id project_id]>
-      more invoices...
-    </A>
-  </td>
-</tr>\n"
-    }
-
-    if {$ctr == 1} {
-	append invoice_html "
-<tr$bgcolor([expr $ctr % 2])>
-  <td colspan=$colspan align=center>
-    <I>No financial documents yet for this project</I>
-  </td>
-</tr>\n"
-	incr ctr
-    }
-
-    if {"" != $customer_id && "" == $project_id} {
-	append invoice_html "
-<tr>
-  <td colspan=$colspan align=left>
-<!--    <A href=/intranet-invoices/new?customer_id=$customer_id>
-      Create a new invoice for this customer
-    </A>
--->
-  </td>
-</tr>\n"
-    }
-
-    if {"" != $project_id} {
-	append invoice_html "
-<tr>
-  <td colspan=$colspan align=left>
-    <A href=/intranet-invoices/index?project_id=$project_id>
-      Create a new document for this project
-    </A>
-  </td>
-</tr>\n"
-    }
-
-    if {"" != $customer_id} {
-    append invoice_html "
-<tr>
-  <td colspan=$colspan align=right>
-    <A href=/intranet-invoices/index?customer_id=$customer_id>
-      Create a new document for this customer
-    </A>
-  </td>
-</tr>\n"
-    }
-
-    append invoice_html "</table>\n"
-    return $invoice_html
-}
-
-
-ad_proc -public im_invoice_type_select { select_name { default "" } } {
-    Returns an html select box named $select_name and defaulted to
-    $default with a list of all the invoice_types in the system
-} {
-    return [im_category_select "Intranet Invoice Type" $select_name $default]
-}
-
-
-ad_proc -public im_invoice_status_select { select_name { default "" } } {
-    Returns an html select box named $select_name and defaulted to
-    $default with a list of all the invoice status_types in the system
-} {
-    return [im_category_select "Intranet Invoice Status" $select_name $default]
-}
-
-
 ad_proc im_invoice_payment_method_select { select_name { default "" } } {
     Returns an html select box named $select_name and defaulted to $default 
     with a list of all the partner statuses in the system
 } {
     return [im_category_select "Intranet Invoice Payment Method" $select_name $default]
-}
-
-ad_proc im_invoice_template_select { select_name { default "" } } {
-    Returns an html select box named $select_name and defaulted to $default 
-    with a list of all the partner statuses in the system
-} {
-    return [im_category_select "Intranet Invoice Template" $select_name $default]
 }
 
 ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_status "" } } {
@@ -442,17 +225,17 @@ where
 
     if { ![empty_string_p $status] } {
 	ns_set put $bind_vars status $status
-	append sql " and invoice_status_id=(select invoice_status_id from im_invoice_status where invoice_status=:status)"
+	append sql " and cost_status_id=(select cost_status_id from im_cost_status where cost_status=:status)"
     }
 
     if { ![empty_string_p $exclude_status] } {
-	set exclude_string [im_append_list_to_ns_set $bind_vars invoice_status_type $exclude_status]
-	append sql " and invoice_status_id in (select invoice_status_id 
-                                                  from im_invoice_status 
-                                                 where invoice_status not in ($exclude_string)) "
+	set exclude_string [im_append_list_to_ns_set $bind_vars cost_status_type $exclude_status]
+	append sql " and cost_status_id in (select cost_status_id 
+                                                  from im_cost_status 
+                                                 where cost_status not in ($exclude_string)) "
     }
     append sql " order by lower(invoice_nr)"
-    return [im_selection_to_select_box $bind_vars "invoice_status_select" $sql $select_name $default]
+    return [im_selection_to_select_box $bind_vars "cost_status_select" $sql $select_name $default]
 }
 
 
