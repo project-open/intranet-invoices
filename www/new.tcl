@@ -88,7 +88,7 @@ if {$invoice_id} {
     set invoice_mode "exists"
     set page_title "[_ intranet-invoices.Edit_cost_type]"
     set button_text $page_title
-    set context_bar [ad_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+    set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     # Check if there is a single currency being used in the invoice
     # and get it.
@@ -115,7 +115,7 @@ if {$invoice_id} {
     set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual"]
     set button_text "[_ intranet-invoices.New_cost_type]"
     set page_title "[_ intranet-invoices.New_cost_type]"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+    set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     set invoice_id [im_new_object_id]
     set invoice_nr [im_next_invoice_nr]

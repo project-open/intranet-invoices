@@ -93,7 +93,7 @@ where
 set invoice_mode "[_ intranet-invoices.clone]"
 set page_title "[_ intranet-invoices.Clone] $target_cost_type"
 set button_text [_ intranet-invoices.Submit]
-set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
+set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
 set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]

@@ -67,7 +67,7 @@ set user_id [ad_maybe_redirect_for_registration]
 set current_user_id $user_id
 set today [lindex [split [ns_localsqltimestamp] " "] 0]
 set page_title "[_ intranet-invoices.Financial_Documents]"
-set context_bar [ad_context_bar $page_title]
+set context_bar [im_context_bar $page_title]
 set page_focus "im_header_form.keywords"
 set return_url [im_url_with_query]
 # Needed for im_view_columns, defined in intranet-views.tcl

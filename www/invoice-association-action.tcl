@@ -48,7 +48,7 @@ set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
 set page_title "Associate Invoice with a Project"
-set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
+set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
 # ---------------------------------------------------------------
 # Del-Action: Delete the selected associated objects

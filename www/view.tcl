@@ -155,7 +155,7 @@ if { ![db_0or1row country_info_query $query] } {
 }
 
 set page_title "[_ intranet-invoices.One_cost_type]"
-set context_bar [ad_context_bar [list /intranet-invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+set context_bar [im_context_bar [list /intranet-invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
 
 # ---------------------------------------------------------------

@@ -34,7 +34,7 @@ if {![im_permission $user_id add_invoices]} {
 }
 
 set page_title "[_ intranet-invoices.Select_Customer]"
-set context_bar [ad_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
