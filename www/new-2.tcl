@@ -110,7 +110,7 @@ update im_costs
 set
 	project_id	= :project_id,
 	cost_name	= :invoice_nr,
-	company_id	= :company_id,
+	customer_id	= :company_id,
 	provider_id	= :provider_id,
 	cost_status_id	= :cost_status_id,
 	cost_type_id	= :cost_type_id,

@@ -17,7 +17,7 @@
     <querytext>
       select
 	i.invoice_nr,
-	ci.company_id,
+	ci.customer_id,
 	ci.provider_id,
 	ci.effective_date,
 	ci.payment_days,
@@ -39,7 +39,7 @@
 	im_invoices i, 
 	im_costs ci
         LEFT JOIN
-             im_companies c ON ci.company_id = c.company_id
+             im_companies c ON ci.customer_id = c.company_id
         LEFT JOIN
              im_companies p ON ci.provider_id = p.company_id
       where 
