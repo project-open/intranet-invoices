@@ -56,7 +56,9 @@ create sequence im_invoices_seq start with 1;
 create table im_invoices (
 	invoice_id		integer
 				constraint im_invoices_pk
-				primary key,
+				primary key
+				constraint im_invoices_id_fk
+				references acs_objects,
 				-- who should pay?
 	customer_id		not null
 				constraint im_invoices_customer
@@ -87,7 +89,7 @@ create table im_invoices (
 	invoice_type_id		not null 
 				constraint im_invoices_type
 				references im_categories,
-	payment_method_id	integer	
+	payment_method_id	integer
 				constraint im_invoices_payment
 				references im_categories,
 	payment_days		integer,
@@ -100,6 +102,168 @@ create table im_invoices (
 				references users,
 	modified_ip_address	varchar(20) not null
 );
+
+
+
+---------------------------------------------------------
+-- Invoice Object
+---------------------------------------------------------
+
+-- Nothing spectactular, just to be able to use acs_rels
+-- between projects and invoices and to add custom fields
+-- later. We are not even going to use the permission
+-- system right now.
+
+begin
+    acs_object_type.create_type (
+        supertype =>            'acs_object',
+        object_type =>          'im_invoice',
+        pretty_name =>          'Invoice',
+        pretty_plural =>        'Invoices',
+        table_name =>           'im_invoices',
+        id_column =>            'invoice_id',
+        package_name =>         'im_invoice',
+        type_extension_table => null,
+        name_method =>          'im_invoice.name'
+    );
+end;
+/
+show errors
+
+
+create or replace package im_invoice
+is
+    function new (
+	invoice_id		in integer default null,
+	object_type		in varchar default 'im_invoice',
+	creation_date		in date default sysdate,
+	creation_user		in integer default null,
+	creation_ip		in varchar default null,
+	context_id		in integer default null,
+	invoice_nr		in varchar,
+	customer_id		in integer,
+	provider_id		in integer,
+	customer_contact_id	in integer default null,
+	invoice_date		in date default sysdate,
+	due_date		in date default sysdate+30,
+	invoice_currency	in char default 'EUR',
+	invoice_template_id	in integer default null,
+	invoice_status_id	in integer default 602,
+	invoice_type_id		in integer default 700,
+	payment_method_id	in integer default null,
+	payment_days		in integer default 30,
+	vat			in number default 0,
+	tax			in number default 0,
+	note			in varchar default null
+    ) return im_invoices.invoice_id%TYPE;
+
+    procedure del (invoice_id in integer);
+    function name (invoice_id in integer) return varchar;
+end im_invoice;
+/
+show errors
+
+
+create or replace package body im_invoice
+is
+    function new (
+	invoice_id		in integer default null,
+	object_type		in varchar default 'im_invoice',
+	creation_date		in date default sysdate,
+	creation_user		in integer default null,
+	creation_ip		in varchar default null,
+	context_id		in integer default null,
+	invoice_nr		in varchar,
+	customer_id		in integer,
+	provider_id		in integer,
+	customer_contact_id	in integer default null,
+	invoice_date		in date default sysdate,
+	due_date		in date default sysdate+30,
+	invoice_currency	in char default 'EUR',
+	invoice_template_id	in integer default null,
+	invoice_status_id	in integer default 602,
+	invoice_type_id		in integer default 700,
+	payment_method_id	in integer default null,
+	payment_days		in integer default 30,
+	vat			in number default 0,
+	tax			in number default 0,
+	note			in varchar default null
+    ) return im_invoices.invoice_id%TYPE
+    is
+	v_invoice_id	im_invoices.invoice_id%TYPE;
+    begin
+	v_invoice_id := acs_object.new (
+		object_id =>		invoice_id,
+		object_type =>		object_type,
+		creation_date =>	creation_date,
+		creation_user =>	creation_user,
+		creation_ip =>		creation_ip,
+		context_id =>		context_id
+	);
+
+	insert into im_invoices (
+		invoice_id, customer_id, provider_id,
+		customer_contact_id, invoice_nr, invoice_date,
+		due_date, invoice_currency, invoice_template_id,
+		invoice_status_id, invoice_type_id,
+		payment_method_id, payment_days,
+		vat, tax, note,
+		creator_id, last_modified, last_modifying_user,
+		modified_ip_address
+	) values (
+		v_invoice_id, new.customer_id, new.provider_id,
+		new.customer_contact_id, new.invoice_nr, new.invoice_date,
+		new.due_date, new.invoice_currency, new.invoice_template_id,
+		new.invoice_status_id, new.invoice_type_id,
+		new.payment_method_id, new.payment_days,
+		new.vat, new.tax, new.note,
+		new.creation_user, new.creation_date, new.creation_user,
+		new.creation_ip
+	);
+
+	return v_invoice_id;
+    end new;
+
+    -- Delete a single invoice (if we know its ID...)
+    procedure del (invoice_id in integer)
+    is
+    begin
+	-- Erase the im_invoices item associated with the id
+	delete from 	im_invoices
+	where		invoice_id = del.invoice_id;
+
+	-- Erase the object
+	acs_object.del(del.invoice_id);
+    end del;
+
+    function name (invoice_id in integer) return varchar
+    is
+	v_name	varchar(40);
+    begin
+	select	invoice_nr
+	into	v_name
+	from	im_invoices
+	where	invoice_id = name.invoice_id;
+
+	return v_name;
+    end name;
+
+end im_invoice;
+/
+show errors
+
+
+
+
+
+
+
+
+---------------------------------------------------------
+-- Invoice Auditing
+---------------------------------------------------------
+
+-- Keep a trail of all changes 
 
 create table im_invoices_audit (
 	invoice_id		integer,
@@ -122,6 +286,7 @@ create table im_invoices_audit (
 	modified_ip_address	varchar(20)
 );
 create index im_invoices_aud_id_idx on im_invoices_audit(invoice_id);
+
 
 create or replace trigger im_invoices_audit_tr
 	before update or delete on im_invoices
@@ -538,7 +703,7 @@ begin
 end;
 /
 commit;
-	
+
 
 -- Show the invoice component in project page
 --

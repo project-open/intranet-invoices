@@ -160,7 +160,7 @@ set receipient_html "
         <tr> 
           <td  class=rowodd>Company name</td>
           <td  class=rowodd>
-            <A href=/intranet/customers/view?group_id=$customer_id>$customer_name</A>
+            <A href=/intranet/customers/view?customer_id=$customer_id>$customer_name</A>
           </td>
         </tr>
         <tr> 
@@ -225,7 +225,7 @@ db_foreach project_list $project_list_sql {
     append project_list_html "
         <tr>
           <td class=rowodd>
-	    <A href=/intranet/projects/view?group_id=$group_id>$project_nr</A>
+	    <A href=/intranet/projects/view?project_id=$project_id>$project_nr</A>
 	  </td>
           <td class=rowodd>$project_name</td>
         </tr>

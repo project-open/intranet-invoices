@@ -223,12 +223,12 @@ order by
 	incr ctr
     }
 
-    if {"" != $customer_id} {
+    if {"" != $customer_id && "" == $project_id} {
 	append invoice_html "
 <tr>
   <td colspan=$colspan align=left>
     <A href=/intranet-invoices/new?customer_id=$customer_id>
-      Create a new invoice from scratch
+      Create a new invoice for this customer
     </A>
   </td>
 </tr>\n"
