@@ -16,6 +16,7 @@ ad_page_contract {
     invoice_id:integer
     { customer_id:integer 0 }
     { provider_id:integer 0 }
+    { project_id:integer 0 }
     invoice_nr
     invoice_date
     { invoice_status_id 602 }

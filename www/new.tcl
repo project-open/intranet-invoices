@@ -21,7 +21,7 @@ ad_page_contract {
     { include_task:multiple "" }
     { invoice_id:integer 0}
     { customer_id:integer 0}
-    { project_id:integer ""}
+    { project_id:integer 0}
     { invoice_currency ""}
     { return_url "/intranet-invoice/"}
 }
@@ -69,7 +69,7 @@ set invoice_type_normal_id [db_string invoice_type "select invoice_type_id from 
 # - IT: Create invoices from scratch, from hours or from 
 #   (monthly|quarterly|...) service fees
 #
-if {"" != $project_id} {
+if {0 != $project_id} {
     set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
 }
 
@@ -428,7 +428,7 @@ set page_body "
 [im_invoices_navbar "none" "/intranet/invoices/index" "" "" [list]]
 
 <form action=new-2 method=POST>
-[export_form_vars invoice_id return_url]
+[export_form_vars invoice_id project_id return_url]
 
   <!-- Invoice Data and Customer Tables -->
 
