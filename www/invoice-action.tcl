@@ -1,4 +1,10 @@
-# /www/intranet/invoices/invoice-action.tcl
+# /packages/intranet-invoices/www/invoice-action.tcl
+#
+# Copyright (C) 2003-2004 Project/Open
+#
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
+
 
 ad_page_contract {
     Purpose: Takes commands from the /intranet/invoices/index
@@ -6,6 +12,7 @@ ad_page_contract {
 
     @param return_url the url to return to
     @param group_id group id
+    @author frank.bergmann@project-open.com
 } {
     return_url:optional
     del_invoice:multiple,optional
@@ -74,8 +81,8 @@ switch $submit {
 	"
 
 	set delete_map_sql "
-		delete from im_project_invoice_map m
-		where m.invoice_id in $invoice_where_list
+		delete from acs_rels r
+		where r.object_id_two in $invoice_where_list
 	"
 
 	set delete_invoices_sql "

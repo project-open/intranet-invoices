@@ -1,4 +1,9 @@
-# /www/intranet/invoices/new.tcl
+# /packages/intranet-invoices/www/new.tcl
+#
+# Copyright (C) 2003-2004 Project/Open
+#
+# All rights reserved. Please check
+# http://www.project-open.com/license/ for details.
 
 # ---------------------------------------------------------------
 # 1. Page Contract
@@ -7,16 +12,16 @@
 ad_page_contract { 
     Receives the list of tasks to invoice, creates a draft invoice
     (status: "In Process") and displays it.
-    Provides a button to advance to new-4.tcl, which takes the final
+    Provides a button to advance to new-2.tcl, which takes the final
     steps of invoice generation by setting the state of the invoice
     to "Created" and the state of the associates im_tasks to "Invoiced".
 
     @author frank.bergmann@project-open.com
-    @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
     { include_task:multiple "" }
     { invoice_id:integer ""}
     { customer_id:integer 0}
+    { project_id:integer ""}
     { invoice_currency "EUR"}
     { return_url "/intranet-invoice/"}
 }
@@ -46,6 +51,22 @@ set view_name "invoice_tasks"
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
+
+# Tricky case: Sombebody has called this page from a project
+# So we need to find out the customer of the project and create
+# an invoice from scratch, invoicing all project elements.
+#
+# However, invoices are created in very different ways in 
+# each business sector:
+# - Translation: Sum up the im_trans_tasks and determine the
+#   price from im_translation_prices.
+# - IT: Create invoices from scratch, from hours or from 
+#   (monthly|quarterly|...) service fees
+#
+if {"" != $project_id} {
+    set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
+}
+
 
 # ---------------------------------------------------------------
 # 3. Gather invoice data
@@ -382,7 +403,7 @@ ns_log Notice "new: before joining the parts together"
 set page_body "
 [im_invoices_navbar "none" "/intranet/invoices/index" "" "" [list]]
 
-<form action=new-4 method=POST>
+<form action=new-2 method=POST>
 [export_form_vars invoice_id return_url]
 
   <!-- Invoice Data and Customer Tables -->

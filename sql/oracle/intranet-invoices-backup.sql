@@ -1,18 +1,11 @@
 -- /packages/intranet-invoices/sql/oracle/intranet-invoices-backup.sql
 --
--- Copyright (C) 2004 Project/Open
+-- Copyright (C) 2003-2004 Project/Open
 --
--- This program is free software. You can redistribute it
--- and/or modify it under the terms of the GNU General
--- Public License as published by the Free Software Foundation;
--- either version 2 of the License, or (at your option)
--- any later version. This program is distributed in the
--- hope that it will be useful, but WITHOUT ANY WARRANTY;
--- without even the implied warranty of MERCHANTABILITY or
--- FITNESS FOR A PARTICULAR PURPOSE.
--- See the GNU General Public License for more details.
+-- All rights reserved. Please check
+-- http://www.project-open.com/license/ for details.
 --
--- @author	frank.bergmann@project-open.com
+-- @author frank.bergmann@project-open.com
 
 -- 100	im_projects
 -- 101	im_project_roles
@@ -303,15 +296,15 @@ delete from im_views where view_id = 193;
 insert into im_views (view_id, view_name, view_sql
 ) values (193, 'im_project_invoice_map', '
 SELECT
-	pg.group_name as project_name,
+	p.project_name,
 	i.invoice_nr
 FROM
-	im_project_invoice_map m,
-	user_groups pg,
+	acs_rels r,
+	project p,
 	im_invoices i
 WHERE
-	m.project_id = pg.group_id
-	and m.invoice_id = i.invoice_id
+	r.object_id_one = p.project_id
+	and r.object_id_two = i.invoice_id
 ');
 
 

@@ -1,14 +1,18 @@
 -- /package/intranet-invoices/sql/oracle/intranet-invoices-create.sql
 --
--- Invoices module for Project/Open
+-- Copyright (c) 2003-2004 Project/Open
 --
--- (c) 2003 Frank Bergmann (fraber@fraber.de)
+-- All rights reserved. Please check
+-- http://www.project-open.com/license/ for details.
+--
+-- @author frank.bergmann@project-open.com
+
+-- Invoices module for Project/Open
 --
 -- Defines:
 --	im_invoices			Invoice biz object container
 --	im_invoice_items		Invoice lines
 --	im_projects_invoices_map	Maps projects -> invoices
---	im_prices			List of prices with defaults
 --
 
 -- An invoice basically is a container of im_invoice_lines.
@@ -166,26 +170,22 @@ end im_invoices_audit_tr;
 /
 show errors
 
-
-
-
 -----------------------------------------------------------
 -- Invoice Items
 --
 -- - Invoice items reflect the very fuzzy structure of invoices,
 --   that may contain basicly everything that fits in one line
 --   and has a price.
--- - Invoice items are generated typically from im_tasks, plus
---   a invoice price, derived(!) from the price list.
---   However, all elements (number of units, price, description)
---   need to be human editable.
+-- - Invoice items can created manually or generated from
+--   "invoicable items" such as im_trans_tasks or similar.
+-- All fields (number of units, price, description) need to be 
+-- human editable because invoicing is so messy...
 --
--- Tasks and Invoice Items are similar because they both represent
--- substructures of an invoice or a project. However, im_tasks
--- are supposed to be more strongly formalized (type, status, ...),
--- while Invoice Items contain the actually billed price and 
--- represent the dirty reality.
---
+-- Invoicable Tasks and Invoice Items are similar because they 
+-- both represent substructures of a project or an invoice. 
+-- However, im_trans_tasks are more formalized (type, status, ...),
+-- while Invoice Items contain free text fields, only _derived_
+-- from im_trans_tasks and prices. Dirty business world... :-(
 
 create sequence im_invoice_items_seq start with 1;
 create table im_invoice_items (
@@ -225,27 +225,15 @@ create table im_invoice_items (
 -- particularly if it is a big project.
 --
 -- So there is a N:M relation between these two, and we
--- need a mapping table. Also, this table allows us to
+-- need a mapping table. This table allows us to
 -- avoid inserting a "invoice_id" column in the im_projects
 -- table, thus reducing the dependency between the "core"
 -- module and the "invoices" module, allowing for example
 -- for several different invoices modules.
 --
-
-create table im_project_invoice_map (
-	project_id		integer not null 
-				constraint im_proj_inv_map_project
-				references im_projects,
-	invoice_id		integer not null 
-				constraint im_proj_inv_map_invoice
-				references im_invoices
-);
-
--- keep the project-invoice-map clean!
-create unique index im_project_invoice_map_idx on im_project_invoice_map (
-	project_id, 
-	invoice_id
-);
+-- 040403 fraber: We are now using acs_rels instead of
+-- im_project_invoice_map:
+-- acs_rels: object_id_one=project_id, object_id_two=invoice_id
 
 
 ------------------------------------------------------
@@ -301,80 +289,6 @@ where category_type = 'Intranet Invoice Payment Method';
 -- Procedures
 --
 
-
--- Calculate a match value between a price list item and an invoice_item
--- The higher the match value the better the fit.
-create or replace function im_calculate_price_relevancy ( 
-	v_price_customer_id IN integer,		v_item_customer_id IN integer,
-	v_price_task_type_id IN integer,	v_item_task_type_id IN integer,
-	v_price_subject_area_id IN integer,	v_item_subject_area_id IN integer,
-	v_price_target_language_id IN integer,	v_item_target_language_id IN integer,
-	v_price_source_language_id IN integer,	v_item_source_language_id IN integer
-)
-RETURN number IS
-	match_value		number;
-BEGIN
-	match_value := 0;
-
-	if v_price_task_type_id = v_item_task_type_id then
-	match_value := match_value + 4;
-	end if;
-	if not(v_price_task_type_id is null) and v_price_task_type_id != v_item_task_type_id then
-	match_value := match_value - 4;
-	end if;
-	if v_price_source_language_id = v_item_source_language_id then
-	match_value := match_value + 3;
-	end if;
-	if not(v_price_source_language_id is null) and v_price_source_language_id != v_item_source_language_id then
-	match_value := match_value - 10;
-	end if;
-	if v_price_target_language_id = v_item_target_language_id then
-	match_value := match_value + 2;
-	end if;
-	if not(v_price_target_language_id is null) and v_price_target_language_id != v_item_target_language_id then
-	match_value := match_value - 10;
-	end if;
-	if v_price_subject_area_id = v_item_subject_area_id then
-	match_value := match_value + 1;
-	end if;
-	if not(v_price_subject_area_id is null) and v_price_subject_area_id != v_item_subject_area_id then
-	match_value := match_value - 10;
-	end if;
-	if v_price_customer_id = v_item_customer_id then
-	match_value := (match_value + 6)*2;
-	end if;
-	if v_price_customer_id = 17 then
-	match_value := match_value + 1;
-	end if;
-	if v_price_customer_id != 17 and v_price_customer_id != v_item_customer_id then
-	match_value := match_value -10;
-	end if;
-	return match_value;
-END;
-/
-show errors;
-
--- Calculate the price for a task_type/customer
-create or replace function im_invoice_calculate_price ( 
-	v_customer_id IN integer,
-	v_project_id IN integer,
-	v_task_type_id IN integer,
-	v_task_uom_id IN integer
-)
-RETURN number IS
-BEGIN
-	if v_task_uom_id = 320 then
-	return 30.00;
-	end if;
-	if v_task_uom_id = 324 then
-	return 0.085;
-	end if;
-	return 1.000;
-END;
-/
-show errors;
-
--- What currency to use?
 create or replace function im_invoice_calculate_currency (v_customer_id IN integer)
 RETURN varchar IS
 BEGIN
@@ -635,14 +549,27 @@ begin
 	plugin_name =>	'Project Invoice Component',
 	package_name =>	'intranet-invoices',
         page_url =>     '/intranet/projects/view',
-        location =>     'right',
+        location =>     'left',
         sort_order =>   10,
         component_tcl => 
-	'im_table_with_title "Invoices" \
-		[im_invoice_component \
-			$user_id \
-			$project_id
-		]'
+	'im_invoices_project_component $project_id'
+    );
+end;
+/
+
+-- Show the invoice component in customers page
+--
+declare
+    v_plugin            integer;
+begin
+    v_plugin := im_component_plugin.new (
+	plugin_name =>	'Customer Invoice Component',
+	package_name =>	'intranet-invoices',
+        page_url =>     '/intranet/customers/view',
+        location =>     'left',
+        sort_order =>   10,
+        component_tcl => 
+	'im_invoices_customer_component $customer_id'
     );
 end;
 /
