@@ -16,6 +16,11 @@ ad_page_contract {
     steps of invoice generation by setting the state of the invoice
     to "Created" and the state of the associates im_tasks to "Invoiced".
 
+    @param create_invoice_from_template
+           Indicates that "Create Invoice" button was
+           used to start creating an invoice from a Quote or a
+           Provider Bill from a Purchase Order
+
     @author frank.bergmann@project-open.com
 } {
     { include_task:multiple "" }
@@ -25,12 +30,20 @@ ad_page_contract {
     { provider_id:integer 0}
     { project_id:integer 0}
     { invoice_currency ""}
+    { create_invoice_from_template ""}
     { return_url "/intranet-invoice/"}
 }
 
 # ---------------------------------------------------------------
 # 2. Defaults & Security
 # ---------------------------------------------------------------
+
+# Check if we have to forward to "new-copy":
+if {"" != $create_invoice_from_template} {
+    ad_returnredirect [export_vars -base "new-copy" {invoice_id invoice_type_id}]
+    ad_script_abort
+}
+
 
 # User id already verified by filters
 set user_id [ad_maybe_redirect_for_registration]

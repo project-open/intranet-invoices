@@ -27,11 +27,8 @@ ad_page_contract {
 
     @author frank.bergmann@project-open.com
 } {
-    { invoice_id:integer 0}
-    { invoice_type_id:integer "[im_invoice_type_invoice]" }
-    { from_invoice_type_id:integer "[im_invoice_type_invoice]" }
-    { project_id 0 }
-    { customer_id 0 }
+    invoice_id:integer
+    invoice_type_id:integer
     { return_url "/intranet-invoice/"}
 }
 
@@ -45,6 +42,20 @@ if {![im_permission $user_id view_invoices]} {
     <li>You don't have sufficient privileges to see this page."    
 }
 
+switch $invoice_type_id {
+    702 {
+	set to_invoice_type_id [im_invoice_type_invoice]
+    }
+    706 {
+	set to_invoice_type_id [im_invoice_type_bill]
+    }
+    default {
+	ad_return_complaint 1 "<li>Bad Document Type $invoice_type_id:<br>
+        We expect either a Quote or a Purchase Order as the document type."
+    }
+}
+
+
 set todays_date [db_string get_today "select sysdate from dual"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_copy"
@@ -54,38 +65,14 @@ set from_invoice_type_name [db_string invoice_type_name "select im_category_from
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 
-
-# Tricky case: Sombebody has called this page from a project
-# So we need to find out the customer of the project and create
-# an invoice from scratch, invoicing all project elements.
-#
-# However, invoices are created in very different ways in 
-# each business sector:
-# - Translation: Sum up the im_trans_tasks and determine the
-#   price from im_translation_prices.
-# - IT: Create invoices from scratch, from hours or from 
-#   (monthly|quarterly|...) service fees
-#
-if {0 != $project_id} {
-    set customer_id [db_string customer_id "select customer_id from im_projects where project_id=:project_id"]
-}
-
 # ---------------------------------------------------------------
 # 3. Gather invoice data
-#	a: if the invoice already exists
 # ---------------------------------------------------------------
 
-# Check if we are editing an already existing invoice
-#
-if {$invoice_id} {
-    # We are editing an already existing invoice
-    #
-    set invoice_mode "exists"
-    set button_text "Edit $invoice_type_name"
-    set page_title "Edit $invoice_type_name"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
-    db_1row invoices_info_query "
+# We are editing an already existing invoice
+#
+db_1row invoices_info_query "
 select 
 	i.*,
 	im_name_from_user_id(i.customer_contact_id) as customer_contact_name,
@@ -104,46 +91,20 @@ where
 	and i.provider_id=p.customer_id(+)
     "
 
-    # Check if there is a single currency being used in the invoice
-    # and get it.
-    # This should always be the case, but doesn't need to...
+# Check if there is a single currency being used in the invoice
+# and get it.
+# This should always be the case, but doesn't need to...
 
-    if {"" == $invoice_currency} {
-	catch {
-	    db_1row invoices_currency_query "
+if {"" == $invoice_currency} {
+    catch {
+	db_1row invoices_currency_query "
 select distinct
 	currency as invoice_currency
 from
 	im_invoice_items i
 where
 	i.invoice_id=:invoice_id"
-	} err_msg
-    }
-
-} else {
-
-# ---------------------------------------------------------------
-# Setup the fields for a new invoice
-# ---------------------------------------------------------------
-
-    # Build the list of selected tasks ready for invoices
-    set invoice_mode "new"
-    set in_clause_list [list]
-    set button_text "New $invoice_type_name"
-    set page_title "New $invoice_type_name"
-    set context_bar [ad_context_bar [list /intranet/invoices/ "Finance"] $page_title]
-
-    set invoice_id [im_new_object_id]
-    set invoice_nr [im_next_invoice_nr]
-    set invoice_status_id [im_invoice_status_created]
-    set invoice_date $todays_date
-    set payment_days [ad_parameter -package_id [im_package_invoices_id] "DefaultPaymentDays" "" 30] 
-    set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
-    set vat 0
-    set tax 0
-    set note ""
-    set payment_method_id ""
-    set invoice_template_id ""
+    } err_msg
 }
 
 # ---------------------------------------------------------------
@@ -156,60 +117,6 @@ if {$invoice_or_quote_p} {
 } else {
     set company_id $provider_id
 }
-
-# ---------------------------------------------------------------
-# Gather customer data from customer_id (both edit or new modes)
-# ---------------------------------------------------------------
-
-db_0or1row invoices_info_query "
-select 
-        o.*,
-	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
-	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
-	c.customer_name as company_name,
-	c.customer_path as company_short_name,
-        cc.country_name company_country_name
-from
-	im_customers c, 
-        im_offices o,
-        country_codes cc
-where 
-        c.customer_id = :customer_id
-        and c.main_office_id=o.office_id(+)
-        and o.address_country_code=cc.iso(+)
-"
-ns_log Notice "after looking up customer #$customer_id"
-
-
-# ---------------------------------------------------------------
-# 7. Select and format the sum of the invoicable items
-# for a new invoice
-# ---------------------------------------------------------------
-
-if {[string equal $invoice_mode "new"]} {
-
-    # start formatting the list of sums with the header...
-    set task_sum_html "
-        <tr align=center> 
-          <td class=rowtitle>Order</td>
-          <td class=rowtitle>Description</td>
-          <td class=rowtitle>Type</td>
-          <td class=rowtitle>Units</td>
-          <td class=rowtitle>UOM</td>
-          <td class=rowtitle>Rate </td>
-        </tr>
-    "
-
-    # Start formatting the "reference price list" as well, even though it's going
-    # to be shown at the very bottom of the page.
-    #
-    set price_colspan 11
-    set ctr 1
-    set old_project_id 0
-    set colspan 6
-    set target_language_id ""
-
-} else {
 
 # ---------------------------------------------------------------
 # 8. Get the old invoice items for an already existing invoice

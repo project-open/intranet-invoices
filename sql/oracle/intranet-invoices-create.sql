@@ -479,13 +479,12 @@ values (31, 'invoice_new', 'view_finance');
 --
 delete from im_view_columns where column_id > 3000 and column_id < 3099;
 --
-insert into im_view_columns values (3001,30,NULL,'Invoice #',
+insert into im_view_columns values (3001,30,NULL,'Document #',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
 '','',1,'');
 
-insert into im_view_columns values (3003,30,NULL,'Preview',
-'"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$invoice_template_id>
-$invoice_nr</A>"','','',3,'');
+insert into im_view_columns values (3003,30,NULL,'Type',
+'$invoice_type','','',3,'');
 
 insert into im_view_columns values (3004,30,NULL,'Provider',
 '"<A HREF=/intranet/customers/view?customer_id=$provider_id>$provider_name</A>"',
@@ -573,7 +572,19 @@ INSERT INTO im_categories VALUES (700,'Customer Invoice','','Intranet Invoice Ty
 INSERT INTO im_categories VALUES (702,'Quote','','Intranet Invoice Type','category','t','f');
 INSERT INTO im_categories VALUES (704,'Provider Bill','','Intranet Invoice Type','category','t','f');
 INSERT INTO im_categories VALUES (706,'Purchase Order','','Intranet Invoice Type','category','t','f');
+
+INSERT INTO im_categories VALUES (708,'Customer Documents','','Intranet Invoice Type','category','t','f');
+INSERT INTO im_categories VALUES (710,'Provider Documents','','Intranet Invoice Type','category','t','f');
 -- reserved until 799
+
+-- "Customer Invoice" and "Quote" are "Customer Documents"
+insert into im_category_hierarchy values (708,700);
+insert into im_category_hierarchy values (708,702);
+
+-- "Provider Bills" and "Purchase Orders" are "Provider Documents"
+insert into im_category_hierarchy values (710,704);
+insert into im_category_hierarchy values (710,706);
+
 
 
 -- Invoice Payment Method
@@ -684,9 +695,9 @@ begin
     -- needs to be the first submenu in order to get selected
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'invoices_list',
-	name =>		'Invoices',
-	url =>		'/intranet-invoices/list?invoice_type_id=700',
+	label =>	'invoices_customers',
+	name =>		'Customers',
+	url =>		'/intranet-invoices/list?invoice_type_id=708',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_menu
     );
@@ -699,10 +710,10 @@ begin
 
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'quote_list',
-	name =>		'Quotes',
-	url =>		'/intranet-invoices/list?invoice_type_id=702',
-	sort_order =>	12,
+	label =>	'invoices_providers',
+	name =>		'Providers',
+	url =>		'/intranet-invoices/list?invoice_type_id=710',
+	sort_order =>	20,
 	parent_menu_id => v_invoices_menu
     );
     acs_permission.grant_permission(v_menu, v_admins, 'read');
@@ -710,35 +721,6 @@ begin
     acs_permission.grant_permission(v_menu, v_accounting, 'read');
     acs_permission.grant_permission(v_menu, v_customers, 'read');
     acs_permission.grant_permission(v_menu, v_freelancers, 'read');
-
-    v_menu := im_menu.new (
-	package_name =>	'intranet-invoices',
-	label =>	'bill_list',
-	name =>		'Provider Bills',
-	url =>		'/intranet-invoices/list?invoice_type_id=704',
-	sort_order =>	14,
-	parent_menu_id => v_invoices_menu
-    );
-    acs_permission.grant_permission(v_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_menu, v_freelancers, 'read');
-
-    v_menu := im_menu.new (
-	package_name =>	'intranet-invoices',
-	label =>	'po_list',
-	name =>		'POs',
-	url =>		'/intranet-invoices/list?invoice_type_id=706',
-	sort_order =>	16,
-	parent_menu_id => v_invoices_menu
-    );
-    acs_permission.grant_permission(v_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_menu, v_freelancers, 'read');
-
 
     v_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
@@ -757,7 +739,7 @@ end;
 commit;
 
 
--- Setup the "Invoice New" items for the basic Financial items
+-- Setup the "Invoices New" menu for Customer Documents
 --
 declare
         -- Menu IDs
@@ -784,12 +766,12 @@ begin
     select menu_id
     into v_invoices_new_menu
     from im_menus
-    where label='invoices_new';
+    where label='invoices_customers';
 
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'new_invoice',
-	name =>		'New Customer Invoice',
+	label =>	'invoices_customers_new_invoice',
+	name =>		'New Customer Invoice from scratch',
 	url =>		'/intranet-invoices/new?invoice_type_id=700',
 	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
@@ -803,24 +785,9 @@ begin
 
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'new_invoice_from_quote',
+	label =>	'invoices_customers_new_invoice_from_quote',
 	name =>		'New Customer Invoice from Quote',
 	url =>		'/intranet-invoices/new-copy?invoice_type_id=700\&from_invoice_type_id=702',
-	sort_order =>	12,
-	parent_menu_id => v_invoices_new_menu
-    );
-
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
-
-    v_invoices_menu := im_menu.new (
-	package_name =>	'intranet-invoices',
-	label =>	'new_quote',
-	name =>		'New Quote',
-	url =>		'/intranet-invoices/new?invoice_type_id=702',
 	sort_order =>	20,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -833,9 +800,9 @@ begin
 
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'new_bill_from_po',
-	name =>		'New Provider Bill',
-	url =>		'/intranet-invoices/new?invoice_type_id=704',
+	label =>	'invoices_customers_new_quote',
+	name =>		'New Quote from scratch',
+	url =>		'/intranet-invoices/new?invoice_type_id=702',
 	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );
@@ -846,12 +813,47 @@ begin
     acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
     acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
 
+end;
+/
+commit;
+
+
+
+-- Setup the "Invoices New" menu for Customer Documents
+--
+declare
+        -- Menu IDs
+        v_menu                  integer;
+        v_invoices_new_menu	integer;
+	v_invoices_menu		integer;
+
+        -- Groups
+        v_employees             integer;
+        v_accounting            integer;
+        v_senman                integer;
+        v_customers             integer;
+        v_freelancers           integer;
+        v_proman                integer;
+        v_admins                integer;
+begin
+
+    select group_id into v_admins from groups where group_name = 'P/O Admins';
+    select group_id into v_senman from groups where group_name = 'Senior Managers';
+    select group_id into v_accounting from groups where group_name = 'Accounting';
+    select group_id into v_customers from groups where group_name = 'Customers';
+    select group_id into v_freelancers from groups where group_name = 'Freelancers';
+
+    select menu_id
+    into v_invoices_new_menu
+    from im_menus
+    where label='invoices_providers';
+
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'new_bill',
-	name =>		'New Provider Bill from Purchase Order',
-	url =>		'/intranet-invoices/new-copy?invoice_type_id=704\&from_invoice_type_id=706',
-	sort_order =>	32,
+	label =>	'invoices_providers_new_bill',
+	name =>		'New Provider Bill from scratch',
+	url =>		'/intranet-invoices/new?invoice_type_id=704',
+	sort_order =>	10,
 	parent_menu_id => v_invoices_new_menu
     );
 
@@ -863,10 +865,25 @@ begin
 
     v_invoices_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
-	label =>	'new_po',
-	name =>		'New Purchase Order',
+	label =>	'invoices_providers_new_bill_from_po',
+	name =>		'New Provider Bill from Purchase Order',
+	url =>		'/intranet-invoices/new-copy?invoice_type_id=704\&from_invoice_type_id=706',
+	sort_order =>	20,
+	parent_menu_id => v_invoices_new_menu
+    );
+
+    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+
+    v_invoices_menu := im_menu.new (
+	package_name =>	'intranet-invoices',
+	label =>	'invoices_providers_new_po',
+	name =>		'New Purchase Order from scratch',
 	url =>		'/intranet-invoices/new?invoice_type_id=706',
-	sort_order =>	40,
+	sort_order =>	30,
 	parent_menu_id => v_invoices_new_menu
     );
 

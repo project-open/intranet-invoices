@@ -29,6 +29,9 @@ ad_proc -public im_invoice_type_invoice {} { return 700 }
 ad_proc -public im_invoice_type_quote {} { return 702 }
 ad_proc -public im_invoice_type_bill {} { return 704 }
 ad_proc -public im_invoice_type_po {} { return 706 }
+ad_proc -public im_invoice_type_customer_doc {} { return 708 }
+ad_proc -public im_invoice_type_provider_doc {} { return 710 }
+
 
 # Payment Methods
 ad_proc -public im_payment_method_undefined {} { return 800 }

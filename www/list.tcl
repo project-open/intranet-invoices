@@ -9,7 +9,7 @@ ad_page_contract {
 
     @param order_by invoice display order 
     @param include_subinvoices_p whether to include sub invoices
-    @param status_id criteria for invoice status
+    @param invoice_status_id criteria for invoice status
     @param invoice_type_id criteria for invoice_type_id
     @param letter criteria for im_first_letter_default_to_a(ug.group_name)
     @param start_idx the starting index for query
@@ -18,8 +18,8 @@ ad_page_contract {
     @author mbryzek@arsdigita.com
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
-    { order_by "Invoice #" }
-    { status_id:integer 0 } 
+    { order_by "Document #" }
+    { invoice_status_id:integer 0 } 
     { invoice_type_id:integer 0 } 
     { customer_id:integer 0 } 
     { provider_id:integer 0 } 
@@ -66,8 +66,8 @@ ad_page_contract {
 set user_id [ad_maybe_redirect_for_registration]
 set current_user_id $user_id
 set today [lindex [split [ns_localsqltimestamp] " "] 0]
-set page_title "Invoices"
-set context_bar [ad_context_bar_ws $page_title]
+set page_title "Financial Documents"
+set context_bar [ad_context_bar $page_title]
 set page_focus "im_header_form.keywords"
 set return_url [im_url_with_query]
 # Needed for im_view_columns, defined in intranet-views.tcl
@@ -77,8 +77,8 @@ set local_url "list"
 
 set invoice_status_created [db_string invoice_status "select invoice_status_id from im_invoice_status where upper(invoice_status)='CREATED'"]
 
-if {$status_id == 0} {
-    set status_id $invoice_status_created
+if {$invoice_status_id == 0} {
+    set invoice_status_id $invoice_status_created
 }
 
 
@@ -129,21 +129,28 @@ set status_types [im_memoize_list select_invoice_status_types \
          from im_invoice_status
          order by lower(invoice_status)"]
 
-# No "All" status, because we _really_ don't want to show the
-# "In Process" invoices left over from the creation process.
-#
-#set status_types [linsert $status_types 0 0 All]
+
+# type_types will be a list of pairs of (invoice_type_id, invoice_type)
+set type_types [im_memoize_list select_invoice_type_types \
+        "select invoice_type_id, invoice_type
+         from im_invoice_type
+         order by lower(invoice_type)"]
+
 
 # ---------------------------------------------------------------
 # 5. Generate SQL Query
 # ---------------------------------------------------------------
 
 set criteria [list]
-if { ![empty_string_p $status_id] && $status_id > 0 } {
-    lappend criteria "i.invoice_status_id=:status_id"
+if { ![empty_string_p $invoice_status_id] && $invoice_status_id > 0 } {
+    lappend criteria "i.invoice_status_id=:invoice_status_id"
 }
 if { ![empty_string_p $invoice_type_id] && $invoice_type_id != 0 } {
-    lappend criteria "i.invoice_type_id=:invoice_type_id"
+    lappend criteria "i.invoice_type_id in (
+		select distinct	h.child_id
+		from	im_category_hierarchy h
+		where	(child_id=:invoice_type_id or parent_id=:invoice_type_id)
+	)"
 }
 if { ![empty_string_p $customer_id] && $customer_id != 0 } {
     lappend criteria "i.customer_id=:customer_id"
@@ -182,7 +189,7 @@ ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
 set order_by_clause ""
 switch $order_by {
-    "Invoice #" { set order_by_clause "order by invoice_nr" }
+    "Document #" { set order_by_clause "order by invoice_nr" }
     "Preview" { set order_by_clause "order by invoice_nr" }
     "Provider" { set order_by_clause "order by provider_name" }
     "Client" { set order_by_clause "order by customer_name" }
@@ -190,6 +197,7 @@ switch $order_by {
     "Amount" { set order_by_clause "order by ii.invoice_amount" }
     "Paid" { set order_by_clause "order by pa.payment_amount" }
     "Status" { set order_by_clause "order by invoice_status_id" }
+    "Type" { set order_by_clause "order by invoice_type" }
 }
 
 set where_clause [join $criteria " and\n            "]
@@ -239,6 +247,7 @@ select
 	p.customer_name as provider_name,
 	p.customer_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
+        im_category_from_id(i.invoice_type_id) as invoice_type,
 	sysdate - (i.invoice_date + i.payment_days) as overdue
 	$extra_select
 from
@@ -289,6 +298,40 @@ if {[string compare $letter "ALL"]} {
 }	
 
 # ---------------------------------------------------------------
+# 6a. Format the Filter: Get the admin menu
+# ---------------------------------------------------------------
+
+set new_document_menu ""
+set parent_menu_label ""
+if {$invoice_type_id == [im_invoice_type_customer_doc]} {
+    set parent_menu_label "invoices_customers"
+}
+if {$invoice_type_id == [im_invoice_type_provider_doc]} {
+    set parent_menu_label "invoices_providers"
+}
+
+if {"" != $parent_menu_label} {
+    set parent_menu_sql "select menu_id from im_menus where label=:parent_menu_label"
+    set parent_menu_id [db_string parent_admin_menu $parent_menu_sql -default ""]
+
+    set menu_select_sql "
+        select  m.*
+        from    im_menus m
+        where   parent_menu_id = :parent_menu_id
+                and acs_permission.permission_p(m.menu_id, :user_id, 'read') = 't'
+        order by sort_order"
+
+    # Start formatting the menu bar
+    set new_document_menu ""
+    set ctr 0
+    db_foreach menu_select $menu_select_sql {
+	
+	ns_log Notice "im_sub_navbar: menu_name='$name'"
+	append new_document_menu "<li><a href=\"$url\">$name</a></li>\n"
+    }
+}
+
+# ---------------------------------------------------------------
 # 6. Format the Filter
 # ---------------------------------------------------------------
 
@@ -298,37 +341,55 @@ if {[string compare $letter "ALL"]} {
 set filter_html "
 
 <table>
-<tr>
-  <td>
+<tr valign=top>
+  <td valign=top>
+
 	<form method=get action='/intranet-invoices/list'>
 	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p letter]
-	<table border=0 cellpadding=0 cellspacing=0>
+	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
-	      Filter Invoices
+	      Filter Documents
 	    </td>
 	  </tr>
 	  <tr>
-	    <td valign=top>Invoice Status:</td>
-	    <td valign=top>
-              [im_select status_id $status_types ""]
+	    <td>Document Status:</td>
+	    <td>
+              [im_select invoice_status_id $status_types ""]
+            </td>
+	  </tr>
+	  <tr>
+	    <td>Document Type:</td>
+	    <td>
+              [im_select invoice_type_id $type_types ""]
               <input type=submit value=Go name=submit>
             </td>
 	  </tr>
 	</table>
 	</form>
+
   </td>
-  <td>
-	<table><tr>
-	  <td>
-	    <blockquote>
-		&nbsp;
-	    <blockquote>
-	  </td>
-	</tr></table>
+  <td valign=top>&nbsp;</td>
+  <td valign=top>
+
+	<table border=0 cellpadding=1 cellspacing=1>
+	  <tr> 
+	    <td colspan='2' class=rowtitle align=center>
+	      New Customer Documents
+	    </td>
+	  </tr>
+	  <tr>
+	    <td colspan=2 valign=top>
+	      <ul>
+		$new_document_menu
+	      </ul>
+            </td>
+	  </tr>
+	</table>
 	
   </td>
-</tr></table>
+</tr>
+</table>
 "
 
 # ---------------------------------------------------------------
@@ -480,7 +541,7 @@ set button_html "
 
 set page_body "
 $filter_html
-[im_invoices_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list status_id invoice_type_id customer_id start_idx order_by how_many view_name letter]]
+[im_invoices_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id invoice_type_id customer_id start_idx order_by how_many view_name letter]]
 
 <form action=invoice-action method=POST>
 [export_form_vars customer_id invoice_id return_url]

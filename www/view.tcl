@@ -500,8 +500,9 @@ if {[exists_and_not_null render_template_id]} {
 		<form action=new method=POST>
 		  <A HREF=/intranet-invoices/view?[export_url_vars return_url invoice_id render_template_id]>Preview</A>
 
-		  [export_form_vars return_id invoice_id]
-		  <input type=submit value='Edit'>
+		  [export_form_vars return_id invoice_id invoice_type_id]
+		  <input type=submit name=create_invoice_from_template value='Create Invoice from Quote'>
+		  <input type=submit name=edit_invoice value='Edit'>
 		</form>
 
                     </td>
