@@ -17,8 +17,8 @@ ad_page_contract {
 set user_id [ad_maybe_redirect_for_registration]
 
 # select the "Finance" Menu
-set parent_menu_sql "select menu_id from im_menus where label='invoices_new'"
-set parent_menu_id [db_string parent_admin_menu $parent_menu_sql]
+set parent_menu_sql "select menu_id from im_menus where label='finance'"
+set parent_menu_id [db_string parent_admin_menu $parent_menu_sql -default 0]
 
 set menu_select_sql "
         select  m.*

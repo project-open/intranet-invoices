@@ -160,7 +160,7 @@ is
 	v_invoice_id := im_cost_item.new (
 		item_id		=> invoice_id,
 		object_type	=> object_type,
-		creation_date	=> creation_date
+		creation_date	=> creation_date,
 		creation_user	=> creation_user,
 		creation_ip	=> creation_ip,
 		context_id	=> context_id,
@@ -225,83 +225,6 @@ end im_invoice;
 /
 show errors
 
-
-
----------------------------------------------------------
--- Invoice Auditing
----------------------------------------------------------
-
--- Keep a trail of all changes 
-
-create table im_invoices_audit (
-	invoice_id		integer,
-	customer_id		integer not null,
-	creator_id		integer,
-	customer_contact_id	integer,
-	invoice_nr		varchar(40),
-	invoice_date		date,
-	due_date		date,
-	invoice_template_id	integer,
-	invoice_status_id	integer,
-	invoice_type_id		integer,
-	payment_method_id	integer,
-	payment_days		integer,
-	vat			number,
-	tax			number,
-	note			varchar(4000),
-	last_modified		date,
-	last_modifying_user	integer,
-	modified_ip_address	varchar(20)
-);
-create index im_invoices_aud_id_idx on im_invoices_audit(invoice_id);
-
-
-create or replace trigger im_invoices_audit_tr
-	before update or delete on im_invoices
-	for each row
-	begin
-		insert into im_invoices_audit (
-			invoice_id,
-			customer_id,
-			creator_id,
-			customer_contact_id,
-			invoice_nr,
-			invoice_date,
-			due_date,
-			invoice_template_id,
-			invoice_status_id,
-			invoice_type_id,
-			payment_method_id,
-			payment_days,
-			vat,
-			tax,
-			note,
-			last_modified,
-			last_modifying_user,
-			modified_ip_address
-		) values (
-			:old.invoice_id,
-			:old.customer_id,
-			:old.creator_id,
-			:old.customer_contact_id,
-			:old.invoice_nr,
-			:old.invoice_date,
-			:old.due_date,
-			:old.invoice_template_id,
-			:old.invoice_status_id,
-			:old.invoice_type_id,
-			:old.payment_method_id,
-			:old.payment_days,
-			:old.vat,
-			:old.tax,
-			:old.note,
-			:old.last_modified,
-			:old.last_modifying_user,
-			:old.modified_ip_address
-		);
-end im_invoices_audit_tr;
-/
-show errors
 
 -----------------------------------------------------------
 -- Invoice Items
@@ -535,8 +458,6 @@ INSERT INTO im_categories VALUES (614,'Filed',
 -- reserved until 699
 
 
-
-
 -- Invoice Type
 delete from im_categories where category_id >= 700 and category_id < 800;
 INSERT INTO im_categories VALUES (700,'Customer Invoice','','Intranet Invoice Type','category','t','f');
@@ -595,12 +516,10 @@ commit;
 
 
 ---------------------------------------------------------
--- Invoice Menus and Components
+-- Invoice Menus
 --
-
 -- delete potentially existing menus and plugins if this
 -- file is sourced multiple times during development...
-
 -- delete the intranet-payments menus because they are 
 -- located below intranet-invoices modules and would
 -- cause a RI error.
@@ -614,14 +533,13 @@ END;
 commit;
 
 
-
 -- Setup the "Invoice" main menu entry
 --
 declare
 	-- Menu IDs
-	v_menu		integer;
+	v_menu			integer;
 	v_main_menu 		integer;
-	v_invoices_menu		integer;
+	v_finance_menu		integer;
 
 	-- Groups
 	v_employees	integer;
@@ -640,24 +558,9 @@ begin
     select group_id into v_freelancers from groups where group_name = 'Freelancers';
 
     select menu_id
-    into v_main_menu
+    into v_finance_menu
     from im_menus
-    where url='/';
-
-    v_invoices_menu := im_menu.new (
-	package_name =>	'intranet-invoices',
-	label =>	'invoices',
-	name =>		'Finance',
-	url =>		'/intranet-invoices/',
-	sort_order =>	80,
-	parent_menu_id => v_main_menu
-    );
-
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    where label='finance';
 
     -- -----------------------------------------------------
     -- Invoices Submenu
@@ -670,7 +573,7 @@ begin
 	name =>		'Customers',
 	url =>		'/intranet-invoices/list?invoice_type_id=708',
 	sort_order =>	10,
-	parent_menu_id => v_invoices_menu
+	parent_menu_id => v_finance_menu
     );
     acs_permission.grant_permission(v_menu, v_admins, 'read');
     acs_permission.grant_permission(v_menu, v_senman, 'read');
@@ -685,7 +588,7 @@ begin
 	name =>		'Providers',
 	url =>		'/intranet-invoices/list?invoice_type_id=710',
 	sort_order =>	20,
-	parent_menu_id => v_invoices_menu
+	parent_menu_id => v_finance_menu
     );
     acs_permission.grant_permission(v_menu, v_admins, 'read');
     acs_permission.grant_permission(v_menu, v_senman, 'read');
@@ -699,7 +602,7 @@ begin
 	name =>		'New',
 	url =>		'/intranet-invoices/',
 	sort_order =>	90,
-	parent_menu_id => v_invoices_menu
+	parent_menu_id => v_finance_menu
     );
     acs_permission.grant_permission(v_menu, v_admins, 'read');
     acs_permission.grant_permission(v_menu, v_senman, 'read');
@@ -710,20 +613,20 @@ end;
 commit;
 
 
--- Setup the "Invoices New" menu for Customer Documents
+-- Setup the "Invoices New" admin menu for Customer Documents
 --
 declare
 	-- Menu IDs
-	v_menu		integer;
+	v_menu			integer;
 	v_invoices_new_menu	integer;
-	v_invoices_menu		integer;
+	v_finance_menu		integer;
 
 	-- Groups
-	v_employees	integer;
-	v_accounting	integer;
+	v_employees		integer;
+	v_accounting		integer;
 	v_senman		integer;
-	v_customers	integer;
-	v_freelancers	integer;
+	v_customers		integer;
+	v_freelancers		integer;
 	v_proman		integer;
 	v_admins		integer;
 begin
@@ -739,7 +642,7 @@ begin
     from im_menus
     where label='invoices_customers';
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice',
 	name =>		'New Customer Invoice from scratch',
@@ -748,13 +651,13 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_invoice_from_quote',
 	name =>		'New Customer Invoice from Quote',
@@ -763,13 +666,13 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_customers_new_quote',
 	name =>		'New Quote from scratch',
@@ -778,11 +681,11 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
 end;
 /
@@ -790,20 +693,20 @@ commit;
 
 
 
--- Setup the "Invoices New" menu for Customer Documents
+-- Setup the "Invoices New" admin menu for Customer Documents
 --
 declare
 	-- Menu IDs
-	v_menu		integer;
+	v_menu			integer;
 	v_invoices_new_menu	integer;
-	v_invoices_menu		integer;
+	v_finance_menu		integer;
 
 	-- Groups
-	v_employees	integer;
-	v_accounting	integer;
+	v_employees		integer;
+	v_accounting		integer;
 	v_senman		integer;
-	v_customers	integer;
-	v_freelancers	integer;
+	v_customers		integer;
+	v_freelancers		integer;
 	v_proman		integer;
 	v_admins		integer;
 begin
@@ -819,7 +722,7 @@ begin
     from im_menus
     where label='invoices_providers';
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill',
 	name =>		'New Provider Bill from scratch',
@@ -828,13 +731,13 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_bill_from_po',
 	name =>		'New Provider Bill from Purchase Order',
@@ -843,13 +746,13 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
-    v_invoices_menu := im_menu.new (
+    v_finance_menu := im_menu.new (
 	package_name =>	'intranet-invoices',
 	label =>	'invoices_providers_new_po',
 	name =>		'New Purchase Order from scratch',
@@ -858,11 +761,11 @@ begin
 	parent_menu_id => v_invoices_new_menu
     );
 
-    acs_permission.grant_permission(v_invoices_menu, v_admins, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_senman, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_accounting, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_customers, 'read');
-    acs_permission.grant_permission(v_invoices_menu, v_freelancers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_admins, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_senman, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_accounting, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_customers, 'read');
+    acs_permission.grant_permission(v_finance_menu, v_freelancers, 'read');
 
 end;
 /
