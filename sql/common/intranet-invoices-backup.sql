@@ -64,8 +64,10 @@
 
 delete from im_view_columns where view_id = 192;
 delete from im_views where view_id = 192;
-insert into im_views (view_id, view_name, view_type_id, view_sql
-) values (192, 'im_invoices', 1410, '
+insert into im_views (
+	view_id, view_name, view_type_id, sort_order, view_sql
+) values (
+	192, 'im_invoices', 1410, 230, '
 SELECT
 	i.*,
 	c.start_block,
@@ -121,8 +123,10 @@ commit;
 
 delete from im_view_columns where view_id = 193;
 delete from im_views where view_id = 193;
-insert into im_views (view_id, view_name, view_type_id, view_sql
-) values (193, 'im_invoice_items', 1410, '
+insert into im_views (
+	view_id, view_name, view_type_id, sort_order, view_sql
+) values (
+	193, 'im_invoice_items', 1410, 240, '
 SELECT
 	i.*,
 	p.project_name,
@@ -197,8 +201,10 @@ commit;
 
 delete from im_view_columns where view_id = 194;
 delete from im_views where view_id = 194;
-insert into im_views (view_id, view_name, view_type_id, view_sql
-) values (194, 'im_project_invoice_map', 1410, '
+insert into im_views (
+	view_id, view_name, view_type_id, sort_order, view_sql
+) values (
+	194, 'im_project_invoice_map', 1410, 250, '
 SELECT
 	p.project_name,
 	i.invoice_nr
