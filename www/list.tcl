@@ -204,7 +204,7 @@ switch $order_by {
     "Document #" { set order_by_clause "order by invoice_nr DESC" }
     "Preview" { set order_by_clause "order by invoice_nr" }
     "Provider" { set order_by_clause "order by provider_name" }
-    "Client" { set order_by_clause "order by company_name" }
+    "Customer" { set order_by_clause "order by customer_name" }
     "Due Date" { set order_by_clause "order by (ci.effective_date + ci.payment_days)" }
     "Amount" { set order_by_clause "order by ii.invoice_amount" }
     "Paid" { set order_by_clause "order by pa.payment_amount" }
@@ -536,10 +536,10 @@ set button_html "
 <tr>
   <td colspan=[expr $colspan - 3]></td>
   <td align=center>
-    <input type=submit name=submit value='[_ intranet-invoices.Save]'>
+    <input type=submit name=submit_save value='[_ intranet-invoices.Save]'>
   </td>
   <td align=center>
-    <input type=submit name=submit value='[_ intranet-invoices.Del]'>
+    <input type=submit name=submit_del value='[_ intranet-invoices.Del]'>
   </td>
 </tr>"
 

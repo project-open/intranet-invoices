@@ -18,7 +18,8 @@ ad_page_contract {
     del_cost:multiple,optional
     cost_status:array,optional
     object_type:array,optional
-    submit
+    submit_del:optional
+    submit_save:optional
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -27,43 +28,39 @@ if {![im_permission $user_id add_invoices]} {
     return
 }
 
-switch $submit {
 
-    "Save" {
-	# Save the stati for the invoices on this list
-	foreach invoice_id [array names cost_status] {
-	    set cost_status_id $cost_status($invoice_id)
-	    ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
+if {[info exists submit_save]} {
+    # Save the stati for the invoices on this list
+    foreach invoice_id [array names cost_status] {
+	set cost_status_id $cost_status($invoice_id)
+	ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
 
-	    db_dml update_cost_status "update im_costs set cost_status_id=:cost_status_id where cost_id=:invoice_id"
-	}
+	db_dml update_cost_status "update im_costs set cost_status_id=:cost_status_id where cost_id=:invoice_id"
+    }
 
+    ad_returnredirect $return_url
+    return
+}
+
+if {[info exists submit_del]}  {
+    # Maybe the list of costs was empty...
+    if {![info exists del_cost]} {
 	ad_returnredirect $return_url
 	return
     }
 
-    "Del" {
-       # Maybe the list of costs was empty...
-        if {![info exists del_cost]} {
-            ad_returnredirect $return_url
-            return
-        }
-
-        foreach cost_id $del_cost {
-            set otype $object_type($cost_id)
-            # ToDo: Security
-            db_string delete_cost_item ""
-            lappend in_clause_list $cost_id
-        }
-        set cost_where_list "([join $in_clause_list ","])"
-
-        ad_returnredirect $return_url
-        return
+    foreach cost_id $del_cost {
+	set otype $object_type($cost_id)
+	# ToDo: Security
+	db_string delete_cost_item ""
+	lappend in_clause_list $cost_id
     }
+    set cost_where_list "([join $in_clause_list ","])"
 
-    default {
-	set error "Unknown submit command: '$submit'"
-	ad_returnredirect "/error?error=$error"
-    }
+    ad_returnredirect $return_url
+    return
 }
+
+set error "Unknown command: neither 'sumit_del' nor 'submit_save'"
+ad_returnredirect "/error?error=$error"
 

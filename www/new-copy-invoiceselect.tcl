@@ -13,7 +13,8 @@ ad_page_contract {
     Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
-    cost_type_id:integer
+    source_cost_type_id:integer
+    target_cost_type_id:integer
     blurb
     return_url
     company_id:integer
@@ -40,7 +41,7 @@ set amp "&"
 set cur_format "99,999.99"
 set date_format "YYYY-MM-DD"
 
-set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
+set cost_type [db_string get_cost_type "select category from im_categories where category_id=:target_cost_type_id" -default [_ intranet-invoices.Costs]]
 
 if { [empty_string_p $how_many] || $how_many < 1 } {
     set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
@@ -120,6 +121,7 @@ where
 	and i.invoice_id = ci.cost_id
  	and i.customer_id=c.company_id
         and i.provider_id=p.company_id
+	and ci.cost_type_id = :source_cost_type_id
 $order_by_clause
 "
 
@@ -136,8 +138,10 @@ set limited_query [im_select_row_range $sql $start_idx $end_idx]
 # query results
 set total_in_limited [db_string invoices_total_in_limited "
 	select count(*) 
-        from im_invoices p
-        where 1=1"]
+        from ($sql) s
+"]
+
+# ad_return_complaint 1 $total_in_limited
 
 set selection "select z.* from ($limited_query) z $order_by_clause"
 
@@ -184,7 +188,7 @@ db_foreach invoices_info_query $selection {
     set source_invoice_id $invoice_id
     append table_body_html "
 	<td valign=top>
-	  <a href=\"new-copy?[export_url_vars cost_type_id company_id source_invoice_id blurb return_url]\">[_ intranet-invoices.Select]</a>
+	  <a href=\"new-copy?[export_url_vars cost_type_id company_id source_invoice_id source_cost_type_id target_cost_type_id blurb return_url]\">[_ intranet-invoices.Select]</a>
 	</td>
     "
 	
@@ -263,14 +267,5 @@ set table_continuation_html "
   </td>
 </tr>"
 
-set button_html "
-<tr>
-  <td colspan=[expr $colspan - 3]></td>
-  <td align=center>
-    <input type=submit name=submit value='[_ intranet-invoices.Save]'>
-  </td>
-  <td align=center>
-    <input type=submit name=submit value='[_ intranet-invoices.Del]'>
-  </td>
-</tr>"
+
 

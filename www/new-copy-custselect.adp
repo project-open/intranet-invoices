@@ -5,7 +5,7 @@
 <%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
 
 <form action=new-copy-invoiceselect method=POST>
-<%= [export_form_vars cost_type_id blurb return_url] %>
+<%= [export_form_vars source_cost_type_id target_cost_type_id blurb return_url] %>
 
 
         <table border=0 cellPadding=0 cellspacing=2>

@@ -11,6 +11,5 @@
     @table_header_html;noquote@
     @table_body_html;noquote@
     @table_continuation_html;noquote@
-    @button_html;noquote@
   </table>
 </form>

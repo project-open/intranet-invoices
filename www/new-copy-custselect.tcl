@@ -13,7 +13,8 @@ ad_page_contract {
     Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
-    cost_type_id:integer
+    source_cost_type_id:integer
+    target_cost_type_id:integer
     blurb
     return_url
 }

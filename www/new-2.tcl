@@ -24,8 +24,8 @@ ad_page_contract {
     payment_days:integer
     { payment_method_id:integer "" }
     template_id:integer
-    vat:float
-    tax:float
+    vat:trim,float
+    tax:trim,float
     {note ""}
     item_sort_order:array
     item_name:array
@@ -33,7 +33,7 @@ ad_page_contract {
     item_uom_id:integer,array
     item_type_id:integer,array
     item_project_id:integer,array
-    item_rate:float,array
+    item_rate:trim,float,array
     item_currency:array
     { return_url "/intranet-invoices/" }
 }

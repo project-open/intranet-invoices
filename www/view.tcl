@@ -41,6 +41,9 @@ set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
 set cur_format "99,999.009"
+set vat_format "990.00"
+set tax_format "990.00"
+
 set required_field "<font color=red size=+1><B>*</B></font>"
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 
@@ -250,6 +253,7 @@ append item_html "
 set invoice_items_sql "
 select
         i.*,
+	to_char(i.price_per_unit,:price_per_unit_format) as price_per_unit_formatted,
 	p.*,
 	im_category_from_id(i.item_type_id) as item_type,
 	im_category_from_id(i.item_uom_id) as item_uom,
@@ -298,8 +302,8 @@ db_1row calc_grand_total "
 select
 	max(i.currency) as currency,
 	sum(i.item_units * i.price_per_unit) as subtotal,
-	sum(i.item_units * i.price_per_unit) * :vat / 100 as vat_amount,
-	sum(i.item_units * i.price_per_unit) * :tax / 100 as tax_amount,
+	to_char(sum(i.item_units * i.price_per_unit) * :vat / 100, :vat_format) as vat_amount,
+	to_char(sum(i.item_units * i.price_per_unit) * :tax / 100, :tax_format) as tax_amount,
 	sum(i.item_units * i.price_per_unit) + (sum(i.item_units * i.price_per_unit) * :vat / 100) + (sum(i.item_units * i.price_per_unit) * :tax / 100) as grand_total
 from
 	im_invoice_items i
@@ -317,20 +321,27 @@ append item_html "
         </tr>
 "
 
-#if {0 != $vat} {
+if {"" != $vat && 0 != $vat} {
     append item_html "
         <tr>
           <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
-          <td class=roweven align=right>[format "%0.2f" $vat_amount] $currency</td>
+          <td class=roweven align=right>$vat_amount $currency</td>
         </tr>
 "
-#}
+} else {
+    append item_html "
+        <tr>
+          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: 0%&nbsp;</td>
+          <td class=roweven align=right>0 $currency</td>
+        </tr>
+"
+}
 
-if {0 != $tax} {
+if {"" != $tax && 0 != $tax} {
     append item_html "
         <tr> 
           <td colspan=$colspan_sub align=right>[_ intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
-          <td class=roweven align=right>[format "%0.2f" $tax_amount] $currency</td>
+          <td class=roweven align=right>$tax_amount $currency</td>
         </tr>
     "
 }
