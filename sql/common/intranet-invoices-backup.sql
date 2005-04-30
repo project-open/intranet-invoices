@@ -72,16 +72,14 @@ SELECT
 	i.*,
 	c.start_block,
 	c.cost_nr,
-	im_email_from_user_id(i.customer_contact_id) as company_contact_email,
+	im_email_from_user_id(i.company_contact_id) as company_contact_email,
 	im_category_from_id(i.payment_method_id) as payment_method,
-	refi.invoice_nr as reference_document_nr
+	im_invoice_nr_from_id(i.reference_document_id) as reference_document_nr
 FROM
 	im_invoices i,
-	im_costs c,
-	im_invoices refi
+	im_costs c
 WHERE
 	i.invoice_id = c.cost_id
-	and i.reference_document_id = refi.invoice_id(+)
 ');
 
 delete from im_view_columns where column_id > 19200 and column_id < 19299;
@@ -110,8 +108,7 @@ values (19219,192,NULL,'payment_method','$payment_method','','',19,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
 values (19221,192,NULL,'reference_document_nr','$reference_document_nr','','',21,'');
---
-commit;
+
 
 
 
@@ -189,8 +186,6 @@ insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
 values (19319,193,NULL,'description','[ns_urlencode $description]','','',19,'');
 
---
-commit;
 
 
 
@@ -227,6 +222,5 @@ values (19401,194,NULL,'project_name','$project_name','','',1,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name,
 column_render_tcl, extra_select, extra_where, sort_order, visible_for)
 values (19403,194,NULL,'invoice_nr','$invoice_nr','','',3,'');
---
-commit;
+
 
