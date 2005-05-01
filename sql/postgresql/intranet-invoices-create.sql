@@ -95,6 +95,10 @@ create table im_invoice_items (
 				constraint im_invoices_items_pk
 				primary key,
 	item_name		varchar(200),
+				-- not being used yet (V3.0.0).
+				-- reserved for adding a reference nr for items
+				-- from a catalog or similar
+	item_nr			varchar(200),
 				-- project_id if != null is used to access project details
 				-- for invoice generation, such as the company PO# etc.
 	project_id		integer
@@ -108,7 +112,7 @@ create table im_invoice_items (
 				constraint im_invoices_items_uom
 				references im_categories,
 	price_per_unit 		numeric(12,3),
-	currency		char(3) 
+	currency		char(3)
 				constraint im_invoices_items_currency
 				references currency_codes(ISO),
 	sort_order		integer,
@@ -118,6 +122,10 @@ create table im_invoice_items (
 	item_status_id		integer
 				constraint im_invoices_items_item_status
 				references im_categories,
+				-- include in VAT calculation?
+	apply_vat_p		char(1) default('t')
+				constraint im_invoices_apply_vat_p
+				check (apply_vat_p in ('t','f')),
 	description		varchar(4000),
 		-- Make sure we can''t create duplicate entries per invoice
 		constraint im_invoice_items_un
