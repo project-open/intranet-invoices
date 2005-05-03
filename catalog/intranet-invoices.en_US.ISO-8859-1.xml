@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.0.0.0.4" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -85,11 +85,18 @@ Best regards,
   <msg key="New_cost_type">New %cost_type%</msg>
   <msg key="New_Customer_Invoice_from_Quote">New Customer Invoice from Quote</msg>
   <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from scratch</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">New Provider Invoice from Translation Tasks</msg>
   <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">New Purchase Order from Translation Tasks</msg>
   <msg key="New_Quote_from_scratch">New Quote from scratch</msg>
+  <msg key="New_Quote_from_Translation_Tasks">New Quote from Translation Tasks</msg>
+  <msg key="New_Translation_Customer_Invoice">New Translation Customer Invoice</msg>
   <msg key="New_Translation_Invoice">New Translation Invoice</msg>
+  <msg key="New_Translation_Provider_Invoice">New Translation Provider Invoice</msg>
+  <msg key="New_Translation_Purchase_Order">New Translation Purchase Order</msg>
   <msg key="New_Translation_Quote">New Translation Quote</msg>
   <msg key="Next_Page">Next Page</msg>
   <msg key="No_command_specified">No command specified</msg>
@@ -119,6 +126,7 @@ Best regards,
   <msg key="Save">Save</msg>
   <msg key="Select">Select</msg>
   <msg key="Select_Customer">Select a Customer</msg>
+  <msg key="Select_Project">Project Select</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Submit</msg>
   <msg key="Subtotal">Subtotal</msg>
