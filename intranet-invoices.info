@@ -15,6 +15,7 @@
 
         <provides url="intranet-invoices" version="3.0.0"/>
         <requires url="intranet-core" version="3.0.0"/>
+        <requires url="intranet-cost" version="3.0.0"/>
         <requires url="intranet-payments" version="3.0.0"/>
 
         <callbacks>
