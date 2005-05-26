@@ -17,7 +17,7 @@ ad_page_contract {
     { invoice_id:integer 0}
     { object_id:integer 0}
     { show_all_comments 0 }
-    { render_template_id:integer "" }
+    { render_template_id:integer 0 }
     { return_url "" }
 }
 
@@ -35,12 +35,6 @@ if {![im_permission $user_id view_invoices]} {
     [_ intranet-invoices.lt_Please_contact_your_s]"
     return
 }
-
-#if {"" == $render_template_id} {
-#    ad_return_complaint 1 "[_ intranet-invoices.No_Template_Defined]"
-#    return
-#}
-
 
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
@@ -389,7 +383,7 @@ append item_html "
 
 # Use a specific template ("render_template_id") to render the "preview"
 # of this invoice
-if {[exists_and_not_null render_template_id]} {
+if {0 != $render_template_id} {
 
     # format using a template
     set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
