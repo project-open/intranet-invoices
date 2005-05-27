@@ -64,6 +64,7 @@ ad_page_contract {
 
 # User id already verified by filters
 set user_id [ad_maybe_redirect_for_registration]
+set user_is_admin_p [im_is_user_site_wide_or_intranet_admin $user_id]
 set current_user_id $user_id
 set today [lindex [split [ns_localsqltimestamp] " "] 0]
 set page_title "[_ intranet-invoices.Financial_Documents]"
@@ -327,7 +328,7 @@ if {"" != $parent_menu_label} {
 	
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
 	regsub -all " " $name "_" name_key
-	append new_document_menu "<li><a href=\"$url\">[_ intranet-invoices.$name_key]</a></li>\n"
+	append new_document_menu "<li><a href=\"$url\">[_ $package_name.$name_key]</a></li>\n"
     }
 }
 

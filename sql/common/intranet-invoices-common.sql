@@ -41,6 +41,8 @@ values (31, 'invoice_new', 'view_finance');
 -- 32 reserved for payment_list
 insert into im_views (view_id, view_name, visible_for) 
 values (33, 'invoice_select', 'view_finance');
+-- 34 reserved for CVS export
+
 
 
 -- Invoice List Page
