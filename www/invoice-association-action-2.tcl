@@ -29,7 +29,20 @@ if {![im_permission $user_id add_invoices]} {
 # ---------------------------------------------------------------
 # Update association
 # ---------------------------------------------------------------
-set association_id [db_exec_plsql insert_association {} ]
+
+# Check if the association already exists.
+# Otherwise we might violate a unique constraint
+# if somebody uses this page several times...
+set count [db_string count_associations "
+	select count(*)
+	from	acs_rels
+	where	object_id_one = :object_id
+		and object_id_two = :invoice_id
+"]
+
+if {!$count} {
+    set association_id [db_exec_plsql insert_association {} ]
+}
 
 db_release_unused_handles
 ad_returnredirect $return_url
