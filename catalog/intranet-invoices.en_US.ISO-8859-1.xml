@@ -26,6 +26,7 @@
   <msg key="Costs">Costs</msg>
   <msg key="Country">Country</msg>
   <msg key="Customer">Customer</msg>
+  <msg key="Customers">Customers</msg>
   <msg key="days">days</msg>
   <msg key="Del">Del</msg>
   <msg key="Description">Description</msg>
@@ -38,6 +39,10 @@
   <msg key="Edit_cost_type">Edit %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
+  <msg key="Export_Companies_CSV">Export Companies CSV</msg>
+  <msg key="Export_Customer_Invoices_CSV">Export Customer Invoices CSV</msg>
+  <msg key="Export_Invoices_CSV">Export Invoices CSV</msg>
+  <msg key="Export_Provider_Invoices_CSV">Export Provider Invoices CSV</msg>
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Filter Documents</msg>
   <msg key="Finance">Finance</msg>
@@ -85,14 +90,12 @@ Best regards,
   <msg key="New_cost_type">New %cost_type%</msg>
   <msg key="New_Customer_Invoice_from_Quote">New Customer Invoice from Quote</msg>
   <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from scratch</msg>
-  <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
-  <msg key="New_Provider_Invoice_from_Translation_Tasks">New Provider Invoice from Translation Tasks</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
   <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>
   <msg key="New_Purchase_Order_from_Translation_Tasks">New Purchase Order from Translation Tasks</msg>
   <msg key="New_Quote_from_scratch">New Quote from scratch</msg>
-  <msg key="New_Quote_from_Translation_Tasks">New Quote from Translation Tasks</msg>
   <msg key="New_Translation_Customer_Invoice">New Translation Customer Invoice</msg>
   <msg key="New_Translation_Invoice">New Translation Invoice</msg>
   <msg key="New_Translation_Provider_Invoice">New Translation Provider Invoice</msg>
@@ -117,6 +120,7 @@ Best regards,
   <msg key="Previous_Page">Previous Page</msg>
   <msg key="Provider">Provider</msg>
   <msg key="Provider_1">Provider:</msg>
+  <msg key="Providers">Providers</msg>
   <msg key="Qty">Qty.</msg>
   <msg key="Rate">Rate</msg>
   <msg key="Recipient">Recipient</msg>

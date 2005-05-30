@@ -26,6 +26,7 @@
   <msg key="Costs">Kosten</msg>
   <msg key="Country">Land</msg>
   <msg key="Customer">Kunde</msg>
+  <msg key="Customers">Kunden</msg>
   <msg key="days">Tage</msg>
   <msg key="Del">Löschen</msg>
   <msg key="Description">Beschreibung</msg>
@@ -38,6 +39,10 @@
   <msg key="Edit_cost_type">Bearbeiten %cost_type%</msg>
   <msg key="Edit_cost_type_1">Bearbeiten %cost_type</msg>
   <msg key="Email">E-Mail</msg>
+  <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
+  <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen-CSV exportieren</msg>
+  <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
+  <msg key="Export_Provider_Invoices_CSV">Zuliefererrechnungen-CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Dokumente filtern</msg>
   <msg key="Finance">Finanzen</msg>
@@ -72,9 +77,15 @@
   <msg key="New_Customer_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Neue Zuliefererrechnung auf Basis eines Auftrags</msg>
   <msg key="New_Provider_Bill_from_scratch">Neue Zuliefererrechnung</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Neue Zuliefererrechnung auf Basis von Übersetzungsaufgaben
+</msg>
   <msg key="New_Purchase_Order_from_scratch">Neuer Auftrag</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Neuer Auftrag auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Quote_from_scratch">Neues Angebot</msg>
+  <msg key="New_Translation_Customer_Invoice">Neue Kundenrechnung auf Basis von Übersetzungsaufgaben.</msg>
   <msg key="New_Translation_Invoice">Neue Übersetzungsrechnung</msg>
+  <msg key="New_Translation_Provider_Invoice">Neue Zuliefererrechnung auf Basis von Übersetzungsaufgaben. </msg>
+  <msg key="New_Translation_Purchase_Order">Neuer Auftrag auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Translation_Quote">Neues Übersetzungsangebot</msg>
   <msg key="Next_Page">Nächste Seite</msg>
   <msg key="No_command_specified">Kein Kommando spezifiziert</msg>
@@ -94,6 +105,7 @@
   <msg key="Previous_Page">Vorherige Seite</msg>
   <msg key="Provider">Zulieferer</msg>
   <msg key="Provider_1">Zulieferer</msg>
+  <msg key="Providers">Zulieferer</msg>
   <msg key="Qty">Quantität</msg>
   <msg key="Rate">Satz</msg>
   <msg key="Recipient">Empfänger</msg>
@@ -103,6 +115,7 @@
   <msg key="Save">Speichern</msg>
   <msg key="Select">Auswählen</msg>
   <msg key="Select_Customer">Kunden wählen</msg>
+  <msg key="Select_Project">Projekt auswählen</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Ausführen</msg>
   <msg key="Subtotal">Zwischensumme</msg>

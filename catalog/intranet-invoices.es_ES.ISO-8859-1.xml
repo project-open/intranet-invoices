@@ -76,7 +76,9 @@
   <msg key="New_Customer_Invoice_from_scratch">Nueva factura a cliente desde cero</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Nueva factura de proveedor a partir de orden de compra</msg>
   <msg key="New_Provider_Bill_from_scratch">Nueva factura de proveedor desde cero</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nueva factura de proveedor a partir de tareas de traducción</msg>
   <msg key="New_Purchase_Order_from_scratch">Nueva orden de compra desde cero</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Nueva orden de compra a partir de tareas de traducción</msg>
   <msg key="New_Quote_from_scratch">Nuevo presupuesto desde cero</msg>
   <msg key="New_Translation_Customer_Invoice">Nueva factura a cliente de traducciones</msg>
   <msg key="New_Translation_Invoice">Nueva factura por traducciones</msg>
