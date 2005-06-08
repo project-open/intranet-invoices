@@ -73,7 +73,7 @@ set page_focus "im_header_form.keywords"
 set return_url [im_url_with_query]
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
-set cur_format "99,999.99"
+set cur_format "999,999,999.99"
 set date_format "YYYY-MM-DD"
 set local_url "list"
 set cost_status_created [im_cost_status_created]
@@ -243,7 +243,7 @@ select
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
-	to_char(ci.amount,:cur_format) as invoice_amount_formatted,
+	to_char(ci.amount, :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
         c.company_name as customer_name,
