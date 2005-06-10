@@ -22,4 +22,7 @@ set user_id [ad_maybe_redirect_for_registration]
 # Send out an email alert
 im_send_alert $user_id_from_search "hourly" $subject $message
 
+# Send a CC
+im_send_alert $user_id "hourly" $subject $message
+
 ad_returnredirect $return_url
