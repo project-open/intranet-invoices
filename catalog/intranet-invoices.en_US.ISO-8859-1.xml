@@ -55,7 +55,7 @@
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
 
 A new %cost_type% has been created for you at:
-%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%&render_template_id=%template_id%
 
 The new document is related to the project(s):
 %select_projects;noquote%

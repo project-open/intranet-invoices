@@ -30,9 +30,12 @@
 		  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
 		  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
 </if>
+<if @write@>
 		<li>
 		  <% set notify_vars [export_url_vars invoice_id return_url] %>
 		  <A HREF="/intranet-invoices/notify?@notify_vars@">#intranet-invoices.lt_Send_as_email_to_prov#</A>
+</if>
+
 	    </td>
 	  </tr>
 	</table>
@@ -94,10 +97,12 @@
         </tr>
 
 	<tr><td colspan=2 align=right>
+<if @write@>
 	  <form action=new method=POST>
 	    <%= [export_form_vars return_id invoice_id cost_type_id] %>
 	    <input type=submit name=edit_invoice value='#intranet-invoices.Edit#'>
 	  </form>
+</if>
 	</td></tr>
 	</table>
 

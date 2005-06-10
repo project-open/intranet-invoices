@@ -23,16 +23,14 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 
+# Security is defered after getting the invoice information
+# from the database, because the customer's users should
+# be able to see this invoice even if they don't have any
+# financial view permissions otherwise.
+
 if {0 == $invoice_id} {set invoice_id $object_id}
 if {0 == $invoice_id} {
     ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_need_to_specify_a]"
-    return
-}
-
-if {![im_permission $user_id view_invoices]} {
-    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
-    <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
-    [_ intranet-invoices.lt_Please_contact_your_s]"
     return
 }
 
@@ -85,7 +83,7 @@ if {$invoice_or_quote_p} {
 }
 
 # ---------------------------------------------------------------
-# 1. Get everything about the invoice
+# Get everything about the invoice
 # ---------------------------------------------------------------
 
 
@@ -121,6 +119,24 @@ if { ![db_0or1row projects_info_query $query] } {
     ad_return_complaint 1 "[_ intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
+
+
+# ---------------------------------------------------------------
+# Check permissions
+# ---------------------------------------------------------------
+
+im_company_permissions $user_id $company_id view read write admin
+
+if {!$read && ![im_permission $user_id view_invoices]} {
+    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
+    [_ intranet-invoices.lt_Please_contact_your_s]"
+    return
+}
+
+
+
+
 set comp_id "$company_id"
 set query "
 select
@@ -173,6 +189,7 @@ where cost_id = :invoice_id
 
 set payment_list_html ""
 if {[db_table_exists im_payments]} {
+
     set cost_id $invoice_id
     set payment_list_html "
 	<form action=payment-action method=post>
@@ -206,10 +223,14 @@ where
 	  </td>
           <td>
 	      $amount $currency
-          </td>
-	  <td>
-	    <input type=checkbox name=payment_id value=$payment_id>
-	  </td>
+          </td>\n"
+	if {$write} {
+	    append payment_list_html "
+            <td>
+	      <input type=checkbox name=payment_id value=$payment_id>
+            </td>\n"
+	}
+	append payment_list_html "
         </tr>\n"
 	incr payment_ctr
     }
@@ -217,13 +238,18 @@ where
     if {!$payment_ctr} {
 	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[_ intranet-invoices.No_payments_found]</i></td></tr>\n"
     }
-    append payment_list_html "
+
+
+    if {$write} {
+	append payment_list_html "
         <tr $bgcolor([expr $payment_ctr % 2])>
           <td align=right colspan=3>
 	    <input type=submit name=add value=\"[_ intranet-invoices.Add_a_Payment]\">
 	    <input type=submit name=del value=\"[_ intranet-invoices.Del]\">
           </td>
-        </tr>
+        </tr>\n"
+    }
+    append payment_list_html "
 	</table>
         </form>\n"
 }
