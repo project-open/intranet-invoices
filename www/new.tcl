@@ -243,11 +243,10 @@ if {[string equal $invoice_mode "new"]} {
 	    <input type=text name=item_units.$ctr size=4 value='$item_units'>
 	  </td>
           <td align=right>
-	    <input type=hidden name=item_uom_id.$ctr value='$item_uom_id'>
-	    $item_uom
+            [im_category_select "Intranet UoM" item_uom_id.$ctr $item_uom_id]
 	  </td>
-          <td align=right>
-	    <input type=text name=item_rate.$ctr size=3 value='$price_per_unit'>
+          <td align=left>
+	    <input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>
 	    <input type=hidden name=item_currency.$ctr value='$currency'>
 	    $currency
 	  </td>
