@@ -152,11 +152,29 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
     Returns a HTML table containing a list of objects
     associated with a particular financial document.
 } {
-
     set bgcolor(0) "class=roweven"
     set bgcolor(1) "class=rowodd"
 
+    db_1row invoice_company_id "
+	select	customer_id,
+		provider_id
+	from	im_costs
+	where	cost_id = :invoice_id
+    "
     
+    # ---------------------- Permissions ------------------
+    #
+    im_company_permissions $user_id $customer_id cust_view cust_read cust_write cust_admin
+    im_company_permissions $user_id $provider_id prov_view prov_read prov_write prov_admin
+
+    set read [expr $cust_read || $prov_read]
+    set write [expr $cust_write || $prov_write]
+
+    if {!$read} { return "" }
+
+
+    # ---------------------- Format the list ------------------
+    #
     set ctr 0
     set object_list_html ""
     db_foreach object_list {} {
@@ -164,10 +182,14 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
         <tr $bgcolor([expr $ctr % 2])>
           <td>
             <A href=\"$url$object_id\">$object_name</A>
-          </td>
+          </td>\n"
+	if {$write} {
+	    append object_list_html "
           <td>
             <input type=checkbox name=object_ids.$object_id>
-          </td>
+          </td>\n"
+	}
+	append object_list_html "
         </tr>\n"
 	incr ctr
     }
@@ -179,7 +201,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
         </tr>\n"
     }
 
-    return "
+    set return_html "
       <form action=invoice-association-action method=post>
       [export_form_vars invoice_id return_url]
       <table border=0 cellspacing=1 cellpadding=1>
@@ -187,6 +209,9 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
           <td align=middle class=rowtitle colspan=2>[_ intranet-invoices.Related_Projects]</td>
         </tr>
         $object_list_html
+    "
+    if {$write} {
+	append return_html "
         <tr>
           <td align=right>
             <input type=submit name=add_project_action value='[_ intranet-invoices.Add_a_Project]'>
@@ -195,10 +220,14 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
           <td>
             <input type=submit name=del_action value='[_ intranet-invoices.Del]'>
           </td>
-        </tr>
+        </tr>\n"
+    }
+    append return_html "
       </table>
       </form>
     "
+
+    return $return_html
 }
 
 ad_proc im_invoice_payment_method_select { select_name { default "" } } {
