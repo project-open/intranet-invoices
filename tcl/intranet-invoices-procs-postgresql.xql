@@ -6,6 +6,7 @@
     <querytext>
         select distinct
 	   	o.object_id,
+		o.object_type,
 		acs_object__name(o.object_id) as object_name,
 		u.url
 	from
