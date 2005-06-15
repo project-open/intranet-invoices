@@ -124,7 +124,9 @@ set
 	vat		= :vat,
 	tax		= :tax,
 	note		= :note,
-	variable_cost_p = 't'
+	variable_cost_p = 't',
+	amount		= null,
+	currency	= null
 where
 	cost_id = :invoice_id
 "
@@ -190,17 +192,38 @@ foreach project_id $select_project {
 }
 
 # ---------------------------------------------------------------
-# Update the invoice amount based on the invoice items
+# Update the invoice amount and currency 
+# based on the invoice items
 # ---------------------------------------------------------------
+
+set currencies [db_list distinct_currencies "
+	select distinct
+		currency
+	from
+		im_invoice_items
+	where
+		invoice_id = :invoice_id
+		and currency is not null
+"]
+
+if {1 != [llength $currencies]} {
+	ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
+	[_ intranet-invoices.Blurb_multiple_currencies] <pre>$currencies</pre>"
+	return
+}
+
+set currency [lindex $currencies 0]
 
 set update_invoice_amount_sql "
 update im_costs
-set amount = (
+set 
+    amount = (
 	select sum(price_per_unit * item_units)
 	from im_invoice_items
 	where invoice_id = :invoice_id
 	group by invoice_id
-)
+),
+    currency = :currency
 where cost_id = :invoice_id
 "
 
