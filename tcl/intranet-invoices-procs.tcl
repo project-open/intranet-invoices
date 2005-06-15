@@ -178,10 +178,18 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
     set ctr 0
     set object_list_html ""
     db_foreach object_list {} {
+
+	# Allow us to add some extra stuff for certain know object
+	# types such as projects...
+	switch $object_type {
+	    im_project { set extra_url "&view_name=finance" }
+	    default { set extra_url "" }
+	}
+
 	append object_list_html "
         <tr $bgcolor([expr $ctr % 2])>
           <td>
-            <A href=\"$url$object_id\">$object_name</A>
+            <A href=\"$url$object_id$extra_url\">$object_name</A>
           </td>\n"
 	if {$write} {
 	    append object_list_html "
