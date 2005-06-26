@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.0.0.0.4" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.0.0.1.1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -7,6 +7,7 @@
   <msg key="Admin_Links">Admin Links</msg>
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
+  <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of Project/Open. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
   <msg key="Client">Client</msg>
   <msg key="Clone">Clone</msg>
   <msg key="Company">Company</msg>
@@ -39,6 +40,7 @@
   <msg key="Edit_cost_type">Edit %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
+  <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
   <msg key="Export_Customer_Invoices_CSV">Export Customer Invoices CSV</msg>
   <msg key="Export_Invoices_CSV">Export Invoices CSV</msg>
@@ -55,7 +57,7 @@
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
 
 A new %cost_type% has been created for you at:
-%system_url%/intranet-invoices/view?invoice_id=%invoice_id%&render_template_id=%template_id%
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
 
 The new document is related to the project(s):
 %select_projects;noquote%
