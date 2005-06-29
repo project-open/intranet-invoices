@@ -30,7 +30,7 @@ set user_id [ad_maybe_redirect_for_registration]
 
 if {0 == $invoice_id} {set invoice_id $object_id}
 if {0 == $invoice_id} {
-    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_need_to_specify_a]"
+    ad_return_complaint 1 "<li>[lang::message::lookup $locale intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
 
@@ -64,11 +64,11 @@ set target_cost_type_id ""
 set generation_blurb ""
 if {$cost_type_id == [im_cost_type_quote]} {
     set target_cost_type_id [im_cost_type_invoice]
-    set generation_blurb "[_ intranet-invoices.lt_Generate_Invoice_from]"
+    set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Invoice_from]"
 }
 if {$cost_type_id == [im_cost_type_po]} {
     set target_cost_type_id [im_cost_type_bill]
-    set generation_blurb "[_ intranet-invoices.lt_Generate_Provider_Bil]"
+    set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Provider_Bil]"
 }
 
 
@@ -140,8 +140,29 @@ where
 "
 
 if { ![db_0or1row invoice_info_query $query] } {
-    ad_return_complaint 1 "[_ intranet-invoices.lt_Cant_find_the_documen]"
+    ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
     return
+}
+
+# ---------------------------------------------------------------
+# Determine the language of the template from the template name
+# ---------------------------------------------------------------
+
+# Get the default locale for this current user
+set locale [lang::user::locale]
+
+if {0 != $render_template_id} {
+
+	# OLD convention, "invoice-english.adp"
+	if {[regexp {english} $template]} { set locale en }
+	if {[regexp {spanish} $template]} { set locale es }
+	if {[regexp {german} $template]} { set locale de }
+	if {[regexp {french} $template]} { set locale fr }
+
+	# New convention, "invoice.en_US.adp"
+	if {[regexp {(.*)\.([_a-zA-Z]*)\.adp} $template match body loc]} {
+	    set locale $loc
+	}
 }
 
 # ---------------------------------------------------------------
@@ -174,9 +195,9 @@ if {$company_project_nr_exists && $rel_project_id} {
 im_company_permissions $user_id $company_id view read write admin
 
 if {!$read && ![im_permission $user_id view_invoices]} {
-    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
-    <li>[_ intranet-invoices.lt_You_have_insufficient_1]<BR>
-    [_ intranet-invoices.lt_Please_contact_your_s]"
+    ad_return_complaint "[lang::message::lookup $locale intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[lang::message::lookup $locale intranet-invoices.lt_You_have_insufficient_1]<BR>
+    [lang::message::lookup $locale intranet-invoices.lt_Please_contact_your_s]"
     return
 }
 
@@ -210,8 +231,8 @@ if { ![db_0or1row country_info_query $query] } {
     set country_name ""
 }
 
-set page_title "[_ intranet-invoices.One_cost_type]"
-set context_bar [im_context_bar [list /intranet-invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+set page_title "[lang::message::lookup $locale intranet-invoices.One_cost_type]"
+set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::lookup $locale intranet-invoices.Finance]"] $page_title]
 
 
 # ---------------------------------------------------------------
@@ -243,7 +264,7 @@ if {[db_table_exists im_payments]} {
 	<table border=0 cellPadding=1 cellspacing=1>
         <tr>
           <td align=middle class=rowtitle colspan=3>
-	    [_ intranet-invoices.Related_Payments]
+	    [lang::message::lookup $locale intranet-invoices.Related_Payments]
 	  </td>
         </tr>"
 
@@ -282,7 +303,7 @@ where
     }
 
     if {!$payment_ctr} {
-	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[_ intranet-invoices.No_payments_found]</i></td></tr>\n"
+	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[lang::message::lookup $locale intranet-invoices.No_payments_found]</i></td></tr>\n"
     }
 
 
@@ -290,8 +311,8 @@ where
 	append payment_list_html "
         <tr $bgcolor([expr $payment_ctr % 2])>
           <td align=right colspan=3>
-	    <input type=submit name=add value=\"[_ intranet-invoices.Add_a_Payment]\">
-	    <input type=submit name=del value=\"[_ intranet-invoices.Del]\">
+	    <input type=submit name=add value=\"[lang::message::lookup $locale intranet-invoices.Add_a_Payment]\">
+	    <input type=submit name=del value=\"[lang::message::lookup $locale intranet-invoices.Del]\">
           </td>
         </tr>\n"
     }
@@ -307,19 +328,19 @@ where
 # start formatting the list of sums with the header...
 set item_html "
         <tr align=center>
-          <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[_ intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-          <td class=rowtitle>[_ intranet-invoices.Qty]</td>
-          <td class=rowtitle>[_ intranet-invoices.Unit]</td>
-          <td class=rowtitle>[_ intranet-invoices.Rate]</td>\n"
+          <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Qty]</td>
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Unit]</td>
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Rate]</td>\n"
 
 if {$company_project_nr_exists} {
     # Only if intranet-translation has added the field
     append item_html "
-          <td class=rowtitle>[_ intranet-invoices.Yr_Job__PO_No]</td>\n"
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
     }
 append item_html "
-          <td class=rowtitle>[_ intranet-invoices.Our_Ref]</td>
-          <td class=rowtitle>[_ intranet-invoices.Amount]</td>
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
 "
 
@@ -341,7 +362,7 @@ db_foreach invoice_items {} {
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>$item_name</td>
           <td align=right>$item_units</td>
-          <td align=left>[_ intranet-core.$item_uom]</td>
+          <td align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
           <td align=right>[im_date_format_locale $price_per_unit 2 3]&nbsp;$currency</td>\n"
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
@@ -378,7 +399,7 @@ set colspan_sub [expr $colspan - 1]
 # Add a subtotal
 append item_html "
         <tr> 
-          <td class=rowplain colspan=$colspan_sub align=right><B>[_ intranet-invoices.Subtotal]</B></td>
+          <td class=rowplain colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B> [im_date_format_locale $subtotal 2 2] $currency</B></td>
         </tr>
 "
@@ -386,14 +407,14 @@ append item_html "
 if {"" != $vat && 0 != $vat} {
     append item_html "
         <tr>
-          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
+          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
           <td class=roweven align=right>$vat_amount $currency</td>
         </tr>
 "
 } else {
     append item_html "
         <tr>
-          <td colspan=$colspan_sub align=right>[_ intranet-invoices.VAT]: 0%&nbsp;</td>
+          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
         </tr>
 "
@@ -402,7 +423,7 @@ if {"" != $vat && 0 != $vat} {
 if {"" != $tax && 0 != $tax} {
     append item_html "
         <tr> 
-          <td colspan=$colspan_sub align=right>[_ intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
+          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
           <td class=roweven align=right>$tax_amount $currency</td>
         </tr>
     "
@@ -410,7 +431,7 @@ if {"" != $tax && 0 != $tax} {
 
 append item_html "
         <tr> 
-          <td colspan=$colspan_sub align=right><b>[_ intranet-invoices.Total_Due]</b></td>
+          <td colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
           <td class=roweven align=right><b>[im_date_format_locale $grand_total 2 2] $currency</b></td>
         </tr>
 "
@@ -418,20 +439,20 @@ append item_html "
 if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
 append item_html "
         <tr>
-	  <td valign=top>[_ intranet-invoices.Payment_Terms]</td>
+	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
           <td valign=top colspan=[expr $colspan-1]> 
-            [_ intranet-invoices.lt_This_invoice_is_past_]
+            [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
         <tr>
-	  <td valign=top>[_ intranet-invoices.Payment_Method_1]</td>
+	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
           <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
         </tr>\n"
 }
 
 append item_html "
         <tr>
-	  <td valign=top>[_ intranet-invoices.Note]</td>
+	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>
 	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$cost_note</font></pre>
 	  </td>
