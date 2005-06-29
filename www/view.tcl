@@ -356,9 +356,6 @@ db_foreach invoice_items {} {
     incr ctr
 }
 
-
-# ad_return_complaint 1 $company_project_nr
-
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
 # ---------------------------------------------------------------
