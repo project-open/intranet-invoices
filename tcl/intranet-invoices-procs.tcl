@@ -1,6 +1,6 @@
 # /packages/intranet-invoicing/tcl/intranet-invoice.tcl
 #
-# Copyright (C) 2003-2004 Project/Open
+# Copyright (C) 2003-2005 Project/Open
 #
 # All rights reserved. Please check
 # http://www.project-open.com/license/ for details.
