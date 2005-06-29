@@ -154,13 +154,12 @@ if {"" != $cost_project_id && 0 != $cost_project_id} {
     set rel_project_id $cost_project_id
 }
 
-set project_short_name_default ""
+set project_short_name_default [db_string short_name_default "select project_nr from im_projects where project_id=:rel_project_id" -default ""]
 set customer_project_nr_default ""
 if {$company_project_nr_exists && $rel_project_id} {
     db_0or1row project_info_query "
     	select
     		p.company_project_nr as customer_project_nr_default,
-    		p.project_nr as project_short_name_default
     	from
     		im_projects p
     	where
