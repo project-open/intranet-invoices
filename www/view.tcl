@@ -180,7 +180,7 @@ set customer_project_nr_default ""
 if {$company_project_nr_exists && $rel_project_id} {
     db_0or1row project_info_query "
     	select
-    		p.company_project_nr as customer_project_nr_default,
+    		p.company_project_nr as customer_project_nr_default
     	from
     		im_projects p
     	where
