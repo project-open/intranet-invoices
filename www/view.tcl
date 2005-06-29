@@ -82,16 +82,40 @@ if {$invoice_or_quote_p} {
     set provider_company "Provider"
 }
 
+
+
+# ---------------------------------------------------------------
+# Find out if the invoice is associated to a _single_ project.
+# We will need this project to access the "customer_project_nr"
+# for the invoice
+# ---------------------------------------------------------------
+
+set related_projects_sql "
+        select distinct
+	   	r.object_id_one
+	from
+	        acs_rels r
+	where
+	        r.object_id_two = :invoice_id
+"
+
+set related_projects [db_list related_projects $related_projects_sql]
+set rel_project_id 0
+if {1 == [llength $related_projects]} {
+    set rel_project_id [lindex $related_projects 0]
+}
+
 # ---------------------------------------------------------------
 # Get everything about the invoice
 # ---------------------------------------------------------------
 
 
-append query   "
+set query "
 select
 	i.*,
 	ci.*,
 	ci.note as cost_note,
+	ci.project_id as cost_project_id,
         c.*,
 	c.company_id as company_id,
         o.*,
@@ -115,11 +139,34 @@ where
         and c.main_office_id=o.office_id
 "
 
-if { ![db_0or1row projects_info_query $query] } {
+if { ![db_0or1row invoice_info_query $query] } {
     ad_return_complaint 1 "[_ intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
 
+# ---------------------------------------------------------------
+# Get more about the invoice's project
+# ---------------------------------------------------------------
+
+# We give priority to the project specified in the cost item,
+# instead of associated projects.
+if {"" != $cost_project_id && 0 != $cost_project_id} {
+    set rel_project_id $cost_project_id
+}
+
+set project_short_name_default ""
+set customer_project_nr_default ""
+if {$company_project_nr_exists && $rel_project_id} {
+    db_0or1row project_info_query "
+    	select
+    		p.company_project_nr as customer_project_nr_default,
+    		p.project_nr as project_short_name_default
+    	from
+    		im_projects p
+    	where
+    		p.project_id = :rel_project_id
+    "
+}
 
 # ---------------------------------------------------------------
 # Check permissions
@@ -277,31 +324,20 @@ append item_html "
         </tr>
 "
 
-set invoice_items_sql "
-select
-        i.*,
-	to_char(i.price_per_unit,:price_per_unit_format) as price_per_unit_formatted,
-	p.*,
-	im_category_from_id(i.item_type_id) as item_type,
-	im_category_from_id(i.item_uom_id) as item_uom,
-	p.project_nr as project_short_name,
-	i.price_per_unit * i.item_units as amount
-from
-	im_invoice_items i,
-	im_projects p
-where
-	i.invoice_id=:invoice_id
-	and i.project_id=p.project_id
-order by
-	i.sort_order,
-	i.item_type_id
-"
-
 set ctr 1
 set colspan 7
 if {!$company_project_nr_exists} { set colspan [expr $colspan-1]}
 
+
 db_foreach invoice_items {} {
+
+    # $company_project_nr is normally related to each invoice item,
+    # because invoice items can be created based on different projects.
+    # However, frequently we only have one project per invoice, so that
+    # we can use this project's company_project_nr as a default
+    if {"" == $company_project_nr} { set company_project_nr $customer_project_nr_default}
+    if {"" == $project_short_name} { set project_short_name $project_short_name_default}
+
     append item_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>$item_name</td>
@@ -319,6 +355,9 @@ db_foreach invoice_items {} {
 	</tr>"
     incr ctr
 }
+
+
+# ad_return_complaint 1 $company_project_nr
 
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
