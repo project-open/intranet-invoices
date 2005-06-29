@@ -82,7 +82,7 @@ if {$invoice_or_quote_p} {
     set provider_company "Provider"
 }
 
-
+if {!$invoice_or_bill_p} { set company_project_nr_exists 0}
 
 # ---------------------------------------------------------------
 # Find out if the invoice is associated to a _single_ project.
