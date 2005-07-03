@@ -242,7 +242,7 @@ ad_proc im_invoice_payment_method_select { select_name { default "" } } {
     Returns an html select box named $select_name and defaulted to $default 
     with a list of all the partner statuses in the system
 } {
-    return [im_category_select "Intranet Invoice Payment Method" $select_name $default]
+    return [im_category_select_plain "Intranet Invoice Payment Method" $select_name $default]
 }
 
 ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_status "" } } {

@@ -23,6 +23,10 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 
+# Get the default locale for this current user
+set user_locale [lang::user::locale]
+set locale $user_locale
+
 # Security is defered after getting the invoice information
 # from the database, because the customer's users should
 # be able to see this invoice even if they don't have any
@@ -148,9 +152,6 @@ if { ![db_0or1row invoice_info_query $query] } {
 # Determine the language of the template from the template name
 # ---------------------------------------------------------------
 
-# Get the default locale for this current user
-set locale [lang::user::locale]
-
 if {0 != $render_template_id} {
 
 	# OLD convention, "invoice-english.adp"
@@ -164,6 +165,17 @@ if {0 != $render_template_id} {
 	    set locale $loc
 	}
 }
+
+# Check if the given locale throws an error
+# Reset the locale to the default locale then
+
+if {[catch {
+    lang::message::lookup $locale "dummy_text"
+} errmsg]} {
+    set locale $user_locale
+}
+
+
 
 # ---------------------------------------------------------------
 # Get more about the invoice's project
@@ -355,7 +367,7 @@ db_foreach invoice_items {} {
     # because invoice items can be created based on different projects.
     # However, frequently we only have one project per invoice, so that
     # we can use this project's company_project_nr as a default
-    if {"" == $company_project_nr} { set company_project_nr $customer_project_nr_default}
+    if {$company_project_nr_exists && "" == $company_project_nr} { set company_project_nr $customer_project_nr_default}
     if {"" == $project_short_name} { set project_short_name $project_short_name_default}
 
     append item_html "
