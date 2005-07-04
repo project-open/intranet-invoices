@@ -28,6 +28,7 @@
   <msg key="Country">Country</msg>
   <msg key="Customer">Customer</msg>
   <msg key="Customers">Customers</msg>
+  <msg key="Date">Date</msg>
   <msg key="days">days</msg>
   <msg key="Del">Del</msg>
   <msg key="Description">Description</msg>
@@ -54,6 +55,7 @@
   <msg key="From">From:</msg>
   <msg key="Go">Go</msg>
   <msg key="Hour">Hour</msg>
+  <msg key="intranet-invoices.Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Line">Line</msg>
   <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
