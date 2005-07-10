@@ -27,6 +27,7 @@ ad_page_contract {
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_list" }
+    { view_name_subtotal "invoice_list_subtotal" }
 }
 
 # ---------------------------------------------------------------
@@ -102,27 +103,44 @@ if {![im_permission $user_id view_invoices]} {
 # Define the column headers and column contents that 
 # we want to show:
 #
-set view_id [db_string get_view_id "select view_id from im_views where view_name=:view_name"]
-set column_headers [list]
-set column_vars [list]
+set view_id [db_string get_view_id "select view_id from im_views where view_name=:view_name" -default 0]
+set view_subtotal_id [db_string get_view_subtotal_id "select view_id from im_views where view_name=:view_name_subtotal" -default 0]
+
+if {0 == $view_id || 0 == $view_subtotal_id} {
+    ad_return_complaint 1 "<b>View not found</b>:<br>
+    We have got a 0 value for view=$view_id or view_subtotal=$view_subtotal_id, 
+    indicating that this view has not been set up yet.<br>
+    Please make sure to update to a recent version and to 
+    apply the database update patches."
+    return
+}
+
 
 set column_sql "
-select
-	column_name,
+select	column_name,
 	column_render_tcl,
 	visible_for
-from
-	im_view_columns
-where
-	view_id=:view_id
+from	im_view_columns
+where	view_id=:view_id
 	and group_id is null
 order by
 	sort_order"
 
+# Get the main view
+set column_headers [list]
+set column_vars [list]
 db_foreach column_list_sql $column_sql {
     if {"" == $visible_for || [eval $visible_for]} {
 	lappend column_headers "$column_name"
 	lappend column_vars "$column_render_tcl"
+    }
+}
+
+# Get the information how to display subtotals
+set view_id $view_subtotal_id
+db_foreach column_list_sql $column_sql {
+    if {"" == $visible_for || [eval $visible_for]} {
+	lappend column_subtotal_vars "$column_render_tcl"
     }
 }
 
@@ -199,18 +217,42 @@ if {![im_permission $user_id view_invoices]} {
 }
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
-
+set counter_reset_expression ""
 set order_by_clause ""
 switch $order_by {
-    "Document #" { set order_by_clause "order by invoice_nr DESC" }
-    "Preview" { set order_by_clause "order by invoice_nr" }
-    "Provider" { set order_by_clause "order by provider_name" }
-    "Customer" { set order_by_clause "order by customer_name" }
-    "Due Date" { set order_by_clause "order by (ci.effective_date)" }
-    "Amount" { set order_by_clause "order by ci.amount" }
-    "Paid" { set order_by_clause "order by ci.paid_amount" }
-    "Status" { set order_by_clause "order by cost_status_id" }
-    "Type" { set order_by_clause "order by cost_type" }
+    "Document #" { 
+	set order_by_clause "order by invoice_nr DESC" 
+	set counter_reset_expression {$effective_month}
+    }
+    "Preview" { 
+	set order_by_clause "order by invoice_nr" 
+    }
+    "Provider" { 
+	set order_by_clause "order by provider_name" 
+	set counter_reset_expression {$provider_id}
+    }
+    "Customer" { 
+	set order_by_clause "order by customer_name" 
+	set counter_reset_expression {$customer_id}
+    }
+    "Due Date" { 
+	set order_by_clause "order by (ci.effective_date)" 
+	set counter_reset_expression {$effective_month}
+    }
+    "Amount" { 
+	set order_by_clause "order by ci.amount" 
+    }
+    "Paid" { 
+	set order_by_clause "order by ci.paid_amount" 
+    }
+    "Status" { 
+	set order_by_clause "order by cost_status_id" 
+	set counter_reset_expression {$cost_status_id}
+    }
+    "Type" { 
+	set order_by_clause "order by cost_type" 
+	set counter_reset_expression {$cost_type_id}
+    }
 }
 
 set where_clause [join $criteria " and\n            "]
@@ -243,6 +285,7 @@ select
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
+	to_char(ci.effective_date, 'YYYY-MM') as effective_month,
 	to_char(ci.amount, :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
@@ -252,6 +295,7 @@ select
 	p.company_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
         im_category_from_id(i.cost_type_id) as cost_type,
+        im_category_from_id(i.cost_status_id) as cost_status,
 	to_date(:today, :date_format) - (to_date(to_char(i.invoice_date, :date_format),:date_format) + i.payment_days) as overdue
 	$extra_select
 from
@@ -346,7 +390,7 @@ set filter_html "
   <td valign=top>
 
 	<form method=get action='/intranet-invoices/list'>
-	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p letter]
+	[export_form_vars start_idx order_by how_many view_name view_name_subtotal include_subinvoices_p letter]
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
@@ -426,7 +470,72 @@ append table_header_html "</tr>\n"
 
 
 # ---------------------------------------------------------------
-# 8. Format the Result Data
+# Setup Counters
+# ---------------------------------------------------------------
+
+# Four counters to be processed
+set counters [list amount_subtotal paid_subtotal amount_total paid_total]
+
+# Counter Sum: Add this value to the counter_value
+set counter_sum(amount_subtotal) 0
+set counter_sum(paid_subtotal) 0
+set counter_sum(amount_total) 0
+set counter_sum(paid_total) 0
+
+# Counter Num: Number of items (for calculating average)
+set counter_num(amount_subtotal) 0
+set counter_num(paid_subtotal) 0
+set counter_num(amount_total) 0
+set counter_num(paid_total) 0
+
+# Counter Expression: Add this value to the counter_value
+set counter_expr(amount_subtotal) {$amount}
+set counter_expr(paid_subtotal) {$paid_amount}
+set counter_expr(amount_total) {$amount}
+set counter_expr(paid_total) {$paid_amount}
+
+# Counter Reset: Reset the counter to "0" if this expression changes
+set counter_reset(amount_subtotal) $counter_reset_expression
+set counter_reset(paid_subtotal) $counter_reset_expression
+set counter_reset(amount_total) 0
+set counter_reset(paid_total) 0
+
+# Old reset value: For calculating the change. "" means: Don't reset
+set counter_reset_old(amount_subtotal) ""
+set counter_reset_old(paid_subtotal) ""
+set counter_reset_old(amount_total) ""
+set counter_reset_old(paid_total) ""
+
+# Old reset value: For calculating the change. "" means: Don't reset
+set counter_reset_old(amount_subtotal) ""
+set counter_reset_old(paid_subtotal) ""
+set counter_reset_old(amount_total) ""
+set counter_reset_old(paid_total) ""
+set counter_reset_new(amount_subtotal) 0
+set counter_reset_new(paid_subtotal) 0
+set counter_reset_new(amount_total) 0
+set counter_reset_new(paid_total) 0
+
+# Counter Display: Render the counter if this expression changes
+# "end" means: only show at the end of the page
+set counter_display(amount_subtotal) $counter_reset_expression
+set counter_display(paid_subtotal) $counter_reset_expression
+set counter_display(amount_total) "end"
+set counter_display(paid_total) "end"
+
+# Old display value: For calculating the change. "" means: Don't display
+set counter_display_old(amount_subtotal) ""
+set counter_display_old(paid_subtotal) ""
+set counter_display_old(amount_total) ""
+set counter_display_old(paid_total) ""
+set counter_display_new(amount_subtotal) 0
+set counter_display_new(paid_subtotal) 0
+set counter_display_new(amount_total) 0
+set counter_display_new(paid_total) 0
+
+
+# ---------------------------------------------------------------
+# Format the Result Data
 # ---------------------------------------------------------------
 
 set table_body_html ""
@@ -434,8 +543,6 @@ set bgcolor(0) " class=roweven "
 set bgcolor(1) " class=rowodd "
 set ctr 0
 set idx $start_idx
-
-ns_log notice "******** $selection ********"
 
 db_foreach invoices_info_query $selection {
     set url [im_maybe_prepend_http $url]
@@ -451,6 +558,67 @@ db_foreach invoices_info_query $selection {
 	set overdue 0
     }
 
+    # paid_amount="" => paid_amount=0
+    if {"" == $paid_amount} { set paid_amount 0}
+
+
+    # ---- Debugging ----
+
+    foreach counter $counters {
+	ns_log Notice "invoices/list: counter_sum($counter)=$counter_sum($counter)"
+	ns_log Notice "invoices/list: counter_display($counter)=$counter_display($counter)"
+	ns_log Notice "invoices/list: counter_display_old($counter)=$counter_display_old($counter)"
+	ns_log Notice "invoices/list: counter_display_new($counter)=$counter_display_new($counter)"
+    }
+    ns_log Notice "invoices/list: "
+
+
+    # ---- Display Subtotals (from last entry) -----
+
+    # Check the display and reset conditions
+    if {"" != $counter_display(amount_subtotal)} {
+	set display_cond "set a $counter_display(amount_subtotal)"
+	set counter_display_new(amount_subtotal) [eval $display_cond]
+    }
+
+    # Draw a subtotal line if appropriate
+    if {$counter_display_new(amount_subtotal) != $counter_display_old(amount_subtotal) && "" != $counter_display_old(amount_subtotal)} {
+	set total_type "<b>Subtotal</b>:"
+	# Display the counter value
+	append table_body_html "<tr class=rowtitle)>\n"
+	foreach column_var $column_subtotal_vars {
+	    set amount_subtotal $counter_sum(amount_subtotal)
+	    set paid_subtotal $counter_sum(paid_subtotal)
+	    append table_body_html "\t<td valign=top>"
+	    set cmd "append table_body_html $column_var"
+	    eval $cmd
+	    append table_body_html "</td>\n"
+	}
+	append table_body_html "</tr>\n"
+    }
+
+    # Set the old value to the new value
+    set counter_display_old(amount_subtotal) $counter_display_new(amount_subtotal)
+
+
+    # ---- Reset the counters if necessary ----
+
+    foreach counter $counters {
+	# Check the reset conditions
+	if {"" != $counter_reset(amount_subtotal)} {
+	    set reset_cond "set a $counter_reset($counter)"
+	    set counter_reset_new($counter) [eval $reset_cond]
+	}
+	if {$counter_reset_new($counter) != $counter_reset_old($counter)} {
+	    set counter_sum($counter) 0
+	    set counter_reset_old($counter) $counter_reset_new($counter)
+	}
+    }
+
+
+
+
+    # ---- Display the main line ----
 
     # Append together a line of data based on the "column_vars" parameter list
     append table_body_html "<tr$bgcolor([expr $ctr % 2])>\n"
@@ -462,12 +630,73 @@ db_foreach invoices_info_query $selection {
     }
     append table_body_html "</tr>\n"
 
+
+
+    # ---- Update Counters -----
+
+    foreach counter $counters {
+	set counter_sum($counter) [expr $counter_sum($counter) + $counter_expr($counter)]
+	set counter_num($counter) [expr $counter_num($counter) + 1]
+    }
+
+    # ----
+
     incr ctr
     if { $how_many > 0 && $ctr >= $how_many } {
 	break
     }
     incr idx
 }
+
+
+# Draw the last subtotal line
+set total_type "<b>Subtotal</b>:"
+append table_body_html "<tr class=rowtitle)>\n"
+foreach column_var $column_subtotal_vars {
+	    
+    set amount_subtotal $counter_sum(amount_subtotal)
+    set paid_subtotal $counter_sum(paid_subtotal)
+    
+    append table_body_html "\t<td valign=top>"
+    set cmd "append table_body_html $column_var"
+    eval $cmd
+    append table_body_html "</td>\n"
+}
+append table_body_html "</tr>\n"
+
+
+# ---------------------------------------------------------------
+# Show a final sumary line
+# ---------------------------------------------------------------
+
+if {1} {
+
+    set cost_type ""
+    set cost_status ""
+    set invoice_nr ""
+    set customer_name ""
+    set provider_name ""
+    set status ""
+    set due_date_calculated ""
+
+    # Show a final sum below the very last line of the report
+    set total_type "<b>Grand Total</b>:"
+    append table_body_html "<tr class=rowtitle)>\n"
+    foreach column_var $column_subtotal_vars {
+
+	set amount_subtotal $counter_sum(amount_total)
+	set paid_subtotal $counter_sum(paid_total)
+
+	append table_body_html "\t<td valign=top>"
+	set cmd "append table_body_html $column_var"
+	eval $cmd
+	append table_body_html "</td>\n"
+    }
+    append table_body_html "</tr>\n"
+
+}
+
+
 
 # Show a reasonable message when there are no result rows:
 if { [empty_string_p $table_body_html] } {
