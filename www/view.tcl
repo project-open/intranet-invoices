@@ -326,7 +326,10 @@ append item_html "
 
 set ctr 1
 set colspan 7
-if {!$company_project_nr_exists} { set colspan [expr $colspan-1]}
+if {!$company_project_nr_exists} { 
+    set colspan [expr $colspan-1]
+    set company_project_nr ""
+}
 
 
 db_foreach invoice_items {} {
