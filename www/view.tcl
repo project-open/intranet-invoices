@@ -482,9 +482,16 @@ if {0 != $render_template_id} {
     # format using a template
     set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
     append invoice_template_path "/"
-    append invoice_template_path [db_string sel_invoice "select category from im_categories where category_id=:render_template_id"]
+    set invoice_template_body [db_string sel_invoice "select category from im_categories where category_id=:render_template_id" -default ""]
+    append invoice_template_path $invoice_template_body
 
-   if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
+    if {"" == $invoice_template_body} {
+	ad_return_complaint "$cost_type Template not specified" "
+	<li>You haven't specified a template for your $cost_type."
+	return
+    }
+
+    if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
 	ad_return_complaint "Unknown $cost_type Template" "
 	<li>$cost_type template '$invoice_template_path' doesn't exist or is not readable
 	for the web server. Please notify your system administrator."

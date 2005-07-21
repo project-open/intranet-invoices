@@ -30,12 +30,15 @@ ad_page_contract {
     { project_id:integer 0}
     { invoice_currency ""}
     { create_invoice_from_template ""}
-    { return_url "/intranet-invoice/"}
+    { return_url "/intranet-invoices/list"}
+    del_invoice:optional
 }
 
 # ---------------------------------------------------------------
 # 2. Defaults & Security
 # ---------------------------------------------------------------
+
+set user_id [ad_maybe_redirect_for_registration]
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
@@ -43,9 +46,13 @@ if {"" != $create_invoice_from_template} {
     ad_script_abort
 }
 
+# Check if we need to delete the invoice.
+# We get there because the "Delete" button in view.tcl can
+# only send to one target, which is this file...
+if {[info exists del_invoice]} {
+    ad_returnredirect [export_vars -base delete {invoice_id return_url}]
+}
 
-# User id already verified by filters
-set user_id [ad_maybe_redirect_for_registration]
 
 #ns_log notice "**************** $user_id permission [im_permission $user_id view_invoices]**********"
 #if {![im_permission $user_id view_invoices]} {
@@ -247,8 +254,7 @@ if {[string equal $invoice_mode "new"]} {
 	  </td>
           <td align=left>
 	    <input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>
-	    <input type=hidden name=item_currency.$ctr value='$currency'>
-	    $currency
+            [im_currency_select item_currency.$ctr $currency]
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
