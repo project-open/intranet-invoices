@@ -301,6 +301,7 @@ if {[string compare $letter "ALL"]} {
 # 6a. Format the Filter: Get the admin menu
 # ---------------------------------------------------------------
 
+set action_html ""
 set new_document_menu ""
 set parent_menu_label ""
 if {$cost_type_id == [im_cost_type_company_doc]} {
@@ -328,7 +329,7 @@ if {"" != $parent_menu_label} {
 	
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
 	regsub -all " " $name "_" name_key
-	append new_document_menu "<li><a href=\"$url\">[_ $package_name.$name_key]</a></li>\n"
+	append action_html "<a class=button href=\"$url\">[_ $package_name.$name_key]</a>\n"
     }
 }
 
@@ -339,8 +340,8 @@ if {"" != $parent_menu_label} {
 # Note that we use a nested table because im_slider might
 # return a table with a form in it (if there are too many
 # options
-set filter_html "
 
+set filter_html "
 <table>
 <tr valign=top>
   <td valign=top>
@@ -371,6 +372,7 @@ set filter_html "
 
   </td>
   <td valign=top>&nbsp;</td>
+<!--
   <td valign=top>
 
 	<table border=0 cellpadding=1 cellspacing=1>
@@ -389,6 +391,7 @@ set filter_html "
 	</table>
 	
   </td>
+-->
 </tr>
 </table>
 "

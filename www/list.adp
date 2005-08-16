@@ -2,10 +2,11 @@
 <property name=title>List of @cost_type@</property>
 <property name="main_navbar_label">finance</property>
 
+<%= [im_gif cleardot "" 0 1 3] %>
 
 @filter_html;noquote@
 
-<%= [im_costs_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name letter] $parent_menu_label ] %>
+<%= [im_costs_navbar $letter "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name letter] $parent_menu_label $action_html] %>
 
 <form action=invoice-action method=POST>
 <%= [export_form_vars company_id invoice_id return_url] %>
