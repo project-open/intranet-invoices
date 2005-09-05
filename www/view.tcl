@@ -204,16 +204,13 @@ if {$company_project_nr_exists && $rel_project_id} {
 # Check permissions
 # ---------------------------------------------------------------
 
-im_company_permissions $user_id $company_id view read write admin
-
-if {!$read && ![im_permission $user_id view_invoices]} {
+im_cost_permissions $user_id $invoice_id view read write admin
+if {!$read} {
     ad_return_complaint "[lang::message::lookup $locale intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[lang::message::lookup $locale intranet-invoices.lt_You_have_insufficient_1]<BR>
     [lang::message::lookup $locale intranet-invoices.lt_Please_contact_your_s]"
     return
 }
-
-
 
 
 set comp_id "$company_id"
