@@ -26,7 +26,8 @@ ad_page_contract {
 # --------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id view_invoices]} {
+im_cost_permissions $user_id $invoice_id view read write admin
+if {!write} {
     ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[_ intranet-invoices.lt_You_dont_have_suffici]"
 }

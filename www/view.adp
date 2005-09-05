@@ -7,7 +7,7 @@
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
   <td>
-	  <%= [im_invoices_object_list_component $user_id $invoice_id $return_url] %>
+	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
   </td>
   <td>
 	    @payment_list_html;noquote@
@@ -23,12 +23,14 @@
 		  <% set render_template_id $template_id %>
 		  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
 		  <A HREF="/intranet-invoices/view?@preview_vars@">#intranet-invoices.Preview#</A>
+<if @admin@>
 <if "" ne @generation_blurb@>
 		<li>
 		  <% set blurb $generation_blurb %>
 		  <% set source_invoice_id $invoice_id %>
 		  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
 		  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
+</if>
 </if>
 <if @write@>
 		<li>

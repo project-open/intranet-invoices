@@ -61,10 +61,10 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-#if {![im_permission $user_id add_invoices]} {
-#    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
-#    return
-#}
+if {![im_permission $user_id add_invoices]} {
+    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
+    return
+}
 
 # Invoices and Bills need a payment method, quotes and POs don't.
 if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {

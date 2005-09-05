@@ -148,10 +148,12 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
 # Components
 # ---------------------------------------------------------------
 
-ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
+ad_proc im_invoices_object_list_component { user_id invoice_id read write return_url } {
     Returns a HTML table containing a list of objects
     associated with a particular financial document.
 } {
+    if {!$read} { return "" }
+
     set bgcolor(0) "class=roweven"
     set bgcolor(1) "class=rowodd"
 
@@ -162,17 +164,6 @@ ad_proc im_invoices_object_list_component { user_id invoice_id return_url } {
 	where	cost_id = :invoice_id
     "
     
-    # ---------------------- Permissions ------------------
-    #
-    im_company_permissions $user_id $customer_id cust_view cust_read cust_write cust_admin
-    im_company_permissions $user_id $provider_id prov_view prov_read prov_write prov_admin
-
-    set read [expr $cust_read || $prov_read]
-    set write [expr $cust_write || $prov_write]
-
-    if {!$read} { return "" }
-
-
     # ---------------------- Format the list ------------------
     #
     set ctr 0
