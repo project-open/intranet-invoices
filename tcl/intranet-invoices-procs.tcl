@@ -36,8 +36,13 @@ ad_proc -private im_package_invoices_id_helper {} {
 # 
 # -----------------------------------------------------------
 
-ad_proc -public im_next_invoice_nr { } {
-    Returns the next free invoice number
+ad_proc -public im_next_invoice_nr {
+    { -invoice_type_id 0}
+} {
+    Returns the next free invoice number.
+
+    @param invoice_type_id Counter for type of financial document
+           to be generated.
 
     Invoice_nr's look like: 2003_07_123 with the first 4 digits being
     the current year, the next 2 digits the month and the last 3 digits 
@@ -58,25 +63,43 @@ ad_proc -public im_next_invoice_nr { } {
     To deal with this situation, the calling procedure has to double check
     before confirming the invoice.
 } {
+    set prefix ""
+    set use_invoice_prefix_p [parameter::get -package_id [im_package_invoices_id] -parameter "UseInvoiceNrTypePrefixP" -default 0]
+
+    if {$use_invoice_prefix_p} {
+	switch $invoice_type_id {
+	    3700 { set prefix "I" }
+	    3702 { set prefix "Q" }
+	    3704 { set prefix "B" }
+	    3706 { set prefix "P" }
+	    default { set prefix "" }
+	}
+    }
+
+    # Adjust the position of the start of date and nr in the invoice_nr
+    set prefix_len [string length $prefix]
+    set nr_start_idx [expr 9+$prefix_len]
+    set date_start_idx [expr 1+$prefix_len]
+
     set sql "
 select
 	trim(i.nr) as last_invoice_nr
 from
         dual,
-	(select max(t.nr) as nr from (select substr(invoice_nr,9,4) as nr from im_invoices, dual
-	 where substr(invoice_nr, 1,7)=to_char(sysdate, 'YYYY_MM')
-	 UNION 
-	 select '0000' as nr from dual
-	) t) i
+	(select	max(t.nr) as nr 
+	from (
+		select	substr(invoice_nr,:nr_start_idx,4) as nr 
+		from	im_invoices, dual
+		where	substr(invoice_nr, :date_start_idx,7) = to_char(sysdate, 'YYYY_MM')
+	     UNION
+		select '0000' as nr from dual
+	     ) t
+	) i
 where
-        ascii(substr(i.nr,1,1)) > 47 and
-        ascii(substr(i.nr,1,1)) < 58 and
-        ascii(substr(i.nr,2,1)) > 47 and
-        ascii(substr(i.nr,2,1)) < 58 and
-        ascii(substr(i.nr,3,1)) > 47 and
-        ascii(substr(i.nr,3,1)) < 58 and
-        ascii(substr(i.nr,4,1)) > 47 and
-        ascii(substr(i.nr,4,1)) < 58
+        ascii(substr(i.nr,1,1)) > 47 and ascii(substr(i.nr,1,1)) < 58 and
+        ascii(substr(i.nr,2,1)) > 47 and ascii(substr(i.nr,2,1)) < 58 and
+        ascii(substr(i.nr,3,1)) > 47 and ascii(substr(i.nr,3,1)) < 58 and
+        ascii(substr(i.nr,4,1)) > 47 and ascii(substr(i.nr,4,1)) < 58
 "
     set last_invoice_nr [db_string max_invoice_nr $sql -default ""]
     set last_invoice_nr [string trimleft $last_invoice_nr "0"] 
@@ -84,17 +107,17 @@ where
 	set last_invoice_nr 0
     }
     set next_number [expr $last_invoice_nr + 1]
-    ns_log notice "********** next_number is $next_number *************"
-set sql "
-select
-        to_char(sysdate, 'YYYY_MM')||'_'||
-        trim(to_char($next_number,'0000')) as invoice_nr
-from
-        dual
-"
+
+    set sql "
+	select
+	        to_char(sysdate, 'YYYY_MM')||'_'||
+	        trim(to_char($next_number,'0000')) as invoice_nr
+	from
+	        dual
+    "
     set invoice_nr [db_string next_invoice_nr $sql -default ""]
 
-    return $invoice_nr
+    return "$prefix$invoice_nr"
 }
 
 

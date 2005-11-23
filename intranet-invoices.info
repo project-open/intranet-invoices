@@ -8,12 +8,11 @@
     <singleton-p>t</singleton-p>
     <auto-mount>intranet-invoices</auto-mount>
 
-    <version name="3.0.0.7.0" url="http://projop.dnsalias.com/download/apm/intranet-invoices-3.0.0.7.0.apm">
-
+    <version name="3.0.0.6.0" url="http://projop.dnsalias.com/download/apm/intranet-invoices-3.0.0.6.0.apm">
         <owner url="mailto:fraber@fraber.de">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">Project/Open</vendor>
 
-        <provides url="intranet-invoices" version="3.0.0"/>
+        <provides url="intranet-invoices" version="3.0.0.6.0"/>
         <requires url="intranet-core" version="3.0.0"/>
         <requires url="intranet-cost" version="3.0.0"/>
         <requires url="intranet-payments" version="3.0.0"/>
@@ -22,7 +21,7 @@
         </callbacks>
         <parameters>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="C:/ProjectOpen/filestorage/templates" description="Path for Invoicing templates"/>
-
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
         </parameters>
 
     </version>
