@@ -44,8 +44,8 @@ set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
 set cur_format "99,999.009"
-set vat_format "990.00"
-set tax_format "990.00"
+set vat_format "99,990.00"
+set tax_format "99,990.00"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
