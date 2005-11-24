@@ -17,20 +17,51 @@
   <fullquery name = "invoice_items">
     <querytext>
       select
-        i.*,
-        p.*,
-        im_category_from_id(i.item_type_id) as item_type,
-        im_category_from_id(i.item_uom_id) as item_uom,
-        p.project_nr as project_short_name,
-        i.price_per_unit * i.item_units as amount
+	i.*,
+	p.*,
+	im_category_from_id(i.item_type_id) as item_type,
+	im_category_from_id(i.item_uom_id) as item_uom,
+	p.project_nr as project_short_name,
+	round(i.price_per_unit * i.item_units * :rf) / :rf as amount,
+	to_char(round(i.price_per_unit * i.item_units * :rf) / :rf, :cur_format) as amount_formatted
       from
-        im_invoice_items i
-              LEFT JOIN im_projects p on i.project_id=p.project_id
+	im_invoice_items i
+	      LEFT JOIN im_projects p on i.project_id=p.project_id
       where
-        i.invoice_id=:invoice_id
+	i.invoice_id=:invoice_id
       order by
-        i.sort_order,
-        i.item_type_id;
+	i.sort_order,
+	i.item_type_id;
       </querytext>
     </fullquery>
+
+
+  <fullquery name = "calc_grand_total">
+    <querytext>
+
+      select
+	max(i.currency) as currency,
+	to_char(sum(i.amount), :cur_format) as subtotal_formatted,
+	to_char(round(sum(i.amount) * :vat / 100 * :rf) / :rf, :vat_format) as vat_amount,
+	to_char(round(sum(i.item_units * i.price_per_unit) * :tax / 100 * :rf) / :rf, :tax_format) as tax_amount,
+	to_char(round(sum(i.amount) * :rf) / :rf + 
+		round(sum(i.amount) * :vat / 100 * :rf) / :rf + 
+		round(sum(i.amount) * :tax / 100 * :rf) / :rf,
+		:cur_format) as grand_total_formatted
+      from (
+	select
+		i.*,
+		round(i.price_per_unit * i.item_units * :rf) / :rf as amount
+	from
+		im_invoice_items i
+	where
+		i.invoice_id = :invoice_id
+	) i
+
+    </querytext>
+  </fullquery>
+
+
+
+
 </queryset>

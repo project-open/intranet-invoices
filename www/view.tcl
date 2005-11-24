@@ -43,13 +43,19 @@ if {"" == $return_url} { set return_url [im_url_with_query] }
 set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
-set cur_format "99,999.009"
-set vat_format "99,990.00"
-set tax_format "99,990.00"
+set cur_format "99,999,999,999.00"
+set vat_format "99,999,999,990.00"
+set tax_format "99,999,999,990.00"
+
+# rounding precision can be between 2 (USD,EUR, ...) 
+# and -5 (Old Turkish Lira, ...).
+set rounding_precision 2
+
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
-
+set rounding_factor [expr exp(log(10) * $rounding_precision)]
+set rf $rounding_factor
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -364,8 +370,12 @@ db_foreach invoice_items {} {
     # because invoice items can be created based on different projects.
     # However, frequently we only have one project per invoice, so that
     # we can use this project's company_project_nr as a default
-    if {$company_project_nr_exists && "" == $company_project_nr} { set company_project_nr $customer_project_nr_default}
-    if {"" == $project_short_name} { set project_short_name $project_short_name_default}
+    if {$company_project_nr_exists && "" == $company_project_nr} { 
+	set company_project_nr $customer_project_nr_default
+    }
+    if {"" == $project_short_name} { 
+	set project_short_name $project_short_name_default
+    }
 
     append item_html "
 	<tr $bgcolor([expr $ctr % 2])> 
@@ -380,7 +390,7 @@ db_foreach invoice_items {} {
     }
     append item_html "
           <td align=left>$project_short_name</td>
-          <td align=right>[im_date_format_locale $amount 2 2]&nbsp;$currency</td>
+          <td align=right>$amount_formatted&nbsp;$currency</td>
 	</tr>"
     incr ctr
 }
@@ -390,18 +400,7 @@ db_foreach invoice_items {} {
 # ---------------------------------------------------------------
 
 # Calculate grand total based on the same inner SQL
-db_1row calc_grand_total "
-select
-	max(i.currency) as currency,
-	sum(i.item_units * i.price_per_unit) as subtotal,
-	to_char(sum(i.item_units * i.price_per_unit) * :vat / 100, :vat_format) as vat_amount,
-	to_char(sum(i.item_units * i.price_per_unit) * :tax / 100, :tax_format) as tax_amount,
-	sum(i.item_units * i.price_per_unit) + (sum(i.item_units * i.price_per_unit) * :vat / 100) + (sum(i.item_units * i.price_per_unit) * :tax / 100) as grand_total
-from
-	im_invoice_items i
-where
-	i.invoice_id=:invoice_id
-"
+db_1row calc_grand_total ""
 
 set colspan_sub [expr $colspan - 1]
 
@@ -409,7 +408,7 @@ set colspan_sub [expr $colspan - 1]
 append item_html "
         <tr> 
           <td class=rowplain colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
-          <td class=roweven align=right><B> [im_date_format_locale $subtotal 2 2] $currency</B></td>
+          <td class=roweven align=right><B>$subtotal_formatted $currency</B></td>
         </tr>
 "
 
@@ -441,7 +440,7 @@ if {"" != $tax && 0 != $tax} {
 append item_html "
         <tr> 
           <td colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
-          <td class=roweven align=right><b>[im_date_format_locale $grand_total 2 2] $currency</b></td>
+          <td class=roweven align=right><b>$grand_total_formatted $currency</b></td>
         </tr>
 "
 
