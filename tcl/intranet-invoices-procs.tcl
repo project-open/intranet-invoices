@@ -1,6 +1,6 @@
 # /packages/intranet-invoicing/tcl/intranet-invoice.tcl
 #
-# Copyright (C) 2003-2005 Project/Open
+# Copyright (C) 2003-2005 ]project-open[
 #
 # All rights reserved. Please check
 # http://www.project-open.com/license/ for details.
@@ -161,7 +161,9 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
     ad_return_complaint 1 "<li>System Error: too many invoice copies<br>
     This error occurs because you have more then 26 variants of a sinlge
     financial document (invoice, quote, purchase order, ...).<br>
-    Please change your invoice number and/or notify the Project/Open team."
+    Please change your invoice number and/or notify the 
+    &\#93;project-open&\#91;
+    team."
     return ""
 }
 
