@@ -399,6 +399,11 @@ db_foreach invoice_items {} {
 # Add subtotal + VAT + TAX = Grand Total
 # ---------------------------------------------------------------
 
+# Set these values to 0 in order to allow to calculate the
+# formatted grand total
+if {"" == $vat} { set vat 0}
+if {"" == $tax} { set tax 0}
+
 # Calculate grand total based on the same inner SQL
 db_1row calc_grand_total ""
 
