@@ -43,9 +43,9 @@ if {"" == $return_url} { set return_url [im_url_with_query] }
 set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
-set cur_format "99,999,999,999.00"
-set vat_format "99,999,999,990.00"
-set tax_format "99,999,999,990.00"
+set cur_format "99999999999.00"
+set vat_format $cur_format
+set tax_format $cur_format
 
 # rounding precision can be between 2 (USD,EUR, ...) 
 # and -5 (Old Turkish Lira, ...).
@@ -132,7 +132,6 @@ select
 	c.vat_number,
 	c.accounting_contact_id,
         o.*,
-        to_char(i.invoice_date,'YYYY-MM-DD') as invoice_date_pretty,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
 	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
 	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
@@ -157,7 +156,6 @@ if { ![db_0or1row invoice_info_query $query] } {
     return
 }
 
-
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
 # ---------------------------------------------------------------
@@ -178,13 +176,18 @@ if {0 != $render_template_id} {
 
 # Check if the given locale throws an error
 # Reset the locale to the default locale then
-
 if {[catch {
     lang::message::lookup $locale "dummy_text"
 } errmsg]} {
     set locale $user_locale
 }
 
+# ---------------------------------------------------------------
+# Format Invoice date information according to locale
+# ---------------------------------------------------------------
+
+set invoice_date_pretty [lc_time_fmt $invoice_date "%x" $locale]
+set calculated_due_date_pretty [lc_time_fmt $calculated_due_date "%x" $locale]
 
 
 # ---------------------------------------------------------------
@@ -199,7 +202,9 @@ if {"" != $cost_project_id && 0 != $cost_project_id} {
 
 set project_short_name_default [db_string short_name_default "select project_nr from im_projects where project_id=:rel_project_id" -default ""]
 set customer_project_nr_default ""
+
 if {$company_project_nr_exists && $rel_project_id} {
+
     db_0or1row project_info_query "
     	select
     		p.company_project_nr as customer_project_nr_default
@@ -345,7 +350,7 @@ where
 # ---------------------------------------------------------------
 
 # start formatting the list of sums with the header...
-set item_html "
+set item_list_html "
         <tr align=center>
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Qty]</td>
@@ -354,10 +359,10 @@ set item_html "
 
 if {$company_project_nr_exists} {
     # Only if intranet-translation has added the field
-    append item_html "
+    append item_list_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
     }
-append item_html "
+append item_list_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
@@ -381,20 +386,24 @@ db_foreach invoice_items {} {
 	set project_short_name $project_short_name_default
     }
 
-    append item_html "
+    set amount_pretty [lc_numeric [expr $amount+0] "" $locale]
+    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+    set price_per_unit_pretty [lc_numeric [expr $price_per_unit+0] "" $locale]
+
+    append item_list_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>$item_name</td>
-          <td align=right>$item_units</td>
+          <td align=right>$item_units_pretty</td>
           <td align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
-          <td align=right>[im_date_format_locale $price_per_unit 2 3]&nbsp;$currency</td>\n"
+          <td align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
-	append item_html "
+	append item_list_html "
           <td align=left>$company_project_nr</td>\n"
     }
-    append item_html "
+    append item_list_html "
           <td align=left>$project_short_name</td>
-          <td align=right>$amount_formatted&nbsp;$currency</td>
+          <td align=right>$amount_pretty&nbsp;$currency</td>
 	</tr>"
     incr ctr
 }
@@ -411,25 +420,30 @@ if {"" == $tax} { set tax 0}
 # Calculate grand total based on the same inner SQL
 db_1row calc_grand_total ""
 
+set subtotal_pretty [lc_numeric [expr $subtotal+0] "" $locale]
+set vat_amount_pretty [lc_numeric [expr $vat_amount+0] "" $locale]
+set tax_amount_pretty [lc_numeric [expr $tax_amount+0] "" $locale]
+set grand_total_pretty [lc_numeric [expr $grand_total+0] "" $locale]
+
 set colspan_sub [expr $colspan - 1]
 
 # Add a subtotal
-append item_html "
+append item_list_html "
         <tr> 
           <td class=rowplain colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
-          <td class=roweven align=right><B>$subtotal_formatted $currency</B></td>
+          <td class=roweven align=right><B>$subtotal_pretty $currency</B></td>
         </tr>
 "
 
 if {"" != $vat && 0 != $vat} {
-    append item_html "
+    append item_list_html "
         <tr>
           <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
-          <td class=roweven align=right>$vat_amount $currency</td>
+          <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
 } else {
-    append item_html "
+    append item_list_html "
         <tr>
           <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
@@ -438,23 +452,25 @@ if {"" != $vat && 0 != $vat} {
 }
 
 if {"" != $tax && 0 != $tax} {
-    append item_html "
+    append item_list_html "
         <tr> 
           <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
-          <td class=roweven align=right>$tax_amount $currency</td>
+          <td class=roweven align=right>$tax_amount_pretty $currency</td>
         </tr>
     "
 }
 
-append item_html "
+append item_list_html "
         <tr> 
           <td colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
-          <td class=roweven align=right><b>$grand_total_formatted $currency</b></td>
+          <td class=roweven align=right><b>$grand_total_pretty $currency</b></td>
         </tr>
 "
 
+set terms_html ""
+
 if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
-append item_html "
+append terms_html "
         <tr>
 	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
           <td valign=top colspan=[expr $colspan-1]> 
@@ -467,7 +483,7 @@ append item_html "
         </tr>\n"
 }
 
-append item_html "
+append terms_html "
         <tr>
 	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>
@@ -475,6 +491,8 @@ append item_html "
 	  </td>
         </tr>
 "
+
+set item_html [concat $item_list_html $terms_html]
 
 # ---------------------------------------------------------------
 # 10. Format using a template

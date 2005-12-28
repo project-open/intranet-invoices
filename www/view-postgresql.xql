@@ -41,13 +41,12 @@
 
       select
 	max(i.currency) as currency,
-	to_char(sum(i.amount), :cur_format) as subtotal_formatted,
-	to_char(round(sum(i.amount) * :vat / 100 * :rf) / :rf, :vat_format) as vat_amount,
-	to_char(round(sum(i.item_units * i.price_per_unit) * :tax / 100 * :rf) / :rf, :tax_format) as tax_amount,
-	to_char(round(sum(i.amount) * :rf) / :rf + 
+	sum(i.amount) as subtotal,
+	round(sum(i.amount) * :vat / 100 * :rf) / :rf as vat_amount,
+	round(sum(i.item_units * i.price_per_unit) * :tax / 100 * :rf) / :rf as tax_amount,
+	round(	sum(i.amount) * :rf) / :rf + 
 		round(sum(i.amount) * :vat / 100 * :rf) / :rf + 
-		round(sum(i.amount) * :tax / 100 * :rf) / :rf,
-		:cur_format) as grand_total_formatted
+		round(sum(i.amount) * :tax / 100 * :rf) / :rf as grand_total
       from (
 	select
 		i.*,
