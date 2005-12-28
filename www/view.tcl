@@ -126,8 +126,11 @@ select
 	ci.*,
 	ci.note as cost_note,
 	ci.project_id as cost_project_id,
-        c.*,
-	c.company_id as company_id,
+	c.company_id,
+	c.company_name,
+	c.company_path,
+	c.vat_number,
+	c.accounting_contact_id,
         o.*,
         to_char(i.invoice_date,'YYYY-MM-DD') as invoice_date_pretty,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
@@ -153,6 +156,7 @@ if { ![db_0or1row invoice_info_query $query] } {
     ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
+
 
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
@@ -218,7 +222,6 @@ if {!$read} {
     return
 }
 
-
 set comp_id "$company_id"
 set query "
 select
@@ -233,6 +236,7 @@ if { ![db_0or1row category_info_query $query] } {
     set invoice_payment_method ""
     set invoice_payment_method_desc ""
 }
+
 
 set query "
 select 
