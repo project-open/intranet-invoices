@@ -126,11 +126,7 @@ select
 	ci.*,
 	ci.note as cost_note,
 	ci.project_id as cost_project_id,
-	c.company_id,
-	c.company_name,
-	c.company_path,
-	c.vat_number,
-	c.accounting_contact_id,
+	c.*,
         o.*,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
 	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
@@ -155,6 +151,7 @@ if { ![db_0or1row invoice_info_query $query] } {
     ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
+
 
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
@@ -181,6 +178,7 @@ if {[catch {
 } errmsg]} {
     set locale $user_locale
 }
+
 
 # ---------------------------------------------------------------
 # Format Invoice date information according to locale
@@ -227,6 +225,18 @@ if {!$read} {
     return
 }
 
+# ---------------------------------------------------------------
+# Page Title and Context Bar
+# ---------------------------------------------------------------
+
+set page_title [lang::message::lookup $locale intranet-invoices.One_cost_type]
+set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::lookup $locale intranet-invoices.Finance]"] $page_title]
+
+
+# ---------------------------------------------------------------
+#
+# ---------------------------------------------------------------
+
 set comp_id "$company_id"
 set query "
 select
@@ -243,20 +253,18 @@ if { ![db_0or1row category_info_query $query] } {
 }
 
 
-set query "
-select 
-        cc.country_name
-from
-        country_codes cc
-where
-        cc.iso = :address_country_code
-"
-if { ![db_0or1row country_info_query $query] } {
-    set country_name ""
-}
+# ---------------------------------------------------------------
+# Determine the country name and localize
+# ---------------------------------------------------------------
 
-set page_title "[lang::message::lookup $locale intranet-invoices.One_cost_type]"
-set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::lookup $locale intranet-invoices.Finance]"] $page_title]
+set query "
+select	cc.country_name
+from	country_codes cc
+where	cc.iso = :address_country_code"
+if { ![db_0or1row country_info_query $query] } {
+    set country_name $address_country_code
+}
+set country_name [lang::message::lookup $locale intranet-core.$country_name $country_name]
 
 
 # ---------------------------------------------------------------

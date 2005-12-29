@@ -33,8 +33,8 @@
 	im_email_from_user_id(i.company_contact_id) as company_contact_email,
 	c.company_name as company_name,
 	c.company_path as company_short_name,
-	c.vat as company_vat,
-	c.invoice_template_id as company_template_id,
+	c.default_vat as company_vat,
+	c.default_invoice_template_id as company_template_id,
 	p.company_name as provider_name,
 	p.company_path as provider_short_name
       from
