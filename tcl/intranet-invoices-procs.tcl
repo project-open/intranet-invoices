@@ -44,9 +44,9 @@ ad_proc -public im_next_invoice_nr {
     @param invoice_type_id Counter for type of financial document
            to be generated.
 
-    Invoice_nr's look like: 2003_07_123 with the first 4 digits being
-    the current year, the next 2 digits the month and the last 3 digits 
-    as the current number  within the month.
+    Invoice_nr's look like: 2003_07_0123 with the first 4 digits being
+    the current year, the next 2 digits the month and the last 4 digits 
+    as the current number within the month.
     Returns "" if there was an error calculating the number.
 
     The SQL query works by building the maximum of all numeric (the 8 
@@ -63,9 +63,21 @@ ad_proc -public im_next_invoice_nr {
     To deal with this situation, the calling procedure has to double check
     before confirming the invoice.
 } {
-    set prefix ""
+    # ----------------------------------------------------
+    # Get some parameters that influence the counters:
+
+    # Prefix the numbers with a "I", "Q", "B" and "P" for Invoices, Quotes, ...?
     set use_invoice_prefix_p [parameter::get -package_id [im_package_invoices_id] -parameter "UseInvoiceNrTypePrefixP" -default 0]
 
+    # Determine the date format that specifies whether to 
+    # restart the invoice every year ("YYYY") or every month
+    # ("YYYY_MM")
+    set date_format [parameter::get -package_id [im_package_invoices_id] -parameter "InvoiceNrDateFormat" -default "YYYY_MM"]
+
+    
+    # ----------------------------------------------------
+    # Set the prefix for financial document type
+    set prefix ""
     if {$use_invoice_prefix_p} {
 	switch $invoice_type_id {
 	    3700 { set prefix "I" }
@@ -76,24 +88,32 @@ ad_proc -public im_next_invoice_nr {
 	}
     }
 
+    # ----------------------------------------------------
+    # Calculate the next invoice Nr by finding out the last
+    # one +1
+
     # Adjust the position of the start of date and nr in the invoice_nr
     set prefix_len [string length $prefix]
-    set nr_start_idx [expr 9+$prefix_len]
     set date_start_idx [expr 1+$prefix_len]
+    set date_format_len [string length $date_format]
+    set nr_start_idx [expr 2+$date_format_len+$prefix_len]
+
+    set prefix_where ""
+    if {$prefix_len} {
+	set prefix_where "and substr(invoice_nr, 1, 1) = :prefix"
+    }
 
     set sql "
 select
-	trim(i.nr) as last_invoice_nr
+	trim(max(i.nr)) as last_invoice_nr
 from
-        dual,
-	(select	max(t.nr) as nr 
-	from (
-		select	substr(invoice_nr,:nr_start_idx,4) as nr 
-		from	im_invoices, dual
-		where	substr(invoice_nr, :date_start_idx,7) = to_char(sysdate, 'YYYY_MM')
-	     UNION
-		select '0000' as nr from dual
-	     ) t
+	(select	substr(invoice_nr, :nr_start_idx,4) as nr 
+	 from	im_invoices, dual
+	 where	
+		substr(invoice_nr, :date_start_idx, :date_format_len) = to_char(sysdate, :date_format)
+		$prefix_where
+	UNION
+	 select '0000' as nr from dual
 	) i
 where
         ascii(substr(i.nr,1,1)) > 47 and ascii(substr(i.nr,1,1)) < 58 and
@@ -101,6 +121,7 @@ where
         ascii(substr(i.nr,3,1)) > 47 and ascii(substr(i.nr,3,1)) < 58 and
         ascii(substr(i.nr,4,1)) > 47 and ascii(substr(i.nr,4,1)) < 58
 "
+
     set last_invoice_nr [db_string max_invoice_nr $sql -default ""]
     set last_invoice_nr [string trimleft $last_invoice_nr "0"] 
     if {[empty_string_p $last_invoice_nr]} {
@@ -108,9 +129,12 @@ where
     }
     set next_number [expr $last_invoice_nr + 1]
 
+
+    # ----------------------------------------------------
+    # Put together the new invoice_nr
     set sql "
 	select
-	        to_char(sysdate, 'YYYY_MM')||'_'||
+	        to_char(sysdate, :date_format)||'_'||
 	        trim(to_char($next_number,'0000')) as invoice_nr
 	from
 	        dual

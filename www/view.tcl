@@ -131,7 +131,6 @@ select
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
 	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
 	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
-        c.company_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
 	im_category_from_id(ci.template_id) as template
