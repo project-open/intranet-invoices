@@ -255,7 +255,7 @@ if { ![db_0or1row category_info_query $query] } {
 # Determine the country name and localize
 # ---------------------------------------------------------------
 
-set country_name = ""
+set country_name ""
 if {"" != $address_country_code} {
     set query "
 	select	cc.country_name
