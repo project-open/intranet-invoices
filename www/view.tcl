@@ -170,6 +170,7 @@ if {0 != $render_template_id} {
 	}
 }
 
+
 # Check if the given locale throws an error
 # Reset the locale to the default locale then
 if {[catch {
@@ -178,14 +179,12 @@ if {[catch {
     set locale $user_locale
 }
 
-
 # ---------------------------------------------------------------
 # Format Invoice date information according to locale
 # ---------------------------------------------------------------
 
 set invoice_date_pretty [lc_time_fmt $invoice_date "%x" $locale]
 set calculated_due_date_pretty [lc_time_fmt $calculated_due_date "%x" $locale]
-
 
 # ---------------------------------------------------------------
 # Get more about the invoice's project
@@ -256,15 +255,17 @@ if { ![db_0or1row category_info_query $query] } {
 # Determine the country name and localize
 # ---------------------------------------------------------------
 
-set query "
-select	cc.country_name
-from	country_codes cc
-where	cc.iso = :address_country_code"
-if { ![db_0or1row country_info_query $query] } {
-    set country_name $address_country_code
+set country_name = ""
+if {"" != $address_country_code} {
+    set query "
+	select	cc.country_name
+	from	country_codes cc
+	where	cc.iso = :address_country_code"
+    if { ![db_0or1row country_info_query $query] } {
+	    set country_name $address_country_code
+    }
+    set country_name [lang::message::lookup $locale intranet-core.$country_name $country_name]
 }
-set country_name [lang::message::lookup $locale intranet-core.$country_name $country_name]
-
 
 # ---------------------------------------------------------------
 # Update the amount paid for this cost_item
