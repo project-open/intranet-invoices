@@ -52,8 +52,20 @@ ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
+    
+    if {"" == $customer_id || 0 == $customer_id} {
+	ad_return_complaint 1 "You need to specify a value for customer_id"
+	return
+    }
+
 } else {
     set company_id $provider_id
+
+    if {"" == $provider_id || 0 == $provider_id} {
+	ad_return_complaint 1 "You need to specify a value for provider_id"
+	return
+    }
+
 }
 
 # ---------------------------------------------------------------
