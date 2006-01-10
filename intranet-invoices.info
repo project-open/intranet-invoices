@@ -23,6 +23,7 @@
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceNrDateFormat"  default="YYYY" description="Determine the date format that specifies whether to restart the invoice every year (YYYY) or every month (YYYY_MM)."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="C:/ProjectOpen/filestorage/templates" description="Path for Invoicing templates"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PreferAccountingContactOverProjectContactP"  default="1" description="Should we prefer the accounting contact of a company over the project contact when creating an invoice? Default is 1 for compatibility reasons."/>
         </parameters>
 
     </version>
