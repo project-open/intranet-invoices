@@ -79,7 +79,6 @@
 		  <td class=roweven>@customer_select;noquote@</td>
 		</tr>
 		<input type=hidden name=provider_id value=@provider_id@>
-
 </if>
 <else>
 
@@ -91,13 +90,18 @@
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
 		<input type=hidden name=customer_id value=@customer_id@>
-
 </else>
 
 
 		<tr>
-		  <td class=rowodd>#intranet-invoices.Note#</td>
-	          <td>
+		  <td class=rowodd>#intranet-core.Contact#</td>
+		  <td class=rowodd>@contact_select;noquote@</td>
+		</tr>
+
+
+		<tr>
+		  <td class=roweven>#intranet-invoices.Note#</td>
+	          <td class=roweven>
 		    <textarea name=note rows=6 cols=40 wrap=hard>@cost_note@</textarea>
 		  </td>
 		</tr>

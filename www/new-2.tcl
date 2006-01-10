@@ -17,6 +17,7 @@ ad_page_contract {
     { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
+    { company_contact_id:integer "" }
     invoice_nr
     invoice_date
     cost_status_id:integer 
@@ -93,6 +94,11 @@ if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }
 
+# Choose the default contact for this invoice.
+if {"" == $company_contact_id } {
+   set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
+}
+
 
 # ---------------------------------------------------------------
 # Update invoice base data
@@ -112,7 +118,8 @@ db_dml update_invoice "
 update im_invoices 
 set 
 	invoice_nr	= :invoice_nr,
-	payment_method_id = :payment_method_id
+	payment_method_id = :payment_method_id,
+	company_contact_id = :company_contact_id
 where
 	invoice_id = :invoice_id
 "

@@ -129,8 +129,6 @@ select
 	c.*,
         o.*,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
-	im_name_from_user_id(c.accounting_contact_id) as company_contact_name,
-	im_email_from_user_id(c.accounting_contact_id) as company_contact_email,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
 	im_category_from_id(ci.template_id) as template
@@ -151,6 +149,21 @@ if { ![db_0or1row invoice_info_query $query] } {
     return
 }
 
+# Use the "company_contact_id" of the invoices as the main contact.
+# Fallback to the accounting_contact_id and primary_contact_id
+# if not present.
+if {"" == $company_contact_id} { 
+    set company_contact_id $accounting_contact_id
+}
+if {"" == $company_contact_id} { 
+    set company_contact_id $primary_contact_id 
+}
+
+db_1row accounting_contact_info "
+    select
+	im_name_from_user_id(:company_contact_id) as company_contact_name,
+	im_email_from_user_id(:company_contact_id) as company_contact_email
+    "
 
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name

@@ -193,6 +193,66 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
 
 
 
+
+# ---------------------------------------------------------------
+# Logic to choose the most appropriate company contact for an invoice
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
+    Return the most appropriate company contact for an 
+    invoice.
+} {
+    set primary_contact_id ""
+    set accounting_contact_id ""
+
+    set company_info_sql "
+	select	primary_contact_id,
+		accounting_contact_id
+	from	im_companies
+	where	company_id = :company_id
+    "
+    catch {[db_1row company_info $company_info_sql]} errmsg
+
+    set prefer_accounting_contact_p [parameter::get -package_id [im_package_invoices_id] -parameter "PreferAccountingContactOverProjectContactP" -default 1]
+    
+    if {$prefer_accounting_contact_p} {
+	if {"" != $accounting_contact_id} { return $accounting_contact_id }
+	if {"" != $primary_contact_id} { return $primary_contact_id }
+    }
+
+    if {0 != $project_id && "" != $project_id || [db_column_exists im_project company_contact_id]} {
+
+	set contact_id [db_string project_info "select company_contact_id from im_projects where project_id = :project_id" -default ""]
+	if {"" != $contact_id} { return $contact_id }
+    }
+
+    # No particular user found - return NULL
+    return ""
+}
+
+
+set ttt {
+    set customer_group_id [im_customer_group_id]
+    set freelance_group_id [im_freelance_group_id]
+    set contact_list [db_string company_contacts "
+	select DISTINCT
+	        u.user_id
+	from
+	        cc_users u,
+	        group_distinct_member_map m,
+	        acs_rels ur
+	where
+	        u.member_state = 'approved'
+	        and u.user_id = m.member_id
+	        and m.group_id in (:customer_group_id, :freelance_group_id)
+		and u.user_id = ur.object_id_two
+		and ur.object_id_one = :company_id
+    "]
+}
+
+
+
+
 # ---------------------------------------------------------------
 # Components
 # ---------------------------------------------------------------

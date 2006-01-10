@@ -128,7 +128,7 @@
         <tr> 
           <td  class=rowodd> #intranet-invoices.Contact#</td>
           <td  class=rowodd>
-            <A href=/intranet/users/view?user_id=@accounting_contact_id@>@company_contact_name@</A>
+            <A href=/intranet/users/view?user_id=@company_contact_id@>@company_contact_name@</A>
           </td>
         </tr>
         <tr> 

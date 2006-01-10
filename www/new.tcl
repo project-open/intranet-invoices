@@ -193,6 +193,7 @@ set status_select [im_cost_status_select cost_status_id $cost_status_id]
 set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+set contact_select [im_company_contact_select company_contact_id "" $company_id]
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items
