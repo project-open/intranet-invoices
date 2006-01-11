@@ -14,8 +14,20 @@ ad_page_contract {
     role_id:integer
     subject
     message
+    { send_me_a_copy "" }
     return_url
 }
+
+
+######### Not being used anymore (?) ##############
+
+
+# ToDo: Delete this file
+
+
+
+
+
 
 # --------------------------------------------------------
 # Security and defaults
