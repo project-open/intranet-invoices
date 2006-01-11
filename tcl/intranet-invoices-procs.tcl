@@ -230,29 +230,6 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
     return ""
 }
 
-
-set ttt {
-    set customer_group_id [im_customer_group_id]
-    set freelance_group_id [im_freelance_group_id]
-    set contact_list [db_string company_contacts "
-	select DISTINCT
-	        u.user_id
-	from
-	        cc_users u,
-	        group_distinct_member_map m,
-	        acs_rels ur
-	where
-	        u.member_state = 'approved'
-	        and u.user_id = m.member_id
-	        and m.group_id in (:customer_group_id, :freelance_group_id)
-		and u.user_id = ur.object_id_two
-		and ur.object_id_one = :company_id
-    "]
-}
-
-
-
-
 # ---------------------------------------------------------------
 # Components
 # ---------------------------------------------------------------

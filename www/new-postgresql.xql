@@ -17,6 +17,8 @@
     <querytext>
       select
 	i.invoice_nr,
+	i.payment_method_id,
+	i.company_contact_id,
 	ci.customer_id,
 	ci.provider_id,
 	to_char(ci.effective_date,'YYYY-MM-DD') as effective_date,
@@ -24,7 +26,6 @@
 	to_char(ci.vat, :vat_format) as vat,
 	to_char(ci.tax, :tax_format) as tax,
 	ci.note as cost_note,
-	i.payment_method_id,
 	ci.template_id,
 	ci.cost_status_id,
 	ci.cost_type_id,
