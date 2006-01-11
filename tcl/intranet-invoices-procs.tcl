@@ -213,21 +213,30 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
     "
     catch {[db_1row company_info $company_info_sql]} errmsg
 
+    set company_contact_id $accounting_contact_id
+    if {"" == $company_contact_id} { set company_contact_id $primary_contact_id }
+
+    # That's it if we prefer the accounting contact
+    # in favour of the projects' contact.
     set prefer_accounting_contact_p [parameter::get -package_id [im_package_invoices_id] -parameter "PreferAccountingContactOverProjectContactP" -default 1]
-    
     if {$prefer_accounting_contact_p} {
-	if {"" != $accounting_contact_id} { return $accounting_contact_id }
-	if {"" != $primary_contact_id} { return $primary_contact_id }
+	return $company_contact_id
     }
 
+    # Project's contact preferred: Check if the project
+    # is valid and get the contact.
     if {0 != $project_id && "" != $project_id || [db_column_exists im_project company_contact_id]} {
 
-	set contact_id [db_string project_info "select company_contact_id from im_projects where project_id = :project_id" -default ""]
-	if {"" != $contact_id} { return $contact_id }
+	set contact_id [db_string project_info "
+		select company_contact_id 
+		from im_projects 
+		where project_id = :project_id
+	" -default ""]
+	if {"" != $contact_id} { set company_contact_id $contact_id }
+
     }
 
-    # No particular user found - return NULL
-    return ""
+    return $company_contact_id
 }
 
 # ---------------------------------------------------------------
