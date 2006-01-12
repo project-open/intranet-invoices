@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.0.1.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.1.0.0.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -86,23 +86,25 @@ Best regards,
   <msg key="lt_The_company_company_n">The company '%company_name%' has not accounting contact defined
 	to whom we could send this %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">There are currently no invoices matching the selected criteria</msg>
-  <msg key="lt_This_invoice_is_past_">This invoice is past due if unpaid after %calculated_due_date%.</msg>
+  <msg key="lt_This_invoice_is_past_">This invoice is past due if unpaid after %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">You don't have sufficient privileges to see this page.</msg>
   <msg key="lt_You_have_insufficient">You have insufficient privileges to see this page</msg>
   <msg key="lt_You_have_insufficient_1">You have insufficient privileges to view this page.</msg>
   <msg key="lt_You_need_to_specify_a">You need to specify a invoice_id</msg>
   <msg key="New_Company_Invoice_from_Quote">New Company Invoice from Quote</msg>
-  <msg key="New_Company_Invoice_from_scratch">New Company Invoice from scratch</msg>
+  <msg key="New_Company_Invoice_from_scratch">New Company Invoice from Scratch</msg>
   <msg key="New_cost_type">New %cost_type%</msg>
   <msg key="New_Customer_Invoice_from_Quote">New Customer Invoice from Quote</msg>
-  <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from scratch</msg>
+  <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from Scratch</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">New Customer Invoice from Timesheet Tasks</msg>
   <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
-  <msg key="New_Provider_Bill_from_scratch">New Provider Bill from scratch</msg>
+  <msg key="New_Provider_Bill_from_scratch">New Provider Bill from Scratch</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
-  <msg key="New_Purchase_Order_from_scratch">New Purchase Order from scratch</msg>
+  <msg key="New_Purchase_Order_from_scratch">New Purchase Order from Scratch</msg>
   <msg key="New_Purchase_Order_from_Translation_Tasks">New Purchase Order from Translation Tasks</msg>
-  <msg key="New_Quote_from_scratch">New Quote from scratch</msg>
+  <msg key="New_Quote_from_scratch">New Quote from Scratch</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">New Quote from Timesheet Tasks</msg>
   <msg key="New_Quote_from_Translation_Tasks">New Quote from Translation Tasks</msg>
   <msg key="New_Translation_Customer_Invoice">New Translation Customer Invoice</msg>
   <msg key="New_Translation_Invoice">New Translation Invoice</msg>

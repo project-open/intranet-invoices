@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.0.1.0.0" locale="es_ES" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.1.0.0.0" locale="es_ES" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Añadir un pago</msg>
   <msg key="Add_a_Project">Añadir un proyecto</msg>
@@ -7,6 +7,7 @@
   <msg key="Admin_Links">Enlaces administrativos</msg>
   <msg key="Adress">Dirección</msg>
   <msg key="Amount">Importe</msg>
+  <msg key="Blurb_multiple_currencies">Ha usado más de una divisa con este documento financiero. Esto no es posible con la versión actual de Project/Open. Por favor   separe este documento en varios con una sola divisa en cada uno. Las divisas utilizadas incluyen:</msg>
   <msg key="Client">Cliente</msg>
   <msg key="Clone">Clonar</msg>
   <msg key="Company">Empresa</msg>
@@ -26,6 +27,7 @@
   <msg key="Costs">Costes</msg>
   <msg key="Country">País</msg>
   <msg key="Customer">Cliente</msg>
+  <msg key="Customers">Clientes</msg>
   <msg key="Date">Fecha</msg>
   <msg key="days">días</msg>
   <msg key="Del">Borrar</msg>
@@ -39,6 +41,13 @@
   <msg key="Edit_cost_type">Editar %cost_type%</msg>
   <msg key="Edit_cost_type_1">PROBLEMA</msg>
   <msg key="Email">E-mail</msg>
+  <msg key="Error_multiple_currencies">Error: divisa múltiple</msg>
+  <msg key="Export_Companies_CSV">Exportar .CSV de empresas</msg>
+  <msg key="Export_Customer_Invoice_Cube">Exportar cubo de factura de cliente</msg>
+  <msg key="Export_Customer_Invoices_CSV">Exportar .CSV de facturas de empresa</msg>
+  <msg key="Export_Invoices_CSV">Exportar .CSV de facturas</msg>
+  <msg key="Export_Provider_Invoice_Cube">Exportar cubo de factura de proveedor</msg>
+  <msg key="Export_Provider_Invoices_CSV">Exportar .CSV de facturas de proveedor</msg>
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Filtrar documentos</msg>
   <msg key="Finance">Finanzas</msg>
@@ -46,6 +55,7 @@
   <msg key="From">De:</msg>
   <msg key="Go">Ir</msg>
   <msg key="Hour">Hora</msg>
+  <msg key="intranet-invoices.Error_multiple_currencies">Error: divisa múltiple</msg>
   <msg key="Line">Línea</msg>
   <msg key="lt_Cant_find_the_documen">No puedo localizar el documento no. %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Estimado %accounting_contact_name%, hemos creado un nuevo  %cost_type% para Ud. bajo: %system_url%/intranet-invoices/view?invoice_id=%invoice_id% Este nuevo documento está relacionado con el/los proyecto(s): %select_projects;noquote% Siga por favor el enlace de arriba e imprima el documento para su referencia personal. Saludos cordiales, %current_user_name%</msg>
@@ -64,7 +74,7 @@
   <msg key="lt_system_name_New_cost_">%system_name%: Nuevo %cost_type%</msg>
   <msg key="lt_The_company_company_n">La empresa '%company_name%' no tiene definida ninguna persona de contacto en Contabilidad a quien poder enviar este %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">Actualmente no existen facturas que coincidan con los criterios seleccionados.</msg>
-  <msg key="lt_This_invoice_is_past_">Esta factura será morosa si queda sin pagar después de %calculated_due_date%.</msg>
+  <msg key="lt_This_invoice_is_past_">Esta factura será morosa si queda sin pagar después de %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_have_insufficient">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_have_insufficient_1">Carece de privilegios suficientes para ver esta página.</msg>
@@ -74,12 +84,16 @@
   <msg key="New_cost_type">Nuevo %cost_type%</msg>
   <msg key="New_Customer_Invoice_from_Quote">Nueva factura a cliente a partir de presupuesto</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nueva factura a cliente desde cero</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Facturar un parte de trabajo</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">Facturar una tarea de traducción</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Nueva factura de proveedor a partir de orden de compra</msg>
   <msg key="New_Provider_Bill_from_scratch">Nueva factura de proveedor desde cero</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">Nueva factura de proveedor a partir de tareas de traducción</msg>
   <msg key="New_Purchase_Order_from_scratch">Nueva orden de compra desde cero</msg>
   <msg key="New_Purchase_Order_from_Translation_Tasks">Nueva orden de compra a partir de tareas de traducción</msg>
   <msg key="New_Quote_from_scratch">Nuevo presupuesto desde cero</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Nuevo presupuesto desde parte de trabajo</msg>
+  <msg key="New_Quote_from_Translation_Tasks">Presupuestar tarea de traducción</msg>
   <msg key="New_Translation_Customer_Invoice">Nueva factura a cliente de traducciones</msg>
   <msg key="New_Translation_Invoice">Nueva factura por traducciones</msg>
   <msg key="New_Translation_Provider_Invoice">Nueva factura de proveedor de traducciones</msg>
@@ -104,6 +118,7 @@
   <msg key="Previous_Page">Página anterior</msg>
   <msg key="Provider">Proveedor</msg>
   <msg key="Provider_1">Proveedor:</msg>
+  <msg key="Providers">Proveedores</msg>
   <msg key="Qty">Cdad.</msg>
   <msg key="Rate">Tarifa</msg>
   <msg key="Recipient">Destinatario</msg>
