@@ -135,6 +135,7 @@ if {$invoice_id} {
     set cost_note ""
     set payment_method_id ""
     set template_id ""
+    set company_contact_id ""
 }
 
 if {"" == $invoice_currency} {
