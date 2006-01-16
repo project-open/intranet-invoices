@@ -123,11 +123,11 @@ if {1 == [llength $related_projects]} {
 set query "
 select
 	i.*,
+	i.invoice_office_id,
 	ci.*,
 	ci.note as cost_note,
 	ci.project_id as cost_project_id,
 	c.*,
-        o.*,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
@@ -135,19 +135,31 @@ select
 from
 	im_invoices_active i,
 	im_costs ci,
-        im_companies c,
-        im_offices o
+        im_companies c
 where 
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
 	$customer_or_provider_join
-        and c.main_office_id=o.office_id
 "
-
 if { ![db_0or1row invoice_info_query $query] } {
     ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
     return
 }
+
+
+# Fallback for empty office_id: Main Office
+if {"" == $invoice_office_id} {
+    set invoice_office_id $main_office_id
+}
+
+db_1row office_info_query "
+	select *
+	from im_offices
+	where office_id = :invoice_office_id
+"
+
+
+
 
 # Use the "company_contact_id" of the invoices as the main contact.
 # Fallback to the accounting_contact_id and primary_contact_id

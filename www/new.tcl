@@ -155,10 +155,11 @@ set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_typ
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
+    set custprov "customer"
 } else {
     set company_id $provider_id
+    set custprov "provider"
 }
-
 
 
 # ---------------------------------------------------------------
@@ -182,7 +183,12 @@ if {"" != $company_payment_days} {
     set payment_days $company_payment_days
 }
 
-
+# Get a reasonable default value for the invoice_office_id,
+# either from the invoice or then from the company_main_office.
+set invoice_office_id [db_string invoice_office_info "select invoice_office_id from im_invoices where invoice_id = :invoice_id" -default ""]
+if {"" == $invoice_office_id} {
+    set invoice_office_id [db_string company_main_office_info "select main_office_id from im_companies where company_id = :company_id" -default ""]
+}
 
 # ---------------------------------------------------------------
 # Calculate the selects for the ADP page
@@ -195,6 +201,10 @@ set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
+
+set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Address "Address"]
+set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
+
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items

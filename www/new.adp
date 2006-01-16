@@ -94,6 +94,11 @@
 
 
 		<tr>
+		  <td class=rowodd>@invoice_address_label@</td>
+		  <td class=rowodd>@invoice_address_select;noquote@</td>
+		</tr>
+
+		<tr>
 		  <td class=rowodd>#intranet-core.Contact#</td>
 		  <td class=rowodd>@contact_select;noquote@</td>
 		</tr>
