@@ -72,7 +72,10 @@ create table im_invoices (
 	-- the PO of a provider bill or the quote of an invoice
 	reference_document_id	integer
 				constraint im_invoices_reference_doc
-				references im_invoices
+				references im_invoices,
+	office_id		integer
+				constraint im_invoices_office_fk
+				references im_offices
 );
 
 
