@@ -73,7 +73,7 @@ create table im_invoices (
 	reference_document_id	integer
 				constraint im_invoices_reference_doc
 				references im_invoices,
-	office_id		integer
+	invoice_office_id	integer
 				constraint im_invoices_office_fk
 				references im_offices
 );
