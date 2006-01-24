@@ -102,14 +102,22 @@ if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
 
 set related_projects_sql "
         select distinct
-	   	r.object_id_one
+	   	r.object_id_one as project_id,
+		p.project_nr
 	from
-	        acs_rels r
+	        acs_rels r,
+		im_projects p
 	where
-	        r.object_id_two = :invoice_id
+		r.object_id_one = p.project_id
+	        and r.object_id_two = :invoice_id
 "
 
-set related_projects [db_list related_projects $related_projects_sql]
+set related_projects {}
+db_foreach related_projects $related_projects_sql {
+   lappend related_projects $project_id
+   lappend related_project_nrs $project_nr
+}
+
 set rel_project_id 0
 if {1 == [llength $related_projects]} {
     set rel_project_id [lindex $related_projects 0]
