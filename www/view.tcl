@@ -440,11 +440,11 @@ db_foreach invoice_items {} {
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
 	append item_list_html "
-          <td align=left>$company_project_nr</td>\n"
+          <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
     }
     append item_list_html "
-          <td align=left>$project_short_name</td>
-          <td align=right>$amount_pretty&nbsp;$currency</td>
+          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>
+          <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
 	</tr>"
     incr ctr
 }
@@ -471,7 +471,7 @@ set colspan_sub [expr $colspan - 1]
 # Add a subtotal
 append item_list_html "
         <tr> 
-          <td class=rowplain colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
+          <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B>$subtotal_pretty $currency</B></td>
         </tr>
 "
@@ -479,14 +479,14 @@ append item_list_html "
 if {"" != $vat && 0 != $vat} {
     append item_list_html "
         <tr>
-          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
 } else {
     append item_list_html "
         <tr>
-          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
         </tr>
 "
@@ -495,7 +495,7 @@ if {"" != $vat && 0 != $vat} {
 if {"" != $tax && 0 != $tax} {
     append item_list_html "
         <tr> 
-          <td colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
           <td class=roweven align=right>$tax_amount_pretty $currency</td>
         </tr>
     "
@@ -503,7 +503,7 @@ if {"" != $tax && 0 != $tax} {
 
 append item_list_html "
         <tr> 
-          <td colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
+          <td class=roweven colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
           <td class=roweven align=right><b>$grand_total_pretty $currency</b></td>
         </tr>
 "
