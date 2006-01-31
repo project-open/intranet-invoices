@@ -433,10 +433,10 @@ db_foreach invoice_items {} {
 
     append item_list_html "
 	<tr $bgcolor([expr $ctr % 2])> 
-          <td>$item_name</td>
-          <td align=right>$item_units_pretty</td>
-          <td align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
-          <td align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
+          <td $bgcolor([expr $ctr % 2])>$item_name</td>
+          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
+          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
+          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
 	append item_list_html "
