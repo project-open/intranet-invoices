@@ -472,7 +472,7 @@ set colspan_sub [expr $colspan - 1]
 append item_list_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
-          <td class=roweven align=right><B>$subtotal_pretty $currency</B></td>
+          <td class=roweven align=right><B><nobr>$subtotal_pretty $currency</nobr></B></td>
         </tr>
 "
 
@@ -504,7 +504,7 @@ if {"" != $tax && 0 != $tax} {
 append item_list_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
-          <td class=roweven align=right><b>$grand_total_pretty $currency</b></td>
+          <td class=roweven align=right><b><nobr>$grand_total_pretty $currency</nobr></b></td>
         </tr>
 "
 
