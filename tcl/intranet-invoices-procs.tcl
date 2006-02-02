@@ -202,9 +202,10 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
     Return the most appropriate company contact for an 
     invoice.
 } {
+    # Determine the preferred company contact
+    #
     set primary_contact_id ""
     set accounting_contact_id ""
-
     set company_info_sql "
 	select	primary_contact_id,
 		accounting_contact_id
@@ -212,31 +213,39 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
 	where	company_id = :company_id
     "
     catch {[db_1row company_info $company_info_sql]} errmsg
-
     set company_contact_id $accounting_contact_id
     if {"" == $company_contact_id} { set company_contact_id $primary_contact_id }
 
-    # That's it if we prefer the accounting contact
-    # in favour of the projects' contact.
-    set prefer_accounting_contact_p [parameter::get -package_id [im_package_invoices_id] -parameter "PreferAccountingContactOverProjectContactP" -default 1]
-    if {$prefer_accounting_contact_p} {
-	return $company_contact_id
-    }
 
-    # Project's contact preferred: Check if the project
-    # is valid and get the contact.
+    # Determine the projects' contact (if exists)
+    #
+    set project_contact_id ""
     if {0 != $project_id && "" != $project_id || [db_column_exists im_project company_contact_id]} {
-
-	set contact_id [db_string project_info "
+	set project_contact_id [db_string project_info "
 		select company_contact_id 
 		from im_projects 
 		where project_id = :project_id
 	" -default ""]
-	if {"" != $contact_id} { set company_contact_id $contact_id }
-
     }
 
-    return $company_contact_id
+    # Use the company's and project's contacts as default for
+    # each other.
+    if {"" == $company_contact_id || 0 == $company_contact_id} {
+	set company_contact_id $project_contact_id
+    }
+    if {"" == $project_contact_id || 0 == $project_contact_id} {
+	set project_contact_id $company_contact_id
+    }
+
+    # Check what we prefer (if there are two options..)
+    set prefer_accounting_contact_p [parameter::get -package_id [im_package_invoices_id] -parameter "PreferAccountingContactOverProjectContactP" -default 1]
+
+    if {$prefer_accounting_contact_p} {
+	return $company_contact_id
+    } else {
+	return $project_contact_id
+    }
+
 }
 
 # ---------------------------------------------------------------

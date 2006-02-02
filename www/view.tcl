@@ -508,23 +508,28 @@ append item_list_html "
         </tr>
 "
 
-set terms_html ""
 
-if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
-append terms_html "
+# ---------------------------------------------------------------
+#
+# ---------------------------------------------------------------
+
+set payment_terms_html "
         <tr>
 	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
           <td valign=top colspan=[expr $colspan-1]> 
             [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
+"
+
+set payment_method_html "
         <tr>
 	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
           <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
-        </tr>\n"
-}
+        </tr>
+"
 
-append terms_html "
+set note_html "
         <tr>
 	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>
@@ -532,6 +537,12 @@ append terms_html "
 	  </td>
         </tr>
 "
+
+set terms_html ""
+if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
+    set terms_html [concat $payment_terms_html $payment_method_html]
+}
+append terms_html $note_html
 
 set item_html [concat $item_list_html $terms_html]
 
