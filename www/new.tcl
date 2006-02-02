@@ -166,22 +166,25 @@ if {$invoice_or_quote_p} {
 # Get default values for VAT and invoice_id from company
 # ---------------------------------------------------------------
 
-if {0 == $vat} {
-    set vat [db_string default_vat "select default_vat from im_companies where company_id = :company_id" -default "0"]
+if {[db_column_exists im_companies default_invoice_template_id]} {
+    if {0 == $vat} {
+	set vat [db_string default_vat "select default_vat from im_companies where company_id = :company_id" -default "0"]
+    }
+    
+    if {"" == $template_id} {
+	set template_id [db_string default_template "select default_invoice_template_id from im_companies where company_id = :company_id" -default ""]
+    }
+    
+    if {"" == $payment_method_id} {
+	set payment_method_id [db_string default_payment_method "select default_payment_method_id from im_companies where company_id = :company_id" -default ""]
+    }
+    
+    set company_payment_days [db_string default_payment_days "select default_payment_days from im_companies where company_id = :company_id" -default ""]
+    if {"" != $company_payment_days} {
+	set payment_days $company_payment_days
+    }
 }
 
-if {"" == $template_id} {
-    set template_id [db_string default_template "select default_invoice_template_id from im_companies where company_id = :company_id" -default ""]
-}
-
-if {"" == $payment_method_id} {
-    set payment_method_id [db_string default_payment_method "select default_payment_method_id from im_companies where company_id = :company_id" -default ""]
-}
-
-set company_payment_days [db_string default_payment_days "select default_payment_days from im_companies where company_id = :company_id" -default ""]
-if {"" != $company_payment_days} {
-    set payment_days $company_payment_days
-}
 
 # Get a reasonable default value for the invoice_office_id,
 # either from the invoice or then from the company_main_office.
