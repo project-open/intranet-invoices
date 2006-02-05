@@ -35,7 +35,15 @@
 <if @write@>
 		<li>
 		  <% set notify_vars [export_url_vars invoice_id return_url] %>
-		  <A HREF="/intranet-invoices/notify?@notify_vars@">#intranet-invoices.lt_Send_as_email_to_prov#</A>
+		  <A HREF="/intranet-invoices/notify?@notify_vars@">
+		  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as HTML link"] %>
+		  </A>
+
+		<li>
+		  <% set notify_vars [export_url_vars invoice_id return_url] %>
+		  <A HREF="/intranet-invoices/notify?@notify_vars@">
+		  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_PDF "Send this %cost_type% to %provider_company% as PDF attachment"] %>
+		  </A>
 </if>
 
 	    </td>
