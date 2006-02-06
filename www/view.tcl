@@ -11,6 +11,15 @@ ad_page_contract {
     @param render_template_id specifies whether the invoice should be show
 	   in plain HTML format or formatted using an .adp template
     @param show_all_comments whether to show all comments
+    @param send_to_user_as "html" or "pdf".
+           Indicates that the content of the
+           invoice should be rendered using the default template
+           and sent to the default contact.
+           The difficulty is that it's not sufficient just to redirect
+           to a mail sending page, because it is only this page that 
+           "knows" how to render an invoice. So in order to send the
+           PDF we first need to redirect to this page, render the invoice
+           and then redirect to the mail sending page.
 
     @author frank.bergmann@project-open.com
 } {
@@ -19,6 +28,7 @@ ad_page_contract {
     { show_all_comments 0 }
     { render_template_id:integer 0 }
     { return_url "" }
+    { send_to_user_as ""}
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -546,13 +556,15 @@ append terms_html $note_html
 
 set item_html [concat $item_list_html $terms_html]
 
+
+
 # ---------------------------------------------------------------
-# 10. Format using a template
+# Special Output: Format using a template and/or send out as PDF
 # ---------------------------------------------------------------
 
 # Use a specific template ("render_template_id") to render the "preview"
 # of this invoice
-if {0 != $render_template_id} {
+if {0 != $render_template_id || "" != $send_to_user_as} {
 
     # format using a template
     set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
@@ -573,9 +585,23 @@ if {0 != $render_template_id} {
 	return
     }
 
-    set out_contents [ns_adp_parse -file $invoice_template_path]
-    db_release_unused_handles
-    ns_return 200 text/html $out_contents
-    return
+    # Render the page using the template
+    set invoices_as_html [ns_adp_parse -file $invoice_template_path]
 
+
+    # Redirect to a mail sending page.
+    if {"" != $send_to_user_as} {
+	# Redirect to mail sending page:
+	# Add the rendered invoice to the form variables
+	rp_form_put invoice_html $invoices_as_html
+	rp_internal_redirect notify
+	ad_script_abort
+
+    } else {
+
+	# Show invoice using template
+	db_release_unused_handles
+	ns_return 200 text/html $invoices_as_html
+	ad_script_abort
+    }
 } 
