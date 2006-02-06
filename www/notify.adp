@@ -10,7 +10,7 @@
 @export_vars;noquote@
 
 <table>
-<tr>
+<tr class=roweven>
 <td>#intranet-invoices.From#</td>
 <td>
 <A HREF=/intranet/users/view?user_id=@user_id@>
@@ -20,7 +20,7 @@
 </td>
 </tr>
 
-<tr>
+<tr class=rowodd>
 <td>#intranet-invoices.To#</td>
 <td>
 <A HREF=/intranet/users/view?user_id=@accounting_contact_id@>
@@ -30,21 +30,29 @@
 </td>
 </tr>
 
-<tr>
+<tr class=roweven>
 <td>Subject</td>
 <td>
-<textarea name=subject rows=1 cols=70 wrap=hard>
-#intranet-invoices.lt_system_name_New_cost_#
-</textarea>
+<input type=text name=subject value="#intranet-invoices.lt_system_name_New_cost_#" size=70>
 </td>
 
-<tr>
+<tr class=rowodd>
 <td>Message</td>
 <td>
 <textarea name=message rows=10 cols=70 wrap=hard>
 #intranet-invoices.lt_Dear_accounting_conta#</textarea>
 </td>
 </tr>
+
+<if @send_to_user_as@ ne "">
+<tr class=roweven valign=center>
+<td>Attachment</td>
+<td>
+  <input type=text name=attachment_filename value="@attachment_filename@" size=40>
+  <%= [im_gif "exp-$send_to_user_as" $send_to_user_as] %>
+</td>
+</tr>
+</if>
 
 <tr valign=top>
 <td>&nbsp;</td>
