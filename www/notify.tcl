@@ -6,7 +6,20 @@
 # http://www.project-open.com/license/ for details.
 
 ad_page_contract {
-    Purpose: Confirms adding of person to group
+    Purpose: Send an email to the accounting/project contact
+    to inform about the invoice.
+    The contact can be informed via:
+    <ul>
+    <li>Link: The user needs to log-in in order to see the invoice
+    <li>HTML: The content of the invoice is sent out as a HTML
+        page. However, logos or any other included links need to
+        be accessible on a webserver URL "from outside the office", 
+        otherwise the HTML will not be displayed correctly.
+    <li>PDF: If the html2ps/html2pdf converters are installed.
+        This is the most stable solution. Howeve, you have to
+        make sure the the PDF converter finds all logos and CSS
+        for the PO server.
+    </ul>
 
     @param user_id_from_search user_id to add
     @param object_id group to which to add
@@ -18,6 +31,8 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
+    {invoice_html:allhtml ""}
+    {send_to_user_as ""}
     return_url
 }
 
@@ -31,6 +46,24 @@ if {!$write} {
     ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[_ intranet-invoices.lt_You_dont_have_suffici]"
 }
+
+# Build the name of the attachment
+db_1row invoice_info "
+	select 
+		c.*,
+		im_category_from_id(cost_type_id) as cost_type
+	from	im_costs c
+	where	cost_id = :invoice_id
+"
+
+
+# create a reasonable name for the attachment.
+# Should look like: "invoice.2006_03_0005.html"
+set use_invoice_nr_type_prefix_p [ad_parameter -package_id [im_package_invoices_id] "UseInvoiceNrTypePrefixP" "" 0]
+set attachment_filename "$cost_type."
+append attachment_filename [string range $cost_name $use_invoice_nr_type_prefix_p 99]
+append attachment_filename ".$send_to_user_as"
+set attachment_filename [string tolower $attachment_filename]
 
 # --------------------------------------------------------
 # Prepare to send out an email alert
@@ -109,3 +142,13 @@ db_foreach select_projects $select_project_sql {
 set user_id_from_search $accounting_contact_id
 set export_vars [export_form_vars user_id_from_search invoice_id return_url]
 
+if {"" != $send_to_user_as} {
+
+    set attachment $invoice_html
+    switch $send_to_user_as {
+	"html" { set attachment_mime_type "text/html" }
+	"pdf" { set attachment_mime_type "application/pdf" }
+	default {set attachment_mime_type "text/plain" }
+    }
+    append export_vars [export_form_vars attachment_mime_type attachment]
+}
