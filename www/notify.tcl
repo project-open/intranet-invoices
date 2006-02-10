@@ -65,6 +65,7 @@ append attachment_filename [string range $cost_name $use_invoice_nr_type_prefix_
 append attachment_filename ".$send_to_user_as"
 set attachment_filename [string tolower $attachment_filename]
 
+
 # --------------------------------------------------------
 # Prepare to send out an email alert
 # --------------------------------------------------------
@@ -144,11 +145,18 @@ set export_vars [export_form_vars user_id_from_search invoice_id return_url]
 
 if {"" != $send_to_user_as} {
 
-    set attachment $invoice_html
+    set attachment ""
+    set attachment_mime_type "text/plain"
+
     switch $send_to_user_as {
-	"html" { set attachment_mime_type "text/html" }
-	"pdf" { set attachment_mime_type "application/pdf" }
-	default {set attachment_mime_type "text/plain" }
+	"html" { 
+	    set attachment $invoice_html
+	    set attachment_mime_type "text/html" 
+	}
+	"pdf" { 
+	    set attachment [im_html2pdf_convert "<body>adsf</body"]
+	    set attachment_mime_type "application/pdf" 
+	}
     }
-    append export_vars [export_form_vars attachment_mime_type attachment]
+    append export_vars [export_form_vars attachment_mime_type send_to_user_as attachment]
 }
