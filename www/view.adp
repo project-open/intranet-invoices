@@ -46,10 +46,12 @@
 	  </A>
 
 	<li>
+<!--
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
 	  <A HREF="@url@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as PDF attachment"] %>
 	  </A>
+-->
 
 </if>
 
