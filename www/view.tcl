@@ -68,6 +68,55 @@ set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
 
 # ---------------------------------------------------------------
+# Pad number with trailing "0" to meet rounding_precision
+# ---------------------------------------------------------------
+
+ad_proc -public im_numeric_add_trailing_zeros {
+    num
+    rounding_precision
+} {
+    Add trailing "0" until the number has reached the "rounding_precision".
+    "num" comes in TCL numeric format (after adding an "expr num+0").
+    Example: 1524163.8 => 1524163.80
+} {
+#    set num "1524163"
+#    set rounding_precision -3
+
+    # Check if there is a "." in the format, checking from the rear
+    set pos [string first "." $num]
+
+    # Deal with the case of no fraction - this may be OK if the case
+    # of negative fraction "rounding_precision".
+    if {-1 == $pos} {
+	if {$rounding_precision >= 0} { set num "${num}." }
+	set pos [string first "." $num]
+    }
+
+    # Determine the other stuff of the number
+    set len [string length $num]
+    set frac [expr $len-$pos-1]
+    set missing_frac [expr $rounding_precision-$frac]
+
+    # Deal with the case of no fraction - this may be OK if the case
+    # of negative fraction "rounding_precision".
+    if {-1 == $pos} {
+	if {$rounding_precision >= 0} { set num "${num}." }
+    }
+    
+    set result $num
+
+    while {$missing_frac > 0} {
+	set result "${result}0"
+	set missing_frac [expr $missing_frac-1]
+    }
+
+#    ad_return_complaint 1 "num=$num, prec=$rounding_precision, len=$len, pos=$pos, frac=$frac, mis_frac=$missing_frac, res=$result"
+
+    return $result
+}
+
+
+# ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
@@ -437,9 +486,9 @@ db_foreach invoice_items {} {
 	set project_short_name $project_short_name_default
     }
 
-    set amount_pretty [lc_numeric [expr $amount+0] "" $locale]
-    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-    set price_per_unit_pretty [lc_numeric [expr $price_per_unit+0] "" $locale]
+    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+    set item_units_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $item_units+0] $rounding_precision] "" $locale]
+    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 
     append item_list_html "
 	<tr $bgcolor([expr $ctr % 2])> 
@@ -471,10 +520,10 @@ if {"" == $tax} { set tax 0}
 # Calculate grand total based on the same inner SQL
 db_1row calc_grand_total ""
 
-set subtotal_pretty [lc_numeric [expr $subtotal+0] "" $locale]
-set vat_amount_pretty [lc_numeric [expr $vat_amount+0] "" $locale]
-set tax_amount_pretty [lc_numeric [expr $tax_amount+0] "" $locale]
-set grand_total_pretty [lc_numeric [expr $grand_total+0] "" $locale]
+set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0] $rounding_precision] "" $locale]
+set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
+set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
+set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 
 set colspan_sub [expr $colspan - 1]
 
@@ -517,11 +566,6 @@ append item_list_html "
           <td class=roweven align=right><b><nobr>$grand_total_pretty $currency</nobr></b></td>
         </tr>
 "
-
-
-# ---------------------------------------------------------------
-#
-# ---------------------------------------------------------------
 
 set payment_terms_html "
         <tr>
