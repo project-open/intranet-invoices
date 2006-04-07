@@ -34,7 +34,8 @@ ad_page_contract {
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
+    <li>You don't have sufficient privileges to see this page."
+    return
 }
 
 # ---------------------------------------------------------------

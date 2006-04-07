@@ -17,6 +17,8 @@ ad_page_contract {
     { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
+    { company_contact_id:integer "" }
+    { invoice_office_id "" }
     invoice_nr
     invoice_date
     cost_status_id:integer 
@@ -52,8 +54,20 @@ ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
+    
+    if {"" == $customer_id || 0 == $customer_id} {
+	ad_return_complaint 1 "You need to specify a value for customer_id"
+	return
+    }
+
 } else {
     set company_id $provider_id
+
+    if {"" == $provider_id || 0 == $provider_id} {
+	ad_return_complaint 1 "You need to specify a value for provider_id"
+	return
+    }
+
 }
 
 # ---------------------------------------------------------------
@@ -61,10 +75,10 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-#if {![im_permission $user_id add_invoices]} {
-#    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
-#    return
-#}
+if {![im_permission $user_id add_invoices]} {
+    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
+    return
+}
 
 # Invoices and Bills need a payment method, quotes and POs don't.
 if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {
@@ -79,6 +93,11 @@ if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_inter
 set project_id ""
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
+}
+
+# Choose the default contact for this invoice.
+if {"" == $company_contact_id } {
+   set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
 }
 
 
@@ -100,7 +119,9 @@ db_dml update_invoice "
 update im_invoices 
 set 
 	invoice_nr	= :invoice_nr,
-	payment_method_id = :payment_method_id
+	payment_method_id = :payment_method_id,
+	company_contact_id = :company_contact_id,
+	invoice_office_id = :invoice_office_id
 where
 	invoice_id = :invoice_id
 "

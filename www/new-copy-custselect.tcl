@@ -15,6 +15,8 @@ ad_page_contract {
 } {
     source_cost_type_id:integer
     target_cost_type_id:integer
+    {customer_id:integer ""}
+    {provider_id:integer ""}
     blurb
     return_url
 }
@@ -38,7 +40,15 @@ set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.
 # ---------------------------------------------------------------
 
 
-set customer_select [im_company_select company_id 0 "" "Customer"]
+# Check of customer and provider are already set...
+#
+if {"" != $customer_id} {
+    set company_id $customer_id
+    ad_returnredirect new-copy-invoiceselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id company_id blurb return_url]
+    return
+}
+
+set customer_select [im_company_select company_id 0 "" "CustOrIntl"]
 set provider_select [im_company_select company_id 0 "" "Provider"]
 
 

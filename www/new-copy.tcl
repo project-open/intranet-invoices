@@ -16,6 +16,8 @@ ad_page_contract {
     source_invoice_id:integer,optional
     source_cost_type_id:integer,optional
     target_cost_type_id:integer
+    {customer_id:integer ""}
+    {provider_id:integer ""}
     { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
 }
@@ -35,7 +37,7 @@ if {![im_permission $user_id add_invoices]} {
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
 if {![info exists source_invoice_id]} {
-    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id blurb return_url]
+    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id blurb return_url]
 }
 
 set date_format "YYYY-MM-DD"
@@ -102,8 +104,20 @@ set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 # Modify some variable between the source and the target invoice
 # ---------------------------------------------------------------
 
-set invoice_nr [im_invoice_nr_variant $org_invoice_nr]
+# Old one: add an "a" behind the invoice_nt to indicate
+# a variant.
+# set invoice_nr [im_invoice_nr_variant $org_invoice_nr]
+
+# New One: Just create a new invoice nr
+# for the target FinDoc type.
+set invoice_nr [im_next_invoice_nr -invoice_type_id $target_cost_type_id]
+
 set new_invoice_id [im_new_object_id]
+
+# ToDo: Create a link between the invoice and the quote
+# in order to indicate that the two belong together.
+# Is this really a good idea? Invoice-from-Quote may
+# workout fine, but other combinations?
 
 
 # ---------------------------------------------------------------

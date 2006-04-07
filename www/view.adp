@@ -7,7 +7,7 @@
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
   <td>
-	  <%= [im_invoices_object_list_component $user_id $invoice_id $return_url] %>
+	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
   </td>
   <td>
 	    @payment_list_html;noquote@
@@ -19,21 +19,40 @@
 	  </tr>
 	  <tr>
 	    <td>
-		<li>
-		  <% set render_template_id $template_id %>
-		  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
-		  <A HREF="/intranet-invoices/view?@preview_vars@">#intranet-invoices.Preview#</A>
+	<li>
+	  <% set render_template_id $template_id %>
+	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+	  <A HREF="/intranet-invoices/view?@preview_vars@">#intranet-invoices.Preview#</A>
+<if @admin@>
 <if "" ne @generation_blurb@>
-		<li>
-		  <% set blurb $generation_blurb %>
-		  <% set source_invoice_id $invoice_id %>
-		  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
-		  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
+	<li>
+	  <% set blurb $generation_blurb %>
+	  <% set source_invoice_id $invoice_id %>
+	  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+	  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
+</if>
 </if>
 <if @write@>
-		<li>
-		  <% set notify_vars [export_url_vars invoice_id return_url] %>
-		  <A HREF="/intranet-invoices/notify?@notify_vars@">#intranet-invoices.lt_Send_as_email_to_prov#</A>
+	<li>
+	  <% set notify_vars [export_url_vars invoice_id return_url] %>
+	  <A HREF="/intranet-invoices/notify?@notify_vars@">
+	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as HTML link"] %>
+	  </A>
+
+	<li>
+	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "html"} return_url}] %>
+	  <A HREF="@url@">
+	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as HTML attachment"] %>
+	  </A>
+
+	<li>
+<!--
+	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
+	  <A HREF="@url@">
+	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as PDF attachment"] %>
+	  </A>
+-->
+
 </if>
 
 	    </td>
@@ -101,6 +120,7 @@
 	  <form action=new method=POST>
 	    <%= [export_form_vars return_id invoice_id cost_type_id] %>
 	    <input type=submit name=edit_invoice value='#intranet-invoices.Edit#'>
+	    <input type=submit name=del_invoice value='#intranet-core.Delete#'>
 	  </form>
 </if>
 	</td></tr>
@@ -125,7 +145,7 @@
         <tr> 
           <td  class=rowodd> #intranet-invoices.Contact#</td>
           <td  class=rowodd>
-            <A href=/intranet/users/view?user_id=@accounting_contact_id@>@company_contact_name@</A>
+            <A href=/intranet/users/view?user_id=@company_contact_id@>@company_contact_name@</A>
           </td>
         </tr>
         <tr> 

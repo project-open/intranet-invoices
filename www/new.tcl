@@ -30,12 +30,15 @@ ad_page_contract {
     { project_id:integer 0}
     { invoice_currency ""}
     { create_invoice_from_template ""}
-    { return_url "/intranet-invoice/"}
+    { return_url "/intranet-invoices/list"}
+    del_invoice:optional
 }
 
 # ---------------------------------------------------------------
 # 2. Defaults & Security
 # ---------------------------------------------------------------
+
+set user_id [ad_maybe_redirect_for_registration]
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
@@ -43,15 +46,18 @@ if {"" != $create_invoice_from_template} {
     ad_script_abort
 }
 
+# Check if we need to delete the invoice.
+# We get there because the "Delete" button in view.tcl can
+# only send to one target, which is this file...
+if {[info exists del_invoice]} {
+    ad_returnredirect [export_vars -base delete {invoice_id return_url}]
+}
 
-# User id already verified by filters
-set user_id [ad_maybe_redirect_for_registration]
-
-#ns_log notice "**************** $user_id permission [im_permission $user_id view_invoices]**********"
-#if {![im_permission $user_id view_invoices]} {
-#    ad_return_complaint "Insufficient Privileges" "
-#    <li>You don't have sufficient privileges to see this page."    
-#}
+im_cost_permissions $user_id $invoice_id view read write admin
+if {!$write} {
+    ad_return_complaint "Insufficient Privileges" "
+    <li>You don't have sufficient privileges to see this page."    
+}
 
 set return_url [im_url_with_query]
 set todays_date [db_string get_today "select to_char(sysdate,'YYYY-MM-DD') from dual"]
@@ -118,7 +124,7 @@ if {$invoice_id} {
     set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     set invoice_id [im_new_object_id]
-    set invoice_nr [im_next_invoice_nr]
+    set invoice_nr [im_next_invoice_nr -invoice_type_id $cost_type_id]
     set cost_status_id [im_cost_status_created]
     set effective_date $todays_date
     set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
@@ -129,6 +135,7 @@ if {$invoice_id} {
     set cost_note ""
     set payment_method_id ""
     set template_id ""
+    set company_contact_id ""
 }
 
 if {"" == $invoice_currency} {
@@ -148,10 +155,43 @@ set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_typ
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
+    set custprov "customer"
 } else {
     set company_id $provider_id
+    set custprov "provider"
 }
 
+
+# ---------------------------------------------------------------
+# Get default values for VAT and invoice_id from company
+# ---------------------------------------------------------------
+
+if {[db_column_exists im_companies default_invoice_template_id]} {
+    if {0 == $vat} {
+	set vat [db_string default_vat "select default_vat from im_companies where company_id = :company_id" -default "0"]
+    }
+    
+    if {"" == $template_id} {
+	set template_id [db_string default_template "select default_invoice_template_id from im_companies where company_id = :company_id" -default ""]
+    }
+    
+    if {"" == $payment_method_id} {
+	set payment_method_id [db_string default_payment_method "select default_payment_method_id from im_companies where company_id = :company_id" -default ""]
+    }
+    
+    set company_payment_days [db_string default_payment_days "select default_payment_days from im_companies where company_id = :company_id" -default ""]
+    if {"" != $company_payment_days} {
+	set payment_days $company_payment_days
+    }
+}
+
+
+# Get a reasonable default value for the invoice_office_id,
+# either from the invoice or then from the company_main_office.
+set invoice_office_id [db_string invoice_office_info "select invoice_office_id from im_invoices where invoice_id = :invoice_id" -default ""]
+if {"" == $invoice_office_id} {
+    set invoice_office_id [db_string company_main_office_info "select main_office_id from im_companies where company_id = :company_id" -default ""]
+}
 
 # ---------------------------------------------------------------
 # Calculate the selects for the ADP page
@@ -163,6 +203,11 @@ set status_select [im_cost_status_select cost_status_id $cost_status_id]
 set type_select [im_cost_type_select cost_type_id $cost_type_id]
 set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
+
+set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Address "Address"]
+set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
+
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items
@@ -247,8 +292,7 @@ if {[string equal $invoice_mode "new"]} {
 	  </td>
           <td align=left>
 	    <input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>
-	    <input type=hidden name=item_currency.$ctr value='$currency'>
-	    $currency
+            [im_currency_select item_currency.$ctr $currency]
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>

@@ -14,12 +14,37 @@ ad_page_contract {
     role_id:integer
     subject
     message
+    { send_me_a_copy "" }
     return_url
 }
 
-set user_id [ad_maybe_redirect_for_registration]
 
+######### Not being used anymore (?) ##############
+
+
+# ToDo: Delete this file
+
+
+
+
+
+
+# --------------------------------------------------------
+# Security and defaults
+# --------------------------------------------------------
+
+set user_id [ad_maybe_redirect_for_registration]
+im_cost_permissions $user_id $invoice_id view read write admin
+if {!write} {
+    ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[_ intranet-invoices.lt_You_dont_have_suffici]"
+}
+
+
+# --------------------------------------------------------
 # Send out an email alert
+# --------------------------------------------------------
+
 im_send_alert $user_id_from_search "hourly" $subject $message
 
 # Send a CC

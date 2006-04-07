@@ -72,7 +72,10 @@ create table im_invoices (
 	-- the PO of a provider bill or the quote of an invoice
 	reference_document_id	integer
 				constraint im_invoices_reference_doc
-				references im_invoices
+				references im_invoices,
+	invoice_office_id	integer
+				constraint im_invoices_office_fk
+				references im_offices
 );
 
 
@@ -189,7 +192,7 @@ create or replace function im_invoice__new (
 returns integer as '
 declare
 	p_invoice_id		alias for $1;		-- invoice_id default null
-	p_object_type		alias for $2;		-- object_type default im_invoice
+	p_object_type		alias for $2;		-- object_type default ''im_invoice''
 	p_creation_date		alias for $3;		-- creation_date default now()
 	p_creation_user		alias for $4;		-- creation_user
 	p_creation_ip		alias for $5;		-- creation_ip default null
@@ -199,7 +202,7 @@ declare
 	p_provider_id		alias for $9;		-- provider_id
 	p_company_contact_id	alias for $10;		-- company_contact_id default null
 	p_invoice_date		alias for $11;		-- invoice_date now()
-	p_invoice_currency	alias for $12;		-- invoice_currency default EUR
+	p_invoice_currency	alias for $12;		-- invoice_currency default ''EUR''
 	p_invoice_template_id	alias for $13;		-- invoice_template_id default null
 	p_invoice_status_id	alias for $14;		-- invoice_status_id default 602
 	p_invoice_type_id	alias for $15;		-- invoice_type_id default 700
