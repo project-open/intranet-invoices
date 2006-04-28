@@ -2,7 +2,9 @@
 <property name="title">@page_title;noquote@</property>
 <property name="main_navbar_label">finance</property>
 
-<%= [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""] %>
+
+<img src="/intranet/images/cleardot.gif" width=2 height=2>
+<%= [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""] %> 
 
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
@@ -10,7 +12,7 @@
 	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
   </td>
   <td>
-	    @payment_list_html;noquote@
+<!--	    @payment_list_html;noquote@		-->
   </td>
   <td>
 	<table border=0 cellPadding=1 cellspacing=1>
@@ -36,17 +38,17 @@
 	<li>
 	  <% set notify_vars [export_url_vars invoice_id return_url] %>
 	  <A HREF="/intranet-invoices/notify?@notify_vars@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as HTML link"] %>
+	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_HTML_link "Send this %cost_type% to %provider_company% as HTML link"] %>
 	  </A>
 
 	<li>
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "html"} return_url}] %>
 	  <A HREF="@url@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as HTML attachment"] %>
+	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_HTML_attachment "Send this %cost_type% to %provider_company% as HTML attachment"] %>
 	  </A>
 
-	<li>
 <!--
+	<li>
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
 	  <A HREF="@url@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as PDF attachment"] %>
