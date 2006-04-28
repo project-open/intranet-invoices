@@ -106,6 +106,9 @@ if {![im_permission $user_id view_invoices]} {
 set view_id [db_string get_view_id "select view_id from im_views where view_name=:view_name" -default 0]
 set view_subtotal_id [db_string get_view_subtotal_id "select view_id from im_views where view_name=:view_name_subtotal" -default 0]
 
+
+
+
 if {0 == $view_id || 0 == $view_subtotal_id} {
     ad_return_complaint 1 "<b>View not found</b>:<br>
     We have got a 0 value for view=$view_id or view_subtotal=$view_subtotal_id, 
@@ -537,6 +540,7 @@ db_foreach invoices_info_query $selection {
 
     # paid_amount="" => paid_amount=0
     if {"" == $paid_amount} { set paid_amount 0}
+    if {"" == $amount} { set amount 0}
 
 
     # ---- Debugging ----
@@ -612,6 +616,11 @@ db_foreach invoices_info_query $selection {
     # ---- Update Counters -----
 
     foreach counter $counters {
+
+	ns_log Notice "invoices/list: counter='$counter', counter_sum='$counter_sum($counter)', counter_expr='$counter_expr($counter)'"
+	ns_log Notice "invoices/list: expr $counter_sum($counter) + $counter_expr($counter)"
+	ns_log Notice "invoices/list: \$amount=$amount"
+
 	set counter_sum($counter) [expr $counter_sum($counter) + $counter_expr($counter)]
 	set counter_num($counter) [expr $counter_num($counter) + 1]
     }
