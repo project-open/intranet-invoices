@@ -120,7 +120,7 @@
 	<tr><td colspan=2 align=right>
 <if @write@>
 	  <form action=new method=POST>
-	    <%= [export_form_vars return_id invoice_id cost_type_id] %>
+	    <%= [export_form_vars return_url invoice_id cost_type_id] %>
 	    <input type=submit name=edit_invoice value='#intranet-invoices.Edit#'>
 	    <input type=submit name=del_invoice value='#intranet-core.Delete#'>
 	  </form>
