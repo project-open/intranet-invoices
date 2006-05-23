@@ -12,7 +12,7 @@
 	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
   </td>
   <td>
-<!--	    @payment_list_html;noquote@		-->
+    @payment_list_html;noquote@
   </td>
   <td>
 	<table border=0 cellPadding=1 cellspacing=1>
