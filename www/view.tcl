@@ -237,6 +237,7 @@ if {"" == $company_contact_id} {
 if {"" == $company_contact_id} { 
     set company_contact_id $primary_contact_id 
 }
+set org_company_contact_id $company_contact_id
 
 db_1row accounting_contact_info "
     select
