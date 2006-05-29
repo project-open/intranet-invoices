@@ -637,6 +637,10 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	return
     }
 
+    # Debugging test:
+#    set asdf(asdf) asdf
+
+
     # Render the page using the template
     set invoices_as_html [ns_adp_parse -file $invoice_template_path]
 
