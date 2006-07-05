@@ -88,6 +88,7 @@ if {[string equal "/" $last_char]} {
 db_1row invoice_info "
 select 
 	i.*,
+	i.company_contact_id as invoice_accounting_contact_id,
 	ci.*,
 	im_category_from_id(ci.cost_type_id) as cost_type
 from
@@ -106,22 +107,41 @@ if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invo
 }
 
 db_1row company_info "
-select
-	c.*,
-	im_name_from_user_id(c.accounting_contact_id) as accounting_contact_name,
-	im_email_from_user_id(c.accounting_contact_id) as accounting_contact_email
-from
-	im_companies c
-where
-	c.company_id = :company_id
+select	c.*,
+	c.accounting_contact_id as company_accounting_contact_id
+from	im_companies c
+where	c.company_id = :company_id
 "
 
+
+# -----------------------------------------
+# Logic to determine to whom to send the "accounting contact"
+# to send the email.
+
+set accounting_contact_id $invoice_accounting_contact_id
+
 if {"" == $accounting_contact_id} {
-    set link_to_page "<A href=/intranet/companies/view?company_id=$company_id> [_ intranet-invoices.company_name_page]</a>"
-    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_No_Accounting_Contact]<p>
-	[_ intranet-invoices.lt_The_company_company_n]<br>
-	[_ intranet-invoices.lt_Please_visit_the_link]"
+
+    # Check the accounting contact of the company
+    if {"" == $company_accounting_contact_id} {
+	set link_to_page "<A href=/intranet/companies/view?company_id=$company_id> [_ intranet-invoices.company_name_page]</a>"
+	ad_return_complaint 1 "<li>[_ intranet-invoices.lt_No_Accounting_Contact]<p>
+		[_ intranet-invoices.lt_The_company_company_n]<br>
+		[_ intranet-invoices.lt_Please_visit_the_link]"
+	return
+    }
+
+    set accounting_contact_id $company_accounting_contact_id
 }
+
+# Get accounting contact name & email
+db_1row accounting_contact_info "
+select
+	im_name_from_user_id(:accounting_contact_id) as accounting_contact_name,
+	im_email_from_user_id(:accounting_contact_id) as accounting_contact_email
+"
+
+
 
 set select_projects ""
 set select_project_sql "
