@@ -209,7 +209,15 @@ where
 	$customer_or_provider_join
 "
 if { ![db_0or1row invoice_info_query $query] } {
-    ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
+
+    # Check if there is a cost item with this ID and forward
+
+    set cost_exists_p [db_string cost_ex "select count(*) from im_costs where cost_id = :invoice_id"]
+    if {$cost_exists_p} { 
+	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}] 
+    } else {
+	ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
+    }
     return
 }
 
