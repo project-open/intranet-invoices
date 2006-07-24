@@ -459,7 +459,7 @@ where
 # ---------------------------------------------------------------
 
 # start formatting the list of sums with the header...
-set item_list_html "
+set invoice_item_html "
         <tr align=center>
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Qty]</td>
@@ -468,10 +468,10 @@ set item_list_html "
 
 if {$company_project_nr_exists} {
     # Only if intranet-translation has added the field
-    append item_list_html "
+    append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
     }
-append item_list_html "
+append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
@@ -503,7 +503,7 @@ db_foreach invoice_items {} {
     set item_units_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $item_units+0] $rounding_precision] "" $locale]
     set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 
-    append item_list_html "
+    append invoice_item_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td $bgcolor([expr $ctr % 2])>$item_name</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
@@ -511,18 +511,15 @@ db_foreach invoice_items {} {
           <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
     if {$company_project_nr_exists} {
 	# Only if intranet-translation has added the field
-	append item_list_html "
+	append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
     }
-    append item_list_html "
+    append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
 	</tr>"
     incr ctr
 }
-
-
-# ad_return_complaint 1 $company_project_nr
 
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
@@ -544,7 +541,7 @@ set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_t
 set colspan_sub [expr $colspan - 1]
 
 # Add a subtotal
-append item_list_html "
+append subtotal_item_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B><nobr>$subtotal_pretty $currency</nobr></B></td>
@@ -552,14 +549,14 @@ append item_list_html "
 "
 
 if {"" != $vat && 0 != $vat} {
-    append item_list_html "
+    append subtotal_item_html "
         <tr>
           <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
 } else {
-    append item_list_html "
+    append subtotal_item_html "
         <tr>
           <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
@@ -568,7 +565,7 @@ if {"" != $vat && 0 != $vat} {
 }
 
 if {"" != $tax && 0 != $tax} {
-    append item_list_html "
+    append subtotal_item_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
           <td class=roweven align=right>$tax_amount_pretty $currency</td>
@@ -576,7 +573,7 @@ if {"" != $tax && 0 != $tax} {
     "
 }
 
-append item_list_html "
+append subtotal_item_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
           <td class=roweven align=right><b><nobr>$grand_total_pretty $currency</nobr></b></td>
@@ -614,6 +611,7 @@ if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bi
 }
 append terms_html $note_html
 
+set item_list_html [concat $invoice_item_html $subtotal_item_html]
 set item_html [concat $item_list_html $terms_html]
 
 
