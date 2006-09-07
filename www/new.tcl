@@ -148,10 +148,13 @@ if {"" == $invoice_currency} {
 # ---------------------------------------------------------------
 
 # Invoices and Quotes have a "Company" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
+set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $cost_type_id]
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
+set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $cost_type_id]
+
+
+
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id

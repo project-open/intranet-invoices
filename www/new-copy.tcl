@@ -125,10 +125,10 @@ set new_invoice_id [im_new_object_id]
 # ---------------------------------------------------------------
 
 # Invoices and Quotes have a "Company" fields.
-set invoice_or_quote_p [expr $target_cost_type_id == [im_cost_type_invoice] || $target_cost_type_id == [im_cost_type_quote]]
+set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $target_cost_type_id]
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $target_cost_type_id == [im_cost_type_invoice] || $target_cost_type_id == [im_cost_type_bill]]
+set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $target_cost_type_id]
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
@@ -148,7 +148,7 @@ if {$invoice_or_quote_p} {
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
-set type_select [im_cost_type_select cost_type_id $target_cost_type_id]
+set type_select [im_cost_type_select cost_type_id $target_cost_type_id 0 "financial_doc"]
 
 # ---------------------------------------------------------------
 # Select and format the sum of the invoicable items
