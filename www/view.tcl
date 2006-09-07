@@ -61,11 +61,13 @@ set tax_format $cur_format
 # and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
 
-
 set required_field "<font color=red size=+1><B>*</B></font>"
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
+
+# Default Currency
+set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 
 # ---------------------------------------------------------------
 # Pad number with trailing "0" to meet rounding_precision
@@ -372,15 +374,11 @@ if {"" != $address_country_code} {
 # Update the amount paid for this cost_item
 # ---------------------------------------------------------------
 
-db_dml update_cost_items "
-update im_costs
-set paid_amount = (
-        select  sum(amount)
-        from    im_payments
-        where   cost_id = :invoice_id
-)
-where cost_id = :invoice_id
-"
+# This is redundant now - The same calculation is done
+# when adding/removing costs. However, there may be cases
+# with manually added costs. ToDo: Not very, very clean
+# solution.
+im_cost_update_payments $invoice_id
 
 
 # ---------------------------------------------------------------
