@@ -84,6 +84,10 @@ ad_proc -public im_next_invoice_nr {
 	    3702 { set prefix "Q" }
 	    3704 { set prefix "B" }
 	    3706 { set prefix "P" }
+	    3718 { set prefix "T" }
+	    3720 { set prefix "E" }
+	    3720 { set prefix "R" }
+	    3724 { set prefix "D" }
 	    default { set prefix "" }
 	}
     }
