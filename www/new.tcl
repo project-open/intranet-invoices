@@ -28,6 +28,7 @@ ad_page_contract {
     { customer_id:integer 0}
     { provider_id:integer 0}
     { project_id:integer 0}
+    { cost_center_id:integer 0}
     { invoice_currency ""}
     { create_invoice_from_template ""}
     { return_url "/intranet-invoices/list"}
@@ -211,6 +212,8 @@ set contact_select [im_company_contact_select company_contact_id $company_contac
 set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Address "Address"]
 set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
 
+set cost_center_label [lang::message::lookup "" intranet-invoices.Cost_Center "Cost Center"]
+set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items

@@ -38,6 +38,13 @@
 	        </tr>
 
 	        <tr> 
+	          <td  class=roweven>@cost_center_label@</td>
+	          <td  class=roweven>
+		  @cost_center_select;noquote@
+	          </td>
+	        </tr>
+
+	        <tr> 
 	          <td class=roweven>#intranet-invoices.Payment_terms#</td>
 	          <td class=roweven> 
 	            <input type=text name=payment_days size=5 value='@payment_days@'>
