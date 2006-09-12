@@ -104,7 +104,6 @@ if {"" == $company_contact_id } {
 
 # ToDo: Remove this and remove the "default 0" for the cost_center_id
 # Now: Send email to support@project-open.com
-set cost_center_id 0
 if {0 == $cost_center_id} {
     set email "support@project-open.com"
     set sender_email [db_string email "select email from cc_users where user_id = :user_id"]
@@ -113,9 +112,7 @@ if {0 == $cost_center_id} {
 	This=~packages/intranet-invoices/www/new-2.tcl
 	URL=[ad_conn url]
 	Query=[ad_conn query]
-	Host=[ad_conn host]
-	Server=[ad_conn server]
-	Peeraddr=[ad_conn peeraddr]
+	Form=[ad_conn form]
     "
     set header_vars [ns_conn headers]
     foreach var [ad_ns_set_keys $header_vars] {
@@ -124,6 +121,9 @@ if {0 == $cost_center_id} {
     ns_sendmail $email $sender_email $subject $message
 }
 
+if {0 == $cost_center_id} {
+    set cost_center_id [im_cost_center_company]
+}
 
 
 # ---------------------------------------------------------------
@@ -161,6 +161,7 @@ set
 	provider_id	= :provider_id,
 	cost_status_id	= :cost_status_id,
 	cost_type_id	= :cost_type_id,
+	cost_center_id	= :cost_center_id,
 	template_id	= :template_id,
 	effective_date	= :invoice_date,
 	start_block	= ( select max(start_block) 
