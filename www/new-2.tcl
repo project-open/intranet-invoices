@@ -23,6 +23,7 @@ ad_page_contract {
     invoice_date
     cost_status_id:integer 
     cost_type_id:integer
+    { cost_center_id:integer 0}
     payment_days:integer
     { payment_method_id:integer "" }
     template_id:integer
@@ -99,6 +100,30 @@ if {1 == [llength $select_project]} {
 if {"" == $company_contact_id } {
    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
 }
+
+
+# ToDo: Remove this and remove the "default 0" for the cost_center_id
+# Now: Send email to support@project-open.com
+set cost_center_id 0
+if {0 == $cost_center_id} {
+    set email "support@project-open.com"
+    set sender_email [db_string email "select email from cc_users where user_id = :user_id"]
+    set subject "Cost Center ID not set in [ad_system_name]"
+    set message "
+	This=~packages/intranet-invoices/www/new-2.tcl
+	URL=[ad_conn url]
+	Query=[ad_conn query]
+	Host=[ad_conn host]
+	Server=[ad_conn server]
+	Peeraddr=[ad_conn peeraddr]
+    "
+    set header_vars [ns_conn headers]
+    foreach var [ad_ns_set_keys $header_vars] {
+        append message "\t$var - [ns_set get $header_vars $var]\n"
+    }
+    ns_sendmail $email $sender_email $subject $message
+}
+
 
 
 # ---------------------------------------------------------------

@@ -82,6 +82,10 @@
           <td  class=roweven>#intranet-invoices.cost_type_date#:</td>
           <td  class=roweven>@invoice_date_pretty@</td>
         </tr>
+        <tr> 
+          <td  class=roweven><%= [lang::message::lookup "" intranet-cost.Cost_Center "Cost Center"] %>:</td>
+          <td  class=roweven>@cost_center_name@</td>
+        </tr>
 
 <if @invoice_or_bill_p@>
         <tr> 

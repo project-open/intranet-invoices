@@ -198,6 +198,7 @@ select
 	ci.project_id as cost_project_id,
 	c.*,
 	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
+	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
 	im_category_from_id(ci.template_id) as template

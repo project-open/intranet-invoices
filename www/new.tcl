@@ -80,6 +80,12 @@ if {0 != $project_id} {
     set customer_id [db_string customer_id "select company_id from im_projects where project_id=:project_id"]
 }
 
+# Default for cost-centers - take the user's
+# dept from HR.
+if {0 == $cost_center_id} {
+    set cost_center_id [im_costs_default_cost_center_for_user $user_id]
+}
+
 # ---------------------------------------------------------------
 # 3. Gather invoice data
 #	a: if the invoice already exists
