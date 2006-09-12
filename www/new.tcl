@@ -54,11 +54,28 @@ if {[info exists del_invoice]} {
     ad_returnredirect [export_vars -base delete {invoice_id return_url}]
 }
 
-im_cost_permissions $user_id $invoice_id view read write admin
-if {!$write} {
-    ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
+# Permissions
+if {0 == $invoice_id} {
+
+    # We are about to create a new invoice - Check specific creation perms
+    set create_cost_types [im_cost_type_write_permissions $user_id]
+
+    if {[lsearch -exact $create_cost_types $cost_type_id] == -1} {
+	ad_return_complaint "Insufficient Privileges" "
+        <li>You don't have sufficient privileges to create a 
+            [db_string t "select im_category_from_id(:cost_type_id)"]."
+    }
+
+} else {
+
+    # The invoice already exists - Check invoice permissions
+    im_cost_permissions $user_id $invoice_id view read write admin
+    if {!$write} {
+	ad_return_complaint "Insufficient Privileges" "
+        <li>You don't have sufficient privileges to see this page."    
+    }
 }
+
 
 set return_url [im_url_with_query]
 set todays_date [db_string get_today "select to_char(sysdate,'YYYY-MM-DD') from dual"]
