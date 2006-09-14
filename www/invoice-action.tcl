@@ -35,7 +35,19 @@ if {[info exists submit_save]} {
 	set cost_status_id $cost_status($invoice_id)
 	ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
 
-	db_dml update_cost_status "update im_costs set cost_status_id=:cost_status_id where cost_id=:invoice_id"
+	# Check CostCenter Permissions
+	im_cost_permissions $user_id $invoice_id view_p read_p write_p admin_p
+	if {!$write_p} {
+	    ad_return_complaint 1 "<li>You have insufficient privileges to perform this action"
+	    ad_script_abort
+	}
+
+	# Update the invoice
+	db_dml update_cost_status "
+		update im_costs 
+		set cost_status_id=:cost_status_id 
+		where cost_id = :invoice_id
+	"
     }
 
     ad_returnredirect $return_url
@@ -51,7 +63,13 @@ if {[info exists submit_del]}  {
 
     foreach cost_id $del_cost {
 	set otype $object_type($cost_id)
-	# ToDo: Security
+
+	# Check CostCenter Permissions
+	im_cost_permissions $user_id $cost_id view_p read_p write_p admin_p
+	if {!$write_p} {
+	    ad_return_complaint 1 "<li>You have insufficient privileges to perform this action"
+	    ad_script_abort
+	}
 	db_string delete_cost_item ""
 	lappend in_clause_list $cost_id
     }
