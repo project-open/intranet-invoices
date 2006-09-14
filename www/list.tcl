@@ -358,7 +358,7 @@ if {"" != $parent_menu_label} {
     db_foreach menu_select $menu_select_sql {
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
 	regsub -all " " $name "_" name_key
-	set name_loc [lang::message::lookup "" $package_name.$name_key $key]
+	set name_loc [lang::message::lookup "" $package_name.$name_key $name]
 	append new_document_menu "<li><a href=\"$url\">$name_loc</a></li>\n"
     }
 }
