@@ -470,6 +470,18 @@ db_foreach invoices_info_query $selection {
     if {"" == $paid_amount} { set paid_amount 0}
     if {"" == $amount} { set amount 0}
 
+    # ---- Deal with non-writable Invoices ----
+
+    set status_select [im_cost_status_select "cost_status.$invoice_id" $invoice_status_id]
+
+    set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
+#    ad_return_complaint 1 "$write_p  $cost_center_id $cost_type_id $user_id"
+    if {!$write_p} {
+	set status_select ""
+	# Bad Trick: " " let the Del-checkbox disappear...
+        if {"" == $payment_amount} { set payment_amount " " }
+    }
+
     # ---- Display the main line ----
 
     # Append together a line of data based on the "column_vars" parameter list
