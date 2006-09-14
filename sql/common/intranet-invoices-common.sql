@@ -56,10 +56,11 @@ insert into im_view_columns (column_id, view_id, group_id, column_name, column_r
 extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
 '','',1,'');
--- insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
--- extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'Preview',
--- '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id${amp}render_template_id=$template_id>
--- $invoice_nr</A>"','','',2,'');
+
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'CC',
+'$cost_center_code','','',2,'');
+
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
 '$cost_type','','',3,'');
