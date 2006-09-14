@@ -269,6 +269,7 @@ select
 	to_char(ci.amount, :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
+	im_cost_center_code_from_id(ci.cost_center_id) as cost_center_code,
         c.company_name as customer_name,
         c.company_path as company_short_name,
 	p.company_name as provider_name,
