@@ -32,10 +32,11 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id view_invoices]} {
+im_cost_permissions $user_id $invoice_id view_p read_p write_p admin_p
+if {!$write_p} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."
-    return
+    ad_script_abort
 }
 
 # ---------------------------------------------------------------

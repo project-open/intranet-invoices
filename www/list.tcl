@@ -472,10 +472,10 @@ db_foreach invoices_info_query $selection {
 
     # ---- Deal with non-writable Invoices ----
 
+    # Calculate the statu-select drop-down for this invoice
     set status_select [im_cost_status_select "cost_status.$invoice_id" $invoice_status_id]
 
     set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
-#    ad_return_complaint 1 "$write_p  $cost_center_id $cost_type_id $user_id"
     if {!$write_p} {
 	set status_select ""
 	# Bad Trick: " " let the Del-checkbox disappear...
