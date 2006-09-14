@@ -103,11 +103,17 @@ if {![im_permission $user_id view_invoices]} {
 # Define the column headers and column contents that 
 # we want to show:
 #
-set view_id [db_string get_view_id "select view_id from im_views where view_name=:view_name" -default 0]
-set view_subtotal_id [db_string get_view_subtotal_id "select view_id from im_views where view_name=:view_name_subtotal" -default 0]
-
-
-
+set view_id [db_string get_view_id "
+	select view_id 
+	from im_views 
+	where view_name = :view_name
+" -default 0
+]
+set view_subtotal_id [db_string get_view_subtotal_id "
+	select view_id 
+	from im_views 
+	where view_name = :view_name_subtotal
+" -default 0]
 
 if {0 == $view_id || 0 == $view_subtotal_id} {
     ad_return_complaint 1 "<b>View not found</b>:<br>
@@ -124,7 +130,7 @@ select	column_name,
 	column_render_tcl,
 	visible_for
 from	im_view_columns
-where	view_id=:view_id
+where	view_id = :view_id
 	and group_id is null
 order by
 	sort_order"
@@ -350,10 +356,10 @@ if {"" != $parent_menu_label} {
     set new_document_menu ""
     set ctr 0
     db_foreach menu_select $menu_select_sql {
-	
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
 	regsub -all " " $name "_" name_key
-	append new_document_menu "<li><a href=\"$url\">[_ $package_name.$name_key]</a></li>\n"
+	set name_loc [lang::message::lookup "" $package_name.$name_key $key]
+	append new_document_menu "<li><a href=\"$url\">$name_loc</a></li>\n"
     }
 }
 
@@ -440,11 +446,12 @@ append table_header_html "<tr>\n"
 foreach col $column_headers {
     regsub -all " " $col "_" col_key
     regsub -all "#" $col_key "hash_simbol" col_key
-    #set col_key [lang::util::suggest_key $col]
+    set col_loc [lang::message::lookup ""  intranet-invoices.$col_key $col]
+
     if { [string compare $order_by $col] == 0 } {
-	append table_header_html "  <td class=rowtitle>[_ intranet-invoices.$col_key]</td>\n"
+	append table_header_html "  <td class=rowtitle>$col_loc</td>\n"
     } else {
-	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">[_ intranet-invoices.$col_key]</a></td>\n"
+	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col_loc</a></td>\n"
     }
 }
 append table_header_html "</tr>\n"
