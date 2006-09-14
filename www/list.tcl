@@ -11,7 +11,6 @@ ad_page_contract {
     @param include_subinvoices_p whether to include sub invoices
     @param cost_status_id criteria for invoice status
     @param cost_type_id criteria for cost_type_id
-    @param letter criteria for im_first_letter_default_to_a(ug.group_name)
     @param start_idx the starting index for query
     @param how_many how many rows to return
 
@@ -23,7 +22,6 @@ ad_page_contract {
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
-    { letter:trim "" }
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_list" }
@@ -161,10 +159,6 @@ if { ![empty_string_p $company_id] && $company_id != 0 } {
 if { ![empty_string_p $provider_id] && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
 }
-if { ![empty_string_p $letter] && [string compare $letter "ALL"] != 0 && [string compare $letter "SCROLL"] != 0 } {
-    lappend criteria "im_first_letter_default_to_a(c.company_name)=:letter"
-}
-
 
 # Get the list of user's companies for which he can see invoices
 set company_ids [db_list users_companies "
@@ -311,26 +305,12 @@ $order_by_clause
 # 5a. Limit the SQL query to MAX rows and provide << and >>
 # ---------------------------------------------------------------
 
-# Limit the search results to N data sets only
-# to be able to manage large sites
-#
-if {[string compare $letter "ALL"]} {
-    # Set these limits to negative values to deactivate them
-    set total_in_limited -1
-    set how_many -1
-    set selection "$sql"
-} else {
-    set limited_query [im_select_row_range $sql $start_idx $end_idx]
-    # We can't get around counting in advance if we want to be able to 
-    # sort inside the table on the page for only those users in the 
-    # query results
-    set total_in_limited [db_string invoices_total_in_limited "
-	select count(*) 
-        from im_invoices p
-        where 1=1 $where_clause"]
 
-    set selection "select z.* from ($limited_query) z $order_by_clause"
-}	
+# Set these limits to negative values to deactivate them
+set total_in_limited -1
+set how_many -1
+set selection "$sql"
+
 
 # ---------------------------------------------------------------
 # 6a. Format the Filter: Get the admin menu
@@ -381,7 +361,7 @@ set filter_html "
   <td valign=top>
 
 	<form method=get action='/intranet-invoices/list'>
-	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p letter]
+	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p]
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr> 
 	    <td colspan='2' class=rowtitle align=center>
