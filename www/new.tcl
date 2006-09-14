@@ -56,10 +56,10 @@ if {[info exists del_invoice]} {
 
 # Permissions
 if {0 == $invoice_id} {
-
+    
+    # CostCenter Permissions:
     # We are about to create a new invoice - Check specific creation perms
     set create_cost_types [im_cost_type_write_permissions $user_id]
-
     if {[lsearch -exact $create_cost_types $cost_type_id] == -1} {
 	ad_return_complaint "Insufficient Privileges" "
         <li>You don't have sufficient privileges to create a 
@@ -68,6 +68,7 @@ if {0 == $invoice_id} {
 
 } else {
 
+    # CostCenter Permissions:
     # The invoice already exists - Check invoice permissions
     im_cost_permissions $user_id $invoice_id view read write admin
     if {!$write} {

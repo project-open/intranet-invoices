@@ -23,7 +23,7 @@ ad_page_contract {
     invoice_date
     cost_status_id:integer 
     cost_type_id:integer
-    { cost_center_id:integer 0}
+    cost_center_id:integer
     payment_days:integer
     { payment_method_id:integer "" }
     template_id:integer
@@ -76,10 +76,13 @@ if {$invoice_or_quote_p} {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-if {![im_permission $user_id add_invoices]} {
+set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
+if {!write_p || ![im_permission $user_id add_invoices]} {
     ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
     return
 }
+
+
 
 # Invoices and Bills need a payment method, quotes and POs don't.
 if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {
@@ -99,30 +102,6 @@ if {1 == [llength $select_project]} {
 # Choose the default contact for this invoice.
 if {"" == $company_contact_id } {
    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
-}
-
-
-# ToDo: Remove this and remove the "default 0" for the cost_center_id
-# Now: Send email to support@project-open.com
-if {0 == $cost_center_id} {
-    set email "support@project-open.com"
-    set sender_email [db_string email "select email from cc_users where user_id = :user_id"]
-    set subject "Cost Center ID not set in [ad_system_name]"
-    set message "
-	This=~packages/intranet-invoices/www/new-2.tcl
-	URL=[ad_conn url]
-	Query=[ad_conn query]
-	Form=[ad_conn form]
-    "
-    set header_vars [ns_conn headers]
-    foreach var [ad_ns_set_keys $header_vars] {
-        append message "\t$var - [ns_set get $header_vars $var]\n"
-    }
-    ns_sendmail $email $sender_email $subject $message
-}
-
-if {0 == $cost_center_id} {
-    set cost_center_id [im_cost_center_company]
 }
 
 
