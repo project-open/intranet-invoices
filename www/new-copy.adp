@@ -6,7 +6,7 @@
 
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
-<%= [export_form_vars invoice_id project_id return_url] %>
+<%= [export_form_vars invoice_id project_id return_url company_contact_id reference_document_id invoice_office_id note] %>
 @select_project_html;noquote@
 
 <table border=0 width=100%>
@@ -26,6 +26,14 @@
 	            <input type=text name=invoice_nr size=15 value='@invoice_nr@'>
 	          </td>
 	        </tr>
+
+                <tr>
+                  <td  class=roweven>@cost_center_label@</td>
+                  <td  class=roweven>
+                  @cost_center_select;noquote@
+                  </td>
+                </tr>
+
 	        <tr> 
 	          <td  class=roweven>@target_cost_type@ date:</td>
 	          <td  class=roweven> 

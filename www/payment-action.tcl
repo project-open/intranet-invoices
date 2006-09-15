@@ -25,8 +25,16 @@ ad_page_contract {
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id add_payments]} {
     ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_have_insufficient]"
-    return
+    ad_script_abort
 }
+
+ad_cost_permissions $user_id $cost_id read_p write_p admin_p
+if {!$write_p} {
+    ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_have_insufficient]<br>
+    No rights to modify invoice \#$cost_id"
+    ad_script_abort
+}
+
 
 if {"" != $del} {
     ns_log Notice "payment-action: delete payments: $payment_id"

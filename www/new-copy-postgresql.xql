@@ -18,7 +18,8 @@
 
 select
         i.*,
-	to_char(i.price_per_unit,:price_per_unit_format) as price_per_unit_formatted,
+	i.sort_order as item_sort_order,
+	trim(to_char(i.price_per_unit,:price_per_unit_format)) as price_per_unit_formatted,
         p.*,
         p.project_nr as project_short_name,
         im_category_from_id(i.item_uom_id) as item_uom,

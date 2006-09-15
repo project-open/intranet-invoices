@@ -22,7 +22,7 @@ ad_page_contract {
 }
 
 # ---------------------------------------------------------------
-# 2. Defaults & Security
+# Security
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -30,6 +30,18 @@ if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
 }
+
+# Make sure we can create invoices of target_cost_type_id...
+set allowed_cost_type [im_cost_type_write_permissions $user_id]
+if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+    ad_return_complaint "Insufficient Privileges" "
+        <li>You can't create documents of type #$target_cost_type_id."
+    ad_script_abort
+}
+
+# ---------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------
 
 set page_title "[_ intranet-invoices.Select_Customer]"
 set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]

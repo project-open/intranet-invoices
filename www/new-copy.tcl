@@ -23,15 +23,35 @@ ad_page_contract {
 }
 
 # ---------------------------------------------------------------
-# 2. Defaults & Security
+# Security
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
-    <li>You don't have sufficient privileges to see this page."    
+    <li>You don't have sufficient privileges to see this page."
+    ad_script_abort
 }
 
+if {[exists_and_not_null source_invoice_id]} {
+    im_cost_permissions $user_id $source_invoice_id view_p read_p write_p admin_p
+    if {!$read_p} {
+	ad_return_complaint "Insufficient Privileges" "
+        <li>You don't have sufficient privileges to see the source document."
+        ad_script_abort
+    }
+
+    set allowed_cost_type [im_cost_type_write_permissions $user_id]
+    if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+	ad_return_complaint "Insufficient Privileges" "
+        <li>You can't create documents of type #$target_cost_type_id."
+        ad_script_abort
+    }
+}
+
+# ---------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------
 
 # The user hasn't yet specified the source invoice from which
 # we want to copy. So let's redirect and this page is going
@@ -40,10 +60,10 @@ if {![info exists source_invoice_id]} {
     ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id blurb return_url]
 }
 
-set date_format "YYYY-MM-DD"
-set tax_format "990.00"
-set vat_format "990.00"
-set price_per_unit_format "990.00"
+set tax_format [im_l10n_sql_currency_format -style simple]
+set vat_format [im_l10n_sql_currency_format -style simple]
+set price_per_unit_format [im_l10n_sql_currency_format -style simple]
+set date_format [im_l10n_sql_date_format -style simple]
 
 set return_url [im_url_with_query]
 set todays_date [db_string get_today "select sysdate from dual"]
@@ -62,18 +82,12 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 db_1row invoices_info_query "
 select
 	im_category_from_id(:target_cost_type_id) as target_cost_type,
+	i.*,
 	i.invoice_nr as org_invoice_nr,
-	ci.customer_id,
-	ci.provider_id,
+	ci.*,
 	to_char(ci.effective_date,:date_format) as effective_date,
-	ci.payment_days,
-	to_char(ci.vat, :vat_format) as vat,
-	to_char(ci.tax, :tax_format) as tax,
-	ci.amount,
-	ci.currency,
-	i.payment_method_id,
-	ci.template_id,
-	ci.cost_status_id,
+	trim(to_char(ci.vat, :vat_format)) as vat,
+	trim(to_char(ci.tax, :tax_format)) as tax,
 	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_email_from_user_id(i.company_contact_id) as company_contact_email,
 	c.company_name as company_name,
@@ -99,6 +113,10 @@ set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title
 
 set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+
+set cost_center_label [lang::message::lookup "" intranet-invoices.Cost_Center "Cost Center"]
+set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
+
 
 # ---------------------------------------------------------------
 # Modify some variable between the source and the target invoice
@@ -175,7 +193,7 @@ db_foreach invoice_items "" {
     append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>
-	    <input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
+	    <input type=text name=item_sort_order.$ctr size=2 value='$item_sort_order'>
 	  </td>
           <td>
 	    <input type=text name=item_name.$ctr size=40 value='$item_name'>

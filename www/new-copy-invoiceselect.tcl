@@ -24,7 +24,7 @@ ad_page_contract {
 }
 
 # ---------------------------------------------------------------
-# 2. Defaults & Security
+# Security
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -33,13 +33,26 @@ if {![im_permission $user_id add_invoices]} {
     <li>You don't have sufficient privileges to see this page."    
 }
 
+# Make sure we can create invoices of target_cost_type_id...
+set allowed_cost_type [im_cost_type_write_permissions $user_id]
+if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+    ad_return_complaint "Insufficient Privileges" "
+        <li>You can't create documents of type #$target_cost_type_id."
+    ad_script_abort
+}
+
+
+# ---------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------
+
 set page_title "[_ intranet-invoices.Select_Customer]"
 set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
-set cur_format "99,999.99"
-set date_format "YYYY-MM-DD"
+set cur_format [im_l10n_sql_currency_format]
+set date_format [im_l10n_sql_date_format]
 
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:target_cost_type_id" -default [_ intranet-invoices.Costs]]
 
@@ -115,13 +128,31 @@ from
         im_costs ci,
 	acs_objects o,
         im_companies c,
-        im_companies p
+	im_companies p,
+	(       select  cc.cost_center_id,
+			ct.cost_type_id
+		from    im_cost_centers cc,
+			im_cost_types ct,
+			acs_permissions p,
+			party_approved_member_map m,
+			acs_object_context_index c,
+			acs_privilege_descendant_map h
+		where
+			p.object_id = c.ancestor_id
+			and h.descendant = ct.read_privilege
+			and c.object_id = cc.cost_center_id
+			and m.member_id = :user_id
+			and p.privilege = h.privilege
+			and p.grantee_id = m.party_id
+			and ct.cost_type_id = :source_cost_type_id
+	) readable_ccs
 where
 	i.invoice_id = o.object_id
 	and i.invoice_id = ci.cost_id
- 	and i.customer_id=c.company_id
-        and i.provider_id=p.company_id
+ 	and i.customer_id = c.company_id
+	and i.provider_id = p.company_id
 	and ci.cost_type_id = :source_cost_type_id
+	and ci.cost_center_id = readable_ccs.cost_center_id
 $order_by_clause
 "
 
