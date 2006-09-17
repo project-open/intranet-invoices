@@ -53,7 +53,7 @@ if {"" == $return_url} { set return_url [im_url_with_query] }
 set bgcolor(0) " class=invoiceroweven"
 set bgcolor(1) " class=invoicerowodd"
 
-set cur_format "99999999999.00"
+set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
 set tax_format $cur_format
 
