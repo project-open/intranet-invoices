@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.1.0.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.2.2.0.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -8,6 +8,7 @@
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
   <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of Project/Open. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
+  <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
   <msg key="Clone">Clone</msg>
   <msg key="Company">Company</msg>
@@ -56,6 +57,7 @@
   <msg key="Go">Go</msg>
   <msg key="Hour">Hour</msg>
   <msg key="intranet-invoices.Error_multiple_currencies">Multiple Currencies Error</msg>
+  <msg key="Invoice_Address">Invoice Address</msg>
   <msg key="Line">Line</msg>
   <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
@@ -154,6 +156,6 @@ Best regards,
   <msg key="UOM">UOM</msg>
   <msg key="VAT">VAT</msg>
   <msg key="VATnbsp">VAT&amp;nbsp;</msg>
-  <msg key="Yr_Job__PO_No">Yr. Job / P.O. No.</msg>
+  <msg key="Yr_Job__PO_No">PO No.</msg>
   <msg key="Zip">Zip</msg>
 </message_catalog>

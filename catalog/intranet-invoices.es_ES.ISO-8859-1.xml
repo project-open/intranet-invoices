@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.1.0.0.0" locale="es_ES" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.2.2.0.0" locale="es_ES" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Añadir un pago</msg>
   <msg key="Add_a_Project">Añadir un proyecto</msg>
@@ -8,6 +8,7 @@
   <msg key="Adress">Dirección</msg>
   <msg key="Amount">Importe</msg>
   <msg key="Blurb_multiple_currencies">Ha usado más de una divisa con este documento financiero. Esto no es posible con la versión actual de Project/Open. Por favor   separe este documento en varios con una sola divisa en cada uno. Las divisas utilizadas incluyen:</msg>
+  <msg key="CC">CC</msg>
   <msg key="Client">Cliente</msg>
   <msg key="Clone">Clonar</msg>
   <msg key="Company">Empresa</msg>
@@ -56,6 +57,7 @@
   <msg key="Go">Ir</msg>
   <msg key="Hour">Hora</msg>
   <msg key="intranet-invoices.Error_multiple_currencies">Error: divisa múltiple</msg>
+  <msg key="Invoice_Address">Dirección</msg>
   <msg key="Line">Línea</msg>
   <msg key="lt_Cant_find_the_documen">No puedo localizar el documento no. %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Estimado %accounting_contact_name%, hemos creado un nuevo  %cost_type% para Ud. bajo: %system_url%/intranet-invoices/view?invoice_id=%invoice_id% Este nuevo documento está relacionado con el/los proyecto(s): %select_projects;noquote% Siga por favor el enlace de arriba e imprima el documento para su referencia personal. Saludos cordiales, %current_user_name%</msg>
@@ -142,6 +144,6 @@
   <msg key="UOM">UM</msg>
   <msg key="VAT">IVA</msg>
   <msg key="VATnbsp">IVA&amp;nbsp;</msg>
-  <msg key="Yr_Job__PO_No">Su trabajo / orden compra no.</msg>
+  <msg key="Yr_Job__PO_No">Orden No.</msg>
   <msg key="Zip">CP</msg>
 </message_catalog>
