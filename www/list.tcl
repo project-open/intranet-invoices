@@ -71,8 +71,8 @@ set page_focus "im_header_form.keywords"
 set return_url [im_url_with_query]
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
-set cur_format "999,999,999.99"
-set date_format "YYYY-MM-DD"
+set cur_format [im_l10n_sql_currency_format]
+set date_format [im_l10n_sql_date_format]
 set local_url "list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
