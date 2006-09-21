@@ -125,7 +125,8 @@ ad_proc -public im_numeric_add_trailing_zeros {
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note]]
+
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
