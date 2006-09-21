@@ -66,7 +66,7 @@ set price_per_unit_format [im_l10n_sql_currency_format -style simple]
 set date_format [im_l10n_sql_date_format -style simple]
 
 set return_url [im_url_with_query]
-set todays_date [db_string get_today "select sysdate from dual"]
+set todays_date [db_string get_today "select now()::date"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_tasks"
 
@@ -105,6 +105,10 @@ where
 	and ci.provider_id = p.company_id
 	and i.invoice_id = ci.cost_id
 "
+
+# Use today's date as effective date, because the
+# quote was old...
+set effective_date $todays_date
 
 set invoice_mode "[_ intranet-invoices.clone]"
 set page_title "[_ intranet-invoices.Clone] $target_cost_type"
