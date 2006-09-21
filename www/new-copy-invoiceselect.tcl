@@ -18,6 +18,7 @@ ad_page_contract {
     blurb
     return_url
     company_id:integer
+    { project_id:integer "" }
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_select" }
@@ -102,6 +103,10 @@ db_foreach column_list_sql $column_sql {
 # 5. Generate SQL Query
 # ---------------------------------------------------------------
 
+set project_where_clause ""
+if {"" != $project_id} {
+set project_where_clause ""
+}
 
 set order_by_clause "order by invoice_id DESC"
 
@@ -153,6 +158,7 @@ where
 	and i.provider_id = p.company_id
 	and ci.cost_type_id = :source_cost_type_id
 	and ci.cost_center_id = readable_ccs.cost_center_id
+	$project_where_clause
 $order_by_clause
 "
 

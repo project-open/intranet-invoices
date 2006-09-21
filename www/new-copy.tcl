@@ -18,6 +18,7 @@ ad_page_contract {
     target_cost_type_id:integer
     {customer_id:integer ""}
     {provider_id:integer ""}
+    {project_id:integer ""}
     { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
 }
@@ -57,7 +58,7 @@ if {[exists_and_not_null source_invoice_id]} {
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
 if {![info exists source_invoice_id]} {
-    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id blurb return_url]
+    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
 }
 
 set tax_format [im_l10n_sql_currency_format -style simple]
