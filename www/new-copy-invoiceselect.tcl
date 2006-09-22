@@ -105,7 +105,38 @@ db_foreach column_list_sql $column_sql {
 
 set project_where_clause ""
 if {"" != $project_id} {
-set project_where_clause ""
+    set project_cost_ids_sql "
+		                select distinct cost_id
+		                from im_costs
+		                where project_id in (
+					select	children.project_id
+					from	im_projects parent,
+						im_projects children
+					where	children.tree_sortkey 
+							between parent.tree_sortkey 
+							and tree_right(parent.tree_sortkey)
+						and parent.project_id = :project_id
+				)
+			    UNION
+				select distinct object_id_two as cost_id
+				from acs_rels
+				where object_id_one in (
+					select	children.project_id
+					from	im_projects parent,
+						im_projects children
+					where	children.tree_sortkey 
+							between parent.tree_sortkey 
+							and tree_right(parent.tree_sortkey)
+						and parent.project_id = :project_id
+				)
+    "
+
+    set project_where_clause "
+	and i.invoice_id in (
+		$project_cost_ids_sql
+	)
+    "
+
 }
 
 set order_by_clause "order by invoice_id DESC"
