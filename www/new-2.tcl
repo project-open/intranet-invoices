@@ -78,8 +78,10 @@ if {$invoice_or_quote_p} {
 set user_id [ad_maybe_redirect_for_registration]
 set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
 if {!$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id} {
-    ad_return_complaint 1 "<li>You don't have sufficient privileges to see this page."
-    return
+    set cost_type_name [db_string ccname "select im_category_from_id(:cost_type_id)" -default "not found"]
+    set cost_center_name [db_string ccname "select im_cost_center_name_from_id(:cost_center_id)" -default "not found"]
+    ad_return_complaint 1 "<li>You don't have sufficient privileges to create documents of type '$cost_type_name' in CostCenter '$cost_center_name'."
+    ad_script_abort
 }
 
 
