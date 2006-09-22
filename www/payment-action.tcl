@@ -28,7 +28,7 @@ if {![im_permission $user_id add_payments]} {
     ad_script_abort
 }
 
-ad_cost_permissions $user_id $cost_id read_p write_p admin_p
+im_cost_permissions $user_id $cost_id view_p read_p write_p admin_p
 if {!$write_p} {
     ad_return_complaint 1 "<li>[_ intranet-invoices.lt_You_have_insufficient]<br>
     No rights to modify invoice \#$cost_id"
@@ -42,6 +42,10 @@ if {"" != $del} {
     foreach pid $payment_id {
 	db_dml delete_payment "delete from im_payments where payment_id = :pid"
     }
+
+    # Update the cost item to reflect the deleted amount
+    im_cost_update_payments $cost_id 
+
     ad_returnredirect $return_url
     return
 }
