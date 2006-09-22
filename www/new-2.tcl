@@ -19,6 +19,7 @@ ad_page_contract {
     { select_project:integer,multiple {} }
     { company_contact_id:integer "" }
     { invoice_office_id "" }
+    { project_id:integer "" }
     invoice_nr
     invoice_date
     cost_status_id:integer 
@@ -94,8 +95,9 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
 if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
 if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_internal] }
 
-
-set project_id ""
+# Overwrite the project_id (default "") with select_project.
+# select_project is more specific then project_id, so that should
+# be fine.
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }
