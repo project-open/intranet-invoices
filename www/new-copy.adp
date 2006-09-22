@@ -79,7 +79,7 @@
 		  <td align=center valign=top class=rowtitle colspan=2>@company_type@</td>
 		</tr>
 		<tr>
-		  <td class=roweven>@company_type@:</tr>
+		  <td class=roweven>@company_type@:</td>
 		  <td class=roweven>@company_select;noquote@</td>
 		</tr>
 		<input type=hidden name=provider_id value=@provider_id@>
@@ -91,12 +91,22 @@
 		  <td align=center valign=top class=rowtitle colspan=2>Provider</td>
 		</tr>
 		<tr>
-		  <td class=roweven>Provider:</tr>
+		  <td class=roweven>Provider:</td>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
 		<input type=hidden name=company_id value=@company_id@>
 
 </else>
+
+                <tr>
+                  <td class=rowodd>@invoice_address_label@</td>
+                  <td class=rowodd>@invoice_address_select;noquote@</td>
+                </tr>
+
+                <tr>
+                  <td class=rowodd>#intranet-core.Contact#</td>
+                  <td class=rowodd>@contact_select;noquote@</td>
+                </tr>
 
 
         </table>

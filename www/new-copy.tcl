@@ -111,13 +111,63 @@ where
 # quote was old...
 set effective_date $todays_date
 
+
+# ---------------------------------------------------------------
+
+set customer_select [im_company_select customer_id $customer_id "" "Customer"]
+set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+
+# ---------------------------------------------------------------
+# Determine whether it's an Invoice or a Bill
+# ---------------------------------------------------------------
+
+# Invoices and Quotes have a "Company" fields.
+set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $target_cost_type_id]
+
+# Invoices and Bills have a "Payment Terms" field.
+set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $target_cost_type_id]
+
+if {$invoice_or_quote_p} {
+    set company_id $customer_id
+    set company_type [_ intranet-core.Customer]
+    set company_select $customer_select
+} else {
+    set company_id $provider_id
+    set company_type [_ intranet-core.Provider]
+    set company_select $provider_select
+}
+
+
+# ---------------------------------------------------------------
+# Check for default templates of the customer and use here if set
+db_1row default_vals "
+	select
+		default_invoice_template_id,
+		default_vat,
+		default_payment_method_id,
+		default_payment_days
+	from
+		im_companies
+	where
+		company_id = :customer_id
+"
+if {$target_cost_type_id == [im_cost_type_invoice]} {
+    if {"" != $default_invoice_template_id} { set template_id $default_invoice_template_id }
+    if {"" != $default_vat} { set vat $default_vat }
+    if {"" != $default_payment_days} { set payment_days $default_payment_days }
+    if {"" != $default_payment_method_id} { set payment_method_id $default_payment_method_id }
+}
+
+
 set invoice_mode "[_ intranet-invoices.clone]"
 set page_title "[_ intranet-invoices.Clone] $target_cost_type"
 set button_text [_ intranet-invoices.Submit]
 set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
-set customer_select [im_company_select customer_id $customer_id "" "Customer"]
-set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Address "Address"]
+set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
+
+set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
 
 set cost_center_label [lang::message::lookup "" intranet-invoices.Cost_Center "Cost Center"]
 set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
@@ -144,34 +194,21 @@ set new_invoice_id [im_new_object_id]
 
 
 # ---------------------------------------------------------------
-# Determine whether it's an Invoice or a Bill
-# ---------------------------------------------------------------
-
-# Invoices and Quotes have a "Company" fields.
-set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $target_cost_type_id]
-
-# Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $target_cost_type_id]
-
-if {$invoice_or_quote_p} {
-    set company_id $customer_id
-    set company_type [_ intranet-core.Customer]
-    set company_select $customer_select
-} else {
-    set company_id $provider_id
-    set company_type [_ intranet-core.Provider]
-    set company_select $provider_select
-}
-
-
-# ---------------------------------------------------------------
 # Calculate the selects for the ADP page
 # ---------------------------------------------------------------
 
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
-set type_select [im_cost_type_select cost_type_id $target_cost_type_id 0 "financial_doc"]
+
+# Type_select doesnt allow for options anymore...
+# set type_select [im_cost_type_select cost_type_id $target_cost_type_id 0 "financial_doc"]
+#
+set type_select "
+        <input type=hidden name=cost_type_id value=$target_cost_type_id>
+        $target_cost_type
+"
+
 
 # ---------------------------------------------------------------
 # Select and format the sum of the invoicable items
