@@ -24,7 +24,7 @@ ad_page_contract {
 } {
     { include_task:multiple "" }
     { invoice_id:integer 0}
-    { cost_type_id:integer "[im_cost_type_invoice]" }
+    { cost_type_id:integer "" }
     { customer_id:integer 0}
     { provider_id:integer 0}
     { project_id:integer 0}
@@ -57,6 +57,11 @@ if {[info exists del_invoice]} {
 # Permissions
 if {0 == $invoice_id} {
     
+    if {"" == $cost_type_id} {
+	ad_return_complaint 1 "<li>You need to specify a Cost Type"
+	return
+    }
+
     # CostCenter Permissions:
     # We are about to create a new invoice - Check specific creation perms
     set create_cost_types [im_cost_type_write_permissions $user_id]
@@ -64,6 +69,7 @@ if {0 == $invoice_id} {
 	ad_return_complaint "Insufficient Privileges" "
         <li>You don't have sufficient privileges to create a 
             [db_string t "select im_category_from_id(:cost_type_id)"]."
+	return
     }
 
 } else {
@@ -143,7 +149,7 @@ if {$invoice_id} {
     # Build the list of selected tasks ready for invoices
     set invoice_mode "new"
     set in_clause_list [list]
-    set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual"]
+    set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual" -default ""]
     set button_text "[_ intranet-invoices.New_cost_type]"
     set page_title "[_ intranet-invoices.New_cost_type]"
     set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
@@ -228,7 +234,15 @@ if {"" == $invoice_office_id} {
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
+
 set type_select [im_cost_type_select cost_type_id $cost_type_id 0 "financial_doc"]
+if {"" != $cost_type_id} {
+    set type_select "
+	<input type=hidden name=cost_type_id value=$cost_type_id>
+	$cost_type
+    "
+}
+
 set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
