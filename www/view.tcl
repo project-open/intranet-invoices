@@ -127,6 +127,10 @@ set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs wher
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note]]
 
+# Vars for ADP (can't use the commands in ADP)
+set quote_cost_type_id [im_cost_type_quote]
+set po_cost_type_id [im_cost_type_po]
+
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
@@ -500,7 +504,7 @@ db_foreach invoice_items {} {
     }
 
     set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-    set item_units_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $item_units+0] $rounding_precision] "" $locale]
+    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
     set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 
     append invoice_item_html "

@@ -101,7 +101,16 @@ set vat_format "90.9"
 # So we need to find out the company of the project and create
 # an invoice from scratch, invoicing all project elements.
 if {0 != $project_id} {
-    set customer_id [db_string customer_id "select company_id from im_projects where project_id=:project_id"]
+    db_1row customer_info "
+	select
+		c.*
+	from
+		im_projects p,
+		im_companies c
+	where
+		project_id = :project_id
+		and p.company_id = c.company_id
+    "
 }
 
 # Default for cost-centers - take the user's
@@ -166,7 +175,7 @@ if {$invoice_id} {
     set cost_note ""
     set payment_method_id ""
     set template_id ""
-    set company_contact_id ""
+    set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]
 }
 
 if {"" == $invoice_currency} {
@@ -355,7 +364,7 @@ for {set i 0} {$i < 3} {incr i} {
     append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>
-	    <input type=text name=item_sort_order.$ctr size=2 value=''>
+	    <input type=text name=item_sort_order.$ctr size=2 value='$ctr'>
 	  </td>
           <td>
 	    <input type=text name=item_name.$ctr size=40 value=''>

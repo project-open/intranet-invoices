@@ -25,15 +25,38 @@
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@">#intranet-invoices.Preview#</A>
+
+
+<!-- -------------------------------------------------------- -->
 <if @admin@>
-<if "" ne @generation_blurb@>
+	<if @cost_type_id@ eq @quote_cost_type_id@>
 	<li>
-	  <% set blurb $generation_blurb %>
-	  <% set source_invoice_id $invoice_id %>
-	  <% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
-	  <A HREF="/intranet-invoices/new-copy?@gen_vars@">@generation_blurb@</A>
+		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_Quote "Generate Invoice from Quote"] %>
+		<% set source_invoice_id $invoice_id %>
+		<% set target_cost_type_id [im_cost_type_invoice] %>
+		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
+	
+	<li>
+		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Delivery_Note_from_Quote "Generate Delivery Note from Quote"] %>
+		<% set source_invoice_id $invoice_id %>
+		<% set target_cost_type_id [im_cost_type_delivery_note] %>
+		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
+	</if>
+	
+	
+	<if @cost_type_id@ eq @po_cost_type_id@>
+	<li>
+		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Provider_Bill_from_Purchase_Order "Generate Provider Bill from Purchase Order"] %>
+		<% set source_invoice_id $invoice_id %>
+		<% set target_cost_type_id [im_cost_type_bill] %>
+		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
+	</if>
 </if>
-</if>
+
+<!-- -------------------------------------------------------- -->
 <if @write@>
 	<li>
 	  <% set notify_vars [export_url_vars invoice_id return_url] %>
@@ -57,6 +80,7 @@
 
 </if>
 
+<!-- -------------------------------------------------------- -->
 	    </td>
 	  </tr>
 	</table>
