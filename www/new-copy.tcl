@@ -86,6 +86,7 @@ select
 	i.*,
 	i.invoice_nr as org_invoice_nr,
 	ci.*,
+	ci.note as cost_note,
 	to_char(ci.effective_date,:date_format) as effective_date,
 	trim(to_char(ci.vat, :vat_format)) as vat,
 	trim(to_char(ci.tax, :tax_format)) as tax,
@@ -114,7 +115,7 @@ set effective_date $todays_date
 
 # ---------------------------------------------------------------
 
-set customer_select [im_company_select customer_id $customer_id "" "Customer"]
+set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select provider_id $provider_id "" "Provider"]
 
 # ---------------------------------------------------------------
@@ -142,7 +143,6 @@ if {$invoice_or_quote_p} {
 # Check for default templates of the customer and use here if set
 db_1row default_vals "
 	select
-		default_invoice_template_id,
 		default_vat,
 		default_payment_method_id,
 		default_payment_days
@@ -152,11 +152,13 @@ db_1row default_vals "
 		company_id = :customer_id
 "
 if {$target_cost_type_id == [im_cost_type_invoice]} {
-    if {"" != $default_invoice_template_id} { set template_id $default_invoice_template_id }
     if {"" != $default_vat} { set vat $default_vat }
     if {"" != $default_payment_days} { set payment_days $default_payment_days }
     if {"" != $default_payment_method_id} { set payment_method_id $default_payment_method_id }
 }
+
+# Default for template: Get it from the company
+set template_id [im_invoices_default_company_template $target_cost_type_id $company_id]
 
 
 set invoice_mode "[_ intranet-invoices.clone]"
@@ -250,7 +252,7 @@ db_foreach invoice_items "" {
             [im_category_select "Intranet UoM" item_uom_id.$ctr $item_uom_id]
 	  </td>
           <td align=right><nobr>
-	    <input type=text name=item_rate.$ctr size=3 value='$price_per_unit_formatted'>
+	    <input type=text name=item_rate.$ctr size=3 value='$price_per_unit'>
 	    <input type=hidden name=item_currency.$ctr value='$currency'>
 	    $currency
 	  </nobr></td>

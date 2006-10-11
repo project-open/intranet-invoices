@@ -252,6 +252,49 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
 
 }
 
+
+
+
+
+# ---------------------------------------------------------------
+# Components
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_default_company_template { 
+    cost_type_id
+    company_id
+} {
+    Business logic to determine the default invoice template
+    for the given cost type at the given company. 
+    The algorithm checks if there are dedicated fields in the 
+    im_companies table. Ugly? Maybe...
+} {
+    # Get the short_name of the cost_type, a string like "invoice"
+    # "bill" or "delnote".
+    set short_name [db_string cost_type_short_name "
+	select	short_name
+	from	im_cost_types 
+	where	cost_type_id = :cost_type_id
+    " -default "unknown"]
+
+    # Check whether there is column "default_<short_name>_template_id"
+    # in the table im_companies:
+    set column_name "default_${short_name}_template_id"
+
+    set template_id ""
+    catch {
+	set template_id [db_string cost_type_short_name "
+		select  $column_name
+		from    im_companies
+		where   company_id = :company_id
+	" -default "unknown"]
+    } err_msg
+    # Ignore error message
+
+    return $template_id
+}
+
+
 # ---------------------------------------------------------------
 # Components
 # ---------------------------------------------------------------

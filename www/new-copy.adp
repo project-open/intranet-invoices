@@ -108,6 +108,12 @@
                   <td class=rowodd>@contact_select;noquote@</td>
                 </tr>
 
+                <tr>
+                  <td class=roweven>#intranet-invoices.Note#</td>
+                  <td class=roweven>
+                    <textarea name=note rows=6 cols=40 wrap=hard>@cost_note@</textarea>
+                  </td>
+                </tr>
 
         </table>
     </tr>
