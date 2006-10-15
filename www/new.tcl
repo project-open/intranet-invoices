@@ -51,6 +51,14 @@ if {"" != $create_invoice_from_template} {
 # We get there because the "Delete" button in view.tcl can
 # only send to one target, which is this file...
 if {[info exists del_invoice]} {
+    # Calculate the new return_url, because the invoice itself
+    # will dissappear...
+    set return_url "/intranet-invoices/list"
+    set project_id [db_string pid "select project_id from im_costs where cost_id = :invoice_id" -default 0]
+    if {"" != $project_id && 0 != $project_id} {
+	set view_name "finance"
+	set return_url [export_vars -base "/intranet/projects/view" {project_id view_name}] 
+    }
     ad_returnredirect [export_vars -base delete {invoice_id return_url}]
 }
 
