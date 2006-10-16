@@ -6,7 +6,7 @@
 
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
-<%= [export_form_vars invoice_id project_id return_url reference_document_id note] %>
+<%= [export_form_vars invoice_id project_id return_url reference_document_id] %>
 @select_project_html;noquote@
 
 <table border=0 width=100%>
