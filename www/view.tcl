@@ -62,12 +62,22 @@ set tax_format $cur_format
 set rounding_precision 2
 
 set required_field "<font color=red size=+1><B>*</B></font>"
-set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
 
 # Default Currency
 set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+
+
+# ---------------------------------------------------------------
+# Logic to show or not "our" and the "company" project nrs.
+# ---------------------------------------------------------------
+
+set company_project_nr_exists [db_column_exists im_projects company_project_nr]
+set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
+
+set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -441,13 +451,20 @@ set invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Unit]</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Rate]</td>\n"
 
-if {$company_project_nr_exists} {
-    # Only if intranet-translation has added the field
+if {$show_company_project_nr} {
+    # Only if intranet-translation has added the field and param is set
     append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
-    }
-append invoice_item_html "
+}
+
+if {$show_our_project_nr} {
+    # Only if intranet-translation has added the field and param is set
+    append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
+    "
+}
+
+append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
 "
@@ -484,13 +501,19 @@ db_foreach invoice_items {} {
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
           <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
-    if {$company_project_nr_exists} {
+
+    if {$show_company_project_nr} {
 	# Only if intranet-translation has added the field
 	append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
     }
+
+    if {$show_our_project_nr} {
+	append invoice_item_html "
+          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+    }
+
     append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
 	</tr>"
     incr ctr
