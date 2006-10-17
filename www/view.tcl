@@ -120,7 +120,8 @@ if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
 set related_projects_sql "
         select distinct
 	   	r.object_id_one as project_id,
-		p.project_nr
+		p.project_nr,
+		trim(both p.company_project_nr) as customer_project_nr
 	from
 	        acs_rels r,
 		im_projects p
@@ -130,9 +131,19 @@ set related_projects_sql "
 "
 
 set related_projects {}
+set related_project_nrs {}
+set related_customer_project_nrs {}
+
+set num_related_projects 0
 db_foreach related_projects $related_projects_sql {
-   lappend related_projects $project_id
-   lappend related_project_nrs $project_nr
+    lappend related_projects $project_id
+    if {"" != $project_nr} { 
+	lappend related_project_nrs $project_nr 
+    }
+    if {"" != $customer_project_nr} { 
+	lappend related_customer_project_nrs $customer_project_nr 
+    }
+    incr num_related_projects
 }
 
 set rel_project_id 0
