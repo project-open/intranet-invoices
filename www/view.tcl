@@ -210,7 +210,16 @@ db_1row accounting_contact_info "
     select
 	im_name_from_user_id(:company_contact_id) as company_contact_name,
 	im_email_from_user_id(:company_contact_id) as company_contact_email
-    "
+"
+
+
+# Set the email and name of the current user as internal contact
+db_1row accounting_contact_info "
+    select
+	im_name_from_user_id(:user_id) as internal_contact_name,
+	im_email_from_user_id(:user_id) as internal_contact_email
+"
+
 
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
