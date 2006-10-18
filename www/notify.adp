@@ -39,8 +39,7 @@
 <tr class=rowodd>
 <td>Message</td>
 <td>
-<textarea name=message rows=10 cols=70 wrap=hard>
-#intranet-invoices.lt_Dear_accounting_conta#</textarea>
+<textarea name=message rows=10 cols=70 wrap="<%=[im_html_textarea_wrap]%>">#intranet-invoices.lt_Dear_accounting_conta#</textarea>
 </td>
 </tr>
 

@@ -114,7 +114,7 @@
 		<tr>
 		  <td class=roweven>#intranet-invoices.Note#</td>
 	          <td class=roweven>
-		    <textarea name=note rows=6 cols=40 wrap=hard>@cost_note@</textarea>
+		    <textarea name=note rows=6 cols=40 wrap="<%=[im_html_textarea_wrap]%>">@cost_note@</textarea>
 		  </td>
 		</tr>
 
