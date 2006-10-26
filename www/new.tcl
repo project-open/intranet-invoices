@@ -121,12 +121,6 @@ if {0 != $project_id} {
     "
 }
 
-# Default for cost-centers - take the user's
-# dept from HR.
-if {0 == $cost_center_id} {
-    set cost_center_id [im_costs_default_cost_center_for_user $user_id]
-}
-
 # ---------------------------------------------------------------
 # 3. Gather invoice data
 #	a: if the invoice already exists
@@ -184,12 +178,17 @@ if {$invoice_id} {
     set payment_method_id ""
     set template_id ""
     set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]
+
+    # Default for cost-centers - take the user's
+    # dept from HR.
+    if {0 == $cost_center_id} {
+	set cost_center_id [im_costs_default_cost_center_for_user $user_id]
+    }
 }
 
 if {"" == $invoice_currency} {
     set invoice_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 }
-
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill

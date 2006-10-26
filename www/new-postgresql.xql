@@ -22,6 +22,7 @@
 	ci.customer_id,
 	ci.provider_id,
 	to_char(ci.effective_date,'YYYY-MM-DD') as effective_date,
+	ci.cost_center_id,
 	ci.payment_days,
 	to_char(ci.vat, :vat_format) as vat,
 	to_char(ci.tax, :tax_format) as tax,
