@@ -76,7 +76,6 @@ set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurr
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
-
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 
 # ---------------------------------------------------------------
@@ -470,7 +469,8 @@ append invoice_item_html "
 "
 
 set ctr 1
-set colspan 7
+set colspan [expr 5 + $show_company_project_nr + $show_our_project_nr]
+
 if {!$company_project_nr_exists} { 
     set colspan [expr $colspan-1]
     set company_project_nr ""
