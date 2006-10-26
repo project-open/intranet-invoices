@@ -165,7 +165,8 @@ from
 	acs_objects o,
         im_companies c,
 	im_companies p,
-	(       select  cc.cost_center_id,
+	(       select distinct
+			cc.cost_center_id,
 			ct.cost_type_id
 		from    im_cost_centers cc,
 			im_cost_types ct,
