@@ -240,7 +240,6 @@ db_1row accounting_contact_info "
 	im_email_from_user_id(:user_id) as internal_contact_email
 "
 
-
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
 # ---------------------------------------------------------------
@@ -611,7 +610,6 @@ append terms_html $note_html
 
 set item_list_html [concat $invoice_item_html $subtotal_item_html]
 set item_html [concat $item_list_html $terms_html]
-
 
 
 # ---------------------------------------------------------------
