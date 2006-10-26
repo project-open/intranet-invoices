@@ -338,7 +338,7 @@ if {[string equal $invoice_mode "new"]} {
 	    <input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
 	  </td>
           <td>
-	    <input type=text name=item_name.$ctr size=40 value='$item_name'>
+	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
 	  </td>
           <td>
 	    <input type=hidden name=item_type_id.$ctr value='$item_type_id'>
