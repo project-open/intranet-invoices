@@ -25,25 +25,23 @@
 
 	        <tr><td align=middle class=rowtitle colspan=2>#intranet-invoices.cost_type_Data#</td></tr>
 	        <tr>
-	          <td  class=rowodd>#intranet-invoices.cost_type_nr#</td>
-	          <td  class=rowodd> 
+	          <td class=rowodd>#intranet-invoices.cost_type_nr#</td>
+	          <td class=rowodd> 
 	            <input type=text name=invoice_nr size=15 value='@invoice_nr@'>
 	          </td>
 	        </tr>
 	        <tr> 
-	          <td  class=roweven>#intranet-invoices.cost_type_date#</td>
-	          <td  class=roweven> 
+	          <td class=roweven>#intranet-invoices.cost_type_date#</td>
+	          <td class=roweven> 
 	            <input type=text name=invoice_date size=15 value='@effective_date@'>
 	          </td>
 	        </tr>
-
 	        <tr> 
-	          <td  class=roweven>@cost_center_label@</td>
-	          <td  class=roweven>
+	          <td class=roweven>@cost_center_label@</td>
+	          <td class=roweven>
 		  @cost_center_select;noquote@
 	          </td>
 	        </tr>
-
 	        <tr> 
 	          <td class=roweven>#intranet-invoices.Payment_terms#</td>
 	          <td class=roweven> 
