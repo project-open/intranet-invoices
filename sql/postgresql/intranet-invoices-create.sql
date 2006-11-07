@@ -534,7 +534,7 @@ begin
 	''invoices_customers_new_invoice'',	-- label
 	''New Customer Invoice from scratch'',	-- name
 	''/intranet-invoices/new?cost_type_id=3700'',	-- url
-	10,						-- sort_order
+	310,						-- sort_order
 	v_invoices_new_menu,				-- parent_menu_id
 	null						-- visible_tcl
     );
@@ -556,7 +556,7 @@ begin
 	''invoices_customers_new_invoice_from_quote'',	-- label
 	''New Customer Invoice from Quote'',		-- name
 	''/intranet-invoices/new-copy?target_cost_type_id=3700\&source_cost_type_id=3702'',	-- url
-	20,										-- sort_order
+	320,										-- sort_order
 	v_invoices_new_menu,								-- parent_menu_id
 	null										-- visible_tcl
     );
@@ -578,7 +578,7 @@ begin
 	''invoices_customers_new_quote'',  -- label
 	''New Quote from scratch'',	   -- name
 	''/intranet-invoices/new?cost_type_id=3702'',	-- url
-	30,						-- sort_order
+	110,						-- sort_order
 	v_invoices_new_menu,				-- parent_menu_id
 	null						-- visible_tcl
     );
@@ -639,7 +639,7 @@ begin
 	''invoices_providers_new_bill'', -- label
 	''New Provider Bill from scratch'', -- name
 	''/intranet-invoices/new?cost_type_id=3704'',	-- url
-	10,						-- sort_order
+	410,						-- sort_order
 	v_invoices_new_menu,				-- arent_menu_id
 	null						-- visible_tcl
     );
@@ -661,7 +661,7 @@ begin
 	''invoices_providers_new_bill_from_po'',	-- label
 	''New Provider Bill from Purchase Order'',	-- name
 	''/intranet-invoices/new-copy?target_cost_type_id=3704\&source_cost_type_id=3706'',	-- url
-	20,										-- sort_order
+	520,										-- sort_order
 	v_invoices_new_menu,								-- parent_menu_id
 	null										-- visible_tcl
     );
@@ -683,7 +683,7 @@ begin
 	''invoices_providers_new_po'',	-- label
 	''New Purchase Order from scratch'',	-- name
 	''/intranet-invoices/new?cost_type_id=3706'', -- url
-	30,					      -- sort_order
+	410,					      -- sort_order
 	v_invoices_new_menu,			      -- parent_menu_id
 	null					      -- visible_tcl
     );
