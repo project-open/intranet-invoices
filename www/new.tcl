@@ -400,10 +400,13 @@ for {set i 0} {$i < 3} {incr i} {
 # Pass along the number of projects related to this document
 # ---------------------------------------------------------------
 
+set own_project_related ""
+if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
 set related_project_sql "
 	select	object_id_one as project_id
 	from	acs_rels r
 	where	r.object_id_two = :invoice_id
+	$own_project_related
 "
 
 set select_project_html ""
