@@ -6,9 +6,6 @@
 
 <form action=new-2 method=POST>
 <%= [export_form_vars invoice_id return_url] %>
-<if @project_id@ ne 0>
-<input type=hidden name=select_project value="@project_id@">
-</if>
 
 <!-- Include a list of projects related to this document -->
 @select_project_html;noquote@
