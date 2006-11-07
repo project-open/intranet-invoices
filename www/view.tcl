@@ -200,6 +200,8 @@ if { ![db_0or1row invoice_info_query $query] } {
     return
 }
 
+set cost_type_mapped [string map {" " "_"} $cost_type]
+set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
 
 # Fallback for empty office_id: Main Office
 if {"" == $invoice_office_id} {
