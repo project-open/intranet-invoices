@@ -251,6 +251,7 @@ select
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
+	pr.project_nr,
 	to_char(ci.effective_date, 'YYYY-MM') as effective_month,
 	to_char(ci.amount, :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
@@ -267,7 +268,8 @@ select
 	$extra_select
 from
         im_invoices_active i,
-        im_costs ci,
+        im_costs ci
+	LEFT OUTER JOIN im_projects pr on (ci.project_id = pr.project_id),
 	acs_objects o,
         im_companies c,
         im_companies p,
