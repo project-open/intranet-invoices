@@ -56,21 +56,22 @@ ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {
     set company_id $customer_id
-    
     if {"" == $customer_id || 0 == $customer_id} {
 	ad_return_complaint 1 "You need to specify a value for customer_id"
 	return
     }
-
 } else {
     set company_id $provider_id
-
     if {"" == $provider_id || 0 == $provider_id} {
 	ad_return_complaint 1 "You need to specify a value for provider_id"
 	return
     }
-
 }
+
+# rounding precision can be 2 (USD,EUR, ...) .. -5 (Old Turkish Lira).
+set rounding_precision 2
+set rf [expr exp(log(10) * $rounding_precision)]
+
 
 # ---------------------------------------------------------------
 # Defaults & Security
@@ -244,16 +245,15 @@ if {1 != [llength $currencies]} {
 set currency [lindex $currencies 0]
 
 set update_invoice_amount_sql "
-update im_costs
-set 
-    amount = (
-	select sum(price_per_unit * item_units)
-	from im_invoice_items
-	where invoice_id = :invoice_id
-	group by invoice_id
-),
-    currency = :currency
-where cost_id = :invoice_id
+	update im_costs
+	set amount = (
+		select sum(round(price_per_unit * item_units * :rf) / :rf)
+		from im_invoice_items
+		where invoice_id = :invoice_id
+		group by invoice_id
+	),
+	currency = :currency
+	where cost_id = :invoice_id
 "
 
 db_dml update_invoice_amount $update_invoice_amount_sql
