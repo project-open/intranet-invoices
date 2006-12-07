@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.2.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.2.3.0.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -100,6 +100,8 @@ Best regards,
   <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from Scratch</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">New Customer Invoice from Timesheet Tasks</msg>
   <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
+  <msg key="New_Delivery_Note_from_Quote">New Delivery Note from Quote</msg>
+  <msg key="New_Delivery_Note_from_scratch">New Delivery Note from Scratch</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from Scratch</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
@@ -143,6 +145,9 @@ Best regards,
   <msg key="Select">Select</msg>
   <msg key="Select_Customer">Select a Customer</msg>
   <msg key="Select_Project">Project Select</msg>
+  <msg key="Send_invoice_as_HTML_attachment">Send invoice as HTML attachment</msg>
+  <msg key="Send_invoice_as_HTML_link">Send invoice as HTML link</msg>
+  <msg key="Send_invoice_as_link">Send invoice as link</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Submit</msg>
   <msg key="Subtotal">Subtotal</msg>

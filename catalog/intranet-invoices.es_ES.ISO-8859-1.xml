@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.2.0.0" locale="es_ES" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.2.3.0.0" locale="es_ES" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Añadir un pago</msg>
   <msg key="Add_a_Project">Añadir un proyecto</msg>
@@ -84,21 +84,18 @@
   <msg key="New_Company_Invoice_from_Quote">Nueva factura a empresa basada en presupuesto</msg>
   <msg key="New_Company_Invoice_from_scratch">Nueva factura a empresa desde cero</msg>
   <msg key="New_cost_type">Nuevo %cost_type%</msg>
-  <msg key="New_Customer_Invoice_from_Quote">Nueva factura a cliente desde presupuesto</msg>
+  <msg key="New_Customer_Invoice_from_Quote">Nueva factura a cliente a partir de presupuesto</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nueva factura a cliente desde cero</msg>
-  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nueva factura a cliente desde tareas de hoja de tiempo</msg>
-  <msg key="New_Customer_Invoice_from_Translation_Tasks">Nueva factura a cliente desde tareas de traducción</msg>
-  <msg key="New_Delivery_Note_from_Quote">Nuevo albarán desde presupuesto</msg>
-  <msg key="New_Delivery_Note_from_scratch">Nuevo albarán desde cero</msg>
-  <msg key="New_Provider_Bill_from_Purchase_Order">Nueva factura de proveedor desde orden de compra</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Facturar un parte de trabajo</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">Facturar una tarea de traducción</msg>
+  <msg key="New_Provider_Bill_from_Purchase_Order">Nueva factura de proveedor a partir de orden de compra</msg>
   <msg key="New_Provider_Bill_from_scratch">Nueva factura de proveedor desde cero</msg>
-  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nueva factura de proveedor desde tareas de traducción</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nueva factura de proveedor a partir de tareas de traducción</msg>
   <msg key="New_Purchase_Order_from_scratch">Nueva orden de compra desde cero</msg>
-  <msg key="New_Purchase_Order_from_Translation_Tasks">Nueva orden de compra desde tareas de traducción</msg>
-  <msg key="New_Quote_from_Quote">Nuevo presupuesto desde presupuesto</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Nueva orden de compra a partir de tareas de traducción</msg>
   <msg key="New_Quote_from_scratch">Nuevo presupuesto desde cero</msg>
-  <msg key="New_Quote_from_Timesheet_Tasks">Nuevo presupuesto desde tarea de hoja de tiempo</msg>
-  <msg key="New_Quote_from_Translation_Tasks">Nuevo presupuesto desde tareas de traducción</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Nuevo presupuesto desde parte de trabajo</msg>
+  <msg key="New_Quote_from_Translation_Tasks">Presupuestar tarea de traducción</msg>
   <msg key="New_Translation_Customer_Invoice">Nueva factura a cliente de traducciones</msg>
   <msg key="New_Translation_Invoice">Nueva factura por traducciones</msg>
   <msg key="New_Translation_Provider_Invoice">Nueva factura de proveedor de traducciones</msg>
