@@ -581,8 +581,8 @@ append subtotal_item_html "
 
 set payment_terms_html "
         <tr>
-	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
-          <td valign=top colspan=[expr $colspan-1]> 
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
+          <td valign=top colspan=[expr $colspan-1] class=rowplain> 
             [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
@@ -590,14 +590,14 @@ set payment_terms_html "
 
 set payment_method_html "
         <tr>
-	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
-          <td valign=top colspan=[expr $colspan-1]> $invoice_payment_method_desc</td>
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
+          <td valign=top colspan=[expr $colspan-1] class=rowplain> $invoice_payment_method_desc</td>
         </tr>
 "
 
 set note_html "
         <tr>
-	  <td valign=top>[lang::message::lookup $locale intranet-invoices.Note]</td>
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Note]</td>
           <td valign=top colspan=[expr $colspan-1]>
 	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$cost_note</font></pre>
 	  </td>
