@@ -151,8 +151,16 @@ db_1row default_vals "
 	where
 		company_id = :customer_id
 "
+
+set default_tax ""
+if {[db_column_exists im_companies default_tax]} {
+    set default_tax [db_string default_tax "select default_tax from im_companies where company_id = :company_id" -default "0"]
+}
+
+
 if {$target_cost_type_id == [im_cost_type_invoice]} {
     if {"" != $default_vat} { set vat $default_vat }
+    if {"" != $default_tax} { set tax $default_tax }
     if {"" != $default_payment_days} { set payment_days $default_payment_days }
     if {"" != $default_payment_method_id} { set payment_method_id $default_payment_method_id }
 }

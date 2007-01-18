@@ -77,6 +77,8 @@ set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
+set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+set show_leading_invoice_item_nr 1
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -129,7 +131,9 @@ if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
 set related_projects_sql "
         select distinct
 	   	r.object_id_one as project_id,
+		p.project_name,
 		p.project_nr,
+		p.parent_id,
 		trim(both p.company_project_nr) as customer_project_nr
 	from
 	        acs_rels r,
@@ -141,6 +145,7 @@ set related_projects_sql "
 
 set related_projects {}
 set related_project_nrs {}
+set related_project_names {}
 set related_customer_project_nrs {}
 
 set num_related_projects 0
@@ -148,6 +153,18 @@ db_foreach related_projects $related_projects_sql {
     lappend related_projects $project_id
     if {"" != $project_nr} { 
 	lappend related_project_nrs $project_nr 
+    }
+    if {"" != $project_name} { 
+	lappend related_project_names $project_name 
+    }
+
+    # Check of the "customer project nr" of the superproject, as the PMs
+    # are probably too lazy to maintain it in the subprojects...
+    set cnt 0
+    while {[string equal "" $customer_project_nr] && ![string equal "" $parent_id] && $cnt < 10} {
+	set customer_project_nr [db_string custpn "select company_project_nr from im_projects where project_id = :parent_id" -default ""]
+	set parent_id [db_string parentid "select parent_id from im_projects where project_id = :parent_id" -default ""]
+	incr cnt
     }
     if {"" != $customer_project_nr} { 
 	lappend related_customer_project_nrs $customer_project_nr 
@@ -497,7 +514,15 @@ db_foreach invoice_items {} {
     set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 
     append invoice_item_html "
-	<tr $bgcolor([expr $ctr % 2])> 
+	<tr $bgcolor([expr $ctr % 2])>
+    "
+
+    if {$show_leading_invoice_item_nr} {
+        append invoice_item_html "
+          <td $bgcolor([expr $ctr % 2]) align=right>$sort_order</td>\n"
+    }
+
+    append invoice_item_html "
           <td $bgcolor([expr $ctr % 2])>$item_name</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
           <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
