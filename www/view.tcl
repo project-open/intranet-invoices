@@ -78,7 +78,6 @@ set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
-set show_leading_invoice_item_nr 1
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
