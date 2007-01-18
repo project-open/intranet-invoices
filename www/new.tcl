@@ -235,6 +235,12 @@ if {[db_column_exists im_companies default_invoice_template_id]} {
     }
 }
 
+if {[db_column_exists im_companies default_tax]} {
+    if {0 == $tax} {
+        set tax [db_string default_tax "select default_tax from im_companies where company_id = :company_id" -default "0"]
+    }
+}
+
 
 # Get a reasonable default value for the invoice_office_id,
 # either from the invoice or then from the company_main_office.
