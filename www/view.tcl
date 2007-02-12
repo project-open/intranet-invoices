@@ -90,6 +90,7 @@ set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_ty
 
 # Vars for ADP (can't use the commands in ADP)
 set quote_cost_type_id [im_cost_type_quote]
+set delnote_cost_type_id [im_cost_type_delivery_note]
 set po_cost_type_id [im_cost_type_po]
 
 
