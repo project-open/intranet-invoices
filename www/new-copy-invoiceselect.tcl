@@ -49,6 +49,8 @@ if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
 
 set page_title "[_ intranet-invoices.Select_Customer]"
 set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
+set submit_button_text [lang::message::lookup "" intranet-invoices.Select_documents "Select Documents"]
+
 
 # Needed for im_view_columns, defined in intranet-views.tcl
 set amp "&"
@@ -229,8 +231,7 @@ foreach col $column_headers {
     append table_header_html "  <td class=rowtitle>[_ intranet-invoices.$col_key]</td>\n"
 }
 
-append table_header_html "<td class=rowtitle>[_ intranet-invoices.Select]</td>\n"
-
+append table_header_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Sel "Sel"]</td>\n"
 append table_header_html "</tr>\n"
 
 
@@ -255,12 +256,8 @@ db_foreach invoices_info_query $selection {
 	append table_body_html "</td>\n"
     }
     set source_invoice_id $invoice_id
-    append table_body_html "
-	<td valign=top>
-	  <a href=\"new-copy?[export_url_vars cost_type_id company_id source_invoice_id source_cost_type_id target_cost_type_id blurb return_url]\">[_ intranet-invoices.Select]</a>
-	</td>
-    "
-	
+
+    append table_body_html "<td><input type=checkbox name=source_invoice_id value=$invoice_id></td>\n"
     append table_body_html "</tr>\n"
 
     incr ctr
@@ -269,7 +266,6 @@ db_foreach invoices_info_query $selection {
     }
     incr idx
 }
-
 
 
 # Show a reasonable message when there are no result rows:

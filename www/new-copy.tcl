@@ -13,7 +13,7 @@ ad_page_contract {
     Copy existing financial document to a new one.
     @author frank.bergmann@project-open.com
 } {
-    source_invoice_id:integer,optional
+    { source_invoice_id:integer,multiple "" }
     source_cost_type_id:integer,optional
     target_cost_type_id:integer
     {customer_id:integer ""}
@@ -34,14 +34,19 @@ if {![im_permission $user_id add_invoices]} {
     ad_script_abort
 }
 
-if {[exists_and_not_null source_invoice_id]} {
-    im_cost_permissions $user_id $source_invoice_id view_p read_p write_p admin_p
+if {0 == [llength $source_invoice_id]} {
+    ad_return_complaint 1 "No source document specified<br>
+    You need to specify atleast one document in order to create a copy."
+    ad_script_abort
+}
+
+foreach source_id $source_invoice_id {
+    im_cost_permissions $user_id $source_id view_p read_p write_p admin_p
     if {!$read_p} {
 	ad_return_complaint "Insufficient Privileges" "
         <li>You don't have sufficient privileges to see the source document."
         ad_script_abort
     }
-
     set allowed_cost_type [im_cost_type_write_permissions $user_id]
     if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
 	ad_return_complaint "Insufficient Privileges" "
@@ -57,9 +62,9 @@ if {[exists_and_not_null source_invoice_id]} {
 # The user hasn't yet specified the source invoice from which
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
-if {![info exists source_invoice_id]} {
-    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
-}
+# if {![info exists source_invoice_id]} {
+#     ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
+# }
 
 set tax_format [im_l10n_sql_currency_format -style simple]
 set vat_format [im_l10n_sql_currency_format -style simple]
@@ -82,10 +87,10 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 
 db_1row invoices_info_query "
 select
-	im_category_from_id(:target_cost_type_id) as target_cost_type,
 	i.*,
-	i.invoice_nr as org_invoice_nr,
 	ci.*,
+	im_category_from_id(:target_cost_type_id) as target_cost_type,
+	i.invoice_nr as org_invoice_nr,
 	ci.note as cost_note,
 	to_char(ci.effective_date,:date_format) as effective_date,
 	trim(to_char(ci.vat, :vat_format)) as vat,
@@ -102,10 +107,11 @@ from
 	im_companies c,
 	im_companies p
 where 
-        i.invoice_id = :source_invoice_id
+        i.invoice_id in ([join $source_invoice_id ", "])
 	and ci.customer_id = c.company_id
 	and ci.provider_id = p.company_id
 	and i.invoice_id = ci.cost_id
+LIMIT 1
 "
 
 # Use today's date as effective date, because the
@@ -275,11 +281,13 @@ db_foreach invoice_items "" {
 # ---------------------------------------------------------------
 
 set related_project_sql "
-        select  object_id_one as project_id
-        from    acs_rels r
-        where   r.object_id_two = :source_invoice_id
+        select distinct
+		object_id_one as project_id
+        from
+		acs_rels r
+        where
+		r.object_id_two in ([join $source_invoice_id ", "])
 "
-
 set select_project_html ""
 db_foreach related_project $related_project_sql {
         append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
