@@ -34,12 +34,6 @@ if {![im_permission $user_id add_invoices]} {
     ad_script_abort
 }
 
-if {0 == [llength $source_invoice_id]} {
-    ad_return_complaint 1 "No source document specified<br>
-    You need to specify atleast one document in order to create a copy."
-    ad_script_abort
-}
-
 foreach source_id $source_invoice_id {
     im_cost_permissions $user_id $source_id view_p read_p write_p admin_p
     if {!$read_p} {
@@ -62,9 +56,9 @@ foreach source_id $source_invoice_id {
 # The user hasn't yet specified the source invoice from which
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
-# if {![info exists source_invoice_id]} {
-#     ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
-# }
+if {0 == [llength $source_invoice_id]} {
+    ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
+}
 
 set tax_format [im_l10n_sql_currency_format -style simple]
 set vat_format [im_l10n_sql_currency_format -style simple]
