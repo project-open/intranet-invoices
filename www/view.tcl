@@ -489,13 +489,6 @@ append invoice_item_html "
 set ctr 1
 set colspan [expr 5 + $show_company_project_nr + $show_our_project_nr]
 
-if {!$company_project_nr_exists} { 
-    set colspan [expr $colspan-1]
-    set company_project_nr ""
-}
-
-
-
 db_foreach invoice_items {} {
 
     # $company_project_nr is normally related to each invoice item,
