@@ -10,6 +10,10 @@
 <!-- Include a list of projects related to this document -->
 @select_project_html;noquote@
 
+<if @cost_center_hidden@ defined>
+@cost_center_hidden;noquote@
+</if>
+
 <table border=0 width="100%">
 <tr><td>
 
@@ -33,12 +37,14 @@
 	            <input type=text name=invoice_date size=15 value='@effective_date@'>
 	          </td>
 	        </tr>
+<if @cost_center_select@ defined>
 	        <tr> 
 	          <td class=roweven>@cost_center_label@</td>
 	          <td class=roweven>
 		  @cost_center_select;noquote@
 	          </td>
 	        </tr>
+</if>
 	        <tr> 
 	          <td class=roweven>#intranet-invoices.Payment_terms#</td>
 	          <td class=roweven> 

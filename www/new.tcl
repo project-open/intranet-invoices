@@ -273,7 +273,11 @@ set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Ad
 set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
 
 set cost_center_label [lang::message::lookup "" intranet-invoices.Cost_Center "Cost Center"]
-set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
+if {[apm_package_installed_p "intranet-cost-center"]} {
+    set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
+} else {
+    set cost_center_hidden "<input type=hidden name=cost_center_id value=$cost_center_id>"
+}
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items
