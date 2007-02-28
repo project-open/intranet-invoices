@@ -178,6 +178,44 @@ if {1 == [llength $related_projects]} {
 }
 
 # ---------------------------------------------------------------
+# Get everything about the "internal" company
+# ---------------------------------------------------------------
+
+db_1row internal_company_info "
+	select
+		c.company_name as internal_name,
+		c.company_path as internal_path,
+		c.vat_number as internal_vat_number,
+		c.site_concept as internal_web_site,
+		im_name_from_user_id(c.manager_id) as internal_manager_name,
+		im_email_from_user_id(c.manager_id) as internal_manager_email,
+		c.primary_contact_id as internal_primary_contact_id,
+		im_name_from_user_id(c.primary_contact_id) as internal_primary_contact_name,
+		im_email_from_user_id(c.primary_contact_id) as internal_primary_contact_email,
+		c.accounting_contact_id as internal_accounting_contact_id,
+		im_name_from_user_id(c.accounting_contact_id) as internal_accounting_contact_name,
+		im_email_from_user_id(c.accounting_contact_id) as internal_accounting_contact_email,
+		o.office_name as internal_office_name,
+		o.fax as internal_fax,
+		o.phone as internal_phone,
+		o.address_line1 as internal_address_line1,
+		o.address_line2 as internal_address_line2,
+		o.address_city as internal_city,
+		o.address_state as internal_state,
+		o.address_postal_code as internal_postal_code,
+		o.address_country_code as internal_country_code,
+		cou.country_name as internal_country_name
+	from
+		im_companies c
+		LEFT OUTER JOIN im_offices o ON (c.main_office_id = o.office_id)
+		LEFT OUTER JOIN country_codes cou ON (o.address_country_code = iso)
+	where
+		c.company_path = 'internal'
+"
+
+# ad_return_complaint 1 $internal_postal_code
+
+# ---------------------------------------------------------------
 # Get everything about the invoice
 # ---------------------------------------------------------------
 
@@ -194,11 +232,14 @@ select
 	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
-	im_category_from_id(ci.template_id) as template
+	im_category_from_id(ci.template_id) as template,
+	paymeth.category as default_payment_method,
+	paymeth.category_description as default_payment_method_text
 from
 	im_invoices_active i,
 	im_costs ci,
         im_companies c
+	LEFT OUTER JOIN im_categories paymeth ON (c.default_payment_method_id = paymeth.category_id)
 where 
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
@@ -250,6 +291,19 @@ db_1row accounting_contact_info "
 	im_name_from_user_id(:company_contact_id) as company_contact_name,
 	im_email_from_user_id(:company_contact_id) as company_contact_email
 "
+
+set contact_person_work_phone ""
+set contact_person_work_fax ""
+db_0or1row contact_info "
+	select
+		work_phone as contact_person_work_phone,
+		fax as contact_person_work_fax
+	from
+		users_contact
+	where
+		user_id = :company_contact_id
+"
+
 
 
 # Set the email and name of the current user as internal contact
