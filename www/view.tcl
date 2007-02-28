@@ -204,11 +204,13 @@ db_1row internal_company_info "
 		o.address_state as internal_state,
 		o.address_postal_code as internal_postal_code,
 		o.address_country_code as internal_country_code,
-		cou.country_name as internal_country_name
+		cou.country_name as internal_country_name,
+		paymeth.category_description as internal_payment_method_desc
 	from
 		im_companies c
 		LEFT OUTER JOIN im_offices o ON (c.main_office_id = o.office_id)
 		LEFT OUTER JOIN country_codes cou ON (o.address_country_code = iso)
+		LEFT OUTER JOIN im_categories paymeth ON (c.default_payment_method_id = paymeth.category_id)
 	where
 		c.company_path = 'internal'
 "
@@ -232,14 +234,11 @@ select
 	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
-	im_category_from_id(ci.template_id) as template,
-	paymeth.category as default_payment_method,
-	paymeth.category_description as default_payment_method_text
+	im_category_from_id(ci.template_id) as template
 from
 	im_invoices_active i,
 	im_costs ci,
         im_companies c
-	LEFT OUTER JOIN im_categories paymeth ON (c.default_payment_method_id = paymeth.category_id)
 where 
 	i.invoice_id=:invoice_id
 	and ci.cost_id = i.invoice_id
