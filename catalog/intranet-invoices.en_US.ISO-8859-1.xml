@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.6.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.2.7.0.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -155,7 +155,11 @@ Best regards,
   <msg key="Subtotal">Subtotal</msg>
   <msg key="TAX">TAX</msg>
   <msg key="TAXnbsp">TAX&amp;nbsp;</msg>
+  <msg key="The_indicated_prices_dont_include_VAT">The indicated prices don't include VAT.</msg>
+  <msg key="Timesheet_Cube">Timesheet Cube</msg>
+  <msg key="Timesheet_Customers_and_Projects">Timesheet Customers and Projects</msg>
   <msg key="To">To:</msg>
+  <msg key="Total">Total</msg>
   <msg key="Total_Due">Total Due</msg>
   <msg key="Type">Type</msg>
   <msg key="Unit">Unit</msg>
@@ -163,6 +167,7 @@ Best regards,
   <msg key="UOM">UOM</msg>
   <msg key="VAT">VAT</msg>
   <msg key="VATnbsp">VAT&amp;nbsp;</msg>
+  <msg key="Your_Reference">Your Reference</msg>
   <msg key="Yr_Job__PO_No">PO No.</msg>
   <msg key="Zip">Zip</msg>
 </message_catalog>
