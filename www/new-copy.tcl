@@ -58,7 +58,10 @@ foreach source_id $source_invoice_id {
 # to refer us back to this one.
 if {0 == [llength $source_invoice_id]} {
     ad_returnredirect new-copy-custselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url]
+    ad_script_abort
 }
+
+lappend source_invoice_id 0
 
 set tax_format [im_l10n_sql_currency_format -style simple]
 set vat_format [im_l10n_sql_currency_format -style simple]
