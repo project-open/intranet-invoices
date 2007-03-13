@@ -177,6 +177,7 @@ if {1 == [llength $related_projects]} {
     set rel_project_id [lindex $related_projects 0]
 }
 
+
 # ---------------------------------------------------------------
 # Get everything about the "internal" company
 # ---------------------------------------------------------------
