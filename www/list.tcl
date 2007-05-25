@@ -147,11 +147,7 @@ if { ![empty_string_p $cost_status_id] && $cost_status_id > 0 } {
 }
 
 if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
-    lappend criteria "i.cost_type_id in (
-		select distinct	h.child_id
-		from	im_category_hierarchy h
-		where	(child_id=:cost_type_id or parent_id=:cost_type_id)
-	)"
+    lappend criteria "i.cost_type_id in ([join [im_sub_categories $cost_type_id] ","])"
 }
 if { ![empty_string_p $company_id] && $company_id != 0 } {
     lappend criteria "i.customer_id=:company_id"
