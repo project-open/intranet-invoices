@@ -18,7 +18,7 @@ ad_page_contract {
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
     { order_by "Document #" }
-    { cost_status_id:integer "" } 
+    { cost_status_id:integer "[im_cost_status_created]" } 
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
@@ -76,10 +76,6 @@ set date_format [im_l10n_sql_date_format]
 set local_url "list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
-
-if {$cost_status_id == ""} {
-    set cost_status_id $cost_status_created
-}
 
 
 if { [empty_string_p $how_many] || $how_many < 1 } {
