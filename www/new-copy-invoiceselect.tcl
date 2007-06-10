@@ -15,9 +15,9 @@ ad_page_contract {
 } {
     source_cost_type_id:integer
     target_cost_type_id:integer
-    blurb
+    {blurb "" }
     return_url
-    company_id:integer
+    { company_id:integer "" }
     { project_id:integer "" }
     { start_idx:integer 0 }
     { how_many "" }
@@ -67,6 +67,15 @@ set end_idx [expr $start_idx + $how_many - 1]
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint 1 "<li>You have insufficiente privileges to view this page"
     return
+}
+
+if {"" == $company_id && "" != $project_id} {
+    set company_id [db_string company_id "select company_id from im_projects where project_id = :project_id" -default ""]
+}
+
+if {"" == $company_id} {
+    ad_return_complaint 1 "<li>You must supply a value for company_id"
+    ad_script_abort
 }
 
 
