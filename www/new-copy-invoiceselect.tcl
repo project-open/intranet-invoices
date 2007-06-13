@@ -24,6 +24,7 @@ ad_page_contract {
     { view_name "invoice_select" }
 }
 
+
 # ---------------------------------------------------------------
 # Security
 # ---------------------------------------------------------------
@@ -114,7 +115,9 @@ db_foreach column_list_sql $column_sql {
 # 5. Generate SQL Query
 # ---------------------------------------------------------------
 
-set project_where_clause ""
+
+set criteria [list]
+
 if {"" != $project_id} {
     set project_cost_ids_sql "
 		                select distinct cost_id
@@ -142,12 +145,24 @@ if {"" != $project_id} {
 				)
     "
 
-    set project_where_clause "
-	and i.invoice_id in (
+    lappend criteria "
+	i.invoice_id in (
 		$project_cost_ids_sql
 	)
     "
+}
 
+if {"" != $company_id} {
+    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delnote]} {
+	lappend criteria "i.customer_id = :company_id"
+    } else {
+	lappend criteria "i.provider_id = :company_id"
+    }
+}
+
+set project_where_clause [join $criteria " and\n            "]
+if { ![empty_string_p $project_where_clause] } {
+    set project_where_clause " and $project_where_clause"
 }
 
 set order_by_clause "order by invoice_id DESC"
