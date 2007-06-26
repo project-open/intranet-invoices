@@ -16,9 +16,7 @@
   <fullquery name = "invoices_info_query">
     <querytext>
       select
-	i.invoice_nr,
-	i.payment_method_id,
-	i.company_contact_id,
+	i.*,
 	ci.customer_id,
 	ci.provider_id,
 	to_char(ci.effective_date,'YYYY-MM-DD') as effective_date,

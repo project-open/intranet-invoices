@@ -68,6 +68,9 @@ set rf $rounding_factor
 # Default Currency
 set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 
+set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
+set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
+
 
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
@@ -112,11 +115,11 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 if {$invoice_or_quote_p} {
     # A Customer document
-    set customer_or_provider_join "and i.customer_id = c.company_id"
+    set customer_or_provider_join "and ci.customer_id = c.company_id"
     set provider_company "Customer"
 } else {
     # A provider document
-    set customer_or_provider_join "and i.provider_id = c.company_id"
+    set customer_or_provider_join "and ci.provider_id = c.company_id"
     set provider_company "Provider"
 }
 
@@ -226,18 +229,22 @@ db_1row internal_company_info "
 set query "
 select
 	i.*,
-	i.invoice_office_id,
+	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'::text),	'YYYY-MM-DD'::text) + ci.payment_days AS due_date,
+	ci.effective_date AS invoice_date,
+	ci.cost_status_id AS invoice_status_id,
+	ci.cost_type_id AS invoice_type_id,
+	ci.template_id AS invoice_template_id,
 	ci.*,
 	ci.note as cost_note,
 	ci.project_id as cost_project_id,
 	c.*,
-	to_date(to_char(i.invoice_date,'YYYY-MM-DD'),'YYYY-MM-DD') + i.payment_days as calculated_due_date,
+	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
 	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
 	im_category_from_id(ci.cost_type_id) as cost_type, 
 	im_category_from_id(ci.template_id) as template
 from
-	im_invoices_active i,
+	im_invoices i,
 	im_costs ci,
         im_companies c
 where 
@@ -608,28 +615,66 @@ set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0
 set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
 set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
+set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
+set discount_perc_pretty $discount_perc
+set surcharge_perc_pretty $surcharge_perc
+
+set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
+set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
 
 set colspan_sub [expr $colspan - 1]
 
 # Add a subtotal
-append subtotal_item_html "
+set subtotal_item_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B><nobr>$subtotal_pretty $currency</nobr></B></td>
         </tr>
 "
 
+# Discount
+if {$discount_enabled_p && 0 != $discount_perc} {
+    append subtotal_item_html "
+        <tr> 
+<!--          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.Discount]</td> -->
+          <td class=roweven colspan=$colspan_sub align=right>$discount_text $discount_perc_pretty %</td>
+          <td class=roweven align=right><nobr>$discount_amount_pretty $currency</nobr></td>
+        </tr>
+    "
+}
+
+# Surcharge
+if {$surcharge_enabled_p && 0 != $surcharge_perc} {
+    append subtotal_item_html "
+        <tr> 
+<!--          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.Surcharge]</td> -->
+          <td class=roweven colspan=$colspan_sub align=right>$surcharge_text $surcharge_perc_pretty %</td>
+          <td class=roweven align=right><nobr>$surcharge_amount_pretty $currency</nobr></td>
+        </tr>
+    "
+}
+
+# New Subtotal line
+if {$discount_enabled_p || $surcharge_enabled_p} {
+    append subtotal_item_html "
+        <tr> 
+          <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.GrandTotal "Grand Total"]</B></td>
+          <td class=roweven align=right><B><nobr>$grand_total_pretty $currency</nobr></B></td>
+        </tr>
+    "
+}
+
 if {"" != $vat && 0 != $vat} {
     append subtotal_item_html "
         <tr>
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat]%&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat] %&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
 } else {
     append subtotal_item_html "
         <tr>
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0%&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0 %&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
         </tr>
 "
@@ -647,7 +692,7 @@ if {"" != $tax && 0 != $tax} {
 append subtotal_item_html "
         <tr> 
           <td class=roweven colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
-          <td class=roweven align=right><b><nobr>$grand_total_pretty $currency</nobr></b></td>
+          <td class=roweven align=right><b><nobr>$total_due_pretty $currency</nobr></b></td>
         </tr>
 "
 

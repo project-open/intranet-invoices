@@ -75,7 +75,17 @@ create table im_invoices (
 				references im_invoices,
 	invoice_office_id	integer
 				constraint im_invoices_office_fk
-				references im_offices
+				references im_offices,
+	-- discount and surcharge. These values are applied to the 
+	-- subtotal from the invoice lines in order to form the amount
+	discount_text		text,
+	discount_perc		numeric(12,2) default 0,
+	surcharge_text		text,
+	surcharge_perc		numeric(12,2) default 0,
+	-- deadlines are for invoices with a sliding windows
+	-- of time, counted from the start_date.
+	deadline_start_date	timestamptz,
+	deadline_interval	interval
 );
 
 

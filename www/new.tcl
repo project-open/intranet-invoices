@@ -105,6 +105,9 @@ set cost_note ""
 set tax_format "90.9"
 set vat_format "90.9"
 
+set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
+set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
+
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
 # an invoice from scratch, invoicing all project elements.
@@ -173,6 +176,10 @@ if {$invoice_id} {
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
+    set discount_text ""
+    set discount_perc 0
+    set surcharge_text ""
+    set surcharge_perc 0
     set note ""
     set cost_note ""
     set payment_method_id ""

@@ -39,23 +39,25 @@
   <fullquery name = "calc_grand_total">
     <querytext>
 
-      select
+    select
 	max(i.currency) as currency,
 	sum(i.amount) as subtotal,
-	round(sum(i.amount) * :vat / 100 * :rf) / :rf as vat_amount,
-	round(sum(i.item_units * i.price_per_unit) * :tax / 100 * :rf) / :rf as tax_amount,
-	round(	sum(i.amount) * :rf) / :rf + 
-		round(sum(i.amount) * :vat / 100 * :rf) / :rf + 
-		round(sum(i.amount) * :tax / 100 * :rf) / :rf as grand_total
-      from (
-	select
-		i.*,
-		round(i.price_per_unit * i.item_units * :rf) / :rf as amount
-	from
-		im_invoice_items i
-	where
-		i.invoice_id = :invoice_id
-	) i
+	sum(i.amount) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) as grand_total,
+	sum(i.amount) * :surcharge_perc::numeric/100.0 as surcharge_amount,
+	sum(i.amount) * :discount_perc::numeric/100.0 as discount_amount,
+	round(sum(i.amount) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) * :vat / 100 * :rf) / :rf as vat_amount,
+	round(sum(i.item_units * i.price_per_unit) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) * :tax / 100 * :rf) / :rf as tax_amount,
+	round(	sum(i.amount) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) * :rf) / :rf + 
+		round(sum(i.amount) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) * :vat / 100 * :rf) / :rf + 
+		round(sum(i.amount) * (1.0+(:surcharge_perc::numeric+:discount_perc::numeric)/100.0) * :tax / 100 * :rf) / :rf as total_due
+    from (
+	select	ii.*,
+		round(ii.price_per_unit * ii.item_units * :rf) / :rf as amount
+	from	im_invoice_items ii,
+		im_invoices i
+	where	i.invoice_id = ii.invoice_id
+		and i.invoice_id = :invoice_id
+    ) i
 
     </querytext>
   </fullquery>

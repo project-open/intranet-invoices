@@ -30,6 +30,10 @@ ad_page_contract {
     template_id:integer
     vat:trim,float
     tax:trim,float
+    { discount_perc "0" }
+    { surcharge_perc "0" }
+    { discount_text "" }
+    { surcharge_text "" }
     {note ""}
     item_sort_order:array
     item_name:array
@@ -129,7 +133,11 @@ set
 	invoice_nr	= :invoice_nr,
 	payment_method_id = :payment_method_id,
 	company_contact_id = :company_contact_id,
-	invoice_office_id = :invoice_office_id
+	invoice_office_id = :invoice_office_id,
+	discount_perc	= :discount_perc,
+	discount_text	= :discount_text,
+	surcharge_perc	= :surcharge_perc,
+	surcharge_text	= :surcharge_text
 where
 	invoice_id = :invoice_id
 "
@@ -244,6 +252,9 @@ if {1 != [llength $currencies]} {
 
 set currency [lindex $currencies 0]
 
+if {"" == $discount_perc} { set discount_perc 0.0 }
+if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
+
 set update_invoice_amount_sql "
 	update im_costs
 	set amount = (
@@ -251,7 +262,7 @@ set update_invoice_amount_sql "
 		from im_invoice_items
 		where invoice_id = :invoice_id
 		group by invoice_id
-	),
+	) * (1.0 + (:surcharge_perc::numeric + :discount_perc::numeric) / 100.0),
 	currency = :currency
 	where cost_id = :invoice_id
 "

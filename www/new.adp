@@ -135,6 +135,36 @@
 	<!-- the list of task sums, distinguised by type and UOM -->
 	@task_sum_html;noquote@
 
+<if @discount_enabled_p@>
+        <tr>
+          <td> 
+          </td>
+          <td colspan=99 align=right> 
+            <table border=0 cellspacing=1 cellpadding=0>
+              <tr> 
+                <td>#intranet-invoices.Discount# &nbsp;</td>
+                <td><input type=text name=discount_text value="@discount_text@"> </td>
+                <td><input type=text name=discount_perc value="@discount_perc@" size=4> % &nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+</if>
+<if @surcharge_enabled_p@>
+        <tr>
+          <td> 
+          </td>
+          <td colspan=99 align=right> 
+            <table border=0 cellspacing=1 cellpadding=0>
+              <tr> 
+                <td>#intranet-invoices.Surcharge# &nbsp;</td>
+                <td><input type=text name=surcharge_text value="@surcharge_text@"> </td>
+                <td><input type=text name=surcharge_perc value="@surcharge_perc@" size=4> % &nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+</if>
         <tr>
           <td> 
           </td>
@@ -142,11 +172,12 @@
             <table border=0 cellspacing=1 cellpadding=0>
               <tr> 
                 <td>#intranet-invoices.VATnbsp#</td>
-                <td><input type=text name=vat value='@vat@' size=4> % &nbsp;</td>
+                <td><input type=text name=vat value="@vat@" size=4> % &nbsp;</td>
               </tr>
             </table>
           </td>
         </tr>
+
         <tr> 
           <td> 
           </td>
@@ -154,7 +185,7 @@
             <table border=0 cellspacing=1 cellpadding=0>
               <tr> 
                 <td>#intranet-invoices.TAXnbsp#</td>
-                <td><input type=text name=tax value='@tax@' size=4> % &nbsp;</td>
+                <td><input type=text name=tax value="@tax@" size=4> % &nbsp;</td>
               </tr>
             </table>
           </td>
@@ -162,7 +193,7 @@
         <tr> 
           <td>&nbsp; </td>
           <td colspan=6 align=right> 
-              <input type=submit name=submit value='@button_text@'>
+              <input type=submit name=submit value="@button_text@">
           </td>
         </tr>
 
