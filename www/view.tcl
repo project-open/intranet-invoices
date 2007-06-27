@@ -320,7 +320,22 @@ db_0or1row contact_info "
 db_1row accounting_contact_info "
     select
 	im_name_from_user_id(:user_id) as internal_contact_name,
-	im_email_from_user_id(:user_id) as internal_contact_email
+	im_email_from_user_id(:user_id) as internal_contact_email,
+	uc.work_phone as internal_contact_work_phone,
+	uc.home_phone as internal_contact_home_phone,
+	uc.cell_phone as internal_contact_cell_phone,
+	uc.fax as internal_contact_fax,
+	uc.wa_line1 as internal_contact_wa_line1,
+	uc.wa_line2 as internal_contact_wa_line2,
+	uc.wa_city as internal_contact_wa_city,
+	uc.wa_state as internal_contact_wa_state,
+	uc.wa_postal_code as internal_contact_wa_postal_code,
+	uc.wa_country_code as internal_contact_wa_country_code
+    from
+	users u
+	LEFT OUTER JOIN users_contact uc ON (u.user_id = uc.user_id)
+    where
+	u.user_id = :user_id
 "
 
 # ---------------------------------------------------------------
