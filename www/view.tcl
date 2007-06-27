@@ -71,6 +71,8 @@ set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurr
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
 
+set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
+
 
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
@@ -304,7 +306,8 @@ set contact_person_work_fax ""
 db_0or1row contact_info "
 	select
 		work_phone as contact_person_work_phone,
-		fax as contact_person_work_fax
+		fax as contact_person_work_fax,
+		im_email_from_user_id(user_id) as contact_person_email
 	from
 		users_contact
 	where
@@ -525,9 +528,15 @@ where
 set invoice_item_html "
         <tr align=center>
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+"
+
+if {$show_qty_rate_p} {
+    append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Qty]</td>
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Unit]</td>
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Rate]</td>\n"
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Rate]</td>
+    "
+}
 
 if {$show_company_project_nr} {
     # Only if intranet-translation has added the field and param is set
@@ -548,7 +557,7 @@ append invoice_item_html "
 "
 
 set ctr 1
-set colspan [expr 5 + $show_company_project_nr + $show_our_project_nr]
+set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr]
 
 db_foreach invoice_items {} {
 
@@ -578,9 +587,14 @@ db_foreach invoice_items {} {
 
     append invoice_item_html "
           <td $bgcolor([expr $ctr % 2])>$item_name</td>
+    "
+    if {$show_qty_rate_p} {
+        append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
           <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
-          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>\n"
+          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+        "
+    }
 
     if {$show_company_project_nr} {
 	# Only if intranet-translation has added the field
