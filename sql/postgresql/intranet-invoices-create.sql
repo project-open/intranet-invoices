@@ -76,16 +76,23 @@ create table im_invoices (
 	invoice_office_id	integer
 				constraint im_invoices_office_fk
 				references im_offices,
+
 	-- discount and surcharge. These values are applied to the 
 	-- subtotal from the invoice lines in order to form the amount
 	discount_text		text,
 	discount_perc		numeric(12,2) default 0,
 	surcharge_text		text,
 	surcharge_perc		numeric(12,2) default 0,
+
 	-- deadlines are for invoices with a sliding windows
 	-- of time, counted from the start_date.
 	deadline_start_date	timestamptz,
-	deadline_interval	interval
+	deadline_interval	interval,
+
+	-- canned_note is a standard text for quotes and POs
+	canned_note_id		integer
+				constraint im_invoices_canned_note_fk
+				references im_categories
 );
 
 
@@ -727,6 +734,32 @@ BEGIN
 
         return v_name;
 end;' language 'plpgsql';
+
+
+
+
+
+-- -------------------------------------------------------------
+-- Canned Notes Category Space
+--
+-- 11600-11699  Intranet Invoice Canned Notes
+
+
+create or replace view im_invoice_canned_notes as
+select
+        category_id as canned_note_id,
+        category as canned_note_category,
+	aux_string1 as canned_note
+from im_categories
+where category_type = 'Intranet Invoice Canned Notes';
+
+
+insert into im_categories (category_id, category, category_type, aux_string1)
+values (11600, 'Dummy Canned Note', 'Intranet Invoice Canned Note', 'Message text for Dummy Canned Note');
+
+-- reserved through 11699
+
+
 
 
 

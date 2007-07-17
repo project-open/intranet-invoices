@@ -111,7 +111,14 @@
 		  <td class=rowodd>@contact_select;noquote@</td>
 		</tr>
 
-
+<if @canned_note_enabled_p@>
+		<tr>
+		  <td class=roweven><%= [lang::message::lookup "" intranet-invoices.Canned_Note "Canned Note"] %></td>
+	          <td class=roweven>
+		    <%= [im_category_select "Intranet Invoice Canned Note" canned_note_id $canned_note_id] %>
+		  </td>
+		</tr>
+</if>
 		<tr>
 		  <td class=roweven>#intranet-invoices.Note#</td>
 	          <td class=roweven>
