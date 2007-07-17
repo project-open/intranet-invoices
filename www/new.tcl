@@ -101,12 +101,14 @@ set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 set cost_note ""
+set canned_note ""
 
 set tax_format "90.9"
 set vat_format "90.9"
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
@@ -182,6 +184,7 @@ if {$invoice_id} {
     set surcharge_perc 0
     set note ""
     set cost_note ""
+    set canned_note ""
     set payment_method_id ""
     set template_id ""
     set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]

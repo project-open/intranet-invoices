@@ -115,7 +115,7 @@
 		<tr>
 		  <td class=roweven><%= [lang::message::lookup "" intranet-invoices.Canned_Note "Canned Note"] %></td>
 	          <td class=roweven>
-		    <%= [im_category_select "Intranet Invoice Canned Note" canned_note_id $canned_note_id] %>
+		    <%= [im_category_select -translate_p 0 -include_empty_p 1 -include_empty_name "-- Please Select --" -plain_p 1 -cache_interval 0 "Intranet Invoice Canned Note" canned_note_id $canned_note_id] %>
 		  </td>
 		</tr>
 </if>

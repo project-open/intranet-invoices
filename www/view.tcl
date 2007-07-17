@@ -70,6 +70,7 @@ set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurr
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
 
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
@@ -741,6 +742,21 @@ set payment_method_html "
         </tr>
 "
 
+
+set canned_note_html ""
+if {$canned_note_enabled_p} {
+    set canned_note [db_string canned_note "select aux_string1 from im_categories where category_id = :canned_note_id" -default ""]
+    set canned_note_html "
+        <tr>
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Canned_Note "Canned Note"]</td>
+          <td valign=top colspan=[expr $colspan-1]>
+	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$canned_note</font></pre>
+	  </td>
+        </tr>
+    "
+}
+
+
 set note_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Note]</td>
@@ -754,7 +770,7 @@ set terms_html ""
 if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
     set terms_html [concat $payment_terms_html $payment_method_html]
 }
-append terms_html $note_html
+append terms_html "$canned_note_html $note_html"
 
 set item_list_html [concat $invoice_item_html $subtotal_item_html]
 set item_html [concat $item_list_html $terms_html]

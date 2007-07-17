@@ -34,7 +34,8 @@ ad_page_contract {
     { surcharge_perc "0" }
     { discount_text "" }
     { surcharge_text "" }
-    {note ""}
+    { canned_note_id "" }
+    { note ""}
     item_sort_order:array
     item_name:array
     item_units:float,array
@@ -113,6 +114,9 @@ if {"" == $company_contact_id } {
 }
 
 
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
+
+
 # ---------------------------------------------------------------
 # Update invoice base data
 # ---------------------------------------------------------------
@@ -168,6 +172,11 @@ set
 where
 	cost_id = :invoice_id
 "
+
+if {$canned_note_enabled_p} {
+    db_dml update_canned_note "update im_invoices set canned_note_id = :canned_note_id where invoice_id = :invoice_id"
+}
+
 
 # ---------------------------------------------------------------
 # Create the im_invoice_items for the invoice
