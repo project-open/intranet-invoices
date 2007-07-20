@@ -108,6 +108,8 @@ set vat_format "90.9"
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
+
+# Canned Notes is a field with multiple messages per invoice
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
 
 # Tricky case: Sombebody has called this page from a project
@@ -137,6 +139,15 @@ if {$invoice_id} {
     # We are editing an already existing invoice
 
     db_1row invoices_info_query ""
+
+    # Canned Notes is a field with multiple messages per invoice
+    if {$canned_note_enabled_p} {
+	    set canned_note_id [db_list canned_notes "
+		select	value
+		from	im_dynfield_attr_multi_value
+		where	object_id = :invoice_id
+	    "]
+    }
 
     set invoice_mode "exists"
     set page_title "[_ intranet-invoices.Edit_cost_type]"

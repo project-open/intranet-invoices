@@ -744,7 +744,6 @@ end;' language 'plpgsql';
 --
 -- 11600-11699  Intranet Invoice Canned Notes
 
-
 create or replace view im_invoice_canned_notes as
 select
         category_id as canned_note_id,
@@ -754,8 +753,44 @@ from im_categories
 where category_type = 'Intranet Invoice Canned Notes';
 
 
+insert into acs_object_type_tables (object_type,table_name,id_column)
+values ('im_invoice', 'im_invoices', 'invoice_id');
+
+
+select im_dynfield_attribute__new (
+	null,			-- widget_id
+	'im_dynfield_attribute', -- object_type
+	now(),			-- creation_date
+	null,			-- creation_user
+	null,			-- creation_ip
+	null,			-- context_id
+
+	'im_invoice',		-- attribute_object_type
+	'canned_note_id',	-- attribute name
+	0,
+	0,
+	null,
+	'integer',
+	'#intranet-invoices.Canned_Note#',    -- pretty name
+	'#intranet-invoices.Canned_Note#',    -- pretty plural
+	'integer',		-- Widget (dummy)
+	'f',
+	'f'
+);
+
+
+
 insert into im_categories (category_id, category, category_type, aux_string1)
 values (11600, 'Dummy Canned Note', 'Intranet Invoice Canned Note', 'Message text for Dummy Canned Note');
+
+insert into im_categories (category_id, category, category_type, aux_string1)
+values (11602, '2nd Dummy Canned Note', 'Intranet Invoice Canned Note', 'Message text for 2nd Dummy Canned Note');
+
+insert into im_categories (category_id, category, category_type, aux_string1)
+values (11604, '3rd Dummy Canned Note', 'Intranet Invoice Canned Note', 'Message text for 3rd Dummy Canned Note');
+
+insert into im_categories (category_id, category, category_type, aux_string1)
+values (11606, '4th Dummy Canned Note', 'Intranet Invoice Canned Note', 'Message text for 4th Dummy Canned Note');
 
 -- reserved through 11699
 

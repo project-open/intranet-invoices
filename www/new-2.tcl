@@ -34,7 +34,7 @@ ad_page_contract {
     { surcharge_perc "0" }
     { discount_text "" }
     { surcharge_text "" }
-    { canned_note_id "" }
+    { canned_note_id:integer,multiple "" }
     { note ""}
     item_sort_order:array
     item_name:array
@@ -174,7 +174,31 @@ where
 "
 
 if {$canned_note_enabled_p} {
-    db_dml update_canned_note "update im_invoices set canned_note_id = :canned_note_id where invoice_id = :invoice_id"
+
+    set attribute_id [db_string attrib_id "
+			select	attribute_id 
+			from	im_dynfield_attributes
+			where	acs_attribute_id = (
+					select	attribute_id
+					from	acs_attributes
+					where	object_type = 'im_invoice'
+						and attribute_name = 'canned_note_id'
+				)
+    " -default 0]
+
+    # Delete the old values
+    db_dml del_attr "
+	delete from im_dynfield_attr_multi_value 
+	where	object_id = :invoice_id
+		and attribute_id = :attribute_id
+    "
+
+    foreach cid $canned_note_id {
+	db_dml insert_note "
+		insert into im_dynfield_attr_multi_value (object_id, attribute_id, value) 
+		values (:invoice_id, :attribute_id, :cid);
+        "
+    }
 }
 
 
