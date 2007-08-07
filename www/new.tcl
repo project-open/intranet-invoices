@@ -197,6 +197,7 @@ if {$invoice_id} {
     set note ""
     set cost_note ""
     set canned_note ""
+    set canned_note_id ""
     set payment_method_id ""
     set template_id ""
     set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]
