@@ -102,6 +102,7 @@ set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 set cost_note ""
 set canned_note ""
+set canned_note_id ""
 
 set tax_format "90.9"
 set vat_format "90.9"
