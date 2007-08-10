@@ -13,10 +13,34 @@
 <tr class=roweven>
 <td>#intranet-invoices.From#</td>
 <td>
-<A HREF=/intranet/users/view?user_id=@user_id@>
-  @current_user_name@
-  #intranet-invoices.lt_ltcurrent_user_emailg#<br>
-</A>
+
+<%
+	set options ""
+	set count 0
+	db_foreach options "
+		select	category as email
+		from	im_categories
+		where	category_type = 'Intranet Company Email Sender Address'
+		order by category
+	" {
+	    append options "<option name=$email>$email</option>\n"
+	    incr count
+	}
+
+	set options "
+		<select name=from_email>
+		<option name=@current_user_email@ selected>@current_user_email@</option>
+		$options
+		</select>
+	"
+	
+	if {!$count} {
+	    set options "$current_user_name ($current_user_email)"
+	}
+%>
+
+<%= $options %>
+
 </td>
 </tr>
 
