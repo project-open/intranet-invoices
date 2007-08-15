@@ -48,6 +48,7 @@ if {0 == $invoice_id} {
     return
 }
 
+
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
 set bgcolor(0) " class=invoiceroweven"
@@ -89,7 +90,7 @@ set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id=:invoice_id" -default 0]
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note]]
@@ -267,6 +268,7 @@ if { ![db_0or1row invoice_info_query $query] } {
     }
     return
 }
+
 
 set cost_type_mapped [string map {" " "_"} $cost_type]
 set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
@@ -822,3 +824,6 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	ad_script_abort
     }
 } 
+
+
+
