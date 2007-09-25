@@ -87,12 +87,7 @@ create table im_invoices (
 	-- deadlines are for invoices with a sliding windows
 	-- of time, counted from the start_date.
 	deadline_start_date	timestamptz,
-	deadline_interval	interval,
-
-	-- canned_note is a standard text for quotes and POs
-	canned_note_id		integer
-				constraint im_invoices_canned_note_fk
-				references im_categories
+	deadline_interval	interval
 );
 
 

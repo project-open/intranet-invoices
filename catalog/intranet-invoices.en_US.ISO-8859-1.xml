@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.7.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.3.0.0.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -17,6 +17,7 @@
   <msg key="company_name_page">%company_name% page</msg>
   <msg key="Contact">Contact</msg>
   <msg key="Cost">Cost</msg>
+  <msg key="Cost_Center">Cost Center</msg>
   <msg key="cost_type_Data">%cost_type% Data</msg>
   <msg key="cost_type_date">%cost_type% date:</msg>
   <msg key="cost_type_due_date">%cost_type% due date:</msg>
