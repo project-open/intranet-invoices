@@ -288,17 +288,36 @@ set currency [lindex $currencies 0]
 if {"" == $discount_perc} { set discount_perc 0.0 }
 if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
 
+
+set subtotal [db_string subtotal "
+	select	sum(round(price_per_unit * item_units * :rf) / :rf)
+	from	im_invoice_items
+	where	invoice_id = :invoice_id
+"]
+
 set update_invoice_amount_sql "
-	update im_costs
-	set amount = (
-		select sum(round(price_per_unit * item_units * :rf) / :rf)
-		from im_invoice_items
-		where invoice_id = :invoice_id
-		group by invoice_id
-	) * (1.0 + (:surcharge_perc::numeric + :discount_perc::numeric) / 100.0),
-	currency = :currency
+	update im_costs set
+		amount = :subtotal
+			 + round(:subtotal * :surcharge_perc::numeric) / 100.0
+			 + round(:subtotal * :discount_perc::numeric) / 100.0,
+		currency = :currency
 	where cost_id = :invoice_id
 "
+
+
+
+
+#set update_invoice_amount_sql "
+#	update im_costs
+#	set amount = (
+#		select sum(round(price_per_unit * item_units * :rf) / :rf)
+#		from im_invoice_items
+#		where invoice_id = :invoice_id
+#		group by invoice_id
+#	) * (1.0 + (:surcharge_perc::numeric + :discount_perc::numeric) / 100.0),
+#	currency = :currency
+#	where cost_id = :invoice_id
+#"
 
 db_dml update_invoice_amount $update_invoice_amount_sql
 
