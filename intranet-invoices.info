@@ -21,6 +21,7 @@
         <callbacks>
         </callbacks>
         <parameters>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceQuantityUnitRateEnabledP"  default="1" description="Make unit rates visible in invoices"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountField"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeField"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceNrDateFormat"  default="YYYY_MM" description="Determine the date format that specifies whether to restart the invoice every year (YYYY) or every month (YYYY_MM)."/>
