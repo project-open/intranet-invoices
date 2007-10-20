@@ -21,10 +21,23 @@
 	  </tr>
 	  <tr>
 	    <td>
+
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
-	  <A HREF="/intranet-invoices/view?@preview_vars@">#intranet-invoices.Preview#</A>
+	  <A HREF="/intranet-invoices/view?@preview_vars@">
+		<%= [lang::message::lookup "" intranet-invoices.Preview_as_HTML "Preview as HTML"] %>
+	  </A>
+
+<if @pdf_enabled_p>
+	<li>
+	  <% set render_template_id $template_id %>
+	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+	  <A HREF="/intranet-invoices/view?@preview_vars@&output_format=pdf">
+		<%= [lang::message::lookup "" intranet-invoices.Preview_as_PDF "Preview as PDF"] %>
+	  </A>
+</if>
+
 
 <if @admin@>
 	<if @cost_type_id@ eq @quote_cost_type_id@>
@@ -66,23 +79,25 @@
 
 
 <if @write@>
+<!--
 	<li>
 	  <% set notify_vars [export_url_vars invoice_id return_url] %>
 	  <A HREF="/intranet-invoices/notify?@notify_vars@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_HTML_link "Send this %cost_type% to %provider_company% as HTML link"] %>
+	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_link "Send this %cost_type% as HTML link"] %>
 	  </A>
+-->
 
 	<li>
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "html"} return_url}] %>
 	  <A HREF="@url@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_HTML_attachment "Send this %cost_type% to %provider_company% as HTML attachment"] %>
+	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_attachment "Send this %cost_type% as HTML attachment"] %>
 	  </A>
 
 <!--
 	<li>
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
 	  <A HREF="@url@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_invoice_as_link "Send this %cost_type% to %provider_company% as PDF attachment"] %>
+	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_PDF_attachment "Send this %cost_type% as PDF attachment"] %>
 	  </A>
 -->
 
