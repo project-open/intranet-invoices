@@ -93,13 +93,13 @@
 	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_attachment "Send this %cost_type% as HTML attachment"] %>
 	  </A>
 
-<!--
+<if @pdf_enabled_p@>
 	<li>
 	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
 	  <A HREF="@url@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_PDF_attachment "Send this %cost_type% as PDF attachment"] %>
 	  </A>
--->
+</if>
 
 </if>
 

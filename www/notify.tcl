@@ -32,6 +32,7 @@ ad_page_contract {
 } {
     invoice_id:integer
     {invoice_html:allhtml ""}
+    {invoice_pdf:allhtml ""}
     {send_to_user_as ""}
     return_url
 }
@@ -174,7 +175,7 @@ if {"" != $send_to_user_as} {
 	    set attachment_mime_type "text/html" 
 	}
 	"pdf" { 
-	    set attachment [im_html2pdf_convert "<body>adsf</body"]
+	    set attachment $invoice_pdf
 	    set attachment_mime_type "application/pdf" 
 	}
     }
