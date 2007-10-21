@@ -76,7 +76,8 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
-set pdf_enabled_p 1
+# Check if (one of) the PDF converter(s) is installed
+set pdf_enabled_p [llength [info commands im_html2pdf]]
 
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
@@ -834,38 +835,21 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 
 
     # PDF output
-    if {$output_format == "pdf"} {
-
-	# Generate PDF output
-	set htmldoc_cmd  [parameter::get_from_package_key -package_key "intranet-core" -parameter "HtmlDocCmd" -default "/usr/bin/htmldoc"]
-	set tmp_pdf_file [ns_tmpnam]
-	set htmldoc_pipe "$htmldoc_cmd --webpage --verbose --quiet -t pdf -f $tmp_pdf_file -"
+    if {$output_format == "pdf" && $pdf_enabled_p} {
 	
-	if {[catch {
-	    set io [open "|$htmldoc_pipe " w]
-	    puts $io $invoices_as_html
-	    flush $io
-	    close $io
-	} err_msg]} {
-	    # htmldoc generates funny errors, so:
-	    # Only show an error if htmldoc didn't generate the target file.
-	    if {![file exists $tmp_pdf_file]} {
-		ad_return_complaint 1 "<b>Error converting HTML to PDF</b>:<br>
-	    <pre>\n$err_msg</pre>"
-	    }
-	}
+	set result [im_html2pdf $invoices_as_html]
+	set tmp_pdf_file [lindex $result 0]
+	set errlist [lindex $result 1]
 	
-	if {[catch {
-	    set fl [open $tmp_pdf_file]
-	    fconfigure $fl -encoding binary
-	    set binary_content [read $fl]
-	    close $fl
-	} err]} {
-	    ad_return_complaint 1 "<b>Unable to open file $tmp_pdf_file</b>:<br>
-	<pre>\n$err</pre>"
+	if {[llength $errlist] > 0} {
+	    # Delete the temp file
+	    im_html2pdf_read_file -delete_file_p 1
+	    
+	    # Return the error
+	    ad_return_complaint 1 $errlist
 	    ad_script_abort
 	}
-
+	
 	# Write PDF out - either as preview or as email
 	if {"" != $send_to_user_as} {
 	    # Redirect to mail sending page:
@@ -882,8 +866,9 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	    catch { file delete $tmp_pdf_file } err
 	    ad_script_abort
 	}
-
     }
+
+    ad_return_complaint 1 "Internal Error - No output format specified"
 
 } 
 

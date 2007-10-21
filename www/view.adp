@@ -29,7 +29,7 @@
 		<%= [lang::message::lookup "" intranet-invoices.Preview_as_HTML "Preview as HTML"] %>
 	  </A>
 
-<if @pdf_enabled_p>
+<if @pdf_enabled_p@>
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
