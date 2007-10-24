@@ -31,6 +31,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNr"  default="1" description="Show our &quot;Project Nr.&quot; field in the list of items in the InvoiceViewPage? This is useful if there are frequently invoices which include multiple projects. Default is yes."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowLeadingInvoiceItemNr"  default="0" description="Should we show a invoice item nr at the very left column?"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
         </parameters>
 
     </version>
