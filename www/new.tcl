@@ -447,5 +447,7 @@ db_foreach related_project $related_project_sql {
 	append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
 }
 
+set sub_navbar [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] 
+
 db_release_unused_handles
 
