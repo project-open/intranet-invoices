@@ -751,12 +751,23 @@ set payment_method_html "
 
 set canned_note_html ""
 if {$canned_note_enabled_p} {
+    
+    set canned_note_sql "
+                select  im_category_from_id(value) as canned_note
+                from    im_dynfield_attr_multi_value
+                where   object_id = :invoice_id
+    "
+    set canned_notes ""
+    db_foreach canned_notes $canned_note_sql {
+	append canned_notes "$canned_note\n"
+    }
+
     set canned_note [db_string canned_note "select aux_string1 from im_categories where category_id = :canned_note_id" -default ""]
     set canned_note_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Canned_Note "Canned Note"]</td>
           <td valign=top colspan=[expr $colspan-1]>
-	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$canned_note</font></pre>
+	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$canned_notes</font></pre>
 	  </td>
         </tr>
     "
