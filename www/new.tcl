@@ -111,7 +111,7 @@ set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "Enabl
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
 
 # Canned Notes is a field with multiple messages per invoice
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 0]
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create

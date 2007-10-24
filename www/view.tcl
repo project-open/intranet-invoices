@@ -52,8 +52,8 @@ if {0 == $invoice_id} {
 
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
-set bgcolor(0) " class=invoiceroweven"
-set bgcolor(1) " class=invoicerowodd"
+set bgcolor(0) "class=invoiceroweven"
+set bgcolor(1) "class=invoicerowodd"
 
 set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
@@ -72,7 +72,7 @@ set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurr
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountField" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeField" "" 0]
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 0]
 
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
@@ -309,6 +309,7 @@ db_1row accounting_contact_info "
 
 set contact_person_work_phone ""
 set contact_person_work_fax ""
+set contact_person_email ""
 db_0or1row contact_info "
 	select
 		work_phone as contact_person_work_phone,
