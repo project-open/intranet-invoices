@@ -114,7 +114,7 @@ if {"" == $company_contact_id } {
 }
 
 
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNote" "" 1]
+set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]
 
 
 # ---------------------------------------------------------------

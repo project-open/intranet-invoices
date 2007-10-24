@@ -22,8 +22,9 @@
         </callbacks>
         <parameters>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceQuantityUnitRateEnabledP"  default="1" description="Make unit rates visible in invoices"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountField"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeField"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountFieldP"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeFieldP"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceNrDateFormat"  default="YYYY_MM" description="Determine the date format that specifies whether to restart the invoice every year (YYYY) or every month (YYYY_MM)."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="C:/ProjectOpen/filestorage/templates" description="Path for Invoicing templates"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PreferAccountingContactOverProjectContactP"  default="0" description="Prefer the accounting contact (and then primary contact) over the project contact? Default is 1 for compatibility reasons."/>
@@ -31,7 +32,6 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNr"  default="1" description="Show our &quot;Project Nr.&quot; field in the list of items in the InvoiceViewPage? This is useful if there are frequently invoices which include multiple projects. Default is yes."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowLeadingInvoiceItemNr"  default="0" description="Should we show a invoice item nr at the very left column?"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
         </parameters>
 
     </version>
