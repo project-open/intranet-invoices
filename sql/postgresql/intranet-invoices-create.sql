@@ -164,7 +164,7 @@ select acs_object_type__create_type (
 	'im_invoice',		-- object_type
 	'Invoice',		-- pretty_name
 	'Invoices',		-- pretty_plural
-	'acs_object',		-- supertype
+	'im_cost',		-- supertype
 	'im_invoices',		-- table_name
 	'invoice_id',		-- id_column
 	'im_invoice',		-- package_name
