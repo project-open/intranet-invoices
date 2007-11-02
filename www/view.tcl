@@ -79,6 +79,7 @@ set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQ
 # Check if (one of) the PDF converter(s) is installed
 set pdf_enabled_p [llength [info commands im_html2pdf]]
 
+
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
 # ---------------------------------------------------------------
@@ -885,4 +886,24 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 } 
 
 
+# ---------------------------------------------------------------------
+# Sub-Navbar
+# ---------------------------------------------------------------------
+
+# Choose the right subnavigation bar
+#
+if {[llength $related_projects] != 1} {
+    set sub_navbar [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""]
+} else {
+    set project_id [lindex $related_projects 0]
+    set bind_vars [ns_set create]
+    ns_set put $bind_vars project_id $project_id
+    set parent_menu_id [db_string parent_menu "select menu_id from im_menus where label='project'" -default 0]
+    set menu_label "project_finance"
+    set sub_navbar [im_sub_navbar \
+                        -components \
+                        -base_url "/intranet/projects/view?project_id=$project_id" \
+                        $parent_menu_id \
+                        $bind_vars "" "pagedesriptionbar" $menu_label]
+}
 
