@@ -332,7 +332,7 @@ if {"" != $parent_menu_label} {
         order by sort_order"
 
     # Start formatting the menu bar
-    set new_document_menu ""
+    set new_document_menu "<ul>"
     set ctr 0
     db_foreach menu_select $menu_select_sql {
 	ns_log Notice "im_sub_navbar: menu_name='$name'"
@@ -340,6 +340,7 @@ if {"" != $parent_menu_label} {
 	set name_loc [lang::message::lookup "" $package_name.$name_key $name]
 	append new_document_menu "<li><a href=\"$url\">$name_loc</a></li>\n"
     }
+    append new_document_menu "</ul>"
 }
 
 # ---------------------------------------------------------------
@@ -350,19 +351,9 @@ if {"" != $parent_menu_label} {
 # return a table with a form in it (if there are too many
 # options
 set filter_html "
-
-<table>
-<tr valign=top>
-  <td valign=top>
-
-	<form method=get action='/intranet-invoices/list'>
+	<form method=get action=\"/intranet-invoices/list\">
 	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p]
 	<table border=0 cellpadding=1 cellspacing=1>
-	  <tr> 
-	    <td colspan='2' class=rowtitle align=center>
-	      [_ intranet-invoices.Filter_Documents]
-	    </td>
-	  </tr>
 	  <tr>
 	    <td>[_ intranet-invoices.Document_Status]</td>
 	    <td>
@@ -377,31 +368,7 @@ set filter_html "
             </td>
 	  </tr>
 	</table>
-	</form>
-
-  </td>
-  <td valign=top>&nbsp;</td>
-  <td valign=top>
-
-	<table border=0 cellpadding=1 cellspacing=1>
-	  <tr> 
-	    <td colspan='2' class=rowtitle align=center>
-	      [_ intranet-invoices.lt_New_Company_Documents]
-	    </td>
-	  </tr>
-	  <tr>
-	    <td colspan=2 valign=top>
-	      <ul>
-		$new_document_menu
-	      </ul>
-            </td>
-	  </tr>
-	</table>
-	
-  </td>
-</tr>
-</table>
-"
+	</form>"
 
 # ---------------------------------------------------------------
 # 7. Format the List Table Header
@@ -569,3 +536,4 @@ set button_html "
   </td>
 </tr>"
 
+set sub_navbar [im_costs_navbar none "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name] $parent_menu_label ]
