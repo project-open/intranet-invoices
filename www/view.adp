@@ -1,10 +1,7 @@
 <master src="../../intranet-core/www/master">
 <property name="title">@page_title;noquote@</property>
 <property name="main_navbar_label">finance</property>
-
-
-<img src="/intranet/images/cleardot.gif" width=2 height=2>
-<%= [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""] %> 
+<property name="sub_navbar">@sub_navbar;noquote@</property>
 
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
@@ -22,6 +19,7 @@
 	  <tr>
 	    <td>
 
+	<ul>
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
@@ -102,7 +100,7 @@
 </if>
 
 </if>
-
+	</ul>
 
 	    </td>
 	  </tr>
