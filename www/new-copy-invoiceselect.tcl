@@ -153,7 +153,7 @@ if {"" != $project_id} {
 }
 
 if {"" != $company_id} {
-    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delnote]} {
+    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delivery_note]} {
 	lappend criteria "i.customer_id = :company_id"
     } else {
 	lappend criteria "i.provider_id = :company_id"
