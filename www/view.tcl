@@ -576,7 +576,7 @@ if {$show_company_project_nr} {
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
 }
 
-if {$show_our_project_nr && !$show_our_project_nr_first_coumn_p} {
+if {$show_our_project_nr && !$show_our_project_nr_first_column_p} {
     # Only if intranet-translation has added the field and param is set
     append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
