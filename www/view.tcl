@@ -551,7 +551,7 @@ set invoice_item_html ""
 
 # start formatting the list of sums with the header...
 
-if {$show_our_project_nr && $show_our_project_nr_first_coumn_p} {
+if {$show_our_project_nr && $show_our_project_nr_first_column_p} {
     append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
     "
