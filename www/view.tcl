@@ -547,9 +547,8 @@ where
 # 3. Select and format Invoice Items
 # ---------------------------------------------------------------
 
-set invoice_item_html ""
-
 # start formatting the list of sums with the header...
+set invoice_item_html "<tr align=center>\n"
 
 if {$show_our_project_nr && $show_our_project_nr_first_column_p} {
     append invoice_item_html "
@@ -558,7 +557,6 @@ if {$show_our_project_nr && $show_our_project_nr_first_column_p} {
 }
 
 append invoice_item_html "
-        <tr align=center>
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 "
 
