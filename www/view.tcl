@@ -612,6 +612,11 @@ db_foreach invoice_items {} {
 	<tr $bgcolor([expr $ctr % 2])>
     "
 
+    if {$show_our_project_nr && $show_our_project_nr_first_column_p} {
+	append invoice_item_html "
+          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+    }
+
     if {$show_leading_invoice_item_nr} {
         append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=right>$sort_order</td>\n"
@@ -634,7 +639,7 @@ db_foreach invoice_items {} {
           <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
     }
 
-    if {$show_our_project_nr} {
+    if {$show_our_project_nr && !$show_our_project_nr_first_column_p} {
 	append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
     }
