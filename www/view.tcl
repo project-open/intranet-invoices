@@ -76,8 +76,9 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
-# Check if (one of) the PDF converter(s) is installed
+# Check if PDF converter(s) or UBL XML converters are enabled
 set pdf_enabled_p [llength [info commands im_html2pdf]]
+set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
