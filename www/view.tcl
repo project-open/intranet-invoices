@@ -664,6 +664,11 @@ db_1row calc_grand_total ""
 set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0] $rounding_precision] "" $locale]
 set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
 set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
+
+set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $rounding_precision] "" $locale]
+set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
+
+
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
 set discount_perc_pretty $discount_perc
@@ -717,7 +722,7 @@ if {$discount_enabled_p || $surcharge_enabled_p} {
 if {"" != $vat && 0 != $vat} {
     append subtotal_item_html "
         <tr>
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat] %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: $vat_perc_pretty %&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
@@ -733,7 +738,7 @@ if {"" != $vat && 0 != $vat} {
 if {"" != $tax && 0 != $tax} {
     append subtotal_item_html "
         <tr> 
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: $tax_perc_pretty %&nbsp;</td>
           <td class=roweven align=right>$tax_amount_pretty $currency</td>
         </tr>
     "
