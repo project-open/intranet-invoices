@@ -31,6 +31,74 @@ ad_proc -private im_package_invoices_id_helper {} {
 }
 
 
+# ---------------------------------------------------------------
+# Update the invoice value
+# ---------------------------------------------------------------
+
+ad_proc -public im_invoice_update_rounded_amount { 
+    -invoice_id
+    { -discount_perc "" }
+    { -surcharge_perc "" }
+} {
+    Updates the invoice amount, based on funny rounding rules for different currencies.
+} {
+    # Get the rounding factor for the invoice
+    set currency [db_string currency "select currency from im_costs where cost_id = :invoice_id" -default ""]
+    if {"" == $currency} { ad_return_complaint 1 "Internal Error:<p>Invoice \#$invoice_id not found." }
+    set rf [im_invoice_rounding_factor -currency $currency]
+
+    # Check the discount and surcharge
+    if {"" == $discount_perc} { set discount_perc 0.0 }
+    if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
+
+    # Calculate the subtotal
+    set subtotal [db_string subtotal "
+        select  sum(round(price_per_unit * item_units * :rf) / :rf)
+        from    im_invoice_items
+        where   invoice_id = :invoice_id
+    "]
+
+    # Update the total amount, including surcharge and discount
+    set update_invoice_amount_sql "
+        update im_costs set
+                amount = :subtotal
+                         + round(:subtotal * :surcharge_perc::numeric) / 100.0
+                         + round(:subtotal * :discount_perc::numeric) / 100.0
+        where cost_id = :invoice_id
+    "
+    return $invoice_id
+}
+
+
+# ---------------------------------------------------------------
+# Get the rounding factor (rf) for a currency
+# ---------------------------------------------------------------
+
+ad_proc -public im_invoice_rounding_factor { 
+    -currency
+} {
+    Gets the right rounding factor per currency.
+    A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
+} {
+    return [util_memoize "im_invoice_rounding_factor_helper -currency $currency"]
+}
+
+ad_proc -public im_invoice_rounding_factor_helper { 
+    { -currency "" }
+} {
+    Gets the right rounding factor per currency
+    A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
+} {
+    if {"" == $currency} { set currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"] }
+    set rf 100
+    if {[catch {
+	set rf [db_string rf "select rounding_factor from currency_codes where iso = :currency" -default 100]
+    } err_msg]} {
+	ns_log Error "im_invoice_rounding_factor_helper: Error determining rounding factor: $err_msg"
+    }
+    return $rf
+}
+
 
 # -----------------------------------------------------------
 # 

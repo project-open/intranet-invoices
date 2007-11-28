@@ -59,16 +59,19 @@ set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
 set tax_format $cur_format
 
-# rounding precision can be between 2 (USD,EUR, ...) 
-# and -5 (Old Turkish Lira, ...).
+
+# Currency and rf.
+# A rounding factor of 100 indicates two digits after the decimal separator precision.
+#
+set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set invoice_currency [db_string cur "select currency from im_costs where cost_id = :invoice_id" -default $default_currency]
+set rf 100
+catch {set rf [db_string rf "select rounding_factor from currency_codes where iso = :invoice_currency" -default 100]}
+
+# rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
 
 set required_field "<font color=red size=+1><B>*</B></font>"
-set rounding_factor [expr exp(log(10) * $rounding_precision)]
-set rf $rounding_factor
-
-# Default Currency
-set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
@@ -627,7 +630,7 @@ db_foreach invoice_items {} {
     if {$show_qty_rate_p} {
         append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
+          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
         "
     }

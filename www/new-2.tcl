@@ -73,9 +73,21 @@ if {$invoice_or_quote_p} {
     }
 }
 
-# rounding precision can be 2 (USD,EUR, ...) .. -5 (Old Turkish Lira).
-set rounding_precision 2
-set rf [expr exp(log(10) * $rounding_precision)]
+# ---------------------------------------------------------------
+# Check Currency Consistency
+# ---------------------------------------------------------------
+
+set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set invoice_currency [lindex [array get item_currency] 1]
+if {"" == $invoice_currency} { set invoice_currency $default_currency }
+
+foreach item_nr [array names item_currency] {
+    if {$item_currency($item_nr) != $invoice_currency} {
+	ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
+	[_ intranet-invoices.Blurb_multiple_currencies]"
+	ad_script_abort
+    }
+}
 
 
 # ---------------------------------------------------------------
@@ -168,7 +180,7 @@ set
 	note		= :note,
 	variable_cost_p = 't',
 	amount		= null,
-	currency	= null
+	currency	= :invoice_currency
 where
 	cost_id = :invoice_id
 "
@@ -220,9 +232,8 @@ foreach nr $item_list {
     set type_id $item_type_id($nr)
     set project_id $item_project_id($nr)
     set rate $item_rate($nr)
-    set currency $item_currency($nr)
     set sort_order $item_sort_order($nr)
-    ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate, $currency)"
+    ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
@@ -239,7 +250,7 @@ foreach nr $item_list {
 		:item_id, :name, 
 		:project_id, :invoice_id, 
 		:units, :uom_id, 
-		:rate, :currency, 
+		:rate, :invoice_currency, 
 		:sort_order, :type_id, 
 		null, ''
 	)"
@@ -262,64 +273,16 @@ foreach project_id $select_project {
     }
 }
 
+
 # ---------------------------------------------------------------
-# Update the invoice amount and currency 
-# based on the invoice items
+# Update the invoice value
 # ---------------------------------------------------------------
 
-set currencies [db_list distinct_currencies "
-	select distinct
-		currency
-	from
-		im_invoice_items
-	where
-		invoice_id = :invoice_id
-		and currency is not null
-"]
+im_invoice_update_rounded_amount \
+    -invoice_id $invoice_id \
+    -discount_perc $discount_perc \
+    -surcharge_perc $surcharge_perc
 
-if {1 != [llength $currencies]} {
-	ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
-	[_ intranet-invoices.Blurb_multiple_currencies] <pre>$currencies</pre>"
-	return
-}
-
-set currency [lindex $currencies 0]
-
-if {"" == $discount_perc} { set discount_perc 0.0 }
-if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
-
-
-set subtotal [db_string subtotal "
-	select	sum(round(price_per_unit * item_units * :rf) / :rf)
-	from	im_invoice_items
-	where	invoice_id = :invoice_id
-"]
-
-set update_invoice_amount_sql "
-	update im_costs set
-		amount = :subtotal
-			 + round(:subtotal * :surcharge_perc::numeric) / 100.0
-			 + round(:subtotal * :discount_perc::numeric) / 100.0,
-		currency = :currency
-	where cost_id = :invoice_id
-"
-
-
-
-
-#set update_invoice_amount_sql "
-#	update im_costs
-#	set amount = (
-#		select sum(round(price_per_unit * item_units * :rf) / :rf)
-#		from im_invoice_items
-#		where invoice_id = :invoice_id
-#		group by invoice_id
-#	) * (1.0 + (:surcharge_perc::numeric + :discount_perc::numeric) / 100.0),
-#	currency = :currency
-#	where cost_id = :invoice_id
-#"
-
-db_dml update_invoice_amount $update_invoice_amount_sql
 
 db_release_unused_handles
 ad_returnredirect "/intranet-invoices/view?invoice_id=$invoice_id"
