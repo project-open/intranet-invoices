@@ -42,6 +42,8 @@ ad_proc -public im_invoice_update_rounded_amount {
 } {
     Updates the invoice amount, based on funny rounding rules for different currencies.
 } {
+#    ns_log Notice "im_invoice_update_rounded_amount: invoice=$invoice_id, dis=$discount_perc, sur=$surcharge_perc"
+
     # Get the rounding factor for the invoice
     set currency [db_string currency "select currency from im_costs where cost_id = :invoice_id" -default ""]
     if {"" == $currency} { ad_return_complaint 1 "Internal Error:<p>Invoice \#$invoice_id not found." }
@@ -66,6 +68,7 @@ ad_proc -public im_invoice_update_rounded_amount {
                          + round(:subtotal * :discount_perc::numeric) / 100.0
         where cost_id = :invoice_id
     "
+    db_dml update_invoice_amount $update_invoice_amount_sql
     return $invoice_id
 }
 
