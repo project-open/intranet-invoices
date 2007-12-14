@@ -201,6 +201,7 @@ if {$invoice_id} {
     set payment_method_id ""
     set template_id ""
     set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]
+    set read_only_p "f"
 
     # Default for cost-centers - take the user's
     # dept from HR.
@@ -212,6 +213,19 @@ if {$invoice_id} {
 if {"" == $invoice_currency} {
     set invoice_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 }
+
+if {"t" == $read_only_p} {
+    ad_return_complaint 1 "
+	<b>[lang::message::lookup "" intranet-cost.Invoice_Read_Only "Read Only"]</b>:
+	[lang::message::lookup "" intranet-cost.Invoice_Read_Only_Message "
+		<p>This financial document is read only.</p>
+		<p>This situation may happen if the document has already been exported
+		to an external system or in similar cases.</p>
+	"]
+    "	
+    ad_script_abort
+}
+
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill

@@ -28,6 +28,7 @@
 	ci.template_id,
 	ci.cost_status_id,
 	ci.cost_type_id,
+	ci.read_only_p,
 	im_category_from_id(ci.cost_type_id) as cost_type,
 	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_email_from_user_id(i.company_contact_id) as company_contact_email,
