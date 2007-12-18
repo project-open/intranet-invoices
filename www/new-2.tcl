@@ -10,7 +10,7 @@ ad_page_contract {
     Saves invoice changes and set the invoice status to "Created".<br>
     Please note that there are different forms to create invoices for
     example in the intranet-trans-invoicing module of the 
-    intranet-server-hosting module.
+   intranet-server-hosting module.
     @author frank.bergmann@project-open.com
 } {
     invoice_id:integer
@@ -113,12 +113,40 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
 if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
 if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_internal] }
 
-# Overwrite the project_id (default "") with select_project.
-# select_project is more specific then project_id, so that should
-# be fine.
+
+# ---------------------------------------------------------------
+# Check if there is a single project to which this document refers.
+# ---------------------------------------------------------------
+
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }
+
+if {[llength $select_project] > 1} {
+
+    # Get the list of all parent projects.
+    set parent_list [list]
+    foreach pid $select_project {
+        set parent_id [db_string pid "select parent_id from im_projects where project_id = :pid" -default ""]
+        while {"" != $parent_id} {
+            set pid $parent_id
+            set parent_id [db_string pid "select parent_id from im_projects where project_id = :pid" -default ""]
+        }
+        lappend parent_list $pid
+    }
+
+    # Check if all parent projects are the same...
+    set project_id [lindex $parent_list 0]
+    foreach pid $parent_list {
+        if {$pid != $project_id} { set project_id "" }
+    }
+
+    # Reset the list of "select_project", because we've found the superproject.
+    if {"" != $project_id} { set select_project [list $project_id] }
+}
+
+
+# ---------------------------------------------------------------
 
 # Choose the default contact for this invoice.
 if {"" == $company_contact_id } {
@@ -264,13 +292,17 @@ foreach nr $item_list {
 # ---------------------------------------------------------------
 
 foreach project_id $select_project {
-    db_1row "get relations" "select  count(*) as  v_rel_exists
+
+    db_1row "get relations" "
+		select	count(*) as v_rel_exists
                 from    acs_rels
                 where   object_id_one = :project_id
-                        and object_id_two = :invoice_id"
+                        and object_id_two = :invoice_id
+    "
     if {0 ==  $v_rel_exists} {
 	    set rel_id [db_exec_plsql create_rel ""]
     }
+
 }
 
 
