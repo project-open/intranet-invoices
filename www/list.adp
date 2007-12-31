@@ -17,6 +17,9 @@
 	 </div>
          @new_document_menu;noquote@
       </div>
+
+      <%= [im_navbar_tree -label "main"] %>
+
    </div>
 
    <div class="fullwidth-list">
