@@ -173,6 +173,11 @@ select acs_object_type__create_type (
 	'im_invoice.name'	-- name_method
     );
 
+update acs_object_types set
+        status_type_table = 'im_costs',
+        status_column = 'cost_status_id',
+        type_column = 'cost_type_id'
+where object_type = 'im_invoice';
 
 
 
