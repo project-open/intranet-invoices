@@ -50,7 +50,7 @@ values (35, 'invoice_list_subtotal', 'view_finance');
 
 -- Invoice List Page
 --
-delete from im_view_columns where column_id > 3000 and column_id < 3099;
+delete from im_view_columns where view_id = 30;
 --
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
@@ -63,10 +63,10 @@ extra_select, extra_where, sort_order, visible_for) values (3002,30,NULL,'CC',
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3003,30,NULL,'Type',
-'$cost_type','','',3,'');
+'<nobr>$cost_type</nobr>','','',3,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3004,30,NULL,'Provider',
-'"<A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A>"',
+'"<nobr><A HREF=/intranet/companies/view?company_id=$provider_id>$provider_name</A></nobr>"',
 '','',4,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Customer',
@@ -74,11 +74,11 @@ extra_select, extra_where, sort_order, visible_for) values (3005,30,NULL,'Custom
 '','',5,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3007,30,NULL,'Due Date',
-'[if {$overdue > 0} {
+'<nobr>[if {$overdue > 0} {
 	set t "<font color=red>$due_date_calculated</font>"
 } else {
 	set t "$due_date_calculated"
-}]','','',7,'');
+}]</nobr>','','',7,'');
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3011,30,NULL,'Amount',
 '"$invoice_amount_formatted $invoice_currency"','','',11,'');
