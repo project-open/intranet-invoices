@@ -421,9 +421,11 @@ if {!$read} {
     return
 }
 
-if {"t" == $read_only_p} {
-    set write 0
-}
+# commented out, because it doesn't seem to work at the moment
+# cdamian 15.1.2008
+#if {"t" == $read_only_p} {
+#    set write 0
+#}
 
 # ---------------------------------------------------------------
 # Page Title and Context Bar
