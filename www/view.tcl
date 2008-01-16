@@ -548,8 +548,16 @@ where
 # ---------------------------------------------------------------
 
 # start formatting the list of sums with the header...
-set invoice_item_html "
-        <tr align=center>
+set invoice_item_html "<tr align=center>\n"
+
+
+if {$show_leading_invoice_item_nr} {
+    append invoice_item_html "
+          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
+    "
+}
+
+append invoice_item_html "
           <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 "
 
