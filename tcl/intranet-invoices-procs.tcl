@@ -73,7 +73,7 @@ ad_proc -public im_next_invoice_nr {
     # restart the invoice every year ("YYYY") or every month
     # ("YYYY_MM")
     set date_format [parameter::get -package_id [im_package_invoices_id] -parameter "InvoiceNrDateFormat" -default "YYYY_MM"]
-
+    if {"empty" == $date_format} { set date_format "" }
     
     # ----------------------------------------------------
     # Set the prefix for financial document type
