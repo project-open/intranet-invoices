@@ -239,13 +239,13 @@ select
         i.*,
 	(to_date(to_char(i.invoice_date,:date_format),:date_format) + i.payment_days) as due_date_calculated,
 	o.object_type,
-	ci.amount as invoice_amount,
+	(ci.amount * (1+coalesce(ci.vat,0)/100)) as invoice_amount,
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
 	pr.project_nr,
 	to_char(ci.effective_date, 'YYYY-MM') as effective_month,
-	to_char(ci.amount, :cur_format) as invoice_amount_formatted,
+	to_char((ci.amount * (1+coalesce(ci.vat,0)/100)), :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_cost_center_code_from_id(ci.cost_center_id) as cost_center_code,
@@ -364,8 +364,17 @@ set filter_html "
 	    <td>[_ intranet-invoices.Document_Type]</td>
 	    <td>
               [im_category_select -include_empty_p 1 "Intranet Cost Type" cost_type_id $cost_type_id]
-              <input type=submit value='[_ intranet-invoices.Go]' name=submit>
             </td>
+	  </tr>
+	  <tr>
+	    <td>[lang::message::lookup "" intranet-invoices.Company "Company"]</td>
+	    <td>
+              [im_company_select -include_empty_name "All" company_id $cost_type_id]
+            </td>
+	  </tr>
+	  <tr>
+	    <td></td>
+	    <td><input type=submit value='[_ intranet-invoices.Go]' name=submit></td>
 	  </tr>
 	</table>
 	</form>"
