@@ -41,6 +41,8 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 
+set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
     ad_returnredirect [export_vars -base "new-copy" {invoice_id cost_type_id}]
@@ -296,7 +298,8 @@ set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Ad
 set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]
 
 set cost_center_label [lang::message::lookup "" intranet-invoices.Cost_Center "Cost Center"]
-if {[apm_package_installed_p "intranet-cost-center"]} {
+
+if {$show_cost_center_p} {
     set cost_center_select [im_cost_center_select -include_empty 1 -department_only_p 0 cost_center_id $cost_center_id $cost_type_id]
 } else {
     set cost_center_hidden "<input type=hidden name=cost_center_id value=$cost_center_id>"
