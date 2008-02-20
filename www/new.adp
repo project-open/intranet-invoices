@@ -72,7 +72,7 @@
 
       </td>
       <td></td>
-      <td align=right>
+      <td>
         <table border=0 cellspacing=2 cellpadding=0 width="100%">
 
 <if @invoice_or_quote_p@>
@@ -139,11 +139,11 @@
 </td></tr>
 <tr><td>
 
-  <table width="100%">
+  <table width="100%" align=right border=0>
     <tr>
       <td align=right>
- 	<table border=0 cellspacing=2 cellpadding=1 width="100%">
 
+ 	<table border=0 cellspacing=2 cellpadding=1 width="100%">
 	<!-- the list of task sums, distinguised by type and UOM -->
 	@task_sum_html;noquote@
 
@@ -180,7 +180,7 @@
         <tr>
           <td> 
           </td>
-          <td colspan=99 align=right> 
+          <td colspan=@vat_colspan@ align=right> 
             <table border=0 cellspacing=1 cellpadding=0>
               <tr> 
                 <td>#intranet-invoices.VATnbsp#</td>
@@ -193,7 +193,7 @@
         <tr> 
           <td> 
           </td>
-          <td colspan=99 align=right> 
+          <td colspan=@vat_colspan@ align=right> 
             <table border=0 cellspacing=1 cellpadding=0>
               <tr> 
                 <td>#intranet-invoices.TAXnbsp#</td>

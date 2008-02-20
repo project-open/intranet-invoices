@@ -331,6 +331,7 @@ if {[string equal $invoice_mode "new"]} {
     set ctr 1
     set old_project_id 0
     set colspan 6
+    set vat_colspan 6
     set target_language_id ""
 
 } else {
@@ -354,6 +355,7 @@ if {[string equal $invoice_mode "new"]} {
     set ctr 1
     set old_project_id 0
     set colspan 6
+    set vat_colspan 6
     set target_language_id ""
     db_foreach invoice_item "" {
 

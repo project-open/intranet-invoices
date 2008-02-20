@@ -231,10 +231,16 @@
 
 <table cellpadding=0 cellspacing=2 border=0 width="100%">
 <tr><td align=right>
-  <table cellpadding=1 cellspacing=2 border=0 width="100%">
-    @item_html;noquote@
+  <table cellpadding=1 cellspacing=2 border=0>
+    @item_list_html;noquote@
   </table>
+
+  <table cellpadding=1 cellspacing=2 border=0>
+    @terms_html;noquote@
+  </table>
+
 </td></tr>
 </table>
+
 
 
