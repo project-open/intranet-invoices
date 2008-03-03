@@ -45,9 +45,11 @@
   <msg key="Email">Email</msg>
   <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
+  <msg key="Export_Company_Cube">Export Companies Cube</msg>
   <msg key="Export_Customer_Invoice_Cube">Export Customer Invoice Cube</msg>
   <msg key="Export_Customer_Invoices_CSV">Export Customer Invoices CSV</msg>
   <msg key="Export_Invoices_CSV">Export Invoices CSV</msg>
+  <msg key="Export_Project_Cube">Export Projects Cube</msg>
   <msg key="Export_Provider_Invoice_Cube">Export Provider Invoice Cube</msg>
   <msg key="Export_Provider_Invoices_CSV">Export Provider Invoices CSV</msg>
   <msg key="Fax">Fax</msg>
@@ -94,6 +96,7 @@ Best regards,
   <msg key="lt_You_have_insufficient">You have insufficient privileges to see this page</msg>
   <msg key="lt_You_have_insufficient_1">You have insufficient privileges to view this page.</msg>
   <msg key="lt_You_need_to_specify_a">You need to specify a invoice_id</msg>
+  <msg key="New_Bank_Holiday">New Bank Holiday</msg>
   <msg key="New_Company_Invoice_from_Quote">New Company Invoice from Quote</msg>
   <msg key="New_Company_Invoice_from_scratch">New Company Invoice from Scratch</msg>
   <msg key="New_cost_type">New %cost_type%</msg>
@@ -104,6 +107,7 @@ Best regards,
   <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
   <msg key="New_Delivery_Note_from_Quote">New Delivery Note from Quote</msg>
   <msg key="New_Delivery_Note_from_scratch">New Delivery Note from Scratch</msg>
+  <msg key="New_Personal_Absence">New Personal Absence</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from Scratch</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
@@ -113,11 +117,14 @@ Best regards,
   <msg key="New_Quote_from_scratch">New Quote from Scratch</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">New Quote from Timesheet Tasks</msg>
   <msg key="New_Quote_from_Translation_Tasks">New Quote from Translation Tasks</msg>
+  <msg key="New_Sick_Leave">New Sick Leave</msg>
   <msg key="New_Translation_Customer_Invoice">New Translation Customer Invoice</msg>
   <msg key="New_Translation_Invoice">New Translation Invoice</msg>
   <msg key="New_Translation_Provider_Invoice">New Translation Provider Invoice</msg>
   <msg key="New_Translation_Purchase_Order">New Translation Purchase Order</msg>
   <msg key="New_Translation_Quote">New Translation Quote</msg>
+  <msg key="New_Travel_Absence">New Travel Absence</msg>
+  <msg key="New_Vacation_Absence">New Vacation Absence</msg>
   <msg key="Next_Page">Next Page</msg>
   <msg key="No_command_specified">No command specified</msg>
   <msg key="No_objects_found">No objects found</msg>
@@ -143,6 +150,7 @@ Best regards,
   <msg key="Recipient">Recipient</msg>
   <msg key="Related_Payments">Related Payments</msg>
   <msg key="Related_Projects">Related Projects</msg>
+  <msg key="Resource_Planning_Report">Resorce Planning Report</msg>
   <msg key="S-Line">S-Line</msg>
   <msg key="Save">Save</msg>
   <msg key="Select">Select</msg>
@@ -151,6 +159,7 @@ Best regards,
   <msg key="Send_invoice_as_HTML_attachment">Send invoice as HTML attachment</msg>
   <msg key="Send_invoice_as_HTML_link">Send invoice as HTML link</msg>
   <msg key="Send_invoice_as_link">Send invoice as link</msg>
+  <msg key="Start_Confirmation_Workflow">Start Confirmation Workflow</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Submit</msg>
   <msg key="Subtotal">Subtotal</msg>
