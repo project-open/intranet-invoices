@@ -236,6 +236,7 @@ db_1row internal_company_info "
 
 set query "
 select
+	c.*,
 	i.*,
 	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'::text),	'YYYY-MM-DD'::text) + ci.payment_days AS due_date,
 	ci.effective_date AS invoice_date,
@@ -245,7 +246,6 @@ select
 	ci.*,
 	ci.note as cost_note,
 	ci.project_id as cost_project_id,
-	c.*,
 	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
 	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 	im_category_from_id(ci.cost_status_id) as cost_status,
@@ -273,6 +273,8 @@ if { ![db_0or1row invoice_info_query $query] } {
     return
 }
 
+
+ad_return_complaint 1 $vat
 
 set cost_type_mapped [string map {" " "_"} $cost_type]
 set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
@@ -647,6 +649,7 @@ db_foreach invoice_items {} {
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
 # ---------------------------------------------------------------
+
 
 # Set these values to 0 in order to allow to calculate the
 # formatted grand total
