@@ -52,17 +52,35 @@ set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.
 #
 # ---------------------------------------------------------------
 
+set customer_select [im_company_select company_id 0 "" "CustOrIntl"]
+set provider_select [im_company_select company_id 0 "" "Provider"]
+
+switch $source_cost_type_id {
+    3700 - 3702 - 3708 - 3724 { 
+	set company_select $customer_select 
+	set cust_or_prov_text [lang::message::lookup "" intranet-core.Customer "Customer"]
+	set company_id $customer_id
+    }
+    3704 - 3706 - 3710 { 
+	set company_select $provider_select 
+	set cust_or_prov_text [lang::message::lookup "" intranet-core.Provider "Provider"]
+	set company_id $provider_id
+    }
+    default {
+	ad_return_complaint 1 "Unknown cost type '$source_cost_type_id'"
+    }
+}
+
 
 # Check of customer and provider are already set...
 #
 if {"" != $customer_id} {
-    set company_id $customer_id
+
+    # Company_id was set above
     ad_returnredirect new-copy-invoiceselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url]
     return
 }
 
-set customer_select [im_company_select company_id 0 "" "CustOrIntl"]
-set provider_select [im_company_select company_id 0 "" "Provider"]
 
 
 db_release_unused_handles
