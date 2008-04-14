@@ -278,7 +278,7 @@ declare
 	return v_invoice_id;
 end;' language 'plpgsql';
 
-    -- Delete a single invoice (if we know its ID...)
+-- Delete a single invoice (if we know its ID...)
 create or replace function  im_invoice__delete (integer)
 returns integer as '
 declare
@@ -291,6 +291,9 @@ begin
 	-- Erase the invoice itself
 	delete from 	im_invoices
 	where		invoice_id = p_invoice_id;
+
+	delete	from im_dynfield_attr_multi_value
+	where	object_id = p_invoice_id;
 
 	-- Erase the CostItem
 	PERFORM im_cost__delete(p_invoice_id);
