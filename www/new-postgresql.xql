@@ -66,6 +66,7 @@
       where
 	i.invoice_id = :invoice_id
       order by
+	i.sort_order,
 	i.project_id
     </querytext>
 </fullquery>
