@@ -146,7 +146,7 @@ if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
     lappend criteria "i.cost_type_id in ([join [im_sub_categories $cost_type_id] ","])"
 }
 if { ![empty_string_p $company_id] && $company_id != 0 } {
-    lappend criteria "i.customer_id=:company_id"
+    lappend criteria "(i.customer_id = :company_id OR i.provider_id = :company_id)"
 }
 if { ![empty_string_p $provider_id] && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
