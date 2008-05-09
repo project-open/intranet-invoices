@@ -36,6 +36,16 @@
 	  </A>
 </if>
 
+<if @timesheet_report_enabled_p@>
+
+	<li>
+	  <% set ts_url [export_vars -base $timesheet_report_url {{start_date 2000-01-01} {end_date 2099-12-31} {company_id $customer_id} {level_of_detail 4} {invoice_id $invoice_id}}] %>
+	  <A HREF="@ts_url;noquote@">
+		<%= [lang::message::lookup "" intranet-invoices.Show_Included_Timesheet_Hours "Show Included Timesheet Hours"] %>
+	  </A>
+
+</if>
+
 
 <if @admin@>
 	<if @cost_type_id@ eq @quote_cost_type_id@>

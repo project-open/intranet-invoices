@@ -76,9 +76,11 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
+# Which report to show for timesheet invoices as the detailed list of hours
+set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-customer-project"]
+
 # Check if (one of) the PDF converter(s) is installed
 set pdf_enabled_p [llength [info commands im_html2pdf]]
-
 
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
@@ -132,6 +134,17 @@ if {$invoice_or_quote_p} {
 }
 
 if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
+
+
+# Check if this is a timesheet invoice and enable timesheet report
+set cost_object_type [db_string cost_object_type "select object_type from acs_objects where object_id = :invoice_id" -default ""]
+set timesheet_report_enabled_p 0
+if {"im_timesheet_invoice" == $cost_object_type} {
+    if {$cost_type_id == [im_cost_type_invoice]} {
+	set timesheet_report_enabled_p 1
+    }
+}
+
 
 # ---------------------------------------------------------------
 # Find out if the invoice is associated to a _single_ project.
@@ -229,16 +242,16 @@ db_1row internal_company_info "
 
 # ad_return_complaint 1 $internal_postal_code
 
+
 # ---------------------------------------------------------------
 # Get everything about the invoice
 # ---------------------------------------------------------------
-
 
 set query "
 select
 	c.*,
 	i.*,
-	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'::text),	'YYYY-MM-DD'::text) + ci.payment_days AS due_date,
+	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days AS due_date,
 	ci.effective_date AS invoice_date,
 	ci.cost_status_id AS invoice_status_id,
 	ci.cost_type_id AS invoice_type_id,
@@ -273,6 +286,28 @@ if { ![db_0or1row invoice_info_query $query] } {
     return
 }
 
+
+# ---------------------------------------------------------------
+# Get information about start- and end time of invoicing period
+# ---------------------------------------------------------------
+
+set invoice_period_start ""
+set invoice_period_end ""
+set timesheet_invoice_p 0
+
+set query "
+	select	ti.*,
+		1 as timesheet_invoice_p
+	from	im_timesheet_invoices ti
+	where 	ti.invoice_id = :invoice_id
+"
+catch { db_1row timesheet_invoice_info_query $query } err_msg
+
+
+
+# ---------------------------------------------------------------
+# 
+# ---------------------------------------------------------------
 
 set cost_type_mapped [string map {" " "_"} $cost_type]
 set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
@@ -379,6 +414,10 @@ if {[catch {
 
 set invoice_date_pretty [lc_time_fmt $invoice_date "%x" $locale]
 set calculated_due_date_pretty [lc_time_fmt $calculated_due_date "%x" $locale]
+
+set invoice_period_start_pretty [lc_time_fmt $invoice_period_start "%x" $locale]
+set invoice_period_end_pretty [lc_time_fmt $invoice_period_end "%x" $locale]
+
 
 # ---------------------------------------------------------------
 # Get more about the invoice's project

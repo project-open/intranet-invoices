@@ -407,6 +407,10 @@ begin
 	delete from 	im_invoice_items
 	where		invoice_id = p_invoice_id;
 
+	-- Delete canned notes values
+	delete from 	im_dynfield_attr_multi_value
+	where		object_id = p_invoice_id;
+
 	-- Erase the invoice itself
 	delete from 	im_invoices
 	where		invoice_id = p_invoice_id;
