@@ -142,7 +142,7 @@ if {$invoice_id} {
     # We are editing an already existing invoice
 
     db_1row invoices_info_query ""
-
+    
     # Canned Notes is a field with multiple messages per invoice
     if {$canned_note_enabled_p} {
 	    set canned_note_id [db_list canned_notes "
@@ -438,8 +438,15 @@ for {set i 0} {$i < 3} {incr i} {
 # Pass along the number of projects related to this document
 # ---------------------------------------------------------------
 
+# fraber 080515: @CTP: the project_id comes from im_invoice_ITEMS,
+# and causes trouble (adding an additional project to the list of
+# related projects). Did this code (own_project_related) make ever
+# sense?
+#
+# if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
+
 set own_project_related ""
-if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
+
 set related_project_sql "
 	select	object_id_one as project_id
 	from	acs_rels r
