@@ -8,6 +8,7 @@
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Montant </msg>
   <msg key="Blurb_multiple_currencies">Vous avez utilisé plus d'une devise dans ce document ce qui est impossible dans la version actuelle de Project/Open. Veuillez établir un document par devise.</msg>
+  <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
   <msg key="Clients">Clients</msg>
   <msg key="Clone">Duplicata</msg>
@@ -56,9 +57,12 @@
   <msg key="Financial_Documents">Documents financiers</msg>
   <msg key="Fournisseurs">Fournisseurs</msg>
   <msg key="From">De:</msg>
+  <msg key="Generate_Delivery_Note_from_Quote">Générer un Bon de livraison à partir d'un Devis</msg>
+  <msg key="Generate_Invoice_from_Quote">Générer une Facture à partir d'un Devis</msg>
   <msg key="Go">Go</msg>
   <msg key="Hour">Heure</msg>
   <msg key="intranet-invoices.Error_multiple_currencies">Erreur - Devises multiples</msg>
+  <msg key="Invoice_Address">Adresse de facturation</msg>
   <msg key="Line">Ligne</msg>
   <msg key="lt_Cant_find_the_documen">Impossible de trouver le document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Cher %accounting_contact_name%, Un document %cost_type% vous a été créé sur: %system_url%/intranet-invoices/view?invoice_id=%invoice_id% Ce nouveau document est lié au(x) projet(s): %select_projects;noquote% Merci d'accéder au lien suivant et d'imprimer le document en tant que référence. Bien cordialement, %current_user_name% </msg>
@@ -85,14 +89,18 @@
   <msg key="New_Company_Invoice_from_Quote">Nouvelle Facture à partir d'un Devis</msg>
   <msg key="New_Company_Invoice_from_scratch">Nouvelle Facture à créer entièrement</msg>
   <msg key="New_cost_type">Nouveau %cost_type% </msg>
+  <msg key="New_Customer_Invoice_from_Delivery_Note">Nouvelle Facture client selon Bon de livraison</msg>
   <msg key="New_Customer_Invoice_from_Quote">Nouvelle Facture Client selon Devis</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nouvelle Facture Client</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nouvelle Facture Client selon heures consommées</msg>
   <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
+  <msg key="New_Delivery_Note_from_Quote">Nouveau Bon de livraison selon Devis</msg>
+  <msg key="New_Delivery_Note_from_scratch">Nouveau Bon de livraison</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Nouvelle Facture Fournisseur selon Bon de Commande</msg>
   <msg key="New_Provider_Bill_from_scratch">Nouvelle Facture Fournisseur</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
   <msg key="New_Purchase_Order_from_scratch">Nouveau Bon de Commande</msg>
+  <msg key="New_Quote_from_Quote">Nouveau Devis selon Devis existant</msg>
   <msg key="New_Quote_from_scratch">Nouveau Devis</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">Nouveau Devis selon heures consommées</msg>
   <msg key="Next_Page">Page suivante</msg>
@@ -124,11 +132,15 @@
   <msg key="Select">Sélectionner</msg>
   <msg key="Select_Customer">Sélectionner un Client</msg>
   <msg key="Select_Project">Sélectionner un Projet</msg>
+  <msg key="Send_invoice_as_HTML_attachment">Envoyer facture comme fichier HTML</msg>
+  <msg key="Send_invoice_as_HTML_link">Envoyer facture comme lien HTML</msg>
   <msg key="Status">Statut</msg>
   <msg key="Submit">Soumettre</msg>
   <msg key="Subtotal">TOTAL H.T.</msg>
   <msg key="TAX">TAXE</msg>
   <msg key="TAXnbsp">TAXE : &amp;amp;nbsp;</msg>
+  <msg key="Temps_passé_-_Clients_and_Projets">Temps_passé_-_Clients_et_Projets</msg>
+  <msg key="Temps_passé_-_Productivité">Temps passé - Productivité</msg>
   <msg key="To">Pour:</msg>
   <msg key="Total_Due">Total T.T.C.</msg>
   <msg key="Type">Type</msg>
