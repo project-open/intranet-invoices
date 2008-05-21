@@ -118,6 +118,9 @@ if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_inter
 # Check if there is a single project to which this document refers.
 # ---------------------------------------------------------------
 
+# Look for common super-projects for multi-project documents
+set select_project [im_invoices_unify_select_projects $select_project]
+
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }

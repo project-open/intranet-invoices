@@ -496,6 +496,89 @@ where
 
 
 # ---------------------------------------------------------------
+# Unify "select_projects" to use the common superproject
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_unify_select_projects { 
+    select_projects
+} {
+    Input is the list of projects related to a financial document.
+    Output is a shortened list of related projects.
+    Why? Financial documents related to more then one project
+    are counted multiple times in various ]po[ reports and list
+    pages. So this procedure deals with the frequent case that
+    all projects belong to a single super-project and reduces
+    the list of related projects to that super-project.
+} {
+    # Skip function if there is only a single project or none at all...
+    if {[llength $select_projects] <= 1} { return $select_projects }
+
+    # Security check because we're going to use non-colon vars below
+    foreach p $select_projects {
+	if {![string is integer $p]} { im_security_alert -location im_invoices_unify_select_projects -message "select_project not an integer" -value $p	}
+    }
+
+    # Search for the common superproject
+    set sql "
+	select distinct
+		main_p.project_id
+	from
+		im_projects main_p,
+		im_projects p
+	where
+		main_p.tree_sortkey = tree_root_key(p.tree_sortkey) and
+		p.project_id in ([join $select_projects ","])
+    "
+    set main_projects [db_list main_ps $sql]
+    if {1 == [llength $main_projects]} { return $main_projects }
+
+    # Didn't find a common superproject - just return the original
+    return $select_projects
+}
+
+
+# ---------------------------------------------------------------
+# Check for inconsistent invoices
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_check_for_multi_project_invoices {} {
+    Check if there are invoices around that are assoicated with 
+    more then one project.
+} {
+    set multiples_sql "
+	select
+		count(*) as cnt,
+		cost_id,
+		cost_name
+	from
+		im_projects p,
+		acs_rels r,
+		im_costs c
+	where
+		r.object_id_one = p.project_id
+		and r.object_id_two = c.cost_id
+	group by
+		cost_id, cost_name
+	having
+		count(*) > 1
+    "
+
+    set errors ""
+    db_foreach multiples $multiples_sql {
+	append errors "<li>Financial document <a href=[export_vars -base "/intranet-invoices/view" {{invoice_id $cost_id}}]>$cost_name</a> is associated with more then one project.\n"
+    }
+
+    if {"" != $errors} {
+	ad_return_complaint 1 "<p>Financial documents related to multiple projects currently cause errors in this report.</p>
+	<ul>$errors</ul><p>
+	Please assign every financial document to a single project (usually the main project).</p>\n"
+	return
+    }
+}
+
+
+
+# ---------------------------------------------------------------
 # Workflow
 # ---------------------------------------------------------------
 
