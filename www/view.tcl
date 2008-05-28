@@ -107,7 +107,8 @@ set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_ty
 set quote_cost_type_id [im_cost_type_quote]
 set delnote_cost_type_id [im_cost_type_delivery_note]
 set po_cost_type_id [im_cost_type_po]
-
+set invoice_cost_type_id [im_cost_type_invoice]
+set bill_cost_type_id [im_cost_type_bill]
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
