@@ -77,7 +77,7 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 
 # Which report to show for timesheet invoices as the detailed list of hours
-set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-customer-project"]
+set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-timesheet2-invoices/reporting/timesheet-included-hours.tcl"]
 
 # Check if (one of) the PDF converter(s) is installed
 set pdf_enabled_p [llength [info commands im_html2pdf]]
