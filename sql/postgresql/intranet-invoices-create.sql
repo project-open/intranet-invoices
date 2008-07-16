@@ -187,7 +187,7 @@ create table im_invoice_items (
 	description		text,
 		-- Make sure we can''t create duplicate entries per invoice
 		constraint im_invoice_items_un
-		unique (item_name, invoice_id, project_id, item_uom_id)
+		unique (item_name, invoice_id, project_id, sort_order, item_uom_id)
 );
 
 
