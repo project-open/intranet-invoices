@@ -571,14 +571,14 @@ if {$show_our_project_nr && $show_our_project_nr_first_column_p} {
 }
 
 append invoice_item_html "
-          <td class=rowtitle>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td class=rowtitle align=left>[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 "
 
 if {$show_qty_rate_p} {
     append invoice_item_html "
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Qty]</td>
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Unit]</td>
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Rate]</td>
+          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Qty]</td>
+          <td class=rowtitle align=left>[lang::message::lookup $locale intranet-invoices.Unit]</td>
+          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Rate]</td>
     "
 }
 
@@ -596,7 +596,7 @@ if {$show_our_project_nr && !$show_our_project_nr_first_column_p} {
 }
 
 append invoice_item_html "
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Amount]</td>
+          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
 "
 
