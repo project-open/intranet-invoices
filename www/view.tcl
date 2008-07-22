@@ -825,6 +825,9 @@ set item_list_html [concat $invoice_item_html $subtotal_item_html]
 set item_html [concat $item_list_html $terms_html]
 
 
+# ad_return_complaint 1 $item_html
+
+
 # ---------------------------------------------------------------
 # Special Output: Format using a template and/or send out as PDF
 # ---------------------------------------------------------------
