@@ -61,6 +61,26 @@ if {"" != $del_action && [info exists object_ids]} {
 	ns_log Notice "intranet-invoices/invoice-associtation-action: deleting object_id=$object_id"
 	db_exec_plsql delete_association {}
     }
+
+    # Check if only a single relationship has been left
+    # and set the im_costs.project_id field accordingly
+    set rel_projects_sql "
+	select	p.project_id
+	from	acs_rels r,
+		im_projects p
+	where	object_id_one = p.project_id and
+		r.object_id_two = :invoice_id
+    "
+    set rel_projects [db_list rel_projects $rel_projects_sql]
+    if {1 == [llength $rel_projects]} {
+	set rel_project_id [lindex $rel_projects 0]
+	db_dml update_invoice_project_id "
+		update	im_costs
+		set	project_id = :rel_project_id
+		where	cost_id = :invoice_id
+	"
+    }
+
     ad_returnredirect $return_url
     ad_abort_script
 }
