@@ -4,7 +4,9 @@
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 
 <div class="filter-list">
-   <div class="filter">
+<a id="sideBarTab" href="#"><img id="sideBarTabImage" border="0" title="sideBar" alt="sideBar" src="/intranet/images/navbar_saltnpepper/slide-button-active.gif"/></a>
+   <div class="filter" id="sidebar">
+   <div id="sideBarContentsInner"> 
       <div class="filter-block">
          <div class="filter-title">
             #intranet-invoices.Filter_Documents#
@@ -17,12 +19,12 @@
 	 </div>
          @new_document_menu;noquote@
       </div>
-
       <%= [im_navbar_tree -label "main"] %>
-
    </div>
+</div>
 
-   <div class="fullwidth-list">
+
+   <div class="fullwidth-list" id="fullwidth-list">
       <%= [im_box_header "List of $cost_type"] %>
 
 <form action=invoice-action method=POST>
