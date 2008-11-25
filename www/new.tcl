@@ -394,7 +394,7 @@ if {[string equal $invoice_mode "new"]} {
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
-"
+	"
 	incr ctr
     }
 }
@@ -442,10 +442,9 @@ for {set i 0} {$i < 3} {incr i} {
 # and causes trouble (adding an additional project to the list of
 # related projects). Did this code (own_project_related) make ever
 # sense?
-#
-# if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
 
 set own_project_related ""
+if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
 
 set related_project_sql "
 	select	object_id_one as project_id
