@@ -104,9 +104,19 @@ if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_inter
 # Overwrite the project_id (default "") with select_project.
 # select_project is more specific then project_id, so that should
 # be fine.
+
+# ad_return_complaint 1 [llength $select_project]
+
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }
+
+# In case $select_project is empty, fill it with $project_id    
+# to later associate the invoice with the project via acs_rels
+ 
+# if {0 == [llength $select_project]} {
+#     set $select_project $project_id
+# }
 
 # Choose the default contact for this invoice.
 if {"" == $company_contact_id } {
@@ -251,6 +261,8 @@ foreach nr $item_list {
 # ---------------------------------------------------------------
 # Associate the invoice with the project via acs_rels
 # ---------------------------------------------------------------
+
+# ad_return_complaint 1 [llength $select_project]
 
 foreach project_id $select_project {
     db_1row "get relations" "select  count(*) as  v_rel_exists
