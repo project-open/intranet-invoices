@@ -112,7 +112,7 @@ if {0 != $customer_id_org} { set customer_id $customer_id_org }
 
 set customer_name [db_string customer_name "select company_name from im_companies where company_id=:customer_id" -default ""]
 
-set project_select [im_project_select object_id $project_id "" "" "" "" $customer_id]
+set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" $customer_id]
 set customer_select [im_company_select customer_id $customer_id "" "Customer"]
 
 db_release_unused_handles
