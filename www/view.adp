@@ -3,6 +3,7 @@
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 
+<div id="fullwidth-list" class="fullwidth-list-no-side-bar" style="visibility: visible;">
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
   <td>
@@ -253,4 +254,4 @@
 </table>
 
 
-
+</div>
