@@ -80,7 +80,7 @@ create table im_invoices (
 -- Invoice Items
 --
 -- - Invoice items reflect the very fuzzy structure of invoices,
---   that may contain basicly everything that fits in one line
+--   that may contain basically everything that fits in one line
 --   and has a price.
 -- - Invoice items can created manually or generated from
 --   "invoicable items" such as im_trans_tasks, timesheet information
