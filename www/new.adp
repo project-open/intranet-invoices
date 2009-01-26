@@ -13,6 +13,7 @@
 @cost_center_hidden;noquote@
 </if>
 
+<div class="fullwidth-list-no-side-bar" id="fullwidth-list">
 <table border=0 width="100%">
 <tr><td>
 
@@ -220,3 +221,4 @@
 
 </form>
 
+</div>
