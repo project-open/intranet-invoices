@@ -3,6 +3,8 @@
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 
+<div class="fullwidth-list-no-side-bar" id="fullwidth-list">
+
 <form action=new-2 method=POST>
 <%= [export_form_vars invoice_id return_url] %>
 
@@ -13,7 +15,6 @@
 @cost_center_hidden;noquote@
 </if>
 
-<div class="fullwidth-list-no-side-bar" id="fullwidth-list">
 <table border=0 width="100%">
 <tr><td>
 
