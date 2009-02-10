@@ -231,8 +231,12 @@ if {"t" == $read_only_p} {
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
+# ad_return_complaint 1 $cost_type_id
+
 # Invoices and Quotes have a "Company" fields.
 set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $cost_type_id]
+
+# ad_return_complaint 1 $invoice_or_quote_p
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $cost_type_id]
