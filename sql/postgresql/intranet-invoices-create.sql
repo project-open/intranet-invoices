@@ -152,11 +152,11 @@ create table im_invoice_items (
 	item_id			integer
 				constraint im_invoices_items_pk
 				primary key,
-	item_name		varchar(200),
+	item_name		text,
 				-- not being used yet (V3.0.0).
 				-- reserved for adding a reference nr for items
 				-- from a catalog or similar
-	item_nr			varchar(200),
+	item_nr			text,
 				-- project_id if != null is used to access project details
 				-- for invoice generation, such as the company PO# etc.
 	project_id		integer
@@ -302,7 +302,7 @@ create or replace function im_invoice_nr_from_id (integer)
 returns varchar as '
 DECLARE
 	p_id	alias for $1;
-	v_name	varchar(50);
+	v_name	varchar;
 BEGIN
 	select i.invoice_nr into v_name from im_invoices i
 	where invoice_id = p_id;
@@ -424,7 +424,7 @@ create or replace function im_invoice__name (integer)
 returns varchar as '
 declare
 	p_invoice_id alias for $1;	-- invoice_id
-	v_name	varchar(40);
+	v_name	varchar;
 begin
 	select	invoice_nr
 	into	v_name

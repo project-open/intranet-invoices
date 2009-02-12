@@ -111,6 +111,25 @@
 </if>
 
 </if>
+
+
+<if 0>
+<if @ubl_enabled_p@>
+        <li>
+          <% set render_template_id $template_id %>
+          <% set preview_vars [export_url_vars invoice_id return_url] %>
+          <A HREF="/intranet-ubl/document.xml?@preview_vars@">
+                <%= [lang::message::lookup "" intranet-invoices.Export_as_XML
+		"Export as XML"] %>
+          </A>
+          (<%= [lang::message::lookup "" intranet-invoices.See_kolon "See:"]
+	  %>
+          <A HREF="/intranet-ubl/doc/"><%= [lang::message::lookup ""
+	  intranet-invoices.UBL_XML_Documentation "UBL-XML\
+ Documentation"] %></a>)
+</if>
+</if>
+
 	</ul>
 
 	    </td>

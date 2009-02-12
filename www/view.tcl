@@ -59,16 +59,19 @@ set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
 set tax_format $cur_format
 
-# rounding precision can be between 2 (USD,EUR, ...) 
-# and -5 (Old Turkish Lira, ...).
-set rounding_precision 2
-
 set required_field "<font color=red size=+1><B>*</B></font>"
+
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
 
 # Default Currency
 set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set invoice_currency [db_string cur "select currency from im_costs where cost_id = :invoice_id" -default $default_currency]
+set rf 100
+catch {set rf [db_string rf "select rounding_factor from currency_codes where iso = :invoice_currency" -default 100]}
+
+# rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
+set rounding_precision 2
 
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
@@ -82,6 +85,12 @@ set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "Tim
 # Check if (one of) the PDF converter(s) is installed
 set pdf_enabled_p [llength [info commands im_html2pdf]]
 
+# Unified Business Language?
+set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
+
+set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
+
+
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
 # ---------------------------------------------------------------
@@ -90,6 +99,7 @@ set company_project_nr_exists [db_column_exists im_projects company_project_nr]
 set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
+
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 
 # ---------------------------------------------------------------
@@ -105,6 +115,8 @@ set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_ty
 set quote_cost_type_id [im_cost_type_quote]
 set delnote_cost_type_id [im_cost_type_delivery_note]
 set po_cost_type_id [im_cost_type_po]
+set invoice_cost_type_id [im_cost_type_invoice]
+set bill_cost_type_id [im_cost_type_bill]
 
 
 # Invoices and Bills have a "Payment Terms" field.
@@ -251,7 +263,7 @@ set query "
 select
 	c.*,
 	i.*,
-	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days AS due_date,
+	ci.effective_date::date + ci.payment_days AS due_date,
 	ci.effective_date AS invoice_date,
 	ci.cost_status_id AS invoice_status_id,
 	ci.cost_type_id AS invoice_type_id,
@@ -483,6 +495,9 @@ if { ![db_0or1row category_info_query $query] } {
     set invoice_payment_method_desc ""
 }
 
+set invoice_payment_method_key [lang::util::suggest_key $invoice_payment_method]
+set invoice_payment_method_l10n [lang::message::lookup $locale intranet-core.$invoice_payment_method_key $invoice_payment_method]
+
 
 # ---------------------------------------------------------------
 # Determine the country name and localize
@@ -661,7 +676,7 @@ db_foreach invoice_items {} {
     if {$show_qty_rate_p} {
         append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom]</td>
+          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
           <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
         "
     }
@@ -699,6 +714,11 @@ db_1row calc_grand_total ""
 set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0] $rounding_precision] "" $locale]
 set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
 set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
+
+set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $rounding_precision] "" $locale]
+set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
+
+
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
 set discount_perc_pretty $discount_perc
@@ -752,7 +772,7 @@ if {$discount_enabled_p || $surcharge_enabled_p} {
 if {"" != $vat && 0 != $vat} {
     append subtotal_item_html "
         <tr>
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: [format "%0.1f" $vat] %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: $vat_perc_pretty %&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
 "
@@ -768,7 +788,7 @@ if {"" != $vat && 0 != $vat} {
 if {"" != $tax && 0 != $tax} {
     append subtotal_item_html "
         <tr> 
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: [format "%0.1f" $tax] %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: $tax_perc_pretty  %&nbsp;</td>
           <td class=roweven align=right>$tax_amount_pretty $currency</td>
         </tr>
     "

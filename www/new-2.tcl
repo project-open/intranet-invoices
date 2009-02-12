@@ -79,6 +79,22 @@ set rf [expr exp(log(10) * $rounding_precision)]
 
 
 # ---------------------------------------------------------------
+# Check Currency Consistency
+# ---------------------------------------------------------------
+
+set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set invoice_currency [lindex [array get item_currency] 1]
+if {"" == $invoice_currency} { set invoice_currency $default_currency }
+
+foreach item_nr [array names item_currency] {
+    if {$item_currency($item_nr) != $invoice_currency} {
+        ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
+        [_ intranet-invoices.Blurb_multiple_currencies]"
+        ad_script_abort
+    }
+}
+
+# ---------------------------------------------------------------
 # Defaults & Security
 # ---------------------------------------------------------------
 
@@ -101,28 +117,49 @@ if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)}
 if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
 if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_internal] }
 
-# Overwrite the project_id (default "") with select_project.
-# select_project is more specific then project_id, so that should
-# be fine.
 
-# ad_return_complaint 1 [llength $select_project]
+
+# ---------------------------------------------------------------
+# Check if there is a single project to which this document refers.
+# ---------------------------------------------------------------
+
+
+# Look for common super-projects for multi-project documents
+set select_project [im_invoices_unify_select_projects $select_project]
 
 if {1 == [llength $select_project]} {
     set project_id [lindex $select_project 0]
 }
 
-# In case $select_project is empty, fill it with $project_id    
-# to later associate the invoice with the project via acs_rels
- 
-# if {0 == [llength $select_project]} {
-#     set $select_project $project_id
-# }
+if {[llength $select_project] > 1} {
 
+    # Get the list of all parent projects.
+    set parent_list [list]
+    foreach pid $select_project {
+        set parent_id [db_string pid "select parent_id from im_projects where project_id = :pid" -default ""]
+        while {"" != $parent_id} {
+            set pid $parent_id
+            set parent_id [db_string pid "select parent_id from im_projects where project_id = :pid" -default ""]
+        }
+        lappend parent_list $pid
+    }
+
+    # Check if all parent projects are the same...
+    set project_id [lindex $parent_list 0]
+    foreach pid $parent_list {
+        if {$pid != $project_id} { set project_id "" }
+    }
+
+    # Reset the list of "select_project", because we've found the superproject.
+    if {"" != $project_id} { set select_project [list $project_id] }
+}
+
+
+# ---------------------------------------------------------------
 # Choose the default contact for this invoice.
 if {"" == $company_contact_id } {
    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
 }
-
 
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]
 
@@ -178,7 +215,7 @@ set
 	note		= :note,
 	variable_cost_p = 't',
 	amount		= null,
-	currency	= null
+	currency	= :invoice_currency
 where
 	cost_id = :invoice_id
 "
@@ -230,9 +267,8 @@ foreach nr $item_list {
     set type_id $item_type_id($nr)
     set project_id $item_project_id($nr)
     set rate $item_rate($nr)
-    set currency $item_currency($nr)
     set sort_order $item_sort_order($nr)
-    ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate, $currency)"
+    ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
@@ -249,7 +285,7 @@ foreach nr $item_list {
 		:item_id, :name, 
 		:project_id, :invoice_id, 
 		:units, :uom_id, 
-		:rate, :currency, 
+		:rate, :invoice_currency, 
 		:sort_order, :type_id, 
 		null, ''
 	)"
@@ -265,12 +301,14 @@ foreach nr $item_list {
 # ad_return_complaint 1 [llength $select_project]
 
 foreach project_id $select_project {
-    db_1row "get relations" "select  count(*) as  v_rel_exists
+    db_1row "get relations" "
+		select	count(*) as v_rel_exists
                 from    acs_rels
                 where   object_id_one = :project_id
-                        and object_id_two = :invoice_id"
+                        and object_id_two = :invoice_id
+    "
     if {0 ==  $v_rel_exists} {
-	    set rel_id [db_exec_plsql create_rel ""]
+	set rel_id [db_exec_plsql create_rel ""]
     }
 }
 
@@ -282,10 +320,8 @@ foreach project_id $select_project {
 set currencies [db_list distinct_currencies "
 	select distinct
 		currency
-	from
-		im_invoice_items
-	where
-		invoice_id = :invoice_id
+	from	im_invoice_items
+	where	invoice_id = :invoice_id
 		and currency is not null
 "]
 
@@ -295,43 +331,21 @@ if {1 != [llength $currencies]} {
 	return
 }
 
-set currency [lindex $currencies 0]
-
 if {"" == $discount_perc} { set discount_perc 0.0 }
 if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
 
 
-set subtotal [db_string subtotal "
-	select	sum(round(price_per_unit * item_units * :rf) / :rf)
-	from	im_invoice_items
-	where	invoice_id = :invoice_id
-"]
+# ---------------------------------------------------------------
+# Update the invoice value
+# ---------------------------------------------------------------
 
-set update_invoice_amount_sql "
-	update im_costs set
-		amount = :subtotal
-			 + round(:subtotal * :surcharge_perc::numeric) / 100.0
-			 + round(:subtotal * :discount_perc::numeric) / 100.0,
-		currency = :currency
-	where cost_id = :invoice_id
-"
+im_invoice_update_rounded_amount \
+    -invoice_id $invoice_id \
+    -discount_perc $discount_perc \
+    -surcharge_perc $surcharge_perc
 
 
 
-
-#set update_invoice_amount_sql "
-#	update im_costs
-#	set amount = (
-#		select sum(round(price_per_unit * item_units * :rf) / :rf)
-#		from im_invoice_items
-#		where invoice_id = :invoice_id
-#		group by invoice_id
-#	) * (1.0 + (:surcharge_perc::numeric + :discount_perc::numeric) / 100.0),
-#	currency = :currency
-#	where cost_id = :invoice_id
-#"
-
-db_dml update_invoice_amount $update_invoice_amount_sql
 
 db_release_unused_handles
 ad_returnredirect "/intranet-invoices/view?invoice_id=$invoice_id"

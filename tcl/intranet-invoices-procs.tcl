@@ -32,6 +32,78 @@ ad_proc -private im_package_invoices_id_helper {} {
 
 
 
+# ---------------------------------------------------------------
+# Update the invoice value
+# ---------------------------------------------------------------
+
+ad_proc -public im_invoice_update_rounded_amount {
+    -invoice_id
+    { -discount_perc "" }
+    { -surcharge_perc "" }
+} {
+    Updates the invoice amount, based on funny rounding rules for different currencies.
+} {
+#    ns_log Notice "im_invoice_update_rounded_amount: invoice=$invoice_id, dis=$discount_perc, sur=$surcharge_perc"
+
+    # Get the rounding factor for the invoice
+    set currency [db_string currency "select currency from im_costs where cost_id = :invoice_id" -default ""]
+    if {"" == $currency} { ad_return_complaint 1 "Internal Error:<p>Invoice \\#$invoice_id not found." }
+    set rf [im_invoice_rounding_factor -currency $currency]
+
+    # Check the discount and surcharge
+    if {"" == $discount_perc} { set discount_perc 0.0 }
+    if {"" == $surcharge_perc} { set surcharge_perc 0.0 }
+
+    # Calculate the subtotal
+    set subtotal [db_string subtotal "
+        select  sum(round(price_per_unit * item_units * :rf) / :rf)
+        from    im_invoice_items
+        where   invoice_id = :invoice_id
+    "]
+
+    # Update the total amount, including surcharge and discount
+    set update_invoice_amount_sql "
+        update im_costs set
+                amount = :subtotal
+                         + round(:subtotal * :surcharge_perc::numeric) / 100.0
+                         + round(:subtotal * :discount_perc::numeric) / 100.0
+        where cost_id = :invoice_id
+    "
+    db_dml update_invoice_amount $update_invoice_amount_sql
+    return $invoice_id
+}
+
+
+# ---------------------------------------------------------------
+# Get the rounding factor (rf) for a currency
+# ---------------------------------------------------------------
+
+ad_proc -public im_invoice_rounding_factor {
+    -currency
+} {
+    Gets the right rounding factor per currency.
+    A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
+} {
+    return [util_memoize "im_invoice_rounding_factor_helper -currency $currency"]
+}
+
+ad_proc -public im_invoice_rounding_factor_helper {
+    { -currency "" }
+} {
+    Gets the right rounding factor per currency
+    A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
+} {
+    if {"" == $currency} { set currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"] }
+    set rf 100
+    if {[catch {
+        set rf [db_string rf "select rounding_factor from currency_codes where iso = :currency" -default 100]
+    } err_msg]} {
+        ns_log Error "im_invoice_rounding_factor_helper: Error determining rounding factor: $err_msg"
+    }
+    return $rf
+}
+
+
 # -----------------------------------------------------------
 # 
 # -----------------------------------------------------------
@@ -422,6 +494,93 @@ where
     append sql " order by lower(invoice_nr)"
     return [im_selection_to_select_box $bind_vars "cost_status_select" $sql $select_name $default]
 }
+
+
+
+# ---------------------------------------------------------------
+# Unify "select_projects" to use the common superproject
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_unify_select_projects {
+    select_projects
+} {
+    Input is the list of projects related to a financial document.
+    Output is a shortened list of related projects.
+    Why? Financial documents related to more then one project
+    are counted multiple times in various ]po[ reports and list
+    pages. So this procedure deals with the frequent case that
+    all projects belong to a single super-project and reduces
+    the list of related projects to that super-project.
+} {
+    # Skip function if there is only a single project or none at all...
+    if {[llength $select_projects] <= 1} { return $select_projects }
+    
+    # Security check because we're going to use non-colon vars below
+    foreach p $select_projects {
+	if {![string is integer $p]} { im_security_alert -location im_invoices_unify_select_projects -message "select_project not an integer" -value $p }
+    }
+
+    # Search for the common superproject
+    set sql "
+        select distinct
+                main_p.project_id
+        from
+                im_projects main_p,
+                im_projects p
+        where
+                main_p.tree_sortkey = tree_root_key(p.tree_sortkey) and
+                p.project_id in ([join $select_projects ","])
+    "
+    set main_projects [db_list main_ps $sql]
+    if {1 == [llength $main_projects]} { return $main_projects }
+    
+    # Didn't find a common superproject - just return the original
+    return $select_projects
+}
+
+
+# ---------------------------------------------------------------
+# Check for inconsistent invoices
+# ---------------------------------------------------------------
+
+ad_proc im_invoices_check_for_multi_project_invoices {} {
+    Check if there are invoices around that are assoicated with
+    more then one project.
+} {
+    set multiples_sql "
+        select
+                count(*) as cnt,
+                cost_id,
+                cost_name
+        from
+                im_projects p,
+                acs_rels r,
+                im_costs c
+        where
+                r.object_id_one = p.project_id
+                and r.object_id_two = c.cost_id
+        group by
+                cost_id, cost_name
+        having
+                count(*) > 1
+    "
+
+    set errors ""
+    db_foreach multiples $multiples_sql {
+        append errors "<li>Financial document <a href=[export_vars -base "/intranet-invoices/view" {{invoice_id $cost_id}}]>$cost_name</a> is associated with more then one project.\n"
+    }
+
+    if {"" != $errors} {
+        ad_return_complaint 1 "<p>Financial documents related to multiple projects currently cause errors in this report.</p>
+        <ul>$errors</ul><p>
+        Please assign every financial document to a single project (usually the main project).</p>\n"
+        return
+    }
+}
+
+
+
+
 
 
 # ---------------------------------------------------------------
