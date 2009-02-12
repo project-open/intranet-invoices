@@ -4,6 +4,7 @@
 
 <%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
 
+<div id="fullwidth-list" class="fullwidth-list-no-side-bar">
 <form action=new-copy method=POST>
 <%= [export_form_vars cost_type_id blurb company_id source_cost_type_id target_cost_type_id return_url] %>
 
@@ -18,3 +19,4 @@
     @table_continuation_html;noquote@
   </table>
 </form>
+</div>

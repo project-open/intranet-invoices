@@ -3,7 +3,7 @@
 <property name="main_navbar_label">finance</property>
 
 <%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
-
+<div id="fullwidth-list" class="fullwidth-list-no-side-bar">
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
 <%= [export_form_vars invoice_id project_id return_url reference_document_id] %>
@@ -210,3 +210,4 @@
 </table>
 
 </form>
+</div>
