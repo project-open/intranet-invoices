@@ -152,8 +152,11 @@ if {"" != $project_id} {
     "
 }
 
-if {"" != $company_id} {
-    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delivery_note]} {
+
+# Don't add the customer/provider clause if we are
+# selecting financial documents from a project.
+# In a project, we may have POs for multiple providers...
+if {"" != $company_id && "" == $project_id} {
 	lappend criteria "i.customer_id = :company_id"
     } else {
 	lappend criteria "i.provider_id = :company_id"

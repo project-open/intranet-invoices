@@ -88,7 +88,12 @@ set pdf_enabled_p [llength [info commands im_html2pdf]]
 # Unified Business Language?
 set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 
+set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
+
+set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+
+set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 
 
 # ---------------------------------------------------------------
@@ -96,11 +101,7 @@ set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_inv
 # ---------------------------------------------------------------
 
 set company_project_nr_exists [db_column_exists im_projects company_project_nr]
-set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
-set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
-
-set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -605,7 +606,7 @@ where
 set invoice_item_html "<tr align=center>\n"
 
 
-if {$show_leading_invoice_item_nr} {
+if {$show_our_project_nr && $show_leading_invoice_item_nr} {
     append invoice_item_html "
           <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
     "

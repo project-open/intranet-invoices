@@ -40,7 +40,6 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-
 set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 
 # Check if we have to forward to "new-copy":
@@ -374,15 +373,15 @@ if {[string equal $invoice_mode "new"]} {
     db_foreach invoice_item "" {
 
 	# insert intermediate headers for every project
-	if {$old_project_id != $project_id} {
-	    append task_sum_html "
-		<tr><td class=rowtitle colspan=$colspan>
-	          <A href=/intranet/projects/view?group_id=$project_id>$project_short_name</A>:
-	          $project_name
-	        </td></tr>\n"
-	
-	    set old_project_id $project_id
-	}
+#	if {$old_project_id != $project_id} {
+#	    append task_sum_html "
+#		<tr><td class=rowtitle colspan=$colspan>
+#	          <A href=/intranet/projects/view?group_id=$project_id>$project_short_name</A>:
+#	          $project_name
+#	        </td></tr>\n"
+#	
+#	    set old_project_id $project_id
+#	}
 
 	append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
