@@ -1,13 +1,13 @@
 -- /package/intranet-invoices/sql/common/intranet-invoices-backup.sql
 --
--- Copyright (c) 2003-2004 Project/Open
+-- Copyright (c) 2003 - 2009 ]project-open[
 --
 -- All rights reserved. Please check
 -- http://www.project-open.com/license/ for details.
 --
 -- @author frank.bergmann@project-open.com
 
--- Invoices module for Project/Open
+-- Invoices module
 --
 -- Defines:
 --	im_invoices			Invoice biz object container

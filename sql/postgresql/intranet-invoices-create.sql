@@ -7,7 +7,7 @@
 --
 -- @author frank.bergmann@project-open.com
 
--- Invoices module for Project/Open
+-- Invoices module
 --
 -- Defines:
 --	im_invoices			Invoice biz object container

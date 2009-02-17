@@ -7,7 +7,7 @@
   <msg key="Admin_Links">Admin Links</msg>
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
-  <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of Project/Open. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
+  <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of ]project-open[. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
   <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
   <msg key="Clone">Clone</msg>
