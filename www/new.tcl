@@ -130,6 +130,30 @@ if {0 != $project_id} {
     "
 }
 
+
+# ---------------------------------------------------------------
+# Determine whether it's an Invoice or a Bill
+# ---------------------------------------------------------------
+
+# Invoices and Quotes have a "Company" fields.
+set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $cost_type_id]
+
+# Invoices and Bills have a "Payment Terms" field.
+set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $cost_type_id]
+
+
+if {$invoice_or_quote_p} {
+    set company_id $customer_id
+    set ajax_company_widget "customer_id"
+    set custprov "customer"
+} else {
+    set company_id $provider_id
+    set ajax_company_widget "provider_id"
+    set custprov "provider"
+}
+
+
+
 # ---------------------------------------------------------------
 # 3. Gather invoice data
 #	a: if the invoice already exists
@@ -201,7 +225,7 @@ if {$invoice_id} {
     set canned_note_id ""
     set payment_method_id ""
     set template_id ""
-    set company_contact_id [im_invoices_default_company_contact $customer_id $project_id]
+    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
     set read_only_p "f"
 
     # Default for cost-centers - take the user's
@@ -225,28 +249,6 @@ if {"t" == $read_only_p} {
     "]
     "
     ad_script_abort
-}
-
-
-# ---------------------------------------------------------------
-# Determine whether it's an Invoice or a Bill
-# ---------------------------------------------------------------
-
-# Invoices and Quotes have a "Company" fields.
-set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $cost_type_id]
-
-# Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $cost_type_id]
-
-
-
-
-if {$invoice_or_quote_p} {
-    set company_id $customer_id
-    set custprov "customer"
-} else {
-    set company_id $provider_id
-    set custprov "provider"
 }
 
 
@@ -303,9 +305,11 @@ if {"" != $cost_type_id} {
     "
 }
 
-set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
-set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" } customer_id $customer_id "" "CustOrIntl"]
+set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" } provider_id $provider_id "" "Provider"]
 set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
+
+# ad_return_complaint 1 "im_company_contact_select company_contact_id $company_contact_id $company_id - $contact_select"
 
 set invoice_address_label [lang::message::lookup "" intranet-invoices.Invoice_Address "Address"]
 set invoice_address_select [im_company_office_select invoice_office_id $invoice_office_id $company_id]

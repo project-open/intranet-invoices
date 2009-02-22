@@ -274,7 +274,10 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
 # Logic to choose the most appropriate company contact for an invoice
 # ---------------------------------------------------------------
 
-ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
+ad_proc im_invoices_default_company_contact { 
+	company_id 
+	{ project_id ""} 
+} {
     Return the most appropriate company contact for an 
     invoice.
 } {
@@ -287,6 +290,7 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
 		accounting_contact_id
 	from	im_companies
 	where	company_id = :company_id
+		and company_id != 0
     "
     catch {[db_1row company_info $company_info_sql]} errmsg
     set company_contact_id $accounting_contact_id
@@ -298,9 +302,10 @@ ad_proc im_invoices_default_company_contact { company_id { project_id ""} } {
     set project_contact_id ""
     if {0 != $project_id && "" != $project_id || [db_column_exists im_projects company_contact_id]} {
 	set project_contact_id [db_string project_info "
-		select company_contact_id 
-		from im_projects 
-		where project_id = :project_id
+		select	company_contact_id 
+		from	im_projects 
+		where	project_id = :project_id
+			and :company_id != 0
 	" -default ""]
     }
 

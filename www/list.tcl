@@ -339,8 +339,10 @@ if {"" != $parent_menu_label} {
 	regsub -all " " $name "_" name_key
 	set name_loc [lang::message::lookup "" $package_name.$name_key $name]
 	append new_document_menu "<li><a href=\"$url\">$name_loc</a></li>\n"
+	incr ctr
     }
     append new_document_menu "</ul>"
+    if {0 == $ctr} { set new_document_menu "" }
 }
 
 # ---------------------------------------------------------------
@@ -546,3 +548,22 @@ set button_html "
 </tr>"
 
 set sub_navbar [im_costs_navbar none "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name] $parent_menu_label ]
+
+set left_navbar_html "
+            <div class='filter-block'>
+                <div class='filter-title'>
+                #intranet-invoices.Filter_Documents#
+                </div>
+                $filter_html
+            </div>
+            <hr/>
+
+            <div class='filter-block'>
+                <div class='filter-title'>
+                #intranet-invoices.lt_New_Company_Documents#
+                </div>
+                $new_document_menu
+            </div>
+            <hr/>
+"
+

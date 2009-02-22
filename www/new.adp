@@ -3,9 +3,86 @@
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 
+<% 
+    # Determine a security token to authenticate the AJAX function
+    set auto_login [im_generate_auto_login -user_id [ad_get_user_id]] 
+%>
+
+<script type="text/javascript">
+function ajaxFunction() {
+    var xmlHttp1;
+    var xmlHttp2;
+    try {
+	// Firefox, Opera 8.0+, Safari
+	xmlHttp1=new XMLHttpRequest();
+	xmlHttp2=new XMLHttpRequest();
+    }
+    catch (e) {
+	// Internet Explorer
+	try {
+	    xmlHttp1=new ActiveXObject("Msxml2.XMLHTTP");
+	    xmlHttp2=new ActiveXObject("Msxml2.XMLHTTP");
+	}
+	catch (e) {
+	    try {
+		xmlHttp1=new ActiveXObject("Microsoft.XMLHTTP");
+		xmlHttp2=new ActiveXObject("Microsoft.XMLHTTP");
+	    }
+	    catch (e) {
+		alert("Your browser does not support AJAX!");
+		return false;
+	    }
+	}
+    }
+
+    xmlHttp1.onreadystatechange = function() {
+	if(xmlHttp1.readyState==4) {
+	    // empty options
+	    for (i = document.invoice.invoice_office_id.options.length-1; i >= 0; i--) { 
+		document.invoice.invoice_office_id.remove(i); 
+	    }
+
+	    // loop through the komma separated list
+	    var res1 = xmlHttp1.responseText;
+	    var opts1 = res1.split(",");
+	    for (i=0; i < opts1.length; i = i+2) {
+		var newOpt = new Option(opts1[i+1], opts1[i], false, true);
+		document.invoice.invoice_office_id.options[document.invoice.invoice_office_id.options.length] = newOpt;
+	    }
+	}
+    }
+
+    xmlHttp2.onreadystatechange = function() {
+	if(xmlHttp2.readyState==4) {
+	    // empty options
+	    for (i = document.invoice.company_contact_id.options.length-1; i >= 0; i--) { 
+		document.invoice.company_contact_id.remove(i); 
+	    }
+
+	    // loop through the komma separated list
+	    var res2 = xmlHttp2.responseText;
+	    var opts2 = res2.split(",");
+	    for (i=0; i < opts2.length; i = i+2) {
+		var newOpt = new Option(opts2[i+1], opts2[i], false, true);
+		document.invoice.company_contact_id.options[document.invoice.company_contact_id.options.length] = newOpt;
+	    }
+	}
+    }
+
+    // get the company_id from the customer's drop-down
+    var company_id = document.invoice.@ajax_company_widget@.value;
+
+    xmlHttp1.open("GET","/intranet/offices/ajax-offices?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
+    xmlHttp1.send(null);
+    xmlHttp2.open("GET","/intranet/users/ajax-company-contacts?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
+    xmlHttp2.send(null);
+}
+</script>
+
+
 <div class="fullwidth-list-no-side-bar" id="fullwidth-list">
 
-<form action=new-2 method=POST>
+<form action=new-2 name=invoice method=POST>
 <%= [export_form_vars invoice_id return_url] %>
 
 <!-- Include a list of projects related to this document -->

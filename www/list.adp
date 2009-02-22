@@ -2,30 +2,7 @@
 <property name=title>List of @cost_type@</property>
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
-
-<div class="filter-list">
-<a id="sideBarTab" href="#"><img id="sideBarTabImage" border="0" title="sideBar" alt="sideBar" src="/intranet/images/navbar_saltnpepper/slide-button-active.gif"/></a>
-   <div class="filter" id="sidebar">
-   <div id="sideBarContentsInner"> 
-      <div class="filter-block">
-         <div class="filter-title">
-            #intranet-invoices.Filter_Documents#
-         </div>
-         @filter_html;noquote@
-      </div>
-      <div class="filter-block">
-         <div class="filter-title">
-	    #intranet-invoices.lt_New_Company_Documents#
-	 </div>
-         @new_document_menu;noquote@
-      </div>
-      <%= [im_navbar_tree -label "main"] %>
-   </div>
-</div>
-
-
-   <div class="fullwidth-list" id="fullwidth-list">
-      <%= [im_box_header "List of $cost_type"] %>
+<property name="left_navbar">@left_navbar_html;noquote@</property>
 
 <form action=invoice-action method=POST>
 <%= [export_form_vars company_id invoice_id return_url] %>
@@ -37,8 +14,3 @@
   </table>
 </form>
 
-     <%= [im_box_footer] %>
-   </div>
-   <div class="filter-list-footer"></div>
-
-</div>
