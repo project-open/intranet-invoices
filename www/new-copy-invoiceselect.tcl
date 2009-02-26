@@ -157,10 +157,9 @@ if {"" != $project_id} {
 # selecting financial documents from a project.
 # In a project, we may have POs for multiple providers...
 if {"" != $company_id && "" == $project_id} {
-	lappend criteria "i.customer_id = :company_id"
-    } else {
-	lappend criteria "i.provider_id = :company_id"
-    }
+    lappend criteria "i.customer_id = :company_id"
+} else {
+    lappend criteria "i.provider_id = :company_id"
 }
 
 set project_where_clause [join $criteria " and\n            "]

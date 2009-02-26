@@ -295,4 +295,9 @@ db_foreach related_project $related_project_sql {
 }
 
 
-db_release_unused_handles
+# ---------------------------------------------------------------
+# NavBars
+# ---------------------------------------------------------------
+
+set sub_navbar_html [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]]
+

@@ -22,6 +22,8 @@ ad_page_contract {
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
     { provider_id:integer 0 } 
+    { start_date "" }
+    { end_date "" }
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_list" }
@@ -88,6 +90,10 @@ if {![im_permission $user_id view_invoices]} {
     return
 }
 
+if {"" == $start_date} { set start_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultStartDate -default "2000-01-01"] }
+if {"" == $end_date} { set end_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultEndDate -default "2100-01-01"] }
+
+
 
 # ---------------------------------------------------------------
 # 3. Defined Table Fields
@@ -151,6 +157,14 @@ if { ![empty_string_p $company_id] && $company_id != 0 } {
 if { ![empty_string_p $provider_id] && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
 }
+if {"" != $start_date} {
+    lappend criteria "i.effective_date >= :start_date::timestamptz"
+}
+if {"" != $end_date} {
+    lappend criteria "i.effective_date < :end_date::timestamptz"
+}
+
+
 
 # Get the list of user's companies for which he can see invoices
 set company_ids [db_list users_companies "
@@ -373,6 +387,18 @@ set filter_html "
 	    <td>
               [im_company_select -include_empty_name "All" company_id $cost_type_id]
             </td>
+	  </tr>
+	  <tr>
+	    <td class=form-label>[_ intranet-core.Start_Date]</td>
+	    <td class=form-widget>
+	      <input type=textfield name=start_date value=$start_date>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td class=form-label>[lang::message::lookup "" intranet-core.End_Date "End Date"]</td>
+	    <td class=form-widget>
+	      <input type=textfield name=end_date value=$end_date>
+	    </td>
 	  </tr>
 	  <tr>
 	    <td></td>

@@ -80,8 +80,6 @@ function ajaxFunction() {
 </script>
 
 
-<div class="fullwidth-list-no-side-bar" id="fullwidth-list">
-
 <form action=new-2 name=invoice method=POST>
 <%= [export_form_vars invoice_id return_url] %>
 
@@ -299,4 +297,3 @@ function ajaxFunction() {
 
 </form>
 
-</div>

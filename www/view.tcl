@@ -63,6 +63,7 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 
 # rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
+
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
 
