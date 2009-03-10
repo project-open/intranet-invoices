@@ -110,7 +110,7 @@ set show_company_project_nr [expr $show_company_project_nr && $company_project_n
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note]]
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
 
 # Vars for ADP (can't use the commands in ADP)
 set quote_cost_type_id [im_cost_type_quote]
