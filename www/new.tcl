@@ -256,7 +256,7 @@ if {"t" == $read_only_p} {
 # Get default values for VAT and invoice_id from company
 # ---------------------------------------------------------------
 
-if {[db_column_exists im_companies default_invoice_template_id]} {
+if {[im_column_exists im_companies default_invoice_template_id]} {
     if {0 == $vat} {
 	set vat [db_string default_vat "select default_vat from im_companies where company_id = :company_id" -default "0"]
     }
@@ -275,7 +275,7 @@ if {[db_column_exists im_companies default_invoice_template_id]} {
     }
 }
 
-if {[db_column_exists im_companies default_tax]} {
+if {[im_column_exists im_companies default_tax]} {
     if {0 == $tax} {
         set tax [db_string default_tax "select default_tax from im_companies where company_id = :company_id" -default "0"]
     }

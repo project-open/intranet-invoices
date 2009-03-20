@@ -160,7 +160,7 @@ db_1row default_vals "
 "
 
 set default_tax ""
-if {[db_column_exists im_companies default_tax]} {
+if {[im_column_exists im_companies default_tax]} {
     set default_tax [db_string default_tax "select default_tax from im_companies where company_id = :company_id" -default "0"]
 }
 

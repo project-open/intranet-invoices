@@ -100,7 +100,7 @@ set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_
 # Logic to show or not "our" and the "company" project nrs.
 # ---------------------------------------------------------------
 
-set company_project_nr_exists [db_column_exists im_projects company_project_nr]
+set company_project_nr_exists [im_column_exists im_projects company_project_nr]
 set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
 
 # ---------------------------------------------------------------
@@ -532,7 +532,7 @@ im_cost_update_payments $invoice_id
 # ---------------------------------------------------------------
 
 set payment_list_html ""
-if {[db_table_exists im_payments]} {
+if {[im_table_exists im_payments]} {
 
     set cost_id $invoice_id
     set payment_list_html "

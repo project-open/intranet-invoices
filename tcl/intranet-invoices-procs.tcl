@@ -300,7 +300,7 @@ ad_proc im_invoices_default_company_contact {
     # Determine the projects' contact (if exists)
     #
     set project_contact_id ""
-    if {0 != $project_id && "" != $project_id || [db_column_exists im_projects company_contact_id]} {
+    if {0 != $project_id && "" != $project_id || [im_column_exists im_projects company_contact_id]} {
 	set project_contact_id [db_string project_info "
 		select	company_contact_id 
 		from	im_projects 
