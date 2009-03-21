@@ -157,9 +157,12 @@ if {"" != $project_id} {
 # selecting financial documents from a project.
 # In a project, we may have POs for multiple providers...
 if {"" != $company_id && "" == $project_id} {
-    lappend criteria "i.customer_id = :company_id"
-} else {
-    lappend criteria "i.provider_id = :company_id"
+
+    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delivery_note] || $source_cost_type_id == [im_cost_type_interco_invoice] || $source_cost_type_id == [im_cost_type_interco_quote]} {
+        lappend criteria "i.customer_id = :company_id"
+    } else {
+        lappend criteria "i.provider_id = :company_id"
+    }
 }
 
 set project_where_clause [join $criteria " and\n            "]
