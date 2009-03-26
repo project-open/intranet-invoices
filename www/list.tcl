@@ -402,7 +402,7 @@ set filter_html "
 	  <tr>
 	    <td>[lang::message::lookup "" intranet-invoices.Company "Company"]</td>
 	    <td>
-              [im_company_select -include_empty_name "All" company_id $company_id]
+              [im_company_select -include_empty_p 1 -include_empty_name "All" company_id $company_id]
             </td>
 	  </tr>
 	  <tr>
