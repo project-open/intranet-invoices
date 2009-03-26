@@ -1,5 +1,5 @@
 <master src="../../intranet-core/www/master">
-<property name=title>List of @cost_type@</property>
+<property name=title>@page_title@</property>
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 <property name="left_navbar">@left_navbar_html;noquote@</property>
