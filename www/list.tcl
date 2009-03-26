@@ -27,6 +27,7 @@ ad_page_contract {
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_list" }
+    { letter:trim "" }
 }
 
 # ---------------------------------------------------------------
@@ -75,20 +76,21 @@ set return_url [im_url_with_query]
 set amp "&"
 set cur_format [im_l10n_sql_currency_format]
 set date_format [im_l10n_sql_date_format]
-set local_url "list"
+set local_url "/intranet-invoices/list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
-
-
-if { [empty_string_p $how_many] || $how_many < 1 } {
-    set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
-}
-set end_idx [expr $start_idx + $how_many - 1]
+set letter [string toupper $letter]
 
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint 1 "<li>You have insufficiente privileges to view this page"
     return
 }
+
+if { [empty_string_p $how_many] || $how_many < 1 } {
+    set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage  "" 50]
+}
+set end_idx [expr $start_idx + $how_many]
+
 
 if {"" == $start_date} { set start_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultStartDate -default "2000-01-01"] }
 if {"" == $end_date} { set end_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultEndDate -default "2100-01-01"] }
@@ -314,11 +316,26 @@ $order_by_clause
 # 5a. Limit the SQL query to MAX rows and provide << and >>
 # ---------------------------------------------------------------
 
+# Limit the search results to N data sets only
+# to be able to manage large sites
+#
 
-# Set these limits to negative values to deactivate them
-set total_in_limited -1
-set how_many -1
-set selection "$sql"
+if {[string equal $letter "ALL"]} {
+    # Set these limits to negative values to deactivate them
+    set total_in_limited -1
+    set how_many -1
+    set selection $sql
+} else {
+    # We can't get around counting in advance if we want to be able to
+    # sort inside the table on the page for only those users in the
+    # query results
+    set total_in_limited [db_string total_in_limited "
+        select count(*)
+        from ($sql) s
+    "]
+    set selection [im_select_row_range $sql $start_idx $end_idx]
+}
+
 
 
 # ---------------------------------------------------------------
@@ -368,7 +385,7 @@ if {"" != $parent_menu_label} {
 # options
 set filter_html "
 	<form method=get action=\"/intranet-invoices/list\">
-	[export_form_vars start_idx order_by how_many view_name include_subinvoices_p]
+	[export_form_vars order_by how_many view_name include_subinvoices_p]
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr>
 	    <td>[_ intranet-invoices.Document_Status]</td>
@@ -496,7 +513,7 @@ db_foreach invoices_info_query $selection {
     # ----
 
     incr ctr
-    if { $how_many > 0 && $ctr >= $how_many } {
+    if { $how_many > 0 && $ctr > $how_many } {
 	break
     }
     incr idx
@@ -510,13 +527,15 @@ if { [empty_string_p $table_body_html] } {
         </b></ul></td></tr>"
 }
 
-if { $ctr == $how_many && $end_idx < $total_in_limited } {
+if { $end_idx < $total_in_limited } {
     # This means that there are rows that we decided not to return
     # Include a link to go to the next page
-    set next_start_idx [expr $end_idx + 1]
+    set next_start_idx [expr $end_idx + 0]
     set next_page_url "$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]"
+    set next_page "<a href=$next_page_url>[_ intranet-invoices.Next_Page]</a>"
 } else {
     set next_page_url ""
+    set next_page ""
 }
 
 if { $start_idx > 0 } {
@@ -525,35 +544,15 @@ if { $start_idx > 0 } {
     set previous_start_idx [expr $start_idx - $how_many]
     if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page_url "$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]"
+    set previous_page "<a href=$previous_page_url>[_ intranet-invoices.Previous_Page]</a>"
 } else {
     set previous_page_url ""
+    set previous_page ""
 }
 
 # ---------------------------------------------------------------
 # 9. Format Table Continuation
 # ---------------------------------------------------------------
-
-# Check if there are rows that we decided not to return
-# => include a link to go to the next page 
-#
-if {$ctr==$how_many && $total_in_limited > 0 && $end_idx < $total_in_limited} {
-    set next_start_idx [expr $end_idx + 1]
-    set next_page "<a href=$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Next_Page]</a>"
-} else {
-    set next_page ""
-}
-
-# Check if this is the continuation of a table (we didn't start with the 
-# first row - there is at least 1 previous row.
-# => add a previous page link
-#
-if { $start_idx > 0 } {
-    set previous_start_idx [expr $start_idx - $how_many]
-    if { $previous_start_idx < 0 } { set previous_start_idx 0 }
-    set previous_page "<a href=$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Previous_Page]</a>"
-} else {
-    set previous_page ""
-}
 
 set table_continuation_html "
 <tr>
@@ -573,7 +572,7 @@ set button_html "
   </td>
 </tr>"
 
-set sub_navbar [im_costs_navbar none "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name] $parent_menu_label ]
+set sub_navbar [im_costs_navbar "no_alpha" "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name start_date end_date] $parent_menu_label ]
 
 set left_navbar_html "
             <div class='filter-block'>
