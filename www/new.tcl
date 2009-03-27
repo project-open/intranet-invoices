@@ -141,9 +141,12 @@ set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $cost_type_id]
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $cost_type_id]
 
-
 if {$invoice_or_quote_p} {
-    set company_id $customer_id
+    if { 0 == $customer_id } {
+	set company_id [db_string cost_type "select customer_id from im_costs where cost_id = :invoice_id" -default ""]    
+    } else {
+	set company_id $customer_id
+    }
     set ajax_company_widget "customer_id"
     set custprov "customer"
 } else {
