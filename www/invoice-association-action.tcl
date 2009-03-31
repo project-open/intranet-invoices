@@ -49,7 +49,8 @@ set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
-set page_title "Associate Invoice with a Project"
+set cost_type [db_string cost_type "select im_category_from_id(cost_type_id) from im_costs where cost_id = :invoice_id" -default "Financial Document"]
+set page_title [lang::message::lookup "" intranet-invoices.Associate_cost_type_with_project "Associate %cost_type% with a Project"]
 set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
 # ---------------------------------------------------------------
@@ -94,6 +95,8 @@ set customer_id_org $customer_id
 append query "
 select
 	ic.customer_id,
+	ic.provider_id,
+	ic.cost_type_id,
 	i.invoice_nr
 from
 	im_invoices i,
@@ -108,12 +111,28 @@ if { ![db_0or1row projects_info_query $query] } {
     return
 }
 
+# Invoices and Quotes have a "Customer" fields.
+set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
+
 if {0 != $customer_id_org} { set customer_id $customer_id_org }
 
-set customer_name [db_string customer_name "select company_name from im_companies where company_id=:customer_id" -default ""]
+if {$invoice_or_quote_p} {
 
-set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" $customer_id]
-set customer_select [im_company_select customer_id $customer_id "" "Customer"]
+    # Invoice or Quote
+    set company_id $customer_id
+    set company_select [im_company_select company_id $company_id "" "Customer"]
+    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" "" $company_id]
+
+} else {
+
+    # PO or Provider Bill
+    set company_id $provider_id
+    set company_select [im_company_select company_id $company_id "" "Provider"]
+    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" ""]
+
+}
+
+set company_name [db_string customer_name "select company_name from im_companies where company_id = :company_id" -default ""]
 
 db_release_unused_handles
 

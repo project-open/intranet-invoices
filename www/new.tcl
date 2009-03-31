@@ -155,6 +155,7 @@ if {$invoice_or_quote_p} {
     set custprov "provider"
 }
 
+# ad_return_complaint 1 $company_id
 
 
 # ---------------------------------------------------------------
@@ -287,6 +288,7 @@ if {[im_column_exists im_companies default_tax]} {
 
 # Get a reasonable default value for the invoice_office_id,
 # either from the invoice or then from the company_main_office.
+
 set invoice_office_id [db_string invoice_office_info "select invoice_office_id from im_invoices where invoice_id = :invoice_id" -default ""]
 if {"" == $invoice_office_id} {
     set invoice_office_id [db_string company_main_office_info "select main_office_id from im_companies where company_id = :company_id" -default ""]

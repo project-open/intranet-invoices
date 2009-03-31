@@ -9,6 +9,7 @@
 %>
 
 <script type="text/javascript">
+
 function ajaxFunction() {
     var xmlHttp1;
     var xmlHttp2;
@@ -71,7 +72,6 @@ function ajaxFunction() {
 
     // get the company_id from the customer's drop-down
     var company_id = document.invoice.@ajax_company_widget@.value;
-
     xmlHttp1.open("GET","/intranet/offices/ajax-offices?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
     xmlHttp1.send(null);
     xmlHttp2.open("GET","/intranet/users/ajax-company-contacts?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);

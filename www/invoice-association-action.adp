@@ -13,7 +13,7 @@
 	<table border=0 cellspacing=1 cellpadding=1>
 	  <tr> 
 	    <td colspan=2 class=rowtitle align=center>
-	     Associate With Company's Projects
+	     Associate with Project
 	    </td>
 	  </tr>
 	  <tr>
@@ -29,7 +29,7 @@
 	      Company.
 	    </td>
 	    <td>
-	      <A href="/intranet/companies/view?customer_id=@customer_id@">@customer_name@</A>
+	      <A href="/intranet/companies/view?company_id=@company_id@">@company_name@</A>
 	    </td>
 	  </tr>
 	  <tr>
@@ -60,7 +60,7 @@ Alternatively:<p>
 	<table border=0 cellspacing=1 cellpadding=1>
 	  <tr> 
 	    <td colspan=2 class=rowtitle align=center>
-	     Associate With a Customers Project
+	     Associate with a different company
 	    </td>
 	  </tr>
 	  <tr>
@@ -76,12 +76,12 @@ Alternatively:<p>
 	      Associte with:
 	    </td>
 	    <td>
-	      @customer_select;noquote@
+	      @company_select;noquote@
 	    </td>
 	  </tr>
 	  <tr>
 	    <td colspan=2 align=right>
-	      <input type=submit value="Select Project">
+	      <input type=submit value="Select Company">
 	    </td>
 	  </tr>
 	</table>
