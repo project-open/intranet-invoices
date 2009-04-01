@@ -121,14 +121,14 @@ if {$invoice_or_quote_p} {
     # Invoice or Quote
     set company_id $customer_id
     set company_select [im_company_select company_id $company_id "" "Customer"]
-    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" "" $company_id]
+    set project_select [im_project_select -exclude_subprojects_p 1 object_id $project_id "" "" "" "" "" $company_id]
 
 } else {
 
     # PO or Provider Bill
     set company_id $provider_id
     set company_select [im_company_select company_id $company_id "" "Provider"]
-    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" ""]
+    set project_select [im_project_select -exclude_subprojects_p 1 object_id $project_id "" "" "" "" ""]
 
 }
 
