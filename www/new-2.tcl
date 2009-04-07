@@ -17,7 +17,7 @@ ad_page_contract {
     { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
-    { company_contact_id:integer "" }
+    { company_contact_id:integer,trim "" }
     { invoice_office_id "" }
     { project_id:integer "" }
     invoice_nr
