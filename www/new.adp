@@ -10,6 +10,12 @@
 
 <script type="text/javascript">
 
+
+function ltrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
+}
+
 function ajaxFunction() {
     var xmlHttp1;
     var xmlHttp2;
@@ -59,12 +65,13 @@ function ajaxFunction() {
 	    for (i = document.invoice.company_contact_id.options.length-1; i >= 0; i--) { 
 		document.invoice.company_contact_id.remove(i); 
 	    }
-
 	    // loop through the komma separated list
 	    var res2 = xmlHttp2.responseText;
 	    var opts2 = res2.split(",");
+	    // alert(opts2);	    
 	    for (i=0; i < opts2.length; i = i+2) {
-		var newOpt = new Option(opts2[i+1], opts2[i], false, true);
+		//alert (opts2[i]);
+		var newOpt = new Option(opts2[i+1], ltrim(opts2[i]), false, true);
 		document.invoice.company_contact_id.options[document.invoice.company_contact_id.options.length] = newOpt;
 	    }
 	}
