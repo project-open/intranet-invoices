@@ -270,15 +270,6 @@ function ajaxFunction() {
                 <td>#intranet-invoices.VATnbsp#</td>
                 <td><input type=text name=vat value="@vat@" size=4> % &nbsp;</td>
               </tr>
-            </table>
-          </td>
-        </tr>
-
-        <tr> 
-          <td> 
-          </td>
-          <td colspan=@vat_colspan@ align=right> 
-            <table border=0 cellspacing=1 cellpadding=0>
               <tr> 
                 <td>#intranet-invoices.TAXnbsp#</td>
                 <td><input type=text name=tax value="@tax@" size=4> % &nbsp;</td>
