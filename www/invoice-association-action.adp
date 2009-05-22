@@ -34,7 +34,7 @@
 	  </tr>
 	  <tr>
 	    <td>
-	      Associte with:
+	      Associate with:
 	    </td>
 	    <td>
 	      @project_select;noquote@
@@ -73,7 +73,7 @@ Alternatively:<p>
 	  </tr>
 	  <tr>
 	    <td>
-	      Associte with:
+	      Associate with:
 	    </td>
 	    <td>
 	      @company_select;noquote@
