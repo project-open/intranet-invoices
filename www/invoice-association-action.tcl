@@ -121,7 +121,7 @@ if {$invoice_or_quote_p} {
     # Invoice or Quote
     set company_id $customer_id
     set company_select [im_company_select customer_id $customer_id "" "Customer"]
-    set project_select [im_project_select -exclude_subprojects_p 1 object_id $project_id "" "" "" "" "" $company_id]
+    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" "" $company_id]
 
 } else {
 
