@@ -97,6 +97,10 @@ where object_type = 'im_invoice';
 
 insert into acs_object_type_tables (object_type,table_name,id_column)
 values ('im_invoice', 'im_invoices', 'invoice_id');
+insert into acs_object_type_tables (object_type,table_name,id_column)
+values ('im_invoice', 'im_costs', 'cost_id');
+
+
 
 create table im_invoices (
 	invoice_id		integer
