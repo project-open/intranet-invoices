@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.0.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
@@ -153,8 +153,10 @@ Best regards,
   <msg key="Resource_Planning_Report">Resorce Planning Report</msg>
   <msg key="S-Line">S-Line</msg>
   <msg key="Save">Save</msg>
+  <msg key="Sel">Sel</msg>
   <msg key="Select">Select</msg>
   <msg key="Select_Customer">Select a Customer</msg>
+  <msg key="Select_documents">Select Documents</msg>
   <msg key="Select_Project">Project Select</msg>
   <msg key="Send_invoice_as_HTML_attachment">Send invoice as HTML attachment</msg>
   <msg key="Send_invoice_as_HTML_link">Send invoice as HTML link</msg>
@@ -168,6 +170,8 @@ Best regards,
   <msg key="The_indicated_prices_dont_include_VAT">The indicated prices don't include VAT.</msg>
   <msg key="Timesheet_Cube">Timesheet Cube</msg>
   <msg key="Timesheet_Customers_and_Projects">Timesheet Customers and Projects</msg>
+  <msg key="Timesheet_Productivity">Timesheet Productivity</msg>
+  <msg key="Timesheet_Project_Hierarchy___Finance">Timesheet Project Hierarchy &amp; Finance</msg>
   <msg key="To">To:</msg>
   <msg key="Total">Total</msg>
   <msg key="Total_Due">Total Due</msg>
