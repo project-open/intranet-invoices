@@ -217,7 +217,7 @@
         <tr> 
           <td  class=rowodd>#intranet-invoices.Company_name#</td>
           <td  class=rowodd>
-            <A href="/intranet/companies/view?company_id=@comp_id@">@company_name@</A>
+            <A href="/intranet/companies/view?company_id=@customer_id@">@company_name@</A>
           </td>
         </tr>
         <tr> 
