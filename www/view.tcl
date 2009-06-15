@@ -602,43 +602,52 @@ where
 # 3. Select and format Invoice Items
 # ---------------------------------------------------------------
 
+set decoration_item_nr [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleItemNr" "" "align=center"]
+set decoration_description [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleDescription" "" "align=left"]
+set decoration_quantity [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleQuantity" "" "align=right"]
+set decoration_unit [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleUnit" "" "align=left"]
+set decoration_rate [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleRate" "" "align=right"]
+set decoration_po_number [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitlePoNumber" "" "align=center"]
+set decoration_our_ref [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleOurRef" "" "align=center"]
+set decoration_amount [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleAmount" "" "align=right"]
+
+
 # start formatting the list of sums with the header...
 set invoice_item_html "<tr align=center>\n"
 
-
 if {$show_our_project_nr && $show_leading_invoice_item_nr} {
     append invoice_item_html "
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
+          <td class=rowtitle $decoration_item_nr>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
     "
 }
 
 append invoice_item_html "
-          <td class=rowtitle align=left>[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td class=rowtitle $decoration_description>[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 "
 
 if {$show_qty_rate_p} {
     append invoice_item_html "
-          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Qty]</td>
-          <td class=rowtitle align=left>[lang::message::lookup $locale intranet-invoices.Unit]</td>
-          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Rate]</td>
+          <td class=rowtitle $decoration_quantity>[lang::message::lookup $locale intranet-invoices.Qty]</td>
+          <td class=rowtitle $decoration_unit>[lang::message::lookup $locale intranet-invoices.Unit]</td>
+          <td class=rowtitle $decoration_rate>[lang::message::lookup $locale intranet-invoices.Rate]</td>
     "
 }
 
 if {$show_company_project_nr} {
     # Only if intranet-translation has added the field and param is set
     append invoice_item_html "
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
+          <td class=rowtitle $decoration_po_number>[lang::message::lookup $locale intranet-invoices.Yr_Job__PO_No]</td>\n"
 }
 
 if {$show_our_project_nr} {
     # Only if intranet-translation has added the field and param is set
     append invoice_item_html "
-          <td class=rowtitle>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
+          <td class=rowtitle $decoration_our_ref>[lang::message::lookup $locale intranet-invoices.Our_Ref]</td>
     "
 }
 
 append invoice_item_html "
-          <td class=rowtitle align=right>[lang::message::lookup $locale intranet-invoices.Amount]</td>
+          <td class=rowtitle $decoration_amount>[lang::message::lookup $locale intranet-invoices.Amount]</td>
         </tr>
 "
 
