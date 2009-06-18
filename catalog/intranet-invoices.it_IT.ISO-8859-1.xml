@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.9.0.0" locale="it_IT" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="it_IT" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Aggiungi pagamento</msg>
   <msg key="Add_a_Project">Aggiungi progetto</msg>
@@ -158,7 +158,6 @@ Cordiali saluti,
   <msg key="The_indicated_prices_dont_include_VAT">I prezzi indicati s'intendono al netto dell'IVA.</msg>
   <msg key="Timesheet_Cube">&quot;Cubo&quot; presenze</msg>
   <msg key="Timesheet_Customers_and_Projects">Presenze per cliente e progetto</msg>
-  <msg key="Timesheet_Productivity">Produttività per presenze</msg>
   <msg key="To">A:</msg>
   <msg key="Total">Totale</msg>
   <msg key="Total_Due">Totale</msg>

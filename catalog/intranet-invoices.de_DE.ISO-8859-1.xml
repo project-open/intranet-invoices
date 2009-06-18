@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.0.0" locale="de_DE" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="de_DE" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Neue Zahlung</msg>
   <msg key="Add_a_Project">Projekte assoziieren</msg>
@@ -7,6 +7,8 @@
   <msg key="Admin_Links">Administrationslinks</msg>
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Betrag</msg>
+  <msg key="Blurb_multiple_currencies">Sie haben mehr als eine Währung in diesem Zahlungspapier benutzt. Dies ist mit der aktuellen Version von Project Open leider nicht möglich. Bitte teilen Sie ihre Zahlungspapiere in mehrere Papiere mit einheitlicher Währung auf. Zu den genutzten Währungen gehören:</msg>
+  <msg key="CC">Cc</msg>
   <msg key="Client">Kunde</msg>
   <msg key="Clone">Kopieren:</msg>
   <msg key="Company">Firma</msg>
@@ -15,6 +17,7 @@
   <msg key="company_name_page">%company_name% Seite</msg>
   <msg key="Contact">Kontakt</msg>
   <msg key="Cost">Kosten</msg>
+  <msg key="Cost_Center">Kostenstelle</msg>
   <msg key="cost_type_Data">%cost_type% Daten</msg>
   <msg key="cost_type_date">%cost_type% Datum</msg>
   <msg key="cost_type_due_date">%cost_type% Fälligkeitsdatum</msg>
@@ -27,6 +30,7 @@
   <msg key="Country">Land</msg>
   <msg key="Customer">Kunde</msg>
   <msg key="Customers">Kunden</msg>
+  <msg key="Date">Datum</msg>
   <msg key="days">Tage</msg>
   <msg key="Del">Löschen</msg>
   <msg key="Description">Beschreibung</msg>
@@ -39,19 +43,36 @@
   <msg key="Edit_cost_type">Bearbeiten %cost_type%</msg>
   <msg key="Edit_cost_type_1">Bearbeiten %cost_type</msg>
   <msg key="Email">E-Mail</msg>
+  <msg key="Error_multiple_currencies">mehrere Währungsfehler</msg>
   <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
+  <msg key="Export_Customer_Invoice_Cube">Exportiere Debitorenrechnung</msg>
   <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen-CSV exportieren</msg>
   <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
-  <msg key="Export_Provider_Invoices_CSV">Zuliefererrechnungen-CSV exportieren</msg>
+  <msg key="Export_Provider_Invoice_Cube">Exportiere Anbieterrechnung</msg>
+  <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen als CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Dokumente filtern</msg>
   <msg key="Finance">Finanzen</msg>
   <msg key="Financial_Documents">Finanzdokumente</msg>
   <msg key="From">Von</msg>
+  <msg key="Generate_Delivery_Note_from_Quote">Neuer Lieferschein vom Angebot</msg>
+  <msg key="Generate_Invoice_from_Quote">Neue Rechnung vom Angebot</msg>
   <msg key="Go">Los</msg>
   <msg key="Hour">Stunde</msg>
+  <msg key="intranet-invoices.Error_multiple_currencies">mehrere Währungsfehler</msg>
+  <msg key="Invoice_Address">Rechnungsadresse</msg>
   <msg key="Line">Zeile</msg>
   <msg key="lt_Cant_find_the_documen">Dokument Nr. %invoice_id% nicht gefunden</msg>
+  <msg key="lt_Dear_accounting_conta">Sehr geehrte( r) Frau/Herr %accounting_contact_name%,
+Eine neue %cost_type% wurde für sie erstellt auf
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
+
+Das neue Dokument steht im Zusamennhang mit dem/den Projekt(en):
+%select_projects;noquote%
+Bitte besuchen Sie den obigen Link und drucken das Dokument für Ihre persönliche Referenz aus.
+
+Mit freundlichen Grüßen
+%current_user_name%</msg>
   <msg key="lt_Generate_Invoice_from">Neue Rechnung auf Basis dieses Angebots</msg>
   <msg key="lt_Generate_Provider_Bil">Neue Rechnung auf Basis eines Auftrags</msg>
   <msg key="lt_Insufficient_Privileg">Unzureichende Berechtigungen</msg>
@@ -61,15 +82,18 @@
   <msg key="lt_No_Accounting_Contact">Kein Rechnungskontakt definiert</msg>
   <msg key="lt_payment_days_days_dat">%payment_days% Tage</msg>
   <msg key="lt_Please_contact_your_s">Bitte benachrichtigen sie ihren Systemadministrator.</msg>
+  <msg key="lt_Please_visit_the_link">Bitte %link_to_page% besuchen und einen Abrechnungskontakt hinzufügen.</msg>
   <msg key="lt_Send_as_email_to_prov">E-Mail senden zu %provider_company% </msg>
   <msg key="lt_Send_cost_type_via_Em">%cost_type% per E-Mail senden</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Neue(s) %cost_type% </msg>
+  <msg key="lt_The_company_company_n">Die Firma '%company_name%' hat keinen Rechnungswesenkontakt definiert, zu denen wir diese %cost_type% senden könnten.</msg>
   <msg key="lt_There_are_currently_n">Keine Dokument gefunden, die den Kriterien entsprechen</msg>
   <msg key="lt_This_invoice_is_past_">Diese Rechnung ist fällig am %calculated_due_date% </msg>
   <msg key="lt_You_dont_have_suffici">Sie haben unzureichende Berechtigungen, um diese Seite zu sehen.</msg>
   <msg key="lt_You_have_insufficient">Sie haben unzureichene Berechtigungen, um diese Seite zu sehen.</msg>
   <msg key="lt_You_have_insufficient_1">Sie haben unzureichende Berechtigungen, um diese Seite zu sehen.</msg>
   <msg key="lt_You_need_to_specify_a">Sie müssen eine invoice_id angeben</msg>
+  <msg key="New_Bank_Holiday">Neuer Feiertag</msg>
   <msg key="New_Company_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Company_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_cost_type">Bestätigen</msg>
@@ -79,12 +103,12 @@
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Neue Kundenrechnung auf Basis von erfaßten Stunden</msg>
   <msg key="New_Delivery_Note_from_Quote">Neuer Lieferschein auf Basis eines Angebots</msg>
   <msg key="New_Delivery_Note_from_scratch">Neuer Lieferschein von Hand</msg>
-  <msg key="New_Provider_Bill_from_Purchase_Order">Neue Zuliefererrechnung auf Basis eines Auftrags</msg>
-  <msg key="New_Provider_Bill_from_scratch">Neue Zuliefererrechnung</msg>
-  <msg key="New_Provider_Invoice_from_Translation_Tasks">Neue Zuliefererrechnung auf Basis von Übersetzungsaufgaben
+  <msg key="New_Provider_Bill_from_Purchase_Order">Neue Lieferantenrechnung auf Basis eines Lieferantenauftrags</msg>
+  <msg key="New_Provider_Bill_from_scratch">Neue Lieferantenrechnung ohne Vorlage</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Neue Lieferantenrechnung auf Basis von Übersetzungsaufgaben
 </msg>
-  <msg key="New_Purchase_Order_from_scratch">Neuer Auftrag</msg>
-  <msg key="New_Purchase_Order_from_Translation_Tasks">Neuer Auftrag auf Basis von Übersetzungsaufgaben</msg>
+  <msg key="New_Purchase_Order_from_scratch">Neuer Lieferantenauftrag</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Neuer Lieferantenauftrag auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Quote_from_Quote">Neues Angebot auf Basis eines Angebots
 </msg>
   <msg key="New_Quote_from_scratch">Neues Angebot von Hand</msg>
@@ -98,6 +122,7 @@
   <msg key="No_command_specified">Kein Kommando spezifiziert</msg>
   <msg key="No_objects_found">Keine Objekte gefunden</msg>
   <msg key="No_payments_found">Keine Zahlung gefunden</msg>
+  <msg key="No_Template_Defined">Sie haben keine Dokumentenvorlage für Ihre Rechnung, Angebot oder Bestellung definiert. Bitte gehen Sie zurück und wählen Sie eine geeignete Vorlage.</msg>
   <msg key="Note">Notiz</msg>
   <msg key="Notify_user">Benutzer benachrichtigen</msg>
   <msg key="One_cost_type">%cost_type% </msg>
@@ -123,12 +148,19 @@
   <msg key="Select">Auswählen</msg>
   <msg key="Select_Customer">Kunden wählen</msg>
   <msg key="Select_Project">Projekt auswählen</msg>
+  <msg key="Send_invoice_as_HTML_attachment">Sende Rechnung als HTML Anhang</msg>
+  <msg key="Send_invoice_as_HTML_link">Sende Rechnung als HTML Link</msg>
+  <msg key="Send_invoice_as_link">Sende Rechnung als Link</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Ausführen</msg>
   <msg key="Subtotal">Zwischensumme</msg>
   <msg key="TAX">Steuer</msg>
   <msg key="TAXnbsp">Steuer&amp;nbsp;</msg>
+  <msg key="The_indicated_prices_dont_include_VAT">Die angegebenen Preise enthalten keine Mehrwertsteuer.</msg>
+  <msg key="Timesheet_Cube">Zeiterfassungs-Cube</msg>
+  <msg key="Timesheet_Customers_and_Projects">Arbeitszeitnachweis Kunden und Projekte</msg>
   <msg key="To">An</msg>
+  <msg key="Total">Gesamt</msg>
   <msg key="Total_Due">Gesamtsumme</msg>
   <msg key="Type">Typ</msg>
   <msg key="Unit">Einheit</msg>
@@ -136,6 +168,7 @@
   <msg key="UOM">Einheit</msg>
   <msg key="VAT">MwSt.</msg>
   <msg key="VATnbsp">MwSt.&amp;nbsp;</msg>
+  <msg key="Your_Reference">Ihr Zeichen</msg>
   <msg key="Yr_Job__PO_No">Ihre Referenz</msg>
   <msg key="Zip">PLZ</msg>
 </message_catalog>

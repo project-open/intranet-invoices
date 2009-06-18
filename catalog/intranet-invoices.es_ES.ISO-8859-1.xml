@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.0.0" locale="es_ES" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="es_ES" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Añadir un pago</msg>
   <msg key="Add_a_Project">Añadir un proyecto</msg>
@@ -17,6 +17,7 @@
   <msg key="company_name_page">Página de %company_name%</msg>
   <msg key="Contact">Persona de contacto</msg>
   <msg key="Cost">Coste</msg>
+  <msg key="Cost_Center">Departamento de facturación</msg>
   <msg key="cost_type_Data">Datos de %cost_type%</msg>
   <msg key="cost_type_date">Fecha de %cost_type%:</msg>
   <msg key="cost_type_due_date">Fecha de vencimiento de %cost_type%:</msg>
@@ -44,9 +45,11 @@
   <msg key="Email">E-mail</msg>
   <msg key="Error_multiple_currencies">Error: divisa múltiple</msg>
   <msg key="Export_Companies_CSV">Exportar .CSV de empresas</msg>
+  <msg key="Export_Company_Cube">Exportar cubo de la empresa</msg>
   <msg key="Export_Customer_Invoice_Cube">Exportar cubo de factura de cliente</msg>
   <msg key="Export_Customer_Invoices_CSV">Exportar .CSV de facturas de empresa</msg>
   <msg key="Export_Invoices_CSV">Exportar .CSV de facturas</msg>
+  <msg key="Export_Project_Cube">Exportar cubo del projecto</msg>
   <msg key="Export_Provider_Invoice_Cube">Exportar cubo de factura de proveedor</msg>
   <msg key="Export_Provider_Invoices_CSV">Exportar .CSV de facturas de proveedor</msg>
   <msg key="Fax">Fax</msg>
@@ -81,6 +84,7 @@
   <msg key="lt_You_have_insufficient">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_have_insufficient_1">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_need_to_specify_a">Debe especificar un código de factura.</msg>
+  <msg key="New_Bank_Holiday">Nuevo día festivo</msg>
   <msg key="New_Company_Invoice_from_Quote">Nueva factura a empresa basada en presupuesto</msg>
   <msg key="New_Company_Invoice_from_scratch">Nueva factura a empresa desde cero</msg>
   <msg key="New_cost_type">Nuevo %cost_type%</msg>
@@ -88,6 +92,7 @@
   <msg key="New_Customer_Invoice_from_scratch">Nueva factura a cliente desde cero</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Facturar un parte de trabajo</msg>
   <msg key="New_Customer_Invoice_from_Translation_Tasks">Facturar una tarea de traducción</msg>
+  <msg key="New_Personal_Absence">Nueva ausencia de personal</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Nueva factura de proveedor a partir de orden de compra</msg>
   <msg key="New_Provider_Bill_from_scratch">Nueva factura de proveedor desde cero</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">Nueva factura de proveedor a partir de tareas de traducción</msg>
@@ -96,11 +101,14 @@
   <msg key="New_Quote_from_scratch">Nuevo presupuesto desde cero</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">Nuevo presupuesto desde parte de trabajo</msg>
   <msg key="New_Quote_from_Translation_Tasks">Presupuestar tarea de traducción</msg>
+  <msg key="New_Sick_Leave">Nueva licencia por enfermedad</msg>
   <msg key="New_Translation_Customer_Invoice">Nueva factura a cliente de traducciones</msg>
   <msg key="New_Translation_Invoice">Nueva factura por traducciones</msg>
   <msg key="New_Translation_Provider_Invoice">Nueva factura de proveedor de traducciones</msg>
   <msg key="New_Translation_Purchase_Order">Nueva orden de compra de traducción</msg>
   <msg key="New_Translation_Quote">Nuevo presupuesto de traducción</msg>
+  <msg key="New_Travel_Absence">Nueva ausencia por viaje/desplazamiento</msg>
+  <msg key="New_Vacation_Absence">Nueva ausencia por vacaciones</msg>
   <msg key="Next_Page">Página siguiente</msg>
   <msg key="No_command_specified">No se ha especificado ningún comando</msg>
   <msg key="No_objects_found">No se han encontrado objetos</msg>
@@ -126,17 +134,21 @@
   <msg key="Recipient">Destinatario</msg>
   <msg key="Related_Payments">Pagos relacionados</msg>
   <msg key="Related_Projects">Proyectos relacionados</msg>
+  <msg key="Resource_Planning_Report">Informe de asignación de recursos</msg>
   <msg key="S-Line">Línea S</msg>
   <msg key="Save">Guardar</msg>
   <msg key="Select">Seleccionar</msg>
   <msg key="Select_Customer">Seleccione un cliente</msg>
   <msg key="Select_Project">Selección de proyecto</msg>
+  <msg key="Send_invoice_as_link">Enviar factura como enlace</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Enviar</msg>
   <msg key="Subtotal">Subtotal</msg>
   <msg key="TAX">IMPUESTO</msg>
   <msg key="TAXnbsp">IMPUESTO&amp;nbsp;</msg>
   <msg key="The_indicated_prices_dont_include_VAT">Los precios indicados no incluyen el IVA.</msg>
+  <msg key="Timesheet_Cube">Hoja de recuento horario - Cubo</msg>
+  <msg key="Timesheet_Customers_and_Projects">Hoja recuento horario - Clientes y proyectos</msg>
   <msg key="To">A:</msg>
   <msg key="Total">Total</msg>
   <msg key="Total_Due">Total debido</msg>

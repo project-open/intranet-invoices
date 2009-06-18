@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.2.10.1.0" locale="fr_FR" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="fr_FR" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Ajouter un Réglement</msg>
   <msg key="Add_a_Project">Ajouter un Projet</msg>
@@ -10,7 +10,6 @@
   <msg key="Blurb_multiple_currencies">Vous avez utilisé plus d'une devise dans ce document ce qui est impossible dans la version actuelle de Project/Open. Veuillez établir un document par devise.</msg>
   <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
-  <msg key="Clients">Clients</msg>
   <msg key="Clone">Duplicata</msg>
   <msg key="Company">Société</msg>
   <msg key="Company_1">Société:</msg>
@@ -18,6 +17,7 @@
   <msg key="company_name_page">page %company_name%</msg>
   <msg key="Contact">Contact</msg>
   <msg key="Cost">Coût</msg>
+  <msg key="Cost_Center">Cost Center</msg>
   <msg key="cost_type_Data">Données %cost_type%</msg>
   <msg key="cost_type_date">Date %cost_type%</msg>
   <msg key="cost_type_due_date">Date d'échéance %cost_type%:</msg>
@@ -45,7 +45,6 @@
   <msg key="Email">Email</msg>
   <msg key="Error_multiple_currencies">Erreur - Devises multiples</msg>
   <msg key="Export_Companies_CSV">Exporter les Sociétés en un fichier CSV</msg>
-  <msg key="Export_Cube_Facturation_AbaKus">Export Cube Facturation AbaKus CSV</msg>
   <msg key="Export_Customer_Invoice_Cube">Exporter un Cube des factures client</msg>
   <msg key="Export_Customer_Invoices_CSV">Exporter les Factures Clients en un fichier CSV</msg>
   <msg key="Export_Invoices_CSV">Exporter les Factures en un fichier CSV</msg>
@@ -55,7 +54,6 @@
   <msg key="Filter_Documents">Filtrer les Documents</msg>
   <msg key="Finance">Finance</msg>
   <msg key="Financial_Documents">Documents financiers</msg>
-  <msg key="Fournisseurs">Fournisseurs</msg>
   <msg key="From">De:</msg>
   <msg key="Generate_Delivery_Note_from_Quote">Générer un Bon de livraison à partir d'un Devis</msg>
   <msg key="Generate_Invoice_from_Quote">Générer une Facture à partir d'un Devis</msg>
@@ -103,6 +101,7 @@
   <msg key="New_Quote_from_Quote">Nouveau Devis selon Devis existant</msg>
   <msg key="New_Quote_from_scratch">Nouveau Devis</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">Nouveau Devis selon heures consommées</msg>
+  <msg key="New_Quote_from_Translation_Tasks">Nouveau devis pour une traduction</msg>
   <msg key="Next_Page">Page suivante</msg>
   <msg key="No_command_specified">Aucune commande spécifiée</msg>
   <msg key="No_objects_found">Aucun objet trouvé</msg>
@@ -139,8 +138,7 @@
   <msg key="Subtotal">TOTAL H.T.</msg>
   <msg key="TAX">TAXE</msg>
   <msg key="TAXnbsp">TAXE : &amp;amp;nbsp;</msg>
-  <msg key="Temps_passé_-_Clients_and_Projets">Temps_passé_-_Clients_et_Projets</msg>
-  <msg key="Temps_passé_-_Productivité">Temps passé - Productivité</msg>
+  <msg key="Timesheet_Customers_and_Projects">Temps passé, utilisateurs et Projets</msg>
   <msg key="To">Pour:</msg>
   <msg key="Total_Due">Total T.T.C.</msg>
   <msg key="Type">Type</msg>
@@ -149,5 +147,6 @@
   <msg key="UOM">UOM</msg>
   <msg key="VAT">TVA</msg>
   <msg key="VATnbsp">TVA : &amp;amp;nbsp;</msg>
+  <msg key="Your_Reference">Votre Référence</msg>
   <msg key="Zip">Code postal</msg>
 </message_catalog>
