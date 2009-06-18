@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="en_GB" charset="ISO-8859-1">
+
+  <msg key="Payment_terms">Payment due in:</msg>
+  <msg key="Qty">Quantity</msg>
+  <msg key="TAX">Premium/Discount</msg>
+  <msg key="TAXnbsp">discount/premium&amp;nbsp;</msg>
+  <msg key="Yr_Job__PO_No">Your REF</msg>
+  <msg key="Zip">Post Code</msg>
+</message_catalog>

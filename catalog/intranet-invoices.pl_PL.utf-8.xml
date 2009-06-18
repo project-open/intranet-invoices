@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="pl_PL" charset="utf-8">
+
+  <msg key="Timesheet_Cube">Zestawienie czasu pracy</msg>
+  <msg key="Timesheet_Customers_and_Projects">Czas pracy nad klientami i projektami</msg>
+</message_catalog>

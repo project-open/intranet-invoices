@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="no_NO" charset="ISO-8859-1">
+
+  <msg key="Add_a_Payment">Legg til betaling</msg>
+  <msg key="Add_a_Project">Legg til prosjekt</msg>
+  <msg key="Admin_Links">Administrasjonspekere</msg>
+  <msg key="Adress">Adresse</msg>
+  <msg key="Amount">Sum</msg>
+  <msg key="Company">Kunde</msg>
+  <msg key="Company_name">Selskapsnavn</msg>
+  <msg key="Contact">Kontakt</msg>
+  <msg key="cost_type_Data">%cost_type% Data</msg>
+  <msg key="cost_type_date">%cost_type% dato:</msg>
+  <msg key="cost_type_due_date">%cost_type% forfallsdato:</msg>
+  <msg key="cost_type_nr">%cost_type% nr.:</msg>
+  <msg key="cost_type_status">%cost_type% status</msg>
+  <msg key="cost_type_template">%cost_type% template:</msg>
+  <msg key="cost_type_type">%cost_type% type</msg>
+  <msg key="cost_type_type_1">%cost_type% type:</msg>
+  <msg key="Country">Land</msg>
+  <msg key="days">dager</msg>
+  <msg key="Del">Slett</msg>
+  <msg key="Description">Forklaring</msg>
+  <msg key="Edit">Rediger</msg>
+  <msg key="Email">Epost</msg>
+  <msg key="Fax">Faks</msg>
+  <msg key="Finance">Økonomi</msg>
+  <msg key="Invoice_Address">Fakturaadresse</msg>
+  <msg key="Line">Linje</msg>
+  <msg key="lt_payment_days_days_dat">%payment_days% dager fra fakturadato</msg>
+  <msg key="lt_This_invoice_is_past_">Denne faktura er forfalt dersom ikke betalt etter %calculated_due_date_pretty%.</msg>
+  <msg key="New_cost_type">Ny %cost_type%</msg>
+  <msg key="New_Customer_Invoice_from_scratch">Ny kunde faktura fra start</msg>
+  <msg key="No_objects_found">Ingen prosjekt funnet</msg>
+  <msg key="No_payments_found">Ingen betaling funnet</msg>
+  <msg key="Note">Merknad:</msg>
+  <msg key="One_cost_type">En %cost_type%</msg>
+  <msg key="Payment_Method">Betalingsmetode</msg>
+  <msg key="Payment_Terms">Betalingsbetingelse:</msg>
+  <msg key="Payment_terms">Betalingsbetingelser:</msg>
+  <msg key="Phone">Telefon</msg>
+  <msg key="Qty">Antall</msg>
+  <msg key="Rate">Sats</msg>
+  <msg key="Recipient">Mottaker</msg>
+  <msg key="Related_Payments">Relatert betaling</msg>
+  <msg key="Related_Projects">Relatert prosjekt</msg>
+  <msg key="Subtotal">Totalsum</msg>
+  <msg key="TAXnbsp">Skatt</msg>
+  <msg key="Total_Due">Å betale</msg>
+  <msg key="Type">Type</msg>
+  <msg key="Unit">Enhet</msg>
+  <msg key="Units">Antall</msg>
+  <msg key="UOM">Enhet</msg>
+  <msg key="VAT">Org.nr.</msg>
+  <msg key="VATnbsp">MVA </msg>
+  <msg key="Zip">Postnummer</msg>
+</message_catalog>

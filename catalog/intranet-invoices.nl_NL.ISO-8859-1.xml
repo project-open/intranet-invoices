@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.0" locale="nl_NL" charset="ISO-8859-1">
+
+  <msg key="Add_a_Payment">Voeg betaling toe</msg>
+  <msg key="Add_a_Project">Voeg Project toe</msg>
+  <msg key="Add_a_user">Voeg gebruiker toe</msg>
+  <msg key="Adress">Adres</msg>
+  <msg key="Amount">Prijs</msg>
+  <msg key="Company">Bedrijf</msg>
+  <msg key="Company_1">Bedrijf:</msg>
+  <msg key="Company_name">Bedrijfs naam</msg>
+  <msg key="Country">Land</msg>
+  <msg key="Customer">Klant </msg>
+  <msg key="Customers">Klanten</msg>
+  <msg key="Date">Datum</msg>
+  <msg key="days">dagen</msg>
+  <msg key="Description">Omschrijving</msg>
+  <msg key="Due_Date">Verval Datum</msg>
+  <msg key="Generate_Delivery_Note_from_Quote">Nieuwe afleverbon van offerte</msg>
+  <msg key="Go">Toon </msg>
+  <msg key="Hour">uur</msg>
+  <msg key="lt_This_invoice_is_past_">Betalen voor %calculated_due_date_pretty%.</msg>
+  <msg key="New_Customer_Invoice_from_Delivery_Note">Nieuwe klant factuur van afleverbon</msg>
+  <msg key="New_Customer_Invoice_from_Quote">Nieuwe klant factuur van offerte</msg>
+  <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from Scratch</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nieuwe klant factuur van uren</msg>
+  <msg key="New_Delivery_Note_from_Quote">Nieuwe afleverbon van offerte</msg>
+  <msg key="New_Delivery_Note_from_scratch">Nieuwe afleverbon</msg>
+  <msg key="New_Provider_Bill_from_Purchase_Order">Nieuwe rekening van leverancier van aankoop order</msg>
+  <msg key="New_Provider_Bill_from_scratch">Nieuwe rekening van leverancier</msg>
+  <msg key="New_Purchase_Order_from_scratch">Nieuwe aankooporder</msg>
+  <msg key="New_Quote_from_Quote">Nieuwe Offerte van offerte</msg>
+  <msg key="New_Quote_from_scratch">Nieuwe Offerte</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Nieuwe Offerte van gemaakte uren</msg>
+  <msg key="Payment_terms">Betaal voorwaarden</msg>
+  <msg key="Phone">Telefoon</msg>
+  <msg key="Provider">Leverancier </msg>
+  <msg key="Provider_1">Leverancier </msg>
+  <msg key="Providers">Leveranciers</msg>
+  <msg key="Qty">Aantal</msg>
+  <msg key="Rate">Munt</msg>
+  <msg key="Subtotal">Subtotaal</msg>
+  <msg key="Timesheet_Customers_and_Projects">Tijdlijst klanten en projecten</msg>
+  <msg key="Total">Totaal</msg>
+  <msg key="Total_Due">Totaal te betalen</msg>
+  <msg key="Unit">Eenheid</msg>
+  <msg key="VAT">BTW</msg>
+  <msg key="VATnbsp">BTW&amp;amp;nbsp;</msg>
+</message_catalog>
