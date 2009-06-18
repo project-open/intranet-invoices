@@ -45,6 +45,8 @@
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleOurRef"  default="align=center" description="Decoration for title of invoice table: "/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleAmount"  default="align=right" description="Decoration for title of invoice table: "/>
 
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="AccuracyFinDocItems"  default="2" description="Accurancy of items in financial documents."/>
+
         </parameters>
 
     </version>
