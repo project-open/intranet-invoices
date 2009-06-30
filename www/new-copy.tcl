@@ -249,6 +249,8 @@ db_foreach invoice_items "" {
 	set old_project_id $project_id
     }
 
+    set item_name [ns_quotehtml $item_name]
+
     append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>
