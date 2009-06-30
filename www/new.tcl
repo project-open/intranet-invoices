@@ -179,6 +179,7 @@ if {$invoice_id} {
 	    "]
     }
 
+    set cost_type [im_category_from_id $cost_type_id]
     set invoice_mode "exists"
     set page_title "[_ intranet-invoices.Edit_cost_type]"
     set button_text $page_title
@@ -206,7 +207,7 @@ if {$invoice_id} {
     # Build the list of selected tasks ready for invoices
     set invoice_mode "new"
     set in_clause_list [list]
-    set cost_type [db_string cost_type "select im_category_from_id(:cost_type_id) from dual" -default ""]
+    set cost_type [im_category_from_id $cost_type_id]
     set button_text "[_ intranet-invoices.New_cost_type]"
     set page_title "[_ intranet-invoices.New_cost_type]"
     set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
