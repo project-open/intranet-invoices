@@ -26,9 +26,7 @@
 	        im_category_from_id(i.item_type_id) as item_type
 	from
 	        im_invoice_items i 
-			left outer join 
-			im_projects p 
-			on (i.project_id = p.project_id)
+		LEFT OUTER JOIN im_projects p ON (i.project_id = p.project_id)
 	where
 	        i.invoice_id in ([join $source_invoice_id ", "])
 	order by
