@@ -214,12 +214,24 @@
       <table border=0 cellspacing=2 cellpadding=0 width="100%">
 
         <tr><td align=center valign=top class=rowtitle colspan=2> #intranet-invoices.Recipient#</td></tr>
+
+<if @invoice_or_quote_p@>
         <tr> 
           <td  class=rowodd>#intranet-invoices.Company_name#</td>
           <td  class=rowodd>
             <A href="/intranet/companies/view?company_id=@customer_id@">@company_name@</A>
           </td>
         </tr>
+</if>
+<else>
+        <tr> 
+          <td  class=rowodd>#intranet-invoices.Provider#</td>
+          <td  class=rowodd>
+            <A href="/intranet/companies/view?company_id=@provider_id@">@company_name@</A>
+          </td>
+        </tr>
+</else>
+
         <tr> 
           <td  class=roweven>#intranet-invoices.VAT#</td>
           <td  class=roweven>@vat_number@</td>
