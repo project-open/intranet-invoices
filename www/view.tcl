@@ -96,6 +96,10 @@ set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 
 
+# Check if the invoices was changed outside of ]po[...
+im_audit -object_id $invoice_id -action pre_update
+
+
 # ---------------------------------------------------------------
 # Logic to show or not "our" and the "company" project nrs.
 # ---------------------------------------------------------------

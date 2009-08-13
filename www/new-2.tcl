@@ -175,7 +175,14 @@ if {!$invoice_exists_p} {
 
     # Let's create the new invoice
     set invoice_id [db_exec_plsql create_invoice ""]
+
+    # Audit the creation of the invoice
+    im_audit -object_id $invoice_id -action create
+
 }
+
+# Check if the cost item was changed via outside SQL
+im_audit -object_id $invoice_id -action pre_update
 
 # Update the invoice itself
 db_dml update_invoice "
@@ -219,6 +226,9 @@ set
 where
 	cost_id = :invoice_id
 "
+
+# Audit the update
+im_audit -object_id $invoice_id -action update
 
 if {$canned_note_enabled_p} {
 
@@ -291,6 +301,10 @@ foreach nr $item_list {
 	)"
 
         db_dml insert_invoice_items $insert_invoice_items_sql
+
+	# Don't audit the update/creation of invoice items!
+	# That would be too much, and we re-create them, so
+	# audit doesn't make much sense...
     }
 }
 

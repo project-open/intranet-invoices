@@ -382,17 +382,6 @@ if {[string equal $invoice_mode "new"]} {
     set target_language_id ""
     db_foreach invoice_item "" {
 
-	# insert intermediate headers for every project
-#	if {$old_project_id != $project_id} {
-#	    append task_sum_html "
-#		<tr><td class=rowtitle colspan=$colspan>
-#	          <A href=/intranet/projects/view?group_id=$project_id>$project_short_name</A>:
-#	          $project_name
-#	        </td></tr>\n"
-#	
-#	    set old_project_id $project_id
-#	}
-
 	append task_sum_html "
 	<tr $bgcolor([expr $ctr % 2])> 
           <td>
@@ -452,7 +441,7 @@ for {set i 0} {$i < 3} {incr i} {
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value=''>
-"
+    "
 
     incr ctr
 }
