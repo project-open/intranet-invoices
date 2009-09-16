@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.1" locale="es_ES" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="es_ES" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Añadir un pago</msg>
   <msg key="Add_a_Project">Añadir un proyecto</msg>
@@ -22,7 +22,7 @@
   <msg key="cost_type_date">Fecha de %cost_type%:</msg>
   <msg key="cost_type_due_date">Fecha de vencimiento de %cost_type%:</msg>
   <msg key="cost_type_nr">No. de %cost_type%:</msg>
-  <msg key="cost_type_status">Status de %cost_type%</msg>
+  <msg key="cost_type_status">Estatus de %cost_type%</msg>
   <msg key="cost_type_template">Plantilla de %cost_type%:</msg>
   <msg key="cost_type_type">Tipo de %cost_type%</msg>
   <msg key="cost_type_type_1">Tipo de %cost_type%:</msg>
@@ -79,7 +79,7 @@
   <msg key="lt_system_name_New_cost_">%system_name%: Nuevo %cost_type%</msg>
   <msg key="lt_The_company_company_n">La empresa '%company_name%' no tiene definida ninguna persona de contacto en Contabilidad a quien poder enviar este %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">Actualmente no existen facturas que coincidan con los criterios seleccionados.</msg>
-  <msg key="lt_This_invoice_is_past_">Esta factura será morosa si queda sin pagar después de %calculated_due_date_pretty%.</msg>
+  <msg key="lt_This_invoice_is_past_">Esta factura estará pendiente de pago después de %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_have_insufficient">Carece de privilegios suficientes para ver esta página.</msg>
   <msg key="lt_You_have_insufficient_1">Carece de privilegios suficientes para ver esta página.</msg>
@@ -87,7 +87,7 @@
   <msg key="New_Bank_Holiday">Nuevo día festivo</msg>
   <msg key="New_Company_Invoice_from_Quote">Nueva factura a empresa basada en presupuesto</msg>
   <msg key="New_Company_Invoice_from_scratch">Nueva factura a empresa desde cero</msg>
-  <msg key="New_cost_type">Nuevo %cost_type%</msg>
+  <msg key="New_cost_type">Añadir %cost_type%</msg>
   <msg key="New_Customer_Invoice_from_Quote">Nueva factura a cliente a partir de presupuesto</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nueva factura a cliente desde cero</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Facturar un parte de trabajo</msg>
@@ -129,7 +129,7 @@
   <msg key="Provider">Proveedor</msg>
   <msg key="Provider_1">Proveedor:</msg>
   <msg key="Providers">Proveedores</msg>
-  <msg key="Qty">Cdad.</msg>
+  <msg key="Qty">Cant.</msg>
   <msg key="Rate">Tarifa</msg>
   <msg key="Recipient">Destinatario</msg>
   <msg key="Related_Payments">Pagos relacionados</msg>

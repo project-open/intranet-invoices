@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.1" locale="nl_NL" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="nl_NL" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Voeg betaling toe</msg>
   <msg key="Add_a_Project">Voeg Project toe</msg>
@@ -72,11 +72,14 @@
   <msg key="lt_ltaccounting_contact_">&amp;lt;%accounting_contact_email%&amp;gt;</msg>
   <msg key="lt_ltcurrent_user_emailg">&amp;lt;%current_user_email%&amp;gt;</msg>
   <msg key="lt_New_Company_Documents">Nieuwe bedrijfsdocumenten</msg>
+  <msg key="lt_No_Accounting_Contact">Geen financieel contactpersoon gedefinieerd</msg>
   <msg key="lt_payment_days_days_dat">%payment_days% dagen na factuurdatum</msg>
   <msg key="lt_Please_contact_your_s">Neem contact op met uw systeembeheer als u denkt dat dit een fout is.</msg>
+  <msg key="lt_Please_visit_the_link">Ga naar %link_to_page% en voeg een financieel contactpersoon toe.</msg>
   <msg key="lt_Send_as_email_to_prov">Verstuur een email naar %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Verstuur %cost_type% via email</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Nieuw %cost_type%</msg>
+  <msg key="lt_The_company_company_n">Voor het bedrijf '%company_name%' is geen financieel contactpersoon gedefinieerd waar deze %cost_type% naar toe kunnen verzenden.</msg>
   <msg key="lt_There_are_currently_n">Er zijn geen facturen die overeenkomen met de selectie criteria</msg>
   <msg key="lt_This_invoice_is_past_">Betalen voor %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">U heeft onvoldoende rechten om deze pagina te zien.</msg>
@@ -91,19 +94,19 @@
   <msg key="New_Customer_Invoice_from_Quote">Nieuwe klant factuur van offerte</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nieuwe klant factuur</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nieuwe klant factuur van uren</msg>
-  <msg key="New_Customer_Invoice_from_Translation_Tasks">Nieuwe klant factuur van vertaal taken</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">Nieuwe klant factuur van vertaaltaken</msg>
   <msg key="New_Delivery_Note_from_Quote">Nieuwe afleverbon van offerte</msg>
   <msg key="New_Delivery_Note_from_scratch">Nieuwe afleverbon</msg>
   <msg key="New_Personal_Absence">Nieuwe persoonlijke afwezigheid</msg>
-  <msg key="New_Provider_Bill_from_Purchase_Order">Nieuwe rekening van leverancier van aankoop order</msg>
+  <msg key="New_Provider_Bill_from_Purchase_Order">Nieuwe rekening van leverancier van inkooporder</msg>
   <msg key="New_Provider_Bill_from_scratch">Nieuwe rekening van leverancier</msg>
-  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nieuwe leverancier factuur van vertaal taken</msg>
-  <msg key="New_Purchase_Order_from_scratch">Nieuwe aankooporder</msg>
-  <msg key="New_Purchase_Order_from_Translation_Tasks">Nieuwe inkoop order van vertaal taken</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nieuwe leverancier factuur van vertaaltaken</msg>
+  <msg key="New_Purchase_Order_from_scratch">Nieuwe inkooporder</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Nieuwe inkooporder van vertaaltaken</msg>
   <msg key="New_Quote_from_Quote">Nieuwe Offerte van offerte</msg>
   <msg key="New_Quote_from_scratch">Nieuwe Offerte</msg>
-  <msg key="New_Quote_from_Timesheet_Tasks">Nieuwe Offerte van gemaakte uren</msg>
-  <msg key="New_Quote_from_Translation_Tasks">Nieuwe offerte van vertaal taken</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Nieuwe offerte van tijdlijst taken</msg>
+  <msg key="New_Quote_from_Translation_Tasks">Nieuwe offerte van vertaaltaken</msg>
   <msg key="New_Sick_Leave">Nieuwe afwezigheid door ziekte</msg>
   <msg key="New_Translation_Customer_Invoice">Nieuwe klantfactuur voor vertaling</msg>
   <msg key="New_Translation_Invoice">Nieuwe factuur voor vertaling</msg>
@@ -125,7 +128,7 @@
   <msg key="Payment_Method">Betaalmethode</msg>
   <msg key="Payment_Method_1">Betaalmethode:</msg>
   <msg key="Payment_Terms">Betaal condities:</msg>
-  <msg key="Payment_terms">Betaal voorwaarden</msg>
+  <msg key="Payment_terms">Betalingsvoorwaarden</msg>
   <msg key="Phone">Telefoon</msg>
   <msg key="Preview">Voorbeeld</msg>
   <msg key="Previous_Page">Vorige pagina</msg>

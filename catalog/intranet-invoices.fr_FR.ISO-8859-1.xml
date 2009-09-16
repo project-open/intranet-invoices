@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.1" locale="fr_FR" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="fr_FR" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Ajouter un Réglement</msg>
   <msg key="Add_a_Project">Ajouter un Projet</msg>
@@ -84,6 +84,7 @@
   <msg key="lt_You_have_insufficient">Vos privilèges sont insuffisants pour accéder à cette page</msg>
   <msg key="lt_You_have_insufficient_1">Vos privilèges sont insuffisants pour visualiser cette page</msg>
   <msg key="lt_You_need_to_specify_a">Vous devez identifier la facture</msg>
+  <msg key="New_Bank_Holiday">Nouveau jour férié</msg>
   <msg key="New_Company_Invoice_from_Quote">Nouvelle Facture à partir d'un Devis</msg>
   <msg key="New_Company_Invoice_from_scratch">Nouvelle Facture à créer entièrement</msg>
   <msg key="New_cost_type">Nouveau %cost_type% </msg>
@@ -91,17 +92,27 @@
   <msg key="New_Customer_Invoice_from_Quote">Nouvelle Facture Client selon Devis</msg>
   <msg key="New_Customer_Invoice_from_scratch">Nouvelle Facture Client</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nouvelle Facture Client selon heures consommées</msg>
-  <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">Nouvelle facture client à partir des têches de traduction</msg>
   <msg key="New_Delivery_Note_from_Quote">Nouveau Bon de livraison selon Devis</msg>
   <msg key="New_Delivery_Note_from_scratch">Nouveau Bon de livraison</msg>
+  <msg key="New_Personal_Absence">Nouvelle absence personnelle</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Nouvelle Facture Fournisseur selon Bon de Commande</msg>
   <msg key="New_Provider_Bill_from_scratch">Nouvelle Facture Fournisseur</msg>
-  <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
+  <msg key="New_Provider_Invoice_from_Translation_Tasks">Nouvelle facture fournisseur à partir de tâches de traduction</msg>
   <msg key="New_Purchase_Order_from_scratch">Nouveau Bon de Commande</msg>
+  <msg key="New_Purchase_Order_from_Translation_Tasks">Nouveau bon de commande à partir des tâches de traduction</msg>
   <msg key="New_Quote_from_Quote">Nouveau Devis selon Devis existant</msg>
   <msg key="New_Quote_from_scratch">Nouveau Devis</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">Nouveau Devis selon heures consommées</msg>
   <msg key="New_Quote_from_Translation_Tasks">Nouveau devis pour une traduction</msg>
+  <msg key="New_Sick_Leave">Nouvelle absence maladie</msg>
+  <msg key="New_Translation_Customer_Invoice">Nouvelle facture client traduction</msg>
+  <msg key="New_Translation_Invoice">Nouvelle facture traduction</msg>
+  <msg key="New_Translation_Provider_Invoice">Nouvelle facture fournisseur traduction</msg>
+  <msg key="New_Translation_Purchase_Order">Nouveau bon de commande traduction</msg>
+  <msg key="New_Translation_Quote">Nouveau devis traduction</msg>
+  <msg key="New_Travel_Absence">Nouvelle absence pour voyage</msg>
+  <msg key="New_Vacation_Absence">Nouvelle absence pour congé</msg>
   <msg key="Next_Page">Page suivante</msg>
   <msg key="No_command_specified">Aucune commande spécifiée</msg>
   <msg key="No_objects_found">Aucun objet trouvé</msg>
@@ -110,7 +121,7 @@
   <msg key="Note">V/Référence :</msg>
   <msg key="Notify_user">Informer l'utilisateur</msg>
   <msg key="One_cost_type">%cost_type%</msg>
-  <msg key="Our_Ref">Référence</msg>
+  <msg key="Our_Ref">Notre référence</msg>
   <msg key="Paid">Payé</msg>
   <msg key="Payment_Method">Mode de règlement</msg>
   <msg key="Payment_Method_1">Mode de règlement:</msg>
@@ -127,19 +138,26 @@
   <msg key="Recipient">Destinataire</msg>
   <msg key="Related_Payments">Paiements associés</msg>
   <msg key="Related_Projects">Projets associés</msg>
+  <msg key="S-Line">S-Ligne</msg>
   <msg key="Save">Enregistrer</msg>
+  <msg key="Sel">Sel</msg>
   <msg key="Select">Sélectionner</msg>
   <msg key="Select_Customer">Sélectionner un Client</msg>
+  <msg key="Select_documents">Sélectionner des documents</msg>
   <msg key="Select_Project">Sélectionner un Projet</msg>
   <msg key="Send_invoice_as_HTML_attachment">Envoyer facture comme fichier HTML</msg>
   <msg key="Send_invoice_as_HTML_link">Envoyer facture comme lien HTML</msg>
+  <msg key="Send_invoice_as_link">Envoyer facture sous forme de lien</msg>
   <msg key="Status">Statut</msg>
   <msg key="Submit">Soumettre</msg>
   <msg key="Subtotal">TOTAL H.T.</msg>
   <msg key="TAX">TAXE</msg>
   <msg key="TAXnbsp">TAXE : &amp;amp;nbsp;</msg>
+  <msg key="The_indicated_prices_dont_include_VAT">Les prix indiqués s'entendent hors TVA.</msg>
   <msg key="Timesheet_Customers_and_Projects">Temps passé, utilisateurs et Projets</msg>
+  <msg key="Timesheet_Productivity">Feuille de productivité</msg>
   <msg key="To">Pour:</msg>
+  <msg key="Total">Total</msg>
   <msg key="Total_Due">Total T.T.C.</msg>
   <msg key="Type">Type</msg>
   <msg key="Unit">Unité</msg>
@@ -148,5 +166,6 @@
   <msg key="VAT">TVA</msg>
   <msg key="VATnbsp">TVA : &amp;amp;nbsp;</msg>
   <msg key="Your_Reference">Votre Référence</msg>
+  <msg key="Yr_Job__PO_No">PO No.</msg>
   <msg key="Zip">Code postal</msg>
 </message_catalog>
