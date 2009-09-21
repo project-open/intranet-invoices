@@ -43,7 +43,7 @@
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
   <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
-  <msg key="Error_Document_Nr_exists">Project Nr. not available anymore, please note and verify newly assigned number</msg>
+  <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
   <msg key="Export_Company_Cube">Export Companies Cube</msg>
   <msg key="Export_Customer_Invoice_Cube">Export Customer Invoice Cube</msg>

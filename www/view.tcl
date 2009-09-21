@@ -1010,7 +1010,7 @@ if {$cost_type_id == [im_cost_type_po]} {
 # ---------------------------------------------------------------------
 
 if { "" != $err_mess } {
-    set err_mess [lang::message::lookup "" $err_mess "Project Nr. not available anymore, please note and verify newly assigned number"]
+    set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
 }
 
 # ---------------------------------------------------------------------
