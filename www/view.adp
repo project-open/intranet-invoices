@@ -3,9 +3,12 @@
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;noquote@</property>
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;font-weight:bold;"><%= $err_mess %></span>
+
 <table cellpadding=1 cellspacing=1 border=0>
 <tr valign=top>
   <td>
+
 	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
   </td>
   <td>
