@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="en_US" charset="ISO-8859-1">
-
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
   <msg key="Add_a_user">Add a user</msg>
@@ -40,16 +39,18 @@
   <msg key="Document_Type">Document Type:</msg>
   <msg key="Due_Date">Due Date</msg>
   <msg key="Edit">Edit</msg>
-  <msg key="Edit_cost_type">Edit %cost_type%</msg>
+  <msg key="Edit_cost_type">Save %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
   <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
+  <msg key="Error_Project_Nr_exists">Project Nr. not available anymore, please note and verify newly assigned number</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
   <msg key="Export_Company_Cube">Export Companies Cube</msg>
   <msg key="Export_Customer_Invoice_Cube">Export Customer Invoice Cube</msg>
   <msg key="Export_Customer_Invoices_CSV">Export Customer Invoices CSV</msg>
   <msg key="Export_Invoices_CSV">Export Invoices CSV</msg>
   <msg key="Export_Project_Cube">Export Projects Cube</msg>
+  <msg key="Export_Projects_CSV">Export Projects CSV</msg>
   <msg key="Export_Provider_Invoice_Cube">Export Provider Invoice Cube</msg>
   <msg key="Export_Provider_Invoices_CSV">Export Provider Invoices CSV</msg>
   <msg key="Fax">Fax</msg>
@@ -57,21 +58,17 @@
   <msg key="Finance">Finance</msg>
   <msg key="Financial_Documents">Financial Documents</msg>
   <msg key="From">From:</msg>
+  <msg key="Generate_Provider_Bill_from_Purchase_Order">Generate Provider Bill from Purchase Order</msg>
   <msg key="Go">Go</msg>
   <msg key="Hour">Hour</msg>
+  <msg key="InterCo_Quote_New">New InterCo Quote</msg>
   <msg key="intranet-invoices.Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Invoice_Address">Invoice Address</msg>
   <msg key="Line">Line</msg>
   <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
 
-A new %cost_type% has been created for you at:
-%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
-
-The new document is related to the project(s):
-%select_projects;noquote%
-Please visit the link above and print out the document
-for your personal reference.
+Please find attached to this email a new %cost_type%. For any type of question please get back to me by email. 
 
 Best regards,
 %current_user_name%</msg>
@@ -107,9 +104,13 @@ Best regards,
   <msg key="New_Customer_Invoice_from_Translation_Tasks">New Customer Invoice from Translation Tasks</msg>
   <msg key="New_Delivery_Note_from_Quote">New Delivery Note from Quote</msg>
   <msg key="New_Delivery_Note_from_scratch">New Delivery Note from Scratch</msg>
+  <msg key="New_Delivery_Note_from_Translation_Tasks">New Delivery Note from Translation Tasks</msg>
+  <msg key="New_InterCo_Invoice_from_Translation_Tasks">New InterCo Invoice from Translation Tasks</msg>
+  <msg key="New_InterCo_Quote_from_Translation_Tasks">New InterCo Quote from Translation Tasks</msg>
   <msg key="New_Personal_Absence">New Personal Absence</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">New Provider Bill from Purchase Order</msg>
   <msg key="New_Provider_Bill_from_scratch">New Provider Bill from Scratch</msg>
+  <msg key="New_Provider_Bill_from_Translation_Tasks">New Provider Bill from Translation Tasks</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">New ProviderInvoice from Translation Tasks</msg>
   <msg key="New_Purchase_Order_from_scratch">New Purchase Order from Scratch</msg>
   <msg key="New_Purchase_Order_from_Translation_Tasks">New Purchase Order from Translation Tasks</msg>
@@ -160,6 +161,8 @@ Best regards,
   <msg key="Select_Customer">Select a Customer</msg>
   <msg key="Select_documents">Select Documents</msg>
   <msg key="Select_Project">Project Select</msg>
+  <msg key="Send_document_as_HTML_attachment">Send document as HTML attachment</msg>
+  <msg key="Send_document_as_HTML_link">Send document as HTML link</msg>
   <msg key="Send_invoice_as_HTML_attachment">Send invoice as HTML attachment</msg>
   <msg key="Send_invoice_as_HTML_link">Send invoice as HTML link</msg>
   <msg key="Send_invoice_as_link">Send invoice as link</msg>
