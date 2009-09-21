@@ -996,7 +996,6 @@ if {[llength $related_projects] != 1} {
                         $bind_vars "" "pagedesriptionbar" $menu_label]
 }
 
-<<<<<<< view.tcl
 # ---------------------------------------------------------------------
 # correct problem created by -r 1.33 view.adp 
 # ---------------------------------------------------------------------
