@@ -30,6 +30,7 @@ ad_page_contract {
     { return_url "" }
     { send_to_user_as ""}
     { output_format "html" }
+    { err_mess "" }
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -139,6 +140,7 @@ if {$cost_type_id == [im_cost_type_po]} {
     set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Provider_Bil]"
 }
 
+# ad_return_complaint 1 $invoice_or_quote_p
 
 if {$invoice_or_quote_p} {
     # A Customer document
@@ -302,6 +304,9 @@ if { ![db_0or1row invoice_info_query $query] } {
     }
     return
 }
+
+
+# ad_return_complaint 1 $customer_id
 
 
 # ---------------------------------------------------------------
@@ -485,7 +490,9 @@ set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::looku
 #
 # ---------------------------------------------------------------
 
-set comp_id "$company_id"
+# ad_return_complaint 1 $company_id
+
+set comp_id $company_id
 set query "
 select
         pm_cat.category as invoice_payment_method,
@@ -989,6 +996,23 @@ if {[llength $related_projects] != 1} {
                         $bind_vars "" "pagedesriptionbar" $menu_label]
 }
 
+<<<<<<< view.tcl
+# ---------------------------------------------------------------------
+# correct problem created by -r 1.33 view.adp 
+# ---------------------------------------------------------------------
+
+if {$cost_type_id == [im_cost_type_po]} {
+   set customer_id $comp_id
+}
+
+# ---------------------------------------------------------------------
+# ERR mess from intranet-trans-invoices
+# ---------------------------------------------------------------------
+
+if { "" != $err_mess } {
+    set err_mess [lang::message::lookup "" $err_mess "Project Nr. not available anymore, please note and verify newly assigned number"]
+}
+
 # ---------------------------------------------------------------------
 # correct problem created by -r 1.33 view.adp
 # ---------------------------------------------------------------------
@@ -996,3 +1020,4 @@ if {[llength $related_projects] != 1} {
 if {$cost_type_id == [im_cost_type_po]} {
    set customer_id $comp_id
 }
+
