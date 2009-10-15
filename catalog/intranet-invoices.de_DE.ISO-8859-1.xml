@@ -45,9 +45,11 @@
   <msg key="Email">E-Mail</msg>
   <msg key="Error_multiple_currencies">mehrere Währungsfehler</msg>
   <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
+  <msg key="Export_Company_Cube">Unternehmenscube exportieren</msg>
   <msg key="Export_Customer_Invoice_Cube">Exportiere Debitorenrechnung</msg>
   <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen-CSV exportieren</msg>
   <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
+  <msg key="Export_Project_Cube">Projektcube exportieren</msg>
   <msg key="Export_Provider_Invoice_Cube">Exportiere Anbieterrechnung</msg>
   <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen als CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
@@ -149,6 +151,7 @@ Mit freundlichen Grüßen
   <msg key="Recipient">Empfänger</msg>
   <msg key="Related_Payments">Verwandte Zahlungen</msg>
   <msg key="Related_Projects">Verwandte Projekte</msg>
+  <msg key="Resource_Planning_Report">Bericht Ressourcenplanung</msg>
   <msg key="S-Line">Quell-Zeile</msg>
   <msg key="Save">Speichern</msg>
   <msg key="Sel">Ausw.</msg>
@@ -159,6 +162,7 @@ Mit freundlichen Grüßen
   <msg key="Send_invoice_as_HTML_attachment">Sende Rechnung als HTML Anhang</msg>
   <msg key="Send_invoice_as_HTML_link">Sende Rechnung als HTML Link</msg>
   <msg key="Send_invoice_as_link">Sende Rechnung als Link</msg>
+  <msg key="Start_Confirmation_Workflow">Bestätigungsworkflow starten</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Ausführen</msg>
   <msg key="Subtotal">Zwischensumme</msg>
