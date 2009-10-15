@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="pt_PT" charset="ISO-8859-1">
+
+  <msg key="Customers">Clientes</msg>
+  <msg key="New_Customer_Invoice_from_scratch">Nova Factura de Cliente (em branco)</msg>
+  <msg key="New_Provider_Bill_from_scratch">Nova Fatura de Fornecedor (em branco)</msg>
+  <msg key="Providers">Fornecedores</msg>
+</message_catalog>
