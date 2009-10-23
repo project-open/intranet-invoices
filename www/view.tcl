@@ -945,7 +945,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	
 	if {[llength $errlist] > 0} {
 	    # Delete the temp file
-	    im_html2pdf_read_file -delete_file_p 1
+	    im_html2pdf_read_file -delete_file_p 1 $tmp_pdf_file
 	    
 	    # Return the error
 	    ad_return_complaint 1 $errlist
