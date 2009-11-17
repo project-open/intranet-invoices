@@ -200,7 +200,7 @@ set cost_center_select [im_cost_center_select -include_empty 1 -department_only_
 
 # New One: Just create a new invoice nr
 # for the target FinDoc type.
-set invoice_nr [im_next_invoice_nr -invoice_type_id $target_cost_type_id]
+set invoice_nr [im_next_invoice_nr -cost_type_id $target_cost_type_id]
 
 set new_invoice_id [im_new_object_id]
 

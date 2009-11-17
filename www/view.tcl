@@ -33,6 +33,10 @@ ad_page_contract {
     { err_mess "" }
 }
 
+# ---------------------------------------------------------------
+# Defaults & Security
+# ---------------------------------------------------------------
+
 set user_id [ad_maybe_redirect_for_registration]
 
 # Get the default locale for this current user
@@ -50,23 +54,28 @@ if {0 == $invoice_id} {
     return
 }
 
-
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
 set bgcolor(0) "class=invoiceroweven"
 set bgcolor(1) "class=invoicerowodd"
 
+set required_field "<font color=red size=+1><B>*</B></font>"
+
+# ---------------------------------------------------------------
+# Set default values from parameters
+# ---------------------------------------------------------------
+
+# Number formats
 set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
 set tax_format $cur_format
 
-set required_field "<font color=red size=+1><B>*</B></font>"
 
-# rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
+# Rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
-
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
+
 
 # Default Currency
 set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
@@ -74,11 +83,21 @@ set invoice_currency [db_string cur "select currency from im_costs where cost_id
 set rf 100
 catch {set rf [db_string rf "select rounding_factor from currency_codes where iso = :invoice_currency" -default 100]}
 
+# Invoice Variants showing or not certain fields.
+# Please see the parameters for description.
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
-
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
+set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
+set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
+set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+
+# Show or not "our" and the "company" project nrs.
+set company_project_nr_exists [im_column_exists im_projects company_project_nr]
+set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
+
 
 # Which report to show for timesheet invoices as the detailed list of hours
 set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
@@ -89,27 +108,19 @@ set pdf_enabled_p [llength [info commands im_html2pdf]]
 # Unified Business Language?
 set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 
-set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
-set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
 
-set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
-
-set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
-
+# ---------------------------------------------------------------
+# Audit
+# ---------------------------------------------------------------
 
 # Check if the invoices was changed outside of ]po[...
+# Normally, the current values of the invoice should match
+# exactly the last registered audit version...
 im_audit -object_id $invoice_id -action pre_update
 
 
 # ---------------------------------------------------------------
-# Logic to show or not "our" and the "company" project nrs.
-# ---------------------------------------------------------------
-
-set company_project_nr_exists [im_column_exists im_projects company_project_nr]
-set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
-
-# ---------------------------------------------------------------
-# Determine whether it's an Invoice or a Bill
+# Determine if it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
@@ -123,7 +134,6 @@ set delnote_cost_type_id [im_cost_type_delivery_note]
 set po_cost_type_id [im_cost_type_po]
 set invoice_cost_type_id [im_cost_type_invoice]
 set bill_cost_type_id [im_cost_type_bill]
-
 
 # Invoices and Bills have a "Payment Terms" field.
 set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
@@ -140,8 +150,6 @@ if {$cost_type_id == [im_cost_type_po]} {
     set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Provider_Bil]"
 }
 
-# ad_return_complaint 1 $invoice_or_quote_p
-
 if {$invoice_or_quote_p} {
     # A Customer document
     set customer_or_provider_join "and ci.customer_id = c.company_id"
@@ -155,7 +163,8 @@ if {$invoice_or_quote_p} {
 if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
 
 
-# Check if this is a timesheet invoice and enable timesheet report
+# Check if this is a timesheet invoice and enable the timesheet report link.
+# This links allows the user to extract a detailed list of included hours.
 set cost_object_type [db_string cost_object_type "select object_type from acs_objects where object_id = :invoice_id" -default ""]
 set timesheet_report_enabled_p 0
 if {"im_timesheet_invoice" == $cost_object_type} {
@@ -166,9 +175,9 @@ if {"im_timesheet_invoice" == $cost_object_type} {
 
 
 # ---------------------------------------------------------------
-# Find out if the invoice is associated to a _single_ project.
-# We will need this project to access the "customer_project_nr"
-# for the invoice
+# Find out if the invoice is associated with a _single_ project
+# or with more then one project. Only in the case of exactly one
+# project we can access the "customer_project_nr" for the invoice.
 # ---------------------------------------------------------------
 
 set related_projects_sql "
@@ -259,43 +268,41 @@ db_1row internal_company_info "
 		c.company_path = 'internal'
 "
 
-# ad_return_complaint 1 $internal_postal_code
-
 
 # ---------------------------------------------------------------
 # Get everything about the invoice
 # ---------------------------------------------------------------
 
 set query "
-select
-	c.*,
-	i.*,
-	ci.effective_date::date + ci.payment_days AS due_date,
-	ci.effective_date AS invoice_date,
-	ci.cost_status_id AS invoice_status_id,
-	ci.cost_type_id AS invoice_type_id,
-	ci.template_id AS invoice_template_id,
-	ci.*,
-	ci.note as cost_note,
-	ci.project_id as cost_project_id,
-	to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
-	im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
-	im_category_from_id(ci.cost_status_id) as cost_status,
-	im_category_from_id(ci.cost_type_id) as cost_type, 
-	im_category_from_id(ci.template_id) as template
-from
-	im_invoices i,
-	im_costs ci,
-        im_companies c
-where 
-	i.invoice_id=:invoice_id
-	and ci.cost_id = i.invoice_id
-	$customer_or_provider_join
+	select
+		c.*,
+		i.*,
+		ci.effective_date::date + ci.payment_days AS due_date,
+		ci.effective_date AS invoice_date,
+		ci.cost_status_id AS invoice_status_id,
+		ci.cost_type_id AS invoice_type_id,
+		ci.template_id AS invoice_template_id,
+		ci.*,
+		ci.note as cost_note,
+		ci.project_id as cost_project_id,
+		to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
+		im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
+		im_category_from_id(ci.cost_status_id) as cost_status,
+		im_category_from_id(ci.cost_type_id) as cost_type, 
+		im_category_from_id(ci.template_id) as template
+	from
+		im_invoices i,
+		im_costs ci,
+	        im_companies c
+	where 
+		i.invoice_id=:invoice_id
+		and ci.cost_id = i.invoice_id
+		$customer_or_provider_join
 "
+
 if { ![db_0or1row invoice_info_query $query] } {
 
     # Check if there is a cost item with this ID and forward
-
     set cost_exists_p [db_string cost_ex "select count(*) from im_costs where cost_id = :invoice_id"]
     if {$cost_exists_p} { 
 	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}] 
@@ -304,9 +311,6 @@ if { ![db_0or1row invoice_info_query $query] } {
     }
     return
 }
-
-
-# ad_return_complaint 1 $customer_id
 
 
 # ---------------------------------------------------------------
@@ -326,10 +330,12 @@ set query "
 catch { db_1row timesheet_invoice_info_query $query } err_msg
 
 
+# ---------------------------------------------------------------
+# Get everything about our "internal" Office -
+# identified as the "main_office_id" of the Internal company.
+# ---------------------------------------------------------------
 
-# ---------------------------------------------------------------
-# 
-# ---------------------------------------------------------------
+# ToDo: Isn't this included in the Internal company query above?
 
 set cost_type_mapped [string map {" " "_"} $cost_type]
 set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
@@ -346,7 +352,9 @@ db_1row office_info_query "
 "
 
 
-
+# ---------------------------------------------------------------
+# Get everything about the contact person.
+# ---------------------------------------------------------------
 
 # Use the "company_contact_id" of the invoices as the main contact.
 # Fallback to the accounting_contact_id and primary_contact_id
@@ -365,6 +373,12 @@ db_1row accounting_contact_info "
 	im_email_from_user_id(:company_contact_id) as company_contact_email
 "
 
+# Fields normally available from intranet-contacts.
+# Set these fields if contacts is not installed:
+if {![info exists salutation]} { set salutation "" }
+if {![info exists user_position]} { set user_position "" }
+
+# Get contact person's contact information
 set contact_person_work_phone ""
 set contact_person_work_fax ""
 set contact_person_email ""
@@ -378,8 +392,6 @@ db_0or1row contact_info "
 	where
 		user_id = :company_contact_id
 "
-
-
 
 # Set the email and name of the current user as internal contact
 db_1row accounting_contact_info "
@@ -403,24 +415,26 @@ db_1row accounting_contact_info "
 	u.user_id = :user_id
 "
 
+
 # ---------------------------------------------------------------
 # Determine the language of the template from the template name
 # ---------------------------------------------------------------
 
+set template_type ""
 if {0 != $render_template_id} {
 
-	# OLD convention, "invoice-english.adp"
-	if {[regexp {english} $template]} { set locale en }
-	if {[regexp {spanish} $template]} { set locale es }
-	if {[regexp {german} $template]} { set locale de }
-	if {[regexp {french} $template]} { set locale fr }
-
-	# New convention, "invoice.en_US.adp"
-	if {[regexp {(.*)\.([_a-zA-Z]*)\.adp} $template match body loc]} {
-	    set locale $loc
-	}
+    # Maintain compatibility with old convention "invoice-english.adp"
+    # ToDo: Remove this compatibility with V4.0
+    if {[regexp {english} $template]} { set locale en }
+    if {[regexp {spanish} $template]} { set locale es }
+    if {[regexp {german} $template]} { set locale de }
+    if {[regexp {french} $template]} { set locale fr }
+    
+    # New convention, "invoice.en_US.adp"
+    if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $template match body loc template_type]} {
+	set locale $loc
+    }
 }
-
 
 # Check if the given locale throws an error
 # Reset the locale to the default locale then
@@ -429,6 +443,105 @@ if {[catch {
 } errmsg]} {
     set locale $user_locale
 }
+
+
+# ---------------------------------------------------------------
+# OOoo ODT Function
+# Split the template into the outer template and the one for
+# formatting the invoice lines.
+# ---------------------------------------------------------------
+
+if {"odt" == $template_type} {
+
+    # Special ODT functionality: We need to parse the ODT template
+    # in order to extract the table row that needs to be formatted
+    # by the loop below.
+
+    # ------------------------------------------------
+    # Where is the template found on the disk?
+    set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
+    append invoice_template_path "/$template"
+
+    # ------------------------------------------------
+    # Create a temporary directory for our contents
+    set odt_tmp_path [ns_tmpnam]
+    ns_mkdir $odt_tmp_path
+    
+    # The document 
+    set odt_zip "${odt_tmp_path}.odt"
+    set odt_content "${odt_tmp_path}/content.xml"
+    set odt_styles "${odt_tmp_path}/styles.xml"
+    
+    # ------------------------------------------------
+    # Create a copy of the ODT
+    
+    # Create a copy of the template into the temporary dir
+    ns_cp $invoice_template_path $odt_zip
+    
+    # Unzip the odt into the temorary directory
+    exec unzip -d $odt_tmp_path $odt_zip 
+
+    # ------------------------------------------------
+    # Read the content.xml file
+    set file [open $odt_content]
+    fconfigure $file -encoding "utf-8"
+    set odt_template_content [read $file]
+    close $file
+    
+    # ------------------------------------------------
+    # Search the <row> ...<cell>..</cell>.. </row> line
+    # representing the part of the template that needs to
+    # be repeated for every template.
+
+    # Get the list of all "tables" in the document
+    set odt_doc [dom parse $odt_template_content]
+    set root [$odt_doc documentElement]
+    set odt_table_nodes [$root selectNodes "//table:table"]
+
+    # Search for the table that contains "@item_name_pretty"
+    set odt_template_table_node ""
+    foreach table_node $odt_table_nodes {
+	set table_as_list [$table_node asList]
+	if {[regexp {item_units_pretty} $table_as_list match]} { set odt_template_table_node $table_node }
+    }
+
+    # Deal with the the situation that we didn't find the line
+    if {"" == $odt_template_table_node} {
+	ad_return_complaint 1 "
+		<b>Didn't find table including '@item_units_pretty'</b>:<br>
+		We have found a valid OOoo template at '$invoice_template_path'.
+		However, this template does not include a table with the value
+		above.
+	"
+	ad_script_abort
+    }
+
+    # Seach for the 2nd table:table-row tag
+    set odt_table_rows_nodes [$odt_template_table_node selectNodes "//table:table-row"]
+    set odt_template_row_node ""
+    set odt_template_row_count 0
+    foreach row_node $odt_table_rows_nodes {
+	set row_as_list [$row_node asList]
+	if {[regexp {item_units_pretty} $row_as_list match]} { set odt_template_row_node $row_node }
+	incr odt_template_row_count
+    }
+
+    if {"" == $odt_template_row_node} {
+	ad_return_complaint 1 "
+		<b>Didn't find row including '@item_units_pretty'</b>:<br>
+		We have found a valid OOoo template at '$invoice_template_path'.
+		However, this template does not include a row with the value
+		above.
+	"
+	ad_script_abort
+    }
+
+    # Convert the tDom tree into XML for rendering
+    set odt_row_template_xml [$odt_template_row_node asXML]
+    
+}
+
+
 
 # ---------------------------------------------------------------
 # Format Invoice date information according to locale
@@ -665,6 +778,7 @@ append invoice_item_html "
 set ctr 1
 set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr]
 
+set oo_table_xml ""
 db_foreach invoice_items {} {
 
     # $company_project_nr is normally related to each invoice item,
@@ -716,8 +830,25 @@ db_foreach invoice_items {} {
     append invoice_item_html "
           <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
 	</tr>"
+
+
+    # Insert a new XML table row into OpenOffice document
+    if {"odt" == $template_type} {
+
+	# Replace placeholders in the OpenOffice template row with values
+	eval [template::adp_compile -string $odt_row_template_xml]
+	set odt_row_xml $__adp_output
+
+	# Parse the new row and insert into OOoo document
+	set row_doc [dom parse $odt_row_xml]
+	set new_row [$row_doc documentElement]
+	$odt_template_table_node insertBefore $new_row $odt_template_row_node
+
+    }
+
     incr ctr
 }
+
 
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
@@ -891,13 +1022,10 @@ set item_html [concat $item_list_html $terms_html]
 # of this invoice
 if {0 != $render_template_id || "" != $send_to_user_as} {
 
-    # format using a template
-    set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
-    append invoice_template_path "/"
-    set invoice_template_body [db_string sel_invoice "select category from im_categories where category_id=:render_template_id" -default ""]
-    append invoice_template_path $invoice_template_body
+    # New template type: OpenOffice document
+    if {"odt" == $template_type} { set output_format "odt" }
 
-    if {"" == $invoice_template_body} {
+    if {"" == $template} {
 	ad_return_complaint "$cost_type Template not specified" "
 	<li>You haven't specified a template for your $cost_type."
 	return
@@ -913,7 +1041,6 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     # Render the page using the template
     # Always, as HTML is the input for the PDF converter
     set invoices_as_html [ns_adp_parse -file $invoice_template_path]
-
 
     if {$output_format == "html" } {
 
@@ -970,6 +1097,89 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	}
     }
 
+    # OpenOffice Output
+    if {$output_format == "odt"} {
+       
+	# ------------------------------------------------
+        # setup and constants
+	
+	if {$internal_path != "internal"} {
+	    set internal_tax_id "208 171 00202"
+	} else {
+	    set internal_tax_id "208 120 20138"
+	}
+
+	# ------------------------------------------------
+	# Delete the original template row, which is duplicate
+	$odt_template_table_node removeChild $odt_template_row_node
+
+	# ------------------------------------------------
+        # Process the content.xml file
+
+	set odt_template_content [$root asXML]
+
+	# Perform replacements
+        eval [template::adp_compile -string $odt_template_content]
+        set content $__adp_output
+
+	# Save the content to a file.
+	set file [open $odt_content w]
+	fconfigure $file -encoding "utf-8"
+	puts $file $content
+	flush $file
+	close $file
+
+
+	# ------------------------------------------------
+        # Process the styles.xml file
+
+        set file [open $odt_styles]
+	fconfigure $file -encoding "utf-8"
+        set style_content [read $file]
+        close $file
+
+        # Perform replacements
+        eval [template::adp_compile -string $style_content]
+        set style $__adp_output
+
+	# Save the content to a file.
+	set file [open $odt_styles w]
+	fconfigure $file -encoding "utf-8"
+	puts $file $style
+	flush $file
+	close $file
+
+	# ------------------------------------------------
+        # Replace the files inside the odt file by the processed files
+
+	# The zip -j command replaces the specified file in the zipfile 
+	# which happens to be the OpenOffice File. 
+	ns_log Notice "view.tcl: before zipping"
+	exec zip -j $odt_zip $odt_content
+	exec zip -j $odt_zip $odt_styles
+
+        db_release_unused_handles
+
+	# ------------------------------------------------
+        # Return the file
+	ns_log Notice "view.tcl: before returning file"
+        set outputheaders [ns_conn outputheaders]
+        ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
+        ns_returnfile 200 application/odt $odt_zip
+
+	# ------------------------------------------------
+        # Delete the temporary files
+
+	# delete other tmpfiles
+	# ns_unlink "${dir}/$document_filename"
+	# ns_unlink "${dir}/$content.xml"
+	# ns_unlink "${dir}/$style.xml"
+	# ns_unlink "${dir}/document.odf"
+	# ns_rmdir $dir
+	ad_script_abort
+	    
+    }
+
     ad_return_complaint 1 "Internal Error - No output format specified"
 
 } 
@@ -1010,13 +1220,5 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 if { "" != $err_mess } {
     set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
-}
-
-# ---------------------------------------------------------------------
-# correct problem created by -r 1.33 view.adp
-# ---------------------------------------------------------------------
-
-if {$cost_type_id == [im_cost_type_po]} {
-   set customer_id $comp_id
 }
 

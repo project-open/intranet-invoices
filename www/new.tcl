@@ -48,6 +48,18 @@ if {"" != $create_invoice_from_template} {
     ad_script_abort
 }
 
+
+# Do we need the cost_center_id for creating a new invoice?
+# This is necessary if the invoice_nr depends on the cost_center_id (profit center).
+set cost_center_required_p [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceRequiresCostCenterP" -default 0]
+set cost_center_required_p 1
+
+if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id == "" || $cost_center_id == 0)} {
+    ad_returnredirect [export_vars -base "new-cost-center-select" {cost_type_id customer_id provider_id project_id invoice_currency create_invoice_from_template return_url}]
+}
+
+
+
 # Check if we need to delete the invoice.
 # We get there because the "Delete" button in view.tcl can
 # only send to one target, which is this file...
@@ -213,7 +225,7 @@ if {$invoice_id} {
     set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     set invoice_id [im_new_object_id]
-    set invoice_nr [im_next_invoice_nr -invoice_type_id $cost_type_id]
+    set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id]
     set cost_status_id [im_cost_status_created]
     set effective_date $todays_date
     set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 

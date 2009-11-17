@@ -109,11 +109,12 @@ ad_proc -public im_invoice_rounding_factor_helper {
 # -----------------------------------------------------------
 
 ad_proc -public im_next_invoice_nr {
-    { -invoice_type_id 0}
+    { -cost_type_id 0}
+    { -cost_center_id 0}
 } {
     Returns the next free invoice number.
 
-    @param invoice_type_id Counter for type of financial document
+    @param cost_type_id Counter for type of financial document
            to be generated.
 
     Invoice_nr's look like: 2003_07_0123 with the first 4 digits being
@@ -146,12 +147,18 @@ ad_proc -public im_next_invoice_nr {
     # ("YYYY_MM")
     set date_format [parameter::get -package_id [im_package_invoices_id] -parameter "InvoiceNrDateFormat" -default "YYYY_MM"]
     if {"empty" == $date_format} { set date_format "" }
+
+    # Check for a custom project_nr generator
+    set invoice_nr_generator [parameter::get -package_id [im_package_invoices_id] -parameter "CustomInvoiceNrGenerator" -default ""]
+    if {"" != $invoice_nr_generator} {
+	return [eval $invoice_nr_generator -cost_type_id $cost_type_id -cost_center_id $cost_center_id -date_format $date_format]
+    }
     
     # ----------------------------------------------------
     # Set the prefix for financial document type
     set prefix ""
     if {$use_invoice_prefix_p} {
-	switch $invoice_type_id {
+	switch $cost_type_id {
 	    3700 { set prefix "I" }
 	    3702 { set prefix "Q" }
 	    3704 { set prefix "B" }
@@ -457,12 +464,14 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
     return $return_html
 }
 
+
 ad_proc im_invoice_payment_method_select { select_name { default "" } } {
     Returns an html select box named $select_name and defaulted to $default 
     with a list of all the partner statuses in the system
 } {
     return [im_category_select_plain "Intranet Invoice Payment Method" $select_name $default]
 }
+
 
 ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_status "" } } {
     
@@ -476,14 +485,14 @@ ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_
     set bind_vars [ns_set create]
 
     set sql "
-select
-	i.invoice_id,
-	i.invoice_nr
-from
-	im_invoices i
-where
-	1=1
-"
+	select
+		i.invoice_id,
+		i.invoice_nr
+	from
+		im_invoices i
+	where
+		1=1
+    "
 
     if { ![empty_string_p $status] } {
 	ns_set put $bind_vars status $status
@@ -586,119 +595,119 @@ ad_proc im_invoices_check_for_multi_project_invoices {} {
 
 
 
-
-
 # ---------------------------------------------------------------
-# Workflow
+# OpenOffice Integration
 # ---------------------------------------------------------------
 
-ad_proc -private im_invoice_po_workflow {} {
-    Create a workflow for invoices between the states
-    created, confirmed and filed.
+
+ad_proc im_invoice_oo_tdom_explore {
+    {-level 0}
+    -parent:required
 } {
-    set spec {
-        purchase-order {
-            pretty_name "Purchase Order"
-            package_key "intranet-invoices"
-            object_type "im_invoice"
-            callbacks { 
-		# leave these blank for now
-                # bug-tracker.FormatLogTitle 
-                # bug-tracker.BugNotificationInfo
-            }
-            roles {
-                provider {
-                    pretty_name "Provider"
-                    callbacks { 
-			workflow.CreationUser 
-			# leave these blank for now
-                        # workflow.Role_DefaultAssignees_CreationUser
-                    }
-                }
-                manager {
-                    pretty_name "Manager"
-                    callbacks { 
-			# leave these blank for now
-                        # workflow.Role_DefaultAssignees_CreationUser
-                    }
-                }
-            }
-            states {
-                open {
-                    pretty_name "Open"
-                    # hide_fields { resolution fixed_in_version }
-                }
-                confirmed {
-                    pretty_name "Confirmed"
-                }
-                closed {
-                    pretty_name "Closed"
-                }
-                deleted {
-                    pretty_name "Deleted"
-                }
-            }
-            actions {
-                create {
-                    pretty_name "Create"
-                    pretty_past_tense "Created"
-                    new_state "open"
-                    initial_action_p t
-                }
-                confirm {
-                    pretty_name "Confirm"
-                    pretty_past_tense "Confirmed"
-                    privileges { write }
-                    always_enabled_p t
-                    edit_fields { 
-			# not sure what to do here
-                        #component_id 
-                        #summary 
-                        #found_in_version
-                        #role_assignee
-                        #fix_for_version
-                        #resolution 
-                        #fixed_in_version 
-                    }
-                }
-                modify {
-                    pretty_name "Modify"
-                    pretty_past_tense "Modified"
-                    privileges { write }
-                    enabled_states { confirmed }
-                    modify_fields { 
-			# not sure what to do here
-                        #component_id 
-                        #summary 
-                        #found_in_version
-                        #role_assignee
-                        #fix_for_version
-                        #resolution 
-                        #fixed_in_version 
-                    }
-                    privileges { write }
-                    new_state "open"
-                }
-                close {
-                    pretty_name "Close"
-                    pretty_past_tense "Closed"
-                    # what is this doing?
-		        assigned_role "submitter"
-                    assigned_states { resolved }
-                    new_state "closed"
-                    privileges { write }
-                }
-            }
-        }
+    Returns a hierarchical representation of a tDom tree
+    representing the content of an OOoo document in this case.
+} {
+    set name [$parent nodeName]
+    set type [$parent nodeType]
+
+    set indent ""
+    for {set i 0} {$i < $level} {incr i} { append indent "    " }
+
+    set result "${indent}$name"
+    if {$type == "TEXT_NODE"} { return "$result=[$parent nodeValue]\n" }
+
+    if {$type != "ELEMENT_NODE"} { return "$result\n" }
+
+    # Create a key-value list of attributes behind the name of the tag
+    append result " ("
+    foreach attrib [$parent attributes] {
+	# Pull out the attributes identified by name:namespace.
+	set attrib_name [lindex $attrib 0]
+	set ns [lindex $attrib 1]
+#	set value [$parent getAttribute "$ns:$attrib_name"]
+	set value ""
+	append result "'$ns':'$attrib_name'='$value', "
     }
-    return workflow_id [workflow::fsm::new_from_spec -spec $spec]
+    append result ")\n"
+
+    # Recursively descend to child nodes
+    foreach child [$parent childNodes] { 
+	append result [im_invoice_oo_tdom_explore -parent $child -level [expr $level + 1]] 
+    }
+    return $result
 }
 
-ad_proc -public im_invoice_po_workflow_start {} {
-    Start a workflow for a specific purchase order
+
+
+
+ad_proc -public im_invoice_change_oo_content {
+    -path:required
+    -document_filename:required
+    -contents:required
 } {
-    set workflow_spec [im_invoice_po_workflow]
-    set workflow_id [workflow::fsm::new_from_spec -spec $workflow_spec]
-    return $workflow_id
+    Takes the provided contents and places them in the content.xml 
+    file of the odt file, effectivly changing the content of the file.
+
+    @param path Path to the file containing the content
+    @param document_filename The open-office file whose contents will be changed.
+    @param contents This is a list of key-values (to be used as an array) of filenames and contents
+                    to be replaced in the oo-file.
+    @return The path to the new file.
+} {
+    # Create a temporary directory
+    set dir [ns_tmpnam]
+    ns_mkdir $dir
+
+    array set content_array $contents
+    foreach filename [array names content_array] {
+	# Save the content to a file.
+	set file [open "${dir}/$filename" w]
+	fconfigure $file -encoding "utf-8"
+
+	set content $content_array($filename)
+	regsub -all -nocase "<br>" $content "<text:line-break/>" content
+        regsub -all -nocase "<p>" $content "<text:line-break/>" content
+        regsub -all -nocase "&nbsp;" $content " " content
+        regsub -all -nocase "</p>" $content "<text:line-break/>" content
+        regsub -all -nocase "a href=" $content "text:a xlink:type=\"simple\" xlink:href=" content
+        regsub -all -nocase "/a" $content "/text:a" content
+        regsub -all -nocase "<ul>" $content "<text:list text:style-name=\"L1\">" content
+        regsub -all -nocase "</ul>" $content "</text:list>" content
+	puts $file $content
+	flush $file
+	close $file
+    }
+
+    # copy the document
+    ns_cp "${path}/$document_filename" "${dir}/$document_filename"
+
+    # Replace old content in document with new content
+    # The zip command should replace the content.xml in the zipfile which
+    # happens to be the OpenOffice File. 
+    foreach filename [array names content_array] {
+	exec zip -j "${dir}/$document_filename" "${dir}/$filename"
+    }
+
+    # copy odt file
+    set new_file "[ns_tmpnam].odt"
+    ns_cp "${dir}/$document_filename" $new_file
+
+    # delete other tmpfiles
+    ns_unlink "${dir}/$document_filename"
+    foreach filename [array names content_array] {
+	ns_unlink "${dir}/$filename"
+    }
+    ns_rmdir $dir
+
+    return $new_file
 }
+
+
+
+# ---------------------------------------------------------------
+# Driver Function for Various Output formats
+# ---------------------------------------------------------------
+
+
+
 
