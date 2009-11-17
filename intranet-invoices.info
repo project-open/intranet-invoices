@@ -25,6 +25,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountFieldP"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeFieldP"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceTaxFieldP"  default="1" description="Should we enabled the 'Tax' field on financial documents? This field is used to represent additional taxes for example IRPF (Spain). You can disable the field for Germany and other countries."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleAmount"  default="align=right" description="Decoration for title of invoice table: "/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleDescription"  default="align=left" description="Decoration for title of invoice table: "/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleItemNr"  default="align=center" description="Decoration for title of invoice table: "/>

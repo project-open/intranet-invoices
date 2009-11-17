@@ -270,10 +270,15 @@ function ajaxFunction() {
                 <td>#intranet-invoices.VATnbsp#</td>
                 <td><input type=text name=vat value="@vat@" size=4> % &nbsp;</td>
               </tr>
+<if @tax_enabled_p@>
               <tr> 
                 <td>#intranet-invoices.TAXnbsp#</td>
                 <td><input type=text name=tax value="@tax@" size=4> % &nbsp;</td>
               </tr>
+</if>
+<else>
+              <input type=hidden name=tax value="@tax@">
+</else>
             </table>
           </td>
         </tr>

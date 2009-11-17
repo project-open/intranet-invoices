@@ -126,6 +126,10 @@ set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "Enab
 # Canned Notes is a field with multiple messages per invoice
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 
+# Should we show the "Tax" field?
+set tax_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
+
+
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
 # an invoice from scratch, invoicing all project elements.
