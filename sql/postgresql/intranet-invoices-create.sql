@@ -184,6 +184,9 @@ create table im_invoice_items (
 	item_status_id		integer
 				constraint im_invoices_items_item_status
 				references im_categories,
+	item_material_id	integer
+				constraint im_invoice_items_item_material_fk
+				references im_materials,
 				-- include in VAT calculation?
 	apply_vat_p		char(1) default('t')
 				constraint im_invoices_apply_vat_p
