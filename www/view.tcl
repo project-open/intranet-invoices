@@ -83,6 +83,9 @@ set invoice_currency [db_string cur "select currency from im_costs where cost_id
 set rf 100
 catch {set rf [db_string rf "select rounding_factor from currency_codes where iso = :invoice_currency" -default 100]}
 
+# Where is the template found on the disk?
+set invoice_template_base_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
+
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
 set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
@@ -444,12 +447,16 @@ if {[catch {
     set locale $user_locale
 }
 
+ns_log Notice "view.tcl: locale=$locale"
+ns_log Notice "view.tcl: template_type=$template_type"
+
 
 # ---------------------------------------------------------------
 # OOoo ODT Function
 # Split the template into the outer template and the one for
 # formatting the invoice lines.
 # ---------------------------------------------------------------
+
 
 if {"odt" == $template_type} {
 
@@ -458,13 +465,9 @@ if {"odt" == $template_type} {
     # by the loop below.
 
     # ------------------------------------------------
-    # Where is the template found on the disk?
-    set invoice_template_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
-    append invoice_template_path "/$template"
-
-    # ------------------------------------------------
     # Create a temporary directory for our contents
     set odt_tmp_path [ns_tmpnam]
+    ns_log Notice "view.tcl: odt_tmp_path=$odt_tmp_path"
     ns_mkdir $odt_tmp_path
     
     # The document 
@@ -475,6 +478,10 @@ if {"odt" == $template_type} {
     # ------------------------------------------------
     # Create a copy of the ODT
     
+    # Determine the location of the template
+    set invoice_template_path "$invoice_template_base_path/$template"
+    ns_log Notice "view.tcl: invoice_template_path='$invoice_template_path'"
+
     # Create a copy of the template into the temporary dir
     ns_cp $invoice_template_path $odt_zip
     
@@ -1031,6 +1038,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	return
     }
 
+    set invoice_template_path "$invoice_template_base_path/$template"
     if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
 	ad_return_complaint "Unknown $cost_type Template" "
 	<li>$cost_type template '$invoice_template_path' doesn't exist or is not readable
@@ -1048,6 +1056,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	if {"" != $send_to_user_as} {
 	    # Redirect to mail sending page:
 	    # Add the rendered invoice to the form variables
+	    ns_log Notice "view.tcl: html sending email"
 	    rp_form_put invoice_html $invoices_as_html
 	    rp_internal_redirect notify
 	    ad_script_abort
@@ -1055,6 +1064,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	} else {
 	    
 	    # Show invoice using template
+	    ns_log Notice "view.tcl: html showing template"
 	    db_release_unused_handles
 	    ns_return 200 text/html $invoices_as_html
 	    ad_script_abort
@@ -1066,6 +1076,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     # PDF output
     if {$output_format == "pdf" && $pdf_enabled_p} {
 	
+	ns_log Notice "view.tcl: pdf output format"
 	set result [im_html2pdf $invoices_as_html]
 	set tmp_pdf_file [lindex $result 0]
 	set errlist [lindex $result 1]
@@ -1083,6 +1094,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	if {"" != $send_to_user_as} {
 	    # Redirect to mail sending page:
 	    # Add the rendered invoice to the form variables
+	    ns_log Notice "view.tcl: pdf send out"
 	    rp_form_put invoice_pdf $binary_content
 	    rp_internal_redirect notify
 	    ad_script_abort
@@ -1090,6 +1102,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	} else {
 	    
 	    # PDF Preview
+	    ns_log Notice "view.tcl: pdf preview"
 	    db_release_unused_handles
 	    ns_returnfile 200 application/pdf $tmp_pdf_file
 	    catch { file delete $tmp_pdf_file } err
@@ -1100,6 +1113,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     # OpenOffice Output
     if {$output_format == "odt"} {
        
+	ns_log Notice "view.tcl: odf formatting"
 	# ------------------------------------------------
         # setup and constants
 	
