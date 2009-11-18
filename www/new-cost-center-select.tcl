@@ -15,7 +15,7 @@ ad_page_contract {
     @author frank.bergmann@project-open.com
 } {
     {pass_through_variables ""}
-    {return_url "" }
+    return_url
 }
 
 # ---------------------------------------------------------------

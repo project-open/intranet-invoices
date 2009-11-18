@@ -41,24 +41,13 @@ ad_page_contract {
 
 set user_id [ad_maybe_redirect_for_registration]
 set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+set current_url [im_url_with_query]
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
     ad_returnredirect [export_vars -base "new-copy" {invoice_id cost_type_id}]
     ad_script_abort
 }
-
-
-# Do we need the cost_center_id for creating a new invoice?
-# This is necessary if the invoice_nr depends on the cost_center_id (profit center).
-set cost_center_required_p [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceRequiresCostCenterP" -default 0]
-set cost_center_required_p 1
-
-if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id == "" || $cost_center_id == 0)} {
-    ad_returnredirect [export_vars -base "new-cost-center-select" {cost_type_id customer_id provider_id project_id invoice_currency create_invoice_from_template return_url}]
-}
-
-
 
 # Check if we need to delete the invoice.
 # We get there because the "Delete" button in view.tcl can
@@ -73,6 +62,31 @@ if {[info exists del_invoice]} {
 	set return_url [export_vars -base "/intranet/projects/view" {project_id view_name}] 
     }
     ad_returnredirect [export_vars -base delete {invoice_id return_url}]
+}
+
+
+
+
+# Do we need the cost_center_id for creating a new invoice?
+# This is necessary if the invoice_nr depends on the cost_center_id (profit center).
+set cost_center_required_p [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceRequiresCostCenterP" -default 0]
+set cost_center_required_p 1
+
+if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id == "" || $cost_center_id == 0)} {
+    ad_returnredirect [export_vars -base "new-cost-center-select" {
+	{pass_through_variables { cost_type_id customer_id provider_id include_task project_id invoice_currency create_invoice_from_template invoice_id select_project} }
+	include_task
+	invoice_id
+	cost_type_id 
+	customer_id 
+	provider_id 
+	select_project
+	project_id 
+	invoice_currency 
+	cost_center_id
+	create_invoice_from_template 
+	{ return_url $current_url}
+    }]
 }
 
 # Permissions
