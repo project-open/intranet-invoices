@@ -129,6 +129,9 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 # Should we show the "Tax" field?
 set tax_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
 
+# Should we show a "Material" field for invoice lines?
+set material_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
+set project_type_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
@@ -349,19 +352,29 @@ if {$show_cost_center_p} {
 # for a new invoice
 # ---------------------------------------------------------------
 
-if {[string equal $invoice_mode "new"]} {
 
-    # start formatting the list of sums with the header...
-    set task_sum_html "
+# start formatting the list of sums with the header...
+set task_sum_html "
         <tr align=center> 
           <td class=rowtitle>[_ intranet-invoices.Line]</td>
           <td class=rowtitle>[_ intranet-invoices.Description]</td>
-          <td class=rowtitle>[_ intranet-invoices.Type]</td>
+"
+if {$material_enabled_p} {
+    append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Material "Material"]</td>"
+}
+if {$project_type_enabled_p} {
+    append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Type "Type"]</td>"
+}
+append task_sum_html "
           <td class=rowtitle>[_ intranet-invoices.Units]</td>
           <td class=rowtitle>[_ intranet-invoices.UOM]</td>
           <td class=rowtitle>[_ intranet-invoices.Rate]</td>
         </tr>
-    "
+"
+
+
+
+if {[string equal $invoice_mode "new"]} {
 
     # Start formatting the "reference price list" as well, even though it's going
     # to be shown at the very bottom of the page.
@@ -379,18 +392,6 @@ if {[string equal $invoice_mode "new"]} {
 # 8. Get the old invoice items for an already existing invoice
 # ---------------------------------------------------------------
 
-    # start formatting the list of sums with the header...
-    set task_sum_html "
-        <tr align=center> 
-          <td class=rowtitle>[_ intranet-invoices.Line]</td>
-          <td class=rowtitle>[_ intranet-invoices.Description]</td>
-          <td class=rowtitle>[_ intranet-invoices.Type]</td>
-          <td class=rowtitle>[_ intranet-invoices.Units]</td>
-          <td class=rowtitle>[_ intranet-invoices.UOM]</td>
-          <td class=rowtitle>[_ intranet-invoices.Rate]</td>
-        </tr>
-    "
-
     set ctr 1
     set old_project_id 0
     set colspan 6
@@ -406,19 +407,29 @@ if {[string equal $invoice_mode "new"]} {
           <td>
 	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
 	  </td>
-          <td>
-	    <input type=hidden name=item_type_id.$ctr value='$item_type_id'>
-            $item_type
-          </td>
+	"
+
+	if {$material_enabled_p} {
+	    append task_sum_html "<td>[im_material_select item_material_id.$ctr $item_material_id]</td>"
+	} else {
+	    append task_sum_html "<input type=hidden name=item_material_id.$ctr value='$item_material_id'>"
+	}
+
+	if {$project_type_enabled_p} {
+	    append task_sum_html "<td>[im_category_select "Intranet Project Type" item_type_id.$ctr $item_type_id]</td>"
+	} else {
+	    append task_sum_html "<input type=hidden name=item_type_id.$ctr value='$item_type_id'>"
+	}
+
+	append task_sum_html "
           <td align=right>
 	    <input type=text name=item_units.$ctr size=4 value='$item_units'>
 	  </td>
           <td align=right>
             [im_category_select "Intranet UoM" item_uom_id.$ctr $item_uom_id]
 	  </td>
-          <td align=left>
-	    <input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>
-            [im_currency_select item_currency.$ctr $currency]
+          <td align=right>
+	    <nobr><input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>[im_currency_select item_currency.$ctr $currency]</nobr>
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
@@ -442,9 +453,21 @@ for {set i 0} {$i < 3} {incr i} {
           <td>
 	    <input type=text name=item_name.$ctr size=40 value=''>
 	  </td>
-          <td>
-            [im_category_select "Intranet Project Type" item_type_id.$ctr ""]
-          </td>
+    "
+
+    if {$material_enabled_p} {
+	append task_sum_html "<td>[im_material_select item_material_id.$ctr ""]</td>"
+    } else {
+	append task_sum_html "<input type=hidden name=item_material_id.$ctr value=''>"
+    }
+    
+    if {$project_type_enabled_p} {
+	append task_sum_html "<td>[im_category_select "Intranet Project Type" item_type_id.$ctr ""]</td>"
+    } else {
+	append task_sum_html "<input type=hidden name=item_type_id.$ctr value=''>"
+    }
+
+    append task_sum_html "
           <td align=right>
 	    <input type=text name=item_units.$ctr size=4 value='0'>
 	  </td>
@@ -453,7 +476,7 @@ for {set i 0} {$i < 3} {incr i} {
 	  </td>
           <td align=right>
             <!-- rate and currency need to be together so that the line doesn't break -->
-	    <input type=text name=item_rate.$ctr size=3 value='0'>[im_currency_select item_currency.$ctr $invoice_currency]
+	    <nobr><input type=text name=item_rate.$ctr size=7 value='0'>[im_currency_select item_currency.$ctr $invoice_currency]</nobr>
 	  </td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value=''>

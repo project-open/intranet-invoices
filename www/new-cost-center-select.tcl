@@ -14,15 +14,8 @@ ad_page_contract {
     if it wasn't defined before.
     @author frank.bergmann@project-open.com
 } {
-    {invoice_id:integer 0}
-    {cost_center_id:integer 0}
-    cost_type_id:integer
-    customer_id:integer
-    provider_id:integer
-    project_id:integer
-    invoice_currency
-    create_invoice_from_template
-    return_url
+    {pass_through_variables ""}
+    {return_url "" }
 }
 
 # ---------------------------------------------------------------
@@ -48,6 +41,22 @@ set group_url "/admin/groups/one"
 
 set bgcolor(0) " class=rowodd"
 set bgcolor(1) " class=roweven"
+
+
+# -----------------------------------------------------------
+# Pass throught the values of pass_through_variables
+# We have to take the values of these vars directly
+# from the HTTP session.
+# -----------------------------------------------------------
+
+set form_vars [ns_conn form]
+set pass_through_html ""
+foreach var $pass_through_variables {
+    set value [ns_set get $form_vars $var]
+   append pass_through_html "
+        <input type=hidden name=\"$var\" value=\"[ad_quotehtml $value]\">
+   "
+}
 
 # ---------------------------------------------------------------
 #
