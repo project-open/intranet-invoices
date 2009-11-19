@@ -369,10 +369,13 @@ if {"" == $company_contact_id} {
     set company_contact_id $primary_contact_id 
 }
 set org_company_contact_id $company_contact_id
+
+set company_contact_name ""
+set company_contact_email ""
 set company_contact_first_names ""
 set company_contact_last_name ""
 
-db_1row accounting_contact_info "
+db_0or1row accounting_contact_info "
 	select
 		im_name_from_user_id(person_id) as company_contact_name,
 		im_email_from_user_id(person_id) as company_contact_email,
