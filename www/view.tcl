@@ -369,11 +369,17 @@ if {"" == $company_contact_id} {
     set company_contact_id $primary_contact_id 
 }
 set org_company_contact_id $company_contact_id
+set company_contact_first_names ""
+set company_contact_last_name ""
 
 db_1row accounting_contact_info "
-    select
-	im_name_from_user_id(:company_contact_id) as company_contact_name,
-	im_email_from_user_id(:company_contact_id) as company_contact_email
+	select
+		im_name_from_user_id(person_id) as company_contact_name,
+		im_email_from_user_id(person_id) as company_contact_email,
+		first_names as company_contact_first_names,
+		last_name as company_contact_last_name
+	from	persons
+	where	person_id = :company_contact_id
 "
 
 # Fields normally available from intranet-contacts.
