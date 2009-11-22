@@ -82,6 +82,11 @@ set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "Enabl
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 
 
+# Should we show a "Material" field for invoice lines?
+set material_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
+set project_type_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
+
+
 # ---------------------------------------------------------------
 # Get everything about the original document
 # ---------------------------------------------------------------
@@ -257,11 +262,23 @@ db_foreach invoice_items "" {
 	    <input type=text name=item_sort_order.$ctr size=2 value='$item_sort_order'>
 	  </td>
           <td>
-	    <input type=text name=item_name.$ctr size=40 value='$item_name'>
+	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
 	  </td>
-          <td>
-            [im_category_select "Intranet Project Type" item_type_id.$ctr $item_type_id]
-          </td>
+    "
+
+    if {$material_enabled_p} {
+	append task_sum_html "<td>[im_material_select item_material_id.$ctr $item_material_id]</td>"
+    } else {
+	append task_sum_html "<input type=hidden name=item_material_id.$ctr value='$item_material_id'>"
+    }
+    
+    if {$project_type_enabled_p} {
+	append task_sum_html "<td>[im_category_select "Intranet Project Type" item_type_id.$ctr $item_type_id]</td>"
+    } else {
+	append task_sum_html "<input type=hidden name=item_type_id.$ctr value='$item_type_id'>"
+    }
+
+    append task_sum_html "
           <td align=right>
 	    <input type=text name=item_units.$ctr size=4 value='$item_units'>
 	  </td>

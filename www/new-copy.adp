@@ -130,7 +130,13 @@
         <tr align=center> 
           <td class=rowtitle>#intranet-invoices.Line#</td>
           <td class=rowtitle>#intranet-invoices.Description#</td>
+
+<if @$material_enabled_p@>
+          <td class=rowtitle>#intranet-invoices.Material#</td>
+</if>
+<if @project_type_enabled_p@>
           <td class=rowtitle>#intranet-invoices.Type#</td>
+</if>
           <td class=rowtitle>#intranet-invoices.Units#</td>
           <td class=rowtitle>#intranet-invoices.UOM#</td>
           <td class=rowtitle>#intranet-invoices.Rate#</td>
