@@ -147,7 +147,7 @@ db_foreach column_list_sql $column_sql {
 
 set criteria [list]
 if { ![empty_string_p $cost_status_id] && $cost_status_id > 0 } {
-    lappend criteria "i.cost_status_id=:cost_status_id"
+    lappend criteria "i.cost_status_id in ([join [im_sub_categories $cost_status_id] ","])"
 }
 
 if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
