@@ -70,8 +70,6 @@ if {[info exists del_invoice]} {
 # Do we need the cost_center_id for creating a new invoice?
 # This is necessary if the invoice_nr depends on the cost_center_id (profit center).
 set cost_center_required_p [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceRequiresCostCenterP" -default 0]
-set cost_center_required_p 1
-
 if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id == "" || $cost_center_id == 0)} {
     ad_returnredirect [export_vars -base "new-cost-center-select" {
 	{pass_through_variables { cost_type_id customer_id provider_id include_task project_id invoice_currency create_invoice_from_template invoice_id select_project} }
