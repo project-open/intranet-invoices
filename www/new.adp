@@ -51,7 +51,7 @@ function ajaxFunction() {
 
 	    // loop through the komma separated list
 	    var res1 = xmlHttp1.responseText;
-	    var opts1 = res1.split(",");
+	    var opts1 = res1.split("|");
 	    for (i=0; i < opts1.length; i = i+2) {
 		var newOpt = new Option(opts1[i+1], opts1[i], false, true);
 		document.invoice.invoice_office_id.options[document.invoice.invoice_office_id.options.length] = newOpt;
@@ -67,7 +67,7 @@ function ajaxFunction() {
 	    }
 	    // loop through the komma separated list
 	    var res2 = xmlHttp2.responseText;
-	    var opts2 = res2.split(",");
+	    var opts2 = res2.split("|");
 	    // alert(opts2);	    
 	    for (i=0; i < opts2.length; i = i+2) {
 		//alert (opts2[i]);
