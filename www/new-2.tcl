@@ -48,6 +48,10 @@ ad_page_contract {
     { return_url "/intranet-invoices/" }
 }
 
+
+set auto_increment_invoice_nr_p [parameter::get -parameter InvoiceNrAutoIncrementP -package_id [im_package_invoices_id] -default 0]
+
+
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
@@ -119,6 +123,32 @@ if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_inter
 if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_internal] }
 
 
+
+# ---------------------------------------------------------------
+# Check if the invoice_nr is duplicate
+# ---------------------------------------------------------------
+
+set duplicate_p [db_string duplicate_invoice_nr "
+	select	count(*)
+	from	im_invoices
+	where	invoice_nr = :invoice_nr
+"]
+if {$duplicate_p} {
+    if {$auto_increment_invoice_nr_p} {
+	set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id]
+    } else {
+	ad_return_complaint 1 "<b>[lang::message::lookup "" intranet-invoices.Duplicate_invoice_nr "Duplicate financial document number"]:</b><br>
+	[lang::message::lookup "" intranet-invoices.intranet-invoices.Duplicate_invoice_nr_msg "
+		The selected financial document number (Invoice Number, Quote Number, PO Number, ...)
+		already exists in the database. Please choose another number.<br>
+		This error can occur if another person has been creating another financial
+		document right at the same moment as you. In this case please increment your
+		financial document number by one, or notify your System Administrator to
+		set the parameter 'InvoiceNrAutoIncrementP' to the value '1'.
+        "]"
+	ad_script_abort
+    }
+}
 
 # ---------------------------------------------------------------
 # Check if there is a single project to which this document refers.
@@ -315,8 +345,6 @@ foreach nr $item_list {
 # ---------------------------------------------------------------
 # Associate the invoice with the project via acs_rels
 # ---------------------------------------------------------------
-
-# ad_return_complaint 1 [llength $select_project]
 
 foreach project_id $select_project {
     db_1row "get relations" "
