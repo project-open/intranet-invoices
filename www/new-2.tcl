@@ -51,7 +51,6 @@ ad_page_contract {
 
 set auto_increment_invoice_nr_p [parameter::get -parameter InvoiceNrAutoIncrementP -package_id [im_package_invoices_id] -default 0]
 
-
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
