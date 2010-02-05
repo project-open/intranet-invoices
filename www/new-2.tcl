@@ -128,10 +128,15 @@ if {"" == $customer_id || 0 == $customer_id} { set customer_id [im_company_inter
 # Check if the invoice_nr is duplicate
 # ---------------------------------------------------------------
 
+# Does the invoice already exist?
+set invoice_exists_p [db_string invoice_count "select count(*) from im_invoices where invoice_id=:invoice_id"]
+
+# Check if this is a duplicate invoice_nr.
 set duplicate_p [db_string duplicate_invoice_nr "
 	select	count(*)
 	from	im_invoices
-	where	invoice_nr = :invoice_nr
+	where	invoice_nr = :invoice_nr and
+		invoice_id != :invoice_id
 "]
 if {$duplicate_p} {
     if {$auto_increment_invoice_nr_p} {
@@ -198,8 +203,6 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 # ---------------------------------------------------------------
 # Update invoice base data
 # ---------------------------------------------------------------
-
-set invoice_exists_p [db_string invoice_count "select count(*) from im_invoices where invoice_id=:invoice_id"]
 
 # Just update the invoice if it already exists:
 if {!$invoice_exists_p} {
