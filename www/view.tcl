@@ -37,11 +37,11 @@ ad_page_contract {
 # Defaults & Security
 # ---------------------------------------------------------------
 
+# Get user parameters
 set user_id [ad_maybe_redirect_for_registration]
-
-# Get the default locale for this current user
 set user_locale [lang::user::locale]
 set locale $user_locale
+set page_title ""
 
 # Security is defered after getting the invoice information
 # from the database, because the customer's users should
@@ -604,7 +604,7 @@ if {!$read} {
     ad_return_complaint "[lang::message::lookup $locale intranet-invoices.lt_Insufficient_Privileg]" "
     <li>[lang::message::lookup $locale intranet-invoices.lt_You_have_insufficient_1]<BR>
     [lang::message::lookup $locale intranet-invoices.lt_Please_contact_your_s]"
-    return
+    ad_script_abort
 }
 
 # ---------------------------------------------------------------
