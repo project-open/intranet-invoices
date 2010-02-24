@@ -422,7 +422,7 @@ if {[string equal $invoice_mode "new"]} {
 	"
 
 	if {$material_enabled_p} {
-	    append task_sum_html "<td>[im_material_select item_material_id.$ctr $item_material_id]</td>"
+	    append task_sum_html "<td>[im_material_select -max_option_len 100 item_material_id.$ctr $item_material_id]</td>"
 	} else {
 	    append task_sum_html "<input type=hidden name=item_material_id.$ctr value='$item_material_id'>"
 	}
@@ -468,7 +468,7 @@ for {set i 0} {$i < 3} {incr i} {
     "
 
     if {$material_enabled_p} {
-	append task_sum_html "<td>[im_material_select item_material_id.$ctr ""]</td>"
+	append task_sum_html "<td>[im_material_select -max_option_len 100 item_material_id.$ctr ""]</td>"
     } else {
 	append task_sum_html "<input type=hidden name=item_material_id.$ctr value=''>"
     }
