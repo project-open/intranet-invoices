@@ -42,7 +42,9 @@
 <if @timesheet_report_enabled_p@>
 
 	<li>
-	  <% set ts_url [export_vars -base $timesheet_report_url {{level_of_detail 4} {invoice_id $invoice_id}}] %>
+	  <% 
+		set level_of_details [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter LevelOfDetailsTimesheetHoursReport -default 4]
+		set ts_url [export_vars -base $timesheet_report_url {{level_of_detail $level_of_details} {invoice_id $invoice_id}}] 	      %>
 	  <A HREF="@ts_url;noquote@">
 		<%= [lang::message::lookup "" intranet-invoices.Show_Included_Timesheet_Hours "Show Included Timesheet Hours"] %>
 	  </A>
