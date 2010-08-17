@@ -45,6 +45,7 @@ ad_page_contract {
     item_project_id:integer,array
     item_rate:trim,float,array
     item_currency:array
+    item_task_id:integer,array
     { return_url "/intranet-invoices/" }
 }
 
@@ -312,6 +313,7 @@ foreach nr $item_list {
     set project_id $item_project_id($nr)
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
+    set task_id $item_task_id($nr)
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
 
     # Insert only if it's not an empty line from the edit screen
@@ -325,7 +327,7 @@ foreach nr $item_list {
 		price_per_unit, currency, 
 		sort_order, item_type_id, 
 		item_material_id,
-		item_status_id, description
+		item_status_id, description, task_id
 	) VALUES (
 		:item_id, :name, 
 		:project_id, :invoice_id, 
@@ -333,7 +335,7 @@ foreach nr $item_list {
 		:rate, :invoice_currency, 
 		:sort_order, :type_id, 
 		:material_id,
-		null, ''
+		null, '', :task_id
 	)"
 
         db_dml insert_invoice_items $insert_invoice_items_sql
