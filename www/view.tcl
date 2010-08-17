@@ -31,6 +31,7 @@ ad_page_contract {
     { send_to_user_as ""}
     { output_format "html" }
     { err_mess "" }
+    { item_list_type:integer 0 }
 }
 
 # ---------------------------------------------------------------
@@ -792,77 +793,205 @@ append invoice_item_html "
 "
 
 set ctr 1
-set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr]
+	set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr]
 
 set oo_table_xml ""
-db_foreach invoice_items {} {
 
-    # $company_project_nr is normally related to each invoice item,
-    # because invoice items can be created based on different projects.
-    # However, frequently we only have one project per invoice, so that
-    # we can use this project's company_project_nr as a default
-    if {$company_project_nr_exists && "" == $company_project_nr} { 
-	set company_project_nr $customer_project_nr_default
-    }
-    if {"" == $project_short_name} { 
-	set project_short_name $project_short_name_default
-    }
+if { 0 == $item_list_type } {
+	db_foreach invoice_items {} {
+	    # $company_project_nr is normally related to each invoice item,
+	    # because invoice items can be created based on different projects.
+	    # However, frequently we only have one project per invoice, so that
+	    # we can use this project's company_project_nr as a default
+	    if {$company_project_nr_exists && "" == $company_project_nr} { 
+		set company_project_nr $customer_project_nr_default
+	    }
+	    if {"" == $project_short_name} { 
+		set project_short_name $project_short_name_default
+	    }
+	
+	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+	
+	    append invoice_item_html "
+		<tr $bgcolor([expr $ctr % 2])>
+	    "
+	
+	    if {$show_leading_invoice_item_nr} {
+	        append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2]) align=right>$sort_order</td>\n"
+	    }
+	
+	    append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2])>$item_name</td>
+	    "
+	    if {$show_qty_rate_p} {
+	        append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
+	          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+	          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+	        "
+	    }
+	
+	    if {$show_company_project_nr} {
+		# Only if intranet-translation has added the field
+		append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
+	    }
+	
+	    if {$show_our_project_nr} {
+		append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+	    }
+	
+	    append invoice_item_html "
+	          <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
+		</tr>"
+	
+	
+	    # Insert a new XML table row into OpenOffice document
+	    if {"odt" == $template_type} {
+	
+		# Replace placeholders in the OpenOffice template row with values
+		eval [template::adp_compile -string $odt_row_template_xml]
+		set odt_row_xml $__adp_output
+	
+		# Parse the new row and insert into OOoo document
+		set row_doc [dom parse $odt_row_xml]
+		set new_row [$row_doc documentElement]
+		$odt_template_table_node insertBefore $new_row $odt_template_row_node
+	
+	    }
+	
+	    incr ctr
+	}
+} else {
 
-    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+	set indent_level [db_string get_view_id "
+			select 
+				tree_level(children.tree_sortkey) - tree_level(parent.tree_sortkey) as level
+		 	from
+				im_projects parent,
+				im_projects children
+			where
+				children.tree_sortkey between parent.tree_sortkey and tree_right(parent.tree_sortkey) and
+				children.project_id in (select task_id from im_invoice_items where invoice_id=$invoice_id)
+			order by 
+				level DESC
+			limit 1
+	" -default 0]
 
-    append invoice_item_html "
-	<tr $bgcolor([expr $ctr % 2])>
-    "
+	set invoice_items_sql "
+		select 
+			all_items.*,
+			im_category_from_id(item_type_id) as item_type,
+			im_category_from_id(item_uom_id) as item_uom,
+			round(price_per_unit * item_units * $rf) / $rf as amount,
+			to_char(round(price_per_unit * item_units * $rf) / $rf, '$cur_format' ) as amount_formatted
+		from 
+			(
+			select
+				parent.project_id as parent_id,
+				parent.project_nr as parent_nr,
+				parent.project_name as parent_name,
+				children.project_id,
+				children.project_nr,
+				children.project_name,
+				tree_level(children.tree_sortkey) - tree_level(parent.tree_sortkey) as level,
+				t.task_id,
+				(select item_units from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_units,
+				(select item_type_id from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_type_id,
+				(select i.item_uom_id from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_uom_id,
+				(select i.price_per_unit from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as price_per_unit,
+				parent.tree_sortkey as parent_tree_sortkey,
+				children.tree_sortkey as children_tree_sortkey
+		 	from
+				im_projects parent,
+				im_projects children
+				LEFT OUTER JOIN im_timesheet_tasks t ON (children.project_id = t.task_id)
+			where
+				children.tree_sortkey between parent.tree_sortkey and tree_right(parent.tree_sortkey) and
+				children.project_id in (select task_id from im_invoice_items where invoice_id=$invoice_id)
+			UNION 
+			select 
+				0 as parent_id,
+				'' as parent_nr,
+				item_name as parent_name,
+				0 as project_id,
+				'' as project_nr,
+				item_name as project_name,
+				0 as level,
+				task_id,
+				item_units,
+				item_type_id,
+				item_uom_id,
+				price_per_unit,
+				'1111111111111111111111111111111111111' as parent_tree_sortkey,
+				'1111111111111111111111111111111111111' as children_tree_sortkey
+			from 
+				im_invoice_items
+			where  
+				invoice_id=30822 and 
+				task_id=-1
+			) all_items
+		
+		ORDER BY 
+			parent_tree_sortkey,
+			children_tree_sortkey,
+			project_id;
+	"
 
-    if {$show_leading_invoice_item_nr} {
-        append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=right>$sort_order</td>\n"
-    }
-
-    append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2])>$item_name</td>
-    "
-    if {$show_qty_rate_p} {
-        append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
-        "
-    }
-
-    if {$show_company_project_nr} {
-	# Only if intranet-translation has added the field
-	append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
-    }
-
-    if {$show_our_project_nr} {
-	append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
-    }
-
-    append invoice_item_html "
-          <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
-	</tr>"
-
-
-    # Insert a new XML table row into OpenOffice document
-    if {"odt" == $template_type} {
-
-	# Replace placeholders in the OpenOffice template row with values
-	eval [template::adp_compile -string $odt_row_template_xml]
-	set odt_row_xml $__adp_output
-
-	# Parse the new row and insert into OOoo document
-	set row_doc [dom parse $odt_row_xml]
-	set new_row [$row_doc documentElement]
-	$odt_template_table_node insertBefore $new_row $odt_template_row_node
-
-    }
-
-    incr ctr
+	set old_parent_id -1
+	set amount_sub_total 0
+	db_foreach related_projects $invoice_items_sql {
+		# if {"" == $material_name} { set material_name $default_material_name }
+   		if { ("0"!=$ctr && $old_parent_id!=$parent_id && "0"!=$level && 0!=$amount_sub_total) || "-1"==$task_id } {
+    		append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
+			set amount_sub_total 0    		
+   		}
+		set indent ""
+		set indent_level_item [expr $indent_level - $level]  
+		for {set i 0} {$i < $indent_level_item} {incr i} { 
+		    	append indent "&nbsp;&nbsp;" 
+		}
+		# this items is not related to a task; it has been created as part of the financial document
+		if { "-1" == $task_id } { 
+			set indent ""
+		}
+		# insert headers for every project
+		if { $old_parent_id != $parent_id } {
+	    	if { 0 != $level } {     	
+	    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
+	    		set old_parent_id $parent_id
+			} else {
+			    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+		    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+	    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+				append invoice_item_html "<tr>" 
+				append invoice_item_html "<td class='invoiceroweven'>$indent$parent_name</td>" 
+			    if {$show_qty_rate_p} {
+	    		    append invoice_item_html "
+			          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
+	    		      <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+	          		  <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+	       			"
+			    }
+			    if {$show_company_project_nr} {
+					# Only if intranet-translation has added the field
+					# append invoice_item_html "<td align=left>$company_project_nr</td>\n"
+	    		}
+				if {$show_our_project_nr} {
+					append invoice_item_html "
+					<td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+	    		}
+			    append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
+				set amount_sub_total [expr $amount_sub_total + $amount]				
+			}
+		}
+	    incr ctr
+	}
+	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
 }
 
 
