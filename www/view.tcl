@@ -25,6 +25,7 @@ ad_page_contract {
 } {
     { invoice_id:integer 0}
     { object_id:integer 0}
+
     { show_all_comments 0 }
     { render_template_id:integer 0 }
     { return_url "" }
@@ -620,8 +621,6 @@ set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::looku
 #
 # ---------------------------------------------------------------
 
-# ad_return_complaint 1 $company_id
-
 set comp_id $company_id
 set query "
 select
@@ -947,8 +946,16 @@ if { 0 == $item_list_type } {
 	db_foreach related_projects $invoice_items_sql {
 		# if {"" == $material_name} { set material_name $default_material_name }
    		if { ("0"!=$ctr && $old_parent_id!=$parent_id && "0"!=$level && 0!=$amount_sub_total) || "-1"==$task_id } {
-    		append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
-			set amount_sub_total 0    		
+			 if { "NULL"!=$task_id } {
+	    			append invoice_item_html "
+					<tr><td class='invoiceroweven' colspan ='100' align='right'>
+					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" 
+					$locale]&nbsp;$currency</td></tr>
+				"
+				set amount_sub_total 0    		
+			} else {
+                                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
+			}
    		}
 		set indent ""
 		set indent_level_item [expr $indent_level - $level]  
@@ -962,35 +969,41 @@ if { 0 == $item_list_type } {
 		# insert headers for every project
 		if { $old_parent_id != $parent_id } {
 	    	if { 0 != $level } {     	
-	    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
-	    		set old_parent_id $parent_id
-			} else {
-			    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-		    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-	    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+			if { "NULL"!=$task_id } {
+		    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
+		    		set old_parent_id $parent_id
+				} else {
+				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+			    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 				append invoice_item_html "<tr>" 
 				append invoice_item_html "<td class='invoiceroweven'>$indent$parent_name</td>" 
-			    if {$show_qty_rate_p} {
-	    		    append invoice_item_html "
-			          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-	    		      <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-	          		  <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
-	       			"
-			    }
-			    if {$show_company_project_nr} {
+				if {$show_qty_rate_p} {
+					append invoice_item_html "
+					<td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
+					<td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+					<td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+		       			"
+				}
+				if {$show_company_project_nr} {
 					# Only if intranet-translation has added the field
 					# append invoice_item_html "<td align=left>$company_project_nr</td>\n"
-	    		}
+		    		}
 				if {$show_our_project_nr} {
 					append invoice_item_html "
 					<td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
-	    		}
-			    append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
-				set amount_sub_total [expr $amount_sub_total + $amount]				
+		    		}
+				append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
+					set amount_sub_total [expr $amount_sub_total + $amount]				
+				}
+			} else {
+                                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
 			}
 		}
 	    incr ctr
-	}
+	} if_no_rows {
+		append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
+    	}
 	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
 }
 
