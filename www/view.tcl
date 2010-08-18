@@ -949,8 +949,7 @@ if { 0 == $item_list_type } {
 			 if { "NULL"!=$task_id } {
 	    			append invoice_item_html "
 					<tr><td class='invoiceroweven' colspan ='100' align='right'>
-					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" 
-					$locale]&nbsp;$currency</td></tr>
+					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
 				"
 				set amount_sub_total 0    		
 			} else {
@@ -969,7 +968,6 @@ if { 0 == $item_list_type } {
 		# insert headers for every project
 		if { $old_parent_id != $parent_id } {
 	    	if { 0 != $level } {     	
-			if { "NULL"!=$task_id } {
 		    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
 		    		set old_parent_id $parent_id
 				} else {
@@ -996,9 +994,6 @@ if { 0 == $item_list_type } {
 				append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
 					set amount_sub_total [expr $amount_sub_total + $amount]				
 				}
-			} else {
-                                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-			}
 		}
 	    incr ctr
 	} if_no_rows {
