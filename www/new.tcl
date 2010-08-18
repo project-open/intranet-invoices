@@ -467,6 +467,7 @@ for {set i 0} {$i < 3} {incr i} {
 	    <input type=text name=item_name.$ctr size=40 value=''>
 	  </td>
     "
+    append task_sum_html "<input type=hidden name=item_task_id.$ctr value='-1'>"
 
     if {$material_enabled_p} {
 	append task_sum_html "<td>[im_material_select -max_option_len 100 item_material_id.$ctr ""]</td>"
