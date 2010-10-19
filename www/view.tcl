@@ -504,6 +504,7 @@ if {"odt" == $template_type} {
     set file [open $odt_content]
     fconfigure $file -encoding "utf-8"
     set odt_template_content [read $file]
+
     close $file
     
     # ------------------------------------------------
@@ -832,7 +833,7 @@ if { 0 == $item_list_type } {
 	          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 	        "
 	    }
-	
+
 	    if {$show_company_project_nr} {
 		# Only if intranet-translation has added the field
 		append invoice_item_html "
@@ -851,7 +852,7 @@ if { 0 == $item_list_type } {
 	
 	    # Insert a new XML table row into OpenOffice document
 	    if {"odt" == $template_type} {
-	
+		set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
 		# Replace placeholders in the OpenOffice template row with values
 		eval [template::adp_compile -string $odt_row_template_xml]
 		set odt_row_xml $__adp_output
@@ -865,6 +866,8 @@ if { 0 == $item_list_type } {
 	
 	    incr ctr
 	}
+
+
 } else {
 
 	set indent_level [db_string get_view_id "
@@ -983,6 +986,7 @@ if { 0 == $item_list_type } {
 					<td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 		       			"
 				}
+
 				if {$show_company_project_nr} {
 					# Only if intranet-translation has added the field
 					# append invoice_item_html "<td align=left>$company_project_nr</td>\n"
