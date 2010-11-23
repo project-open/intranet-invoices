@@ -90,14 +90,15 @@ set invoice_template_base_path [ad_parameter -package_id [im_package_invoices_id
 
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
-set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
 set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
+set surcharge_enabled_p 1
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
 set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+
 
 # Show or not "our" and the "company" project nrs.
 set company_project_nr_exists [im_column_exists im_projects company_project_nr]
@@ -1046,37 +1047,6 @@ set subtotal_item_html "
         </tr>
 "
 
-# Discount
-if {$discount_enabled_p && 0 != $discount_perc} {
-    append subtotal_item_html "
-        <tr> 
-<!--          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.Discount]</td> -->
-          <td class=roweven colspan=$colspan_sub align=right>$discount_text $discount_perc_pretty %</td>
-          <td class=roweven align=right><nobr>$discount_amount_pretty $currency</nobr></td>
-        </tr>
-    "
-}
-
-# Surcharge
-if {$surcharge_enabled_p && 0 != $surcharge_perc} {
-    append subtotal_item_html "
-        <tr> 
-<!--          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.Surcharge]</td> -->
-          <td class=roweven colspan=$colspan_sub align=right>$surcharge_text $surcharge_perc_pretty %</td>
-          <td class=roweven align=right><nobr>$surcharge_amount_pretty $currency</nobr></td>
-        </tr>
-    "
-}
-
-# New Subtotal line
-if {$discount_enabled_p || $surcharge_enabled_p} {
-    append subtotal_item_html "
-        <tr> 
-          <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.GrandTotal "Grand Total"]</B></td>
-          <td class=roweven align=right><B><nobr>$grand_total_pretty $currency</nobr></B></td>
-        </tr>
-    "
-}
 
 if {"" != $vat && 0 != $vat} {
     append subtotal_item_html "
@@ -1347,6 +1317,35 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     ad_return_complaint 1 "Internal Error - No output format specified"
 
 } 
+
+
+
+# ---------------------------------------------------------------------
+# Surcharge / Discount section
+# ---------------------------------------------------------------------
+
+# PM Fee. Set to "checked" if the customer has a default_pm_fee_percentage != ""
+set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"]
+set pm_fee_checked ""
+if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
+    set pm_fee_perc $default_pm_fee_percentage 
+    set pm_fee_checked "checked"
+}
+set pm_fee_msg [lang::message::lookup "" intranet-invoicing.PM_Fee_Msg "Project Management %pm_fee_perc%%"]
+
+# Surcharge. 
+set surcharge_checked ""
+set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"]
+if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
+set surcharge_msg [lang::message::lookup "" intranet-invoicing.Surcharge_Msg "Rush Surcharge %surcharge_perc%%"]
+
+# Discount
+set discount_checked ""
+set discount_perc 10.0
+if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }
+set discount_msg [lang::message::lookup "" intranet-invoicing.Discount_Msg "Discount %discount_perc%%"]
+
+set submit_msg [lang::message::lookup "" intranet-invoicing.Add_Discount_Surcharge_Lines "Add Discount/Surcharge Lines"]
 
 
 # ---------------------------------------------------------------------

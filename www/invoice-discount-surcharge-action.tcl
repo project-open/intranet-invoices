@@ -14,12 +14,9 @@ ad_page_contract {
 } {
     return_url
     invoice_id:integer
-    pm_fee_percentage
-    pm_fee_description
-    discount_percentage
-    discount_description
-    surcharge_percentage
-    surcharge_description
+    line_check:array,optional
+    line_perc:array,optional
+    line_desc:array,optional
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -28,10 +25,7 @@ if {![im_permission $user_id add_invoices]} {
     return
 }
 
-set percentages [list $pm_fee_percentage $surcharge_percentage $discount_percentage]
-set descriptions [list $pm_fee_description $surcharge_description $discount_description]
-
-db_1row invoice_info "
+db_0or1row invoice_info "
 	select	*
 	from	im_costs c,
 		im_invoices i
@@ -39,10 +33,14 @@ db_1row invoice_info "
 		c.cost_id = i.invoice_id
 "
 
-for {set i 0} {$i < 3} {incr i} {
+foreach i [array names line_perc] {
 
-    set name [lindex $descriptions $i]
-    set percentage [lindex $percentages $i]
+    set name $line_desc($i)
+    set percentage $line_perc($i)
+    set checked ""
+    if {[info exists line_check($i)]} { set checked $line_check($i) }
+    if {"" == $checked} { continue }
+
     set units 1
     set uom_id [im_uom_unit]
     set rate [expr $amount * $percentage / 100.0]
@@ -74,5 +72,12 @@ for {set i 0} {$i < 3} {incr i} {
     db_dml insert_invoice_items $insert_invoice_item_sql
 
 }
+
+# ---------------------------------------------------------------
+# Update the invoice value
+# ---------------------------------------------------------------
+
+im_invoice_update_rounded_amount -invoice_id $invoice_id
+
 
 ad_returnredirect $return_url

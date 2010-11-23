@@ -15,6 +15,50 @@
   <td>
     @payment_list_html;noquote@
   </td>
+
+
+<if @surcharge_enabled_p@>
+<td>
+	<table cellpadding=0 cellspacing=0>
+	<form action=invoice-discount-surcharge-action method=POST>
+	<%= [export_form_vars return_url invoice_id] %>
+	<tr class=rowtitle>
+		<td class=rowtitle align=center colspan=3>@submit_msg@</td>
+	</tr>
+
+<!--	<tr class=rowtitle>
+		<td class=rowtitle align=center>&nbsp;</td>
+		<td class=rowtitle align=center>#intranet-invoices.Description#</td>
+		<td class=rowtitle align=center>%</td>
+	</tr>
+-->
+	<tr>
+		<td><input type=checkbox name=line_check.1 @pm_fee_checked@></td>
+		<td><input type=textbox size=30 name=line_desc.1 value="@pm_fee_msg@"></td>
+		<td><input type=textbox size=3 name=line_perc.1 value="@pm_fee_perc@">%</td>
+	</tr>
+	<tr>
+		<td><input type=checkbox name=line_check.2 @surcharge_checked@></td>
+		<td><input type=textbox size=30 name=line_desc.2 value="@surcharge_msg@"></td>
+		<td><input type=textbox size=3 name=line_perc.2 value="@surcharge_perc@">%</td>
+	</tr>
+	<tr>
+		<td><input type=checkbox name=line_check.3 @discount_checked@></td>
+		<td><input type=textbox size=30 name=line_desc.3 value="@discount_msg@"></td>
+		<td><input type=textbox size=3 name=line_perc.3 value="@discount_perc@">%</td>
+	</tr>
+	<tr>
+		<td colspan=3 align=right><input type=submit name=submit value="@submit_msg@"></td>
+	</tr>
+	</form>
+	</table>
+  </td>
+</if>
+
+
+
+
+
   <td>
 	<table border=0 cellPadding=1 cellspacing=1>
 	  <tr class=rowtitle>
@@ -148,6 +192,9 @@
 	  </tr>
 	</table>
   </td>
+
+
+<!-- End of the top line of components -->
 </tr>
 </table>
 
@@ -284,7 +331,11 @@
 </table>
 
 <table cellpadding=0 cellspacing=2 border=0 width="100%">
-<tr><td align=right>
+<tr valign=top>
+<td>
+<!-- Discount/Surcharge -->
+</td>
+<td align=right>
   <table cellpadding=1 cellspacing=2 border=0>
     @item_list_html;noquote@
   </table>
