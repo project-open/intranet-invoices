@@ -13,7 +13,9 @@
 
 	        <tr><td align=middle class=rowtitle colspan=2>#intranet-invoices.Select_Customer#</td></tr>
 	        <tr>
-	          <td  class=rowodd>#intranet-core.Customer#</td>
+	          <td  class=rowodd>
+			<%= [lang::message::lookup "" intranet-invoices.Select_Customer "Select Customer"] %>
+		  </td>
 	          <td  class=rowodd> 
 		    @customer_select;noquote@
 	          </td>
