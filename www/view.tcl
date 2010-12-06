@@ -96,8 +96,13 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
-set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+
+# Should we show the customer's PO number in the document?
+# This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
+set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { set show_company_project_nr 0 }
+
 
 # Show or not "our" and the "company" project nrs.
 set company_project_nr_exists [im_column_exists im_projects company_project_nr]
