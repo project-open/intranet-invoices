@@ -25,7 +25,6 @@ ad_page_contract {
 } {
     { invoice_id:integer 0}
     { object_id:integer 0}
-
     { show_all_comments 0 }
     { render_template_id:integer 0 }
     { return_url "" }
@@ -67,17 +66,18 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 # Set default values from parameters
 # ---------------------------------------------------------------
 
+# Type of the financial document
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
+
 # Number formats
 set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
 set tax_format $cur_format
 
-
 # Rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
 set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
-
 
 # Default Currency
 set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
@@ -96,8 +96,12 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
-set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+
+# Should we show the customer's PO number in the document?
+# This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
+set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { set show_company_project_nr 0 }
 
 
 # Show or not "our" and the "company" project nrs.
@@ -128,8 +132,6 @@ im_audit -object_id $invoice_id -action pre_update
 # ---------------------------------------------------------------
 # Determine if it's an Invoice or a Bill
 # ---------------------------------------------------------------
-
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
