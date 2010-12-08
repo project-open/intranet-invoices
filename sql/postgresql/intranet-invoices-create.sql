@@ -225,6 +225,11 @@ create table im_invoice_items (
 				constraint im_invoices_apply_vat_p
 				check (apply_vat_p in ('t','f')),
 	description		text,
+				-- Reference for cases where we want to link a copy
+				-- back to the original
+	created_from_item_id	integer
+				constraint im_invoice_items_created_from_fk
+				references im_invoice_items,
 		-- Make sure we can''t create duplicate entries per invoice
 		constraint im_invoice_items_un
 		unique (item_name, invoice_id, project_id, sort_order, item_uom_id)

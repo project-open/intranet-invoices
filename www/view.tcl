@@ -126,7 +126,7 @@ set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 # Check if the invoices was changed outside of ]po[...
 # Normally, the current values of the invoice should match
 # exactly the last registered audit version...
-im_audit -object_id $invoice_id -action pre_update
+im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 
 
 # ---------------------------------------------------------------

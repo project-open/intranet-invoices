@@ -25,7 +25,7 @@ ad_page_contract {
     cost_status_id:integer 
     cost_type_id:integer
     cost_center_id:integer
-    payment_days:integer
+    { payment_days:integer ""}
     { payment_method_id:integer "" }
     template_id:integer
     vat:trim,float
@@ -81,6 +81,11 @@ if {$invoice_or_quote_p} {
 # rounding precision can be 2 (USD,EUR, ...) .. -5 (Old Turkish Lira).
 set rounding_precision 2
 set rf [expr exp(log(10) * $rounding_precision)]
+
+
+if {"" == $payment_days} {
+    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultProviderBillPaymentDays" "" 30]
+}
 
 
 # ---------------------------------------------------------------
@@ -211,7 +216,7 @@ if {!$invoice_exists_p} {
     set invoice_id [db_exec_plsql create_invoice ""]
 
     # Audit the creation of the invoice
-    im_audit -object_id $invoice_id -action create
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action after_create -status_id $cost_status_id -type_id $cost_type_id
 
 }
 
@@ -262,7 +267,8 @@ where
 "
 
 # Audit the update
-im_audit -object_id $invoice_id -action update
+im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update -status_id $cost_status_id -type_id $cost_type_id
+
 
 if {$canned_note_enabled_p} {
 
