@@ -63,6 +63,9 @@ set bgcolor(1) "class=invoicerowodd"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 
+# Get the cost_type_id early, because we need this for parameters and the title
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
+
 # ---------------------------------------------------------------
 # Set default values from parameters
 # ---------------------------------------------------------------
@@ -132,8 +135,6 @@ im_audit -object_id $invoice_id -action pre_update
 # ---------------------------------------------------------------
 # Determine if it's an Invoice or a Bill
 # ---------------------------------------------------------------
-
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
 # Invoices and Quotes have a "Customer" fields.
 set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
