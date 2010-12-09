@@ -221,7 +221,7 @@ if {!$invoice_exists_p} {
 }
 
 # Check if the cost item was changed via outside SQL
-im_audit -object_id $invoice_id -action pre_update
+im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 
 # Update the invoice itself
 db_dml update_invoice "
