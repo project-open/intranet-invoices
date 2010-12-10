@@ -194,7 +194,7 @@ if {[llength $select_project] > 1} {
 # ---------------------------------------------------------------
 # Choose the default contact for this invoice.
 if {"" == $company_contact_id } {
-   set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
+   set company_contact_id [im_invoices_default_company_contact -cost_type_id $cost_type_id -customer_id $customer_id -provider_id $provider_id -project_id $project_id]
 }
 
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]

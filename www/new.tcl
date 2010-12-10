@@ -261,7 +261,7 @@ if {$invoice_id} {
     set canned_note_id ""
     set payment_method_id ""
     set template_id ""
-    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
+    set company_contact_id [im_invoices_default_company_contact -cost_type_id $cost_type_id -customer_id $customer_id -provider_id $provider_id -project_id $project_id]
     set read_only_p "f"
 
     # Default for cost-centers - take the user's

@@ -282,12 +282,27 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
 # ---------------------------------------------------------------
 
 ad_proc im_invoices_default_company_contact { 
-	company_id 
-	{ project_id ""} 
+    { -cost_type_id 0 }
+    { -customer_id 0 }
+    { -provider_id 0 }
+    { -project_id 0 }
 } {
     Return the most appropriate company contact for an 
     invoice.
 } {
+    set is_customer_document_p 0
+    set is_provider_document_p 0
+    if {[im_category_is_a $cost_type_id 3708]} {
+	# Customer Document
+	set is_customer_document_p 1
+	set company_id $customer_id
+    }
+    if {[im_category_is_a $cost_type_id 3710]} {
+	# Provider Document
+	set is_provider_document_p 1
+	set company_id $provider_id
+    }
+
     # Determine the preferred company contact
     #
     set primary_contact_id ""
@@ -307,7 +322,7 @@ ad_proc im_invoices_default_company_contact {
     # Determine the projects' contact (if exists)
     #
     set project_contact_id ""
-    if {0 != $project_id && "" != $project_id || [im_column_exists im_projects company_contact_id]} {
+    if {$is_customer_document_p && 0 != $project_id && "" != $project_id || [im_column_exists im_projects company_contact_id]} {
 	set project_contact_id [db_string project_info "
 		select	company_contact_id 
 		from	im_projects 
