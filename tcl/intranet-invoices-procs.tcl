@@ -322,7 +322,7 @@ ad_proc im_invoices_default_company_contact {
     # Determine the projects' contact (if exists)
     #
     set project_contact_id ""
-    if {$is_customer_document_p && 0 != $project_id && "" != $project_id || [im_column_exists im_projects company_contact_id]} {
+    if {$is_customer_document_p && (0 != $project_id && "" != $project_id || [im_column_exists im_projects company_contact_id])} {
 	set project_contact_id [db_string project_info "
 		select	company_contact_id 
 		from	im_projects 
@@ -344,11 +344,15 @@ ad_proc im_invoices_default_company_contact {
     set prefer_accounting_contact_p [parameter::get -package_id [im_package_invoices_id] -parameter "PreferAccountingContactOverProjectContactP" -default 1]
 
     if {$prefer_accounting_contact_p} {
-	return $company_contact_id
+	set result $company_contact_id
     } else {
-	return $project_contact_id
+	set result $project_contact_id
     }
 
+
+# ad_return_complaint 1 "cost_type_id=$cost_type_id, customer_id=$customer_id, provider_id=$provider_id, primary_contact_id=$primary_contact_id, accounting_contact_id=$accounting_contact_id, project_contact_id=$project_contact_id, company_contact_id=$company_contact_id, is_cust=$is_customer_document_p, is_prov=$is_provider_document_p, company_id=$company_id, result=$result"
+
+    return $result
 }
 
 
