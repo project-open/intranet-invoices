@@ -1327,8 +1327,10 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 # ---------------------------------------------------------------------
 
 # PM Fee. Set to "checked" if the customer has a default_pm_fee_percentage != ""
-set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"]
 set pm_fee_checked ""
+set pm_fee_perc ""
+if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
+if {"" == $pm_fee_perc} { set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
 if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
     set pm_fee_perc $default_pm_fee_percentage 
     set pm_fee_checked "checked"
@@ -1337,13 +1339,17 @@ set pm_fee_msg [lang::message::lookup "" intranet-invoicing.PM_Fee_Msg "Project 
 
 # Surcharge. 
 set surcharge_checked ""
-set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"]
+set surcharge_perc ""
+if {[info exists default_surcharge_perc]} { set surcharge_perc $default_surcharge_perc }
+if {"" == $surcharge_perc} { set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
 if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
 set surcharge_msg [lang::message::lookup "" intranet-invoicing.Surcharge_Msg "Rush Surcharge %surcharge_perc%%"]
 
 # Discount
 set discount_checked ""
-set discount_perc 10.0
+set discount_perc ""
+if {[info exists default_discount_perc]} { set discount_perc $default_discount_perc }
+if {"" == $discount_perc} { set discount_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
 if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }
 set discount_msg [lang::message::lookup "" intranet-invoicing.Discount_Msg "Discount %discount_perc%%"]
 
