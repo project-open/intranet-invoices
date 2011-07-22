@@ -871,6 +871,75 @@ if { 0 == $item_list_type } {
 	
 	    incr ctr
 	}
+} elseif { 100 == $item_list_type } {
+        # item_list_type: Translation Project Hirarchy
+        set invoice_items_sql "
+                        select
+                                ii.project_id as parent_id,
+                                item_name as parent_name,
+                                item_name as project_name,
+                                item_units,
+                                item_type_id,
+                                item_uom_id,
+                                price_per_unit,
+                                trunc((price_per_unit * item_units) :: numeric, 2) as line_total
+                        from
+                                im_invoice_items ii
+                                left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=59729) )
+                        where
+                                invoice_id=:invoice_id
+                        order by
+                                ii.project_id;
+        "
+
+        set old_parent_id -1
+        set amount_total 0
+        set amount_sub_total 0
+
+        set item_uom "s-words"
+
+        db_foreach related_projects $invoice_items_sql {
+                # ad_return_complaint 1 "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
+                # SUBTOTALS
+	    if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
+                        append invoice_item_html "
+                                <tr><td class='invoiceroweven' colspan ='100' align='right'>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                        "
+                        set amount_sub_total 0
+	    }
+
+	    if { $old_parent_id != $parent_id } {
+		set parent_project_name [db_string get_parent_project_name "select project_name from im_projects where project_id = $parent_id" -default 0]
+                        append invoice_item_html "<tr><td class='invoiceroweven'></td></tr>"
+                        append invoice_item_html "<tr><td class='invoiceroweven'><b>$parent_project_name</b></td></tr>"
+                        set old_parent_id $parent_id
+	    }
+	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+                append invoice_item_html "<tr>"
+                append invoice_item_html "<td class='invoiceroweven'>$parent_name</td>"
+	    if {$show_qty_rate_p} {
+                        append invoice_item_html "
+                                <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
+                                <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+                                <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+                        "
+	    }
+
+	    if {$show_our_project_nr} {
+                        append invoice_item_html "
+                        <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+	    }
+
+	    append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$line_total&nbsp;$currency</td></tr>"
+	    set amount_sub_total [expr $amount_sub_total + $line_total]
+	    set amount_total [expr $amount_sub_total + $amount_total]
+                incr ctr
+        } if_no_rows {
+	    append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
+        }
 } else {
 
 	set indent_level [db_string get_view_id "
