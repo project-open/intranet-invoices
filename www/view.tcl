@@ -874,17 +874,19 @@ if { 0 == $item_list_type } {
 	# item_list_type: Translation Project Hirarchy   
     	set invoice_items_sql "
                         select
-                                ii.project_id as parent_id,
+                                p.parent_id as parent_id,
+				p.project_id as project_id,
                                 item_name as parent_name,
                                 item_name as project_name,
                                 item_units,
                                 item_type_id,
                                 item_uom_id,
                                 price_per_unit,
-				trunc((price_per_unit * item_units) :: numeric, 2) as line_total
+				trunc((price_per_unit * item_units) :: numeric, 2) as line_total,
+				(select category from im_categories where category_id = item_uom_id) as item_uom
                         from
                                 im_invoice_items ii 
-				left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=59729) )
+				left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=:invoice_id) )
                         where
                                 invoice_id=:invoice_id
 			order by 
@@ -894,8 +896,6 @@ if { 0 == $item_list_type } {
         set old_parent_id -1
 	set amount_total 0
         set amount_sub_total 0
-
-	set item_uom "s-words"
 
         db_foreach related_projects $invoice_items_sql {
 		# ad_return_complaint 1 "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
@@ -1018,13 +1018,8 @@ if { 0 == $item_list_type } {
 	set old_parent_id -1
 	set amount_sub_total 0
 
-
 	db_foreach related_projects $invoice_items_sql {
-
 		# if {"" == $material_name} { set material_name $default_material_name }
-
-# ad_return_complaint 1 "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
-
    		if { ("0"!=$ctr && $old_parent_id!=$parent_id && "0"!=$level && 0!=$amount_sub_total) || "-1"==$task_id } {
 			 if { "NULL"!=$task_id } {
 	    			append invoice_item_html "
@@ -1082,8 +1077,6 @@ if { 0 == $item_list_type } {
 		append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
     	}
 	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
-
-
 }
 
 
