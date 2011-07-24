@@ -874,7 +874,7 @@ if { 0 == $item_list_type } {
 	# item_list_type: Translation Project Hirarchy   
     	set invoice_items_sql "
                         select
-                                p.parent_id as parent_id,
+                                ii.item_source_project_id as parent_id,
 				p.project_id as project_id,
                                 item_name as parent_name,
                                 item_name as project_name,
@@ -890,7 +890,7 @@ if { 0 == $item_list_type } {
                         where
                                 invoice_id=:invoice_id
 			order by 
-				ii.project_id; 
+				ii.item_source_project_id; 
 	"
 
         set old_parent_id -1
