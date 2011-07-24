@@ -898,10 +898,9 @@ if { 0 == $item_list_type } {
         set amount_sub_total 0
 
         db_foreach related_projects $invoice_items_sql {
-	    	if { ![info exists parent_id"] } {
+	    	if { ![info exists parent_id] } {
 			ad_return_complaint 1 "Preview not supported, maybe you created the invoice with an older version of PO" 
 		}
-		ns_log NOTICE "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
                 # SUBTOTALS
                 if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
 	                append invoice_item_html "
