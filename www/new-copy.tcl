@@ -265,7 +265,7 @@ db_foreach invoice_items "" {
 	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
 	  </td>
     "
-    append task_sum_html "<input type=hidden name=item_task_id.$ctr value='$task_id'><input type=hidden name=item_source_project_id.$ctr value='$project_id'>"
+    append task_sum_html "<input type=hidden name=item_task_id.$ctr value='$task_id'>"
 
     if {$material_enabled_p} {
 	append task_sum_html "<td>[im_material_select item_material_id.$ctr $item_material_id]</td>"
