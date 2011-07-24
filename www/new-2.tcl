@@ -319,15 +319,15 @@ foreach nr $item_list {
     set type_id $item_type_id($nr)
     set material_id $item_material_id($nr)
 
-    set project_id $item_project_id($nr)   
+    set project_id_item $item_project_id($nr)   
     # project_id is empty when document is created from scratch
     # project_id is required for grouped invoice items 
-    if { ""==$project_id } {set project_id $project_id}
+    if { ""==$project_id_item } { set project_id_item $project_id }
 
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
     set task_id $item_task_id($nr)
-
+    
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
     ns_log NOTICE "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, item_uom_id: $uom_id"
 
@@ -354,6 +354,7 @@ foreach nr $item_list {
 	}
 
         set insert_invoice_items_sql "
+
         INSERT INTO im_invoice_items (
                 item_id, item_name,
                 project_id, invoice_id,
@@ -364,13 +365,13 @@ foreach nr $item_list {
                 item_status_id, description, task_id
         ) VALUES (
                 :item_id, :name,
-                :project_id, :invoice_id,
+                :project_id_item, :invoice_id,
                 :units, :uom_id,
                 :rate, :invoice_currency,
                 :sort_order, :type_id,
                 :material_id,
                 null, '', :task_id
-        )"
+	)" 
 
         db_dml insert_invoice_items $insert_invoice_items_sql
 
