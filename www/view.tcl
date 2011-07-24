@@ -874,7 +874,7 @@ if { 0 == $item_list_type } {
 	# item_list_type: Translation Project Hirarchy   
     	set invoice_items_sql "
                         select
-                                ii.item_source_project_id as parent_id,
+                                ii.project_id as parent_id,
 				p.project_id as project_id,
                                 item_name as parent_name,
                                 item_name as project_name,
@@ -890,7 +890,7 @@ if { 0 == $item_list_type } {
                         where
                                 invoice_id=:invoice_id
 			order by 
-				ii.item_source_project_id; 
+				ii.project_id; 
 	"
 
         set old_parent_id -1
@@ -898,7 +898,10 @@ if { 0 == $item_list_type } {
         set amount_sub_total 0
 
         db_foreach related_projects $invoice_items_sql {
-		# ad_return_complaint 1 "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
+	    	if { ![info exists parent_id"] } {
+			ad_return_complaint "Preview not supported, maybe you created the invoice with an older version of PO" 
+		}
+		ns_log NOTICE "ctr: $ctr, old_parent_id: $old_parent_id, parent_id: $parent_id, level: $level, amount_sub_total: $amount_sub_total, task_id: $task_id"
                 # SUBTOTALS
                 if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
 	                append invoice_item_html "
