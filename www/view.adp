@@ -74,13 +74,20 @@
 	  <A HREF="/intranet-invoices/view?@preview_vars@">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template "Preview using template"] %>
 	  </A>
-
+        <li>
+          <% set render_template_id $template_id %>
+          <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+          <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=100">
+                <%= [lang::message::lookup "" intranet-invoices.Preview_grouped_invoice_items "Preview: Grouped invoice items (HTML only) "] %>
+          </A>
+        </li>
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=1">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template "Preview using template with task information"] %>
 	  </A>
+	</li>
 
 <if @pdf_enabled_p@>
 	<li>
@@ -89,6 +96,7 @@
 	  <A HREF="/intranet-invoices/view?@preview_vars@&output_format=pdf">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_as_PDF "Preview as PDF"] %>
 	  </A>
+	</li>
 </if>
 
 <if @timesheet_report_enabled_p@>
