@@ -17,7 +17,7 @@ ad_page_contract {
     { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
-    { company_contact_id:integer,trim "" }
+     { company_contact_id:integer,trim "" }
     { invoice_office_id "" }
     { project_id:integer "" }
     invoice_nr
@@ -46,7 +46,7 @@ ad_page_contract {
     item_rate:trim,float,array
     item_currency:array
     item_task_id:integer,array
-    { return_url "/intranet-invoices/" }
+   { return_url "/intranet-invoices/" }
 }
 
 
@@ -108,9 +108,11 @@ foreach item_nr [array names item_currency] {
 # Defaults & Security
 # ---------------------------------------------------------------
 
+
 set user_id [ad_maybe_redirect_for_registration]
 set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
-if {!$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id} {
+# if !$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id
+if {!$write_p || ![im_permission $user_id add_invoices] } {
     set cost_type_name [db_string ccname "select im_category_from_id(:cost_type_id)" -default "not found"]
     set cost_center_name [db_string ccname "select im_cost_center_name_from_id(:cost_center_id)" -default "not found"]
     ad_return_complaint 1 "<li>You don't have sufficient privileges to create documents of type '$cost_type_name' in CostCenter '$cost_center_name' (id=\#$cost_center_id)."
@@ -316,33 +318,59 @@ foreach nr $item_list {
     set uom_id $item_uom_id($nr)
     set type_id $item_type_id($nr)
     set material_id $item_material_id($nr)
-    set project_id $item_project_id($nr)
+
+    set project_id $item_project_id($nr)   
+    # project_id is empty when document is created from scratch
+    # project_id is required for grouped invoice items 
+    if { ""==$project_id } {set project_id $project_id}
+
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
     set task_id $item_task_id($nr)
+
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
+    ns_log NOTICE "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, item_uom_id: $uom_id"
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
 	set item_id [db_nextval "im_invoice_items_seq"]
-	set insert_invoice_items_sql "
-	INSERT INTO im_invoice_items (
-		item_id, item_name, 
-		project_id, invoice_id, 
-		item_units, item_uom_id, 
-		price_per_unit, currency, 
-		sort_order, item_type_id, 
-		item_material_id,
-		item_status_id, description, task_id
-	) VALUES (
-		:item_id, :name, 
-		:project_id, :invoice_id, 
-		:units, :uom_id, 
-		:rate, :invoice_currency, 
-		:sort_order, :type_id, 
-		:material_id,
-		null, '', :task_id
-	)"
+
+	# sanity check 
+	set san_sql "
+                select
+                        count(*)
+                from
+                        im_invoice_items
+                where
+                        invoice_id = :invoice_id
+			and project_id = :project_id 
+			and item_uom_id = :uom_id 
+			and sort_order = :sort_order
+			and item_name = :name
+	"
+
+	if { "0" != [db_string get_view_id $san_sql -default 0] } {
+		ad_return_complaint 1 "Can't create invoice, please verify that there are no duplicate invoice item names"
+	}
+
+        set insert_invoice_items_sql "
+        INSERT INTO im_invoice_items (
+                item_id, item_name,
+                project_id, invoice_id,
+                item_units, item_uom_id,
+                price_per_unit, currency,
+                sort_order, item_type_id,
+                item_material_id,
+                item_status_id, description, task_id
+        ) VALUES (
+                :item_id, :name,
+                :project_id, :invoice_id,
+                :units, :uom_id,
+                :rate, :invoice_currency,
+                :sort_order, :type_id,
+                :material_id,
+                null, '', :task_id
+        )"
 
         db_dml insert_invoice_items $insert_invoice_items_sql
 
@@ -399,8 +427,6 @@ im_invoice_update_rounded_amount \
     -invoice_id $invoice_id \
     -discount_perc $discount_perc \
     -surcharge_perc $surcharge_perc
-
-
 
 
 db_release_unused_handles
