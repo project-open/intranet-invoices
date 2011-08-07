@@ -17,7 +17,7 @@ ad_page_contract {
     { customer_id:integer "" }
     { provider_id:integer "" }
     { select_project:integer,multiple {} }
-     { company_contact_id:integer,trim "" }
+    { company_contact_id:integer,trim "" }
     { invoice_office_id "" }
     { project_id:integer "" }
     invoice_nr
@@ -46,7 +46,8 @@ ad_page_contract {
     item_rate:trim,float,array
     item_currency:array
     item_task_id:integer,array
-   { return_url "/intranet-invoices/" }
+    source_invoice_id:integer,array
+    { return_url "/intranet-invoices/" }
 }
 
 
@@ -318,6 +319,7 @@ foreach nr $item_list {
     set uom_id $item_uom_id($nr)
     set type_id $item_type_id($nr)
     set material_id $item_material_id($nr)
+    set item_source_invoice_id $source_invoice_id($nr)     
 
     set project_id_item $item_project_id($nr)   
     # project_id is empty when document is created from scratch
@@ -353,8 +355,11 @@ foreach nr $item_list {
 		ad_return_complaint 1 "Can't create invoice, please verify that there are no duplicate invoice item names"
 	}
 
-        set insert_invoice_items_sql "
+	if { ![info exists source_invoice_id] } {
+		set source_invoice_id -1
+	}
 
+        set insert_invoice_items_sql "
         INSERT INTO im_invoice_items (
                 item_id, item_name,
                 project_id, invoice_id,
@@ -362,7 +367,8 @@ foreach nr $item_list {
                 price_per_unit, currency,
                 sort_order, item_type_id,
                 item_material_id,
-                item_status_id, description, task_id
+                item_status_id, description, task_id,
+		item_source_invoice_id
         ) VALUES (
                 :item_id, :name,
                 :project_id_item, :invoice_id,
@@ -370,7 +376,8 @@ foreach nr $item_list {
                 :rate, :invoice_currency,
                 :sort_order, :type_id,
                 :material_id,
-                null, '', :task_id
+                null, '', :task_id,
+		:item_source_invoice_id
 	)" 
 
         db_dml insert_invoice_items $insert_invoice_items_sql
