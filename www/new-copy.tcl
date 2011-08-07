@@ -293,6 +293,7 @@ db_foreach invoice_items "" {
 	  </nobr></td>
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
+	<input type=hidden name=source_invoice_id.$ctr value='$invoice_id'>
 "
     incr ctr
 }
