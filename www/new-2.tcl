@@ -46,7 +46,7 @@ ad_page_contract {
     item_rate:trim,float,array
     item_currency:array
     item_task_id:integer,array
-    source_invoice_id:integer,array
+    source_invoice_id:array,optional,integer  
     { return_url "/intranet-invoices/" }
 }
 
@@ -319,8 +319,11 @@ foreach nr $item_list {
     set uom_id $item_uom_id($nr)
     set type_id $item_type_id($nr)
     set material_id $item_material_id($nr)
-    set item_source_invoice_id $source_invoice_id($nr)     
-
+    if { [info exists source_invoice_id($nr)] } {
+	set item_source_invoice_id $source_invoice_id($nr)     
+    } else {
+	set item_source_invoice_id ""
+    }
     set project_id_item $item_project_id($nr)   
     # project_id is empty when document is created from scratch
     # project_id is required for grouped invoice items 
