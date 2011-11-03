@@ -318,7 +318,7 @@ set item_list [array names item_name]
 set name_list [list]
 foreach nr $item_list {
     if { -1 != [lsearch $name_list $item_name($nr)] } {
-        ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr) - $nr.<br>Please ensure that item names are unique. Use the back button of your browser to rename item. <br>Consider adding spaces if item can't be renamed"
+        ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr)<br>Please ensure that item names are unique. Use the back button of your browser to rename item. <br>Consider adding spaces if item can't be renamed"
     } else {
         lappend name_list $item_name($nr)
     }
