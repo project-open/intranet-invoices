@@ -313,6 +313,17 @@ db_dml delete_invoice_items "
 "
 
 set item_list [array names item_name]
+
+# sanity check for double item names
+set name_list [list]
+foreach nr $item_list {
+    if { -1 != [lsearch $name_list $item_name($nr)] } {
+        ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr) - $nr.<br>Please ensure that item names are unique. Use the back button of your browser to rename item. <br>Consider adding spaces if item can't be renamed"
+    } else {
+        lappend name_list $item_name($nr)
+    }
+}
+
 foreach nr $item_list {
     set name $item_name($nr)
     set units $item_units($nr)
@@ -339,24 +350,6 @@ foreach nr $item_list {
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
 	set item_id [db_nextval "im_invoice_items_seq"]
-
-	# sanity check 
-	set san_sql "
-                select
-                        count(*)
-                from
-                        im_invoice_items
-                where
-                        invoice_id = :invoice_id
-			and project_id = :project_id 
-			and item_uom_id = :uom_id 
-			and sort_order = :sort_order
-			and item_name = :name
-	"
-
-	if { "0" != [db_string get_view_id $san_sql -default 0] } {
-		ad_return_complaint 1 "Can't create invoice, please verify that there are no duplicate invoice item names"
-	}
 
 	if { ![info exists source_invoice_id] } {
 		set source_invoice_id -1
