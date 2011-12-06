@@ -207,7 +207,6 @@ if {"" == $company_contact_id } {
 
 set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]
 
-
 # ---------------------------------------------------------------
 # Update invoice base data
 # ---------------------------------------------------------------
@@ -222,6 +221,9 @@ if {!$invoice_exists_p} {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action after_create -status_id $cost_status_id -type_id $cost_type_id
 
 }
+
+# Give company_contact_id READ permissions - required for Customer Portal 
+permission::grant -object_id $invoice_id -party_id $company_contact_id -privilege "read"
 
 # Check if the cost item was changed via outside SQL
 im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
