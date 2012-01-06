@@ -213,13 +213,8 @@ set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "En
 
 # Just update the invoice if it already exists:
 if {!$invoice_exists_p} {
-
     # Let's create the new invoice
     set invoice_id [db_exec_plsql create_invoice ""]
-
-    # Audit the creation of the invoice
-    im_audit -object_type "im_invoice" -object_id $invoice_id -action after_create -status_id $cost_status_id -type_id $cost_type_id
-
 }
 
 # Give company_contact_id READ permissions - required for Customer Portal 
@@ -270,10 +265,6 @@ set
 where
 	cost_id = :invoice_id
 "
-
-# Audit the update
-im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update -status_id $cost_status_id -type_id $cost_type_id
-
 
 if {$canned_note_enabled_p} {
 
@@ -438,6 +429,21 @@ im_invoice_update_rounded_amount \
     -invoice_id $invoice_id \
     -discount_perc $discount_perc \
     -surcharge_perc $surcharge_perc
+
+
+# ---------------------------------------------------------------
+# 
+# ---------------------------------------------------------------
+
+# Audit the creation of the invoice
+if {!$invoice_exists_p} {
+    # Audit creation
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action after_create -status_id $cost_status_id -type_id $cost_type_id
+} else {
+    # Audit the update
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update -status_id $cost_status_id -type_id $cost_type_id
+}
+
 
 
 db_release_unused_handles
