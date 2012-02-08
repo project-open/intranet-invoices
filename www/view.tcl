@@ -1324,7 +1324,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	# ------------------------------------------------
         # Process the content.xml file
 
-	set odt_template_content [$root asXML]
+	set odt_template_content [$root asXML -indent none]
 
 	# Perform replacements
         eval [template::adp_compile -string $odt_template_content]
