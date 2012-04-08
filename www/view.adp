@@ -108,7 +108,7 @@
 	  <A HREF="@ts_url;noquote@">
 		<%= [lang::message::lookup "" intranet-invoices.Show_Included_Timesheet_Hours "Show Included Timesheet Hours"] %>
 	  </A>
-
+	</li>
 </if>
 
 
@@ -193,6 +193,17 @@
  Documentation"] %></a>)
 </if>
 </if>
+
+<if @memorized_transaction_installed_p@>
+        <li>
+          <a href="/intranet-memorized-transaction/new?object_id=@invoice_id@&return_url=@return_url@">
+                <%=[lang::message::lookup "" intranet-memorized-transaction.Create_New_Memorized_Transaction "Create new memorized transaction "] %>
+          </a>
+        </li>
+</if>
+
+
+
 
 	</ul>
 
