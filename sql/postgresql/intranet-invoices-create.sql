@@ -280,7 +280,7 @@ from
 	im_costs ci
 where
 	ci.cost_id = i.invoice_id
-	and ci.cost_status_id not in (3712);
+	and ci.cost_status_id not in (3812);
 
 
 create or replace view im_payment_type as 
