@@ -1462,7 +1462,7 @@ if {$cost_type_id == [im_cost_type_po]} {
 # Allow Memorized Transaction if package is installed 
 # ---------------------------------------------------------------------
 
-set memorized_transaction_installed_p [llength [db_string memorized_transaction_installed_p "select package_id from apm_packages where package_key = 'intranet-memorized-transaction'" -default 0]]
+set memorized_transaction_installed_p [db_string memorized_transaction_installed_p "select count(*) from apm_packages where package_key = 'intranet-memorized-transaction'"]
 
 # ---------------------------------------------------------------------
 # ERR mess from intranet-trans-invoices
