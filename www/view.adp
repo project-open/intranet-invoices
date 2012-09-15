@@ -365,3 +365,5 @@
 
 </td></tr>
 </table>
+
+<%=[im_component_insert "Filestorage Financial Document"]%>
