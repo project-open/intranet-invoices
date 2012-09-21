@@ -146,8 +146,7 @@ create table im_invoices (
 --	that may contain basically everything that fits in one line
 --	and has a price.
 -- -	Invoice items can created manually or generated from
---	"invoicable items" such as im_trans_tasks, timesheet information
---	or similar.
+--	"invoicable items".
 -- All fields (number of units, price, description) need to be 
 -- human editable because invoicing is so messy...
 
