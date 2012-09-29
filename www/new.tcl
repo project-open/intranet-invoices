@@ -447,6 +447,9 @@ if {[string equal $invoice_mode "new"]} {
         </tr>
 	<input type=hidden name=item_project_id.$ctr value='$project_id'>
 	"
+	if { [info exists item_source_invoice_id] } {
+	    append task_sum_html " <input type=hidden name=source_invoice_id.$ctr value='$item_source_invoice_id'>"
+	}
 	incr ctr
     }
 }
