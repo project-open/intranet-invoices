@@ -343,7 +343,7 @@ foreach nr $item_list {
     set task_id $item_task_id($nr)
     
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
-    ns_log NOTICE "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, item_uom_id: $uom_id"
+    ns_log Notice "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, item_uom_id: $uom_id"
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
