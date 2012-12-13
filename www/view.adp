@@ -367,3 +367,4 @@
 </table>
 
 <%=[im_component_insert "Filestorage Financial Document"]%>
+<%=[im_component_insert "Audit Trail Invoices"]%>
