@@ -147,6 +147,14 @@
 		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
+
+        <if @cost_type_id@ eq @invoice_cost_type_id@>
+        <li>
+           <A HREF="/intranet-invoices/new-copy?target_cost_type_id=3700&source_cost_type_id=3700&source_invoice_id=<%=$invoice_id%>">
+                 <%= [lang::message::lookup "" intranet-invoices.Duplicate_Invoice "Duplicate Invoice"] %>
+           </A>
+        </li>
+
 </if>
 
 
