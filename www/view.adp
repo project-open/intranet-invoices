@@ -154,7 +154,7 @@
                  <%= [lang::message::lookup "" intranet-invoices.Duplicate_Invoice "Duplicate Invoice"] %>
            </A>
         </li>
-
+	</if>
 </if>
 
 
