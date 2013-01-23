@@ -412,19 +412,12 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 	    default { set extra_url "" }
 	}
 
-	append object_list_html "
-        <tr $bgcolor([expr $ctr % 2])>
-          <td>
-            <A href=\"$url$object_id$extra_url\">$object_name</A>
-          </td>\n"
+	append object_list_html "<tr $bgcolor([expr $ctr % 2])>\n"
 	if {$write} {
-	    append object_list_html "
-          <td>
-            <input type=checkbox name=object_ids.$object_id>
-          </td>\n"
+	    append object_list_html "<td><input type=checkbox name=object_ids.$object_id></td>\n"
 	}
-	append object_list_html "
-        </tr>\n"
+	append object_list_html "<td><A href=\"$url$object_id$extra_url\">$object_name</A></td>\n"
+	append object_list_html "</tr>\n"
 	incr ctr
     }
 
@@ -435,6 +428,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
         </tr>\n"
     }
 
+    set return_url [im_url_with_query]
     set return_html "
       <form action=invoice-association-action method=post>
       [export_form_vars invoice_id return_url]
@@ -447,12 +441,12 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
     if {$write} {
 	append return_html "
         <tr>
-          <td align=right>
-            <input type=submit name=add_project_action value='[_ intranet-invoices.Add_a_Project]'>
-            </A>
-          </td>
-          <td>
-            <input type=submit name=del_action value='[_ intranet-invoices.Del]'>
+          <td align=left colspan=2>
+	    <select name=action>
+	    <option value='set_invoiced'>[lang::message::lookup "" intranet-invoices.Set_to_invoiced "Set to invoiced"]</option>
+	    <option value='delete'>[_ intranet-core.Delete]</option>
+	    <option value='add_project'>[_ intranet-invoices.Add_a_Project]</option>
+            <input type=submit value='[_ intranet-core.Apply]'>
           </td>
         </tr>\n"
     }

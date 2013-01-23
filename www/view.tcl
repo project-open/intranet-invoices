@@ -45,6 +45,11 @@ set user_locale [lang::user::locale]
 set locale $user_locale
 set page_title ""
 
+set gen_vars ""
+set blurb ""
+set notify_vars ""
+set url ""
+
 # Security is defered after getting the invoice information
 # from the database, because the customer's users should
 # be able to see this invoice even if they don't have any
@@ -1591,3 +1596,4 @@ if { "" != $err_mess } {
     set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
 }
 
+set admin_p 1

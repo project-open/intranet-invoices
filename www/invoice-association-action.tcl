@@ -21,11 +21,12 @@ ad_page_contract {
     { invoice_id:integer 0 }
     { project_id:integer 0 }
     { customer_id:integer 0 }
-    { del_action "" }
-    { add_project_action "" }
+    { action "" }
     { object_ids:array,optional }
     { return_url "/intranet-invoices/" }
 }
+
+# ad_return_complaint 1 "action=$action, invoice_id=$invoice_id, project_id=$project_id, object_ids=[array get object_ids], return_url=$return_url"
 
 # ---------------------------------------------------------------
 # Security
@@ -44,7 +45,6 @@ if {!$write_p} {
 # ---------------------------------------------------------------
 
 set page_focus "im_header_form.keywords"
-
 set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
@@ -53,11 +53,12 @@ set cost_type [db_string cost_type "select im_category_from_id(cost_type_id) fro
 set page_title [lang::message::lookup "" intranet-invoices.Associate_cost_type_with_project "Associate %cost_type% with a Project"]
 set context_bar [im_context_bar [list /intranet/invoices/ "Finance"] $page_title]
 
+
 # ---------------------------------------------------------------
-# Del-Action: Delete the selected associated objects
+# Delete Action: Delete the selected associated objects
 # ---------------------------------------------------------------
 
-if {"" != $del_action && [info exists object_ids]} {
+if {"delete" == $action} {
     foreach object_id [array names object_ids] {
 	ns_log Notice "intranet-invoices/invoice-associtation-action: deleting object_id=$object_id"
 	db_exec_plsql delete_association {}
@@ -86,8 +87,29 @@ if {"" != $del_action && [info exists object_ids]} {
     ad_abort_script
 }
 
+
+
 # ---------------------------------------------------------------
-# Get everything about the invoice
+# Set to Invoiced Action
+# ---------------------------------------------------------------
+
+if {"set_invoiced" == $action} {
+    foreach object_id [array names object_ids] {
+	ns_log Notice "intranet-invoices/invoice-associtation-action: set_invoiced: object_id=$object_id"
+	db_dml set_invoiced "
+		update im_projects
+		set project_status_id = [im_project_status_invoiced]
+		where project_id = :object_id
+	"
+    }
+
+    ad_returnredirect $return_url
+    ad_abort_script
+}
+
+
+# ---------------------------------------------------------------
+# Add Project Action
 # ---------------------------------------------------------------
 
 set customer_id_org $customer_id
