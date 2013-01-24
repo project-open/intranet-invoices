@@ -135,8 +135,14 @@ extra_select, extra_where, sort_order, visible_for) values (3598,35,NULL,'Del',
 
 -- Invoice New Page (shows Projects)
 --
-delete from im_view_columns where column_id > 3100 and column_id < 3199;
+delete from im_view_columns where view_id = 31;
 --
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3100,31,NULL,
+'<input type=checkbox name=_dummy onclick="acs_ListCheckAll(''select_project'',this.checked)">',
+'"<input type=checkbox name=select_project value=$project_id id=''select_project,$project_id''>"',
+'','',0,'');
+
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3101,31,NULL,'Project #',
 '"<A HREF=/intranet/projects/view?project_id=$project_id>$project_nr</A>"','','',1,'');
@@ -153,11 +159,6 @@ insert into im_view_columns (column_id, view_id, group_id, column_name, column_r
 extra_select, extra_where, sort_order, visible_for) values (3113,31,NULL,'Delivery Date','$end_date','','',7,'');
 
 -- Now set to sort_order=0
-insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
-extra_select, extra_where, sort_order, visible_for) values (3115,31,NULL,'Sel',
-'"<input type=checkbox name=select_project value=$project_id>"',
-'','',0,'');
-
 
 
 -- Invoice Select Page
