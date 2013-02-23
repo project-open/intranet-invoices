@@ -81,6 +81,17 @@
                 <%= [lang::message::lookup "" intranet-invoices.Preview_grouped_invoice_items "Preview: Grouped invoice items (HTML only) "] %>
           </A>
         </li>
+
+<if @show_link_group_by_quote_p@>
+        <li>
+          <% set render_template_id $template_id %>
+          <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+          <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=120">
+                <%= [lang::message::lookup "" intranet-invoices.ShowLinkGroupByQuoteTxt "Preview: Grouped invoice items by Quote (HTML only) "] %>
+          </A>
+        </li>
+</if>
+
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>

@@ -124,6 +124,8 @@ set pdf_enabled_p [llength [info commands im_html2pdf]]
 # Unified Business Language?
 set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 
+# Special View - Shows total of quotes for each project   
+set show_link_group_by_quote_p [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "ShowLinkGroupByQuote" -default 0]
 
 # ---------------------------------------------------------------
 # Audit
