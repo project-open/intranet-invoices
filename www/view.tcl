@@ -1053,6 +1053,113 @@ if { 0 == $item_list_type } {
                 "
         }
 
+    } elseif { 120 == $item_list_type } {
+	
+        # Get Sub-Projects
+        set invoice_items_sql "
+                        select distinct
+                                ii.project_id
+                        from
+                                im_invoice_items ii
+                                left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=:invoice_id) )
+                        where
+                                invoice_id=:invoice_id
+                        order by
+                                ii.project_id
+        "
+
+        set old_project_id -1
+        set amount_total 0
+        set amount_sub_total 0
+        set ctr 0
+        set currency "EUR"
+
+        db_foreach related_projects $invoice_items_sql {
+                # SUBTOTALS
+            if { $old_project_id != $project_id } {
+                        # Customer Project Number of sub-project, internal Project-Nr of sub-project, internal Project Name of sub-project
+                        db_1row get_project_attributes "
+                                select
+                                        company_project_nr,
+                                        project_nr,
+                                        project_name
+                                from
+                                        im_projects
+                                where
+                                        project_id = $project_id
+                        "
+
+                        # Write header
+                        append invoice_item_html "
+                                  <tr><td class='invoiceroweven' colspan ='100' align='left'>$company_project_nr - $project_nr - $project_name</td></tr>
+                        "
+                        set old_project_id $project_id
+                    }
+
+                # Get all quotes for sub-project
+
+                set quotes_sql "
+                        select distinct
+                                item_source_invoice_id
+                        from
+                                im_invoice_items
+                        where
+                                project_id = $project_id and
+                                invoice_id = $invoice_id
+                "
+
+            db_foreach quotes $quotes_sql {
+                if { ![info exists item_source_invoice_id] || "" == $item_source_invoice_id  } {
+                                ad_return_complaint 1 "Preview not supported.<br>Maybe you have created a quote for project <a href='/intranet/projects/view?project_id=$project_id'>$project_id</a> with an earlier version of PO"
+                }
+                        set sum_sql "
+                                select
+                                        sum(a.line_total) as sum_quote
+                                from
+                                        (select
+                                                trunc((ii.price_per_unit * ii.item_units) :: numeric, 2) as line_total
+                                        from
+                                                im_invoice_items ii
+                                        where
+                                                project_id = $project_id and
+                                                item_source_invoice_id = $item_source_invoice_id
+                                        ) a
+                        "
+                set sum_quote [db_string get_sum_quote $sum_sql -default 0]
+                set quote_name [db_string get_quote_name "select cost_name from im_costs where cost_id = $item_source_invoice_id" -default 0]
+                        # Write Quote
+                        append invoice_item_html "
+                                <tr>
+                                <td $bgcolor([expr $ctr % 2]) align=right>$quote_name</td>
+                                <td $bgcolor([expr $ctr % 2]) align=left colspan='2'>&nbsp;</td>
+                                <td $bgcolor([expr $ctr % 2]) align=right>$sum_quote</td>
+                                </tr>
+                        "
+                set amount_sub_total [expr $amount_sub_total + $sum_quote]
+            } if_no_rows {
+                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
+            }
+
+                # Subtotal for sub-project
+                append invoice_item_html "
+                                <tr><td class='invoiceroweven' colspan ='100' align='right'>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                 "
+            set amount_total [expr $amount_sub_total + $amount_total]
+                set amount_sub_total 0
+                incr ctr
+        } if_no_rows {
+                ad_return_complaint 1 "Preview not supported, maybe you created the invoice with an older version of PO"
+        }
+        if { 0 != $amount_sub_total } {
+                append invoice_item_html "
+                        <tr><td class='invoiceroweven' colspan ='100' align='right'>
+                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                "
+        }
+
+# ********************
+
 } else {
 
 	set indent_level [db_string get_view_id "
