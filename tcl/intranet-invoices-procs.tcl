@@ -520,6 +520,10 @@ ad_proc im_invoices_unify_select_projects {
     all projects belong to a single super-project and reduces
     the list of related projects to that super-project.
 } {
+    # Remove duplicates
+    foreach p $select_projects { set p_hash($p) 1 }
+    set select_projects [array names p_hash]
+
     # Skip function if there is only a single project or none at all...
     if {[llength $select_projects] <= 1} { return $select_projects }
     
