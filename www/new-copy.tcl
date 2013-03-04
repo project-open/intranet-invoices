@@ -86,6 +86,8 @@ set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "Enab
 set material_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
 set project_type_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
 
+# Shoudl we chow CC ? 
+set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 
 # ---------------------------------------------------------------
 # Get everything about the original document

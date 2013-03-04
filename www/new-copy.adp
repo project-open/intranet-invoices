@@ -7,6 +7,7 @@
 <% set invoice_id $new_invoice_id %>
 <%= [export_form_vars invoice_id project_id return_url reference_document_id] %>
 @select_project_html;noquote@
+<if !@show_cost_center_p@><input type=hidden name=cost_center_id value=@cost_center_id@></if>
 
 <table border=0 width=100%>
 <tr><td>
@@ -25,13 +26,14 @@
 	            <input type=text name=invoice_nr size=15 value='@invoice_nr@'>
 	          </td>
 	        </tr>
-
+<if @show_cost_center_p@>
                 <tr>
                   <td  class=roweven>@cost_center_label@</td>
                   <td  class=roweven>
                   @cost_center_select;noquote@
                   </td>
                 </tr>
+</if>
 
 	        <tr> 
 	          <td  class=roweven>@target_cost_type@ date:</td>
