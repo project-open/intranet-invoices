@@ -127,6 +127,9 @@ set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 # Special View - Shows total of quotes for each project   
 set show_link_group_by_quote_p [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "ShowLinkGroupByQuote" -default 0]
 
+# Show CC ?
+set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+
 # ---------------------------------------------------------------
 # Audit
 # ---------------------------------------------------------------
