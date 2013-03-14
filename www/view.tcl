@@ -1552,6 +1552,10 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	set odt_template_content [$root asXML -indent none]
 
 	# Perform replacements
+
+	regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
+	regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
+
         eval [template::adp_compile -string $odt_template_content]
         set content $__adp_output
 
