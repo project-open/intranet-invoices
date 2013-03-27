@@ -7,7 +7,7 @@
 <% set invoice_id $new_invoice_id %>
 <%= [export_form_vars invoice_id project_id return_url reference_document_id] %>
 @select_project_html;noquote@
-<if !@show_cost_center_p@><input type=hidden name=cost_center_id value=@cost_center_id@></if>
+<if @show_cost_center_p@></if><else><input type=hidden name=cost_center_id value=@cost_center_id@></else>
 
 <table border=0 width=100%>
 <tr><td>
