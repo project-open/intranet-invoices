@@ -17,7 +17,7 @@ ad_page_contract {
     @author mbryzek@arsdigita.com
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
-    { order_by "Document" }
+    { order_by "Document #" }
     { cost_status_id:integer "[im_cost_status_created]" } 
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
@@ -194,7 +194,7 @@ ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 set counter_reset_expression ""
 set order_by_clause ""
 switch $order_by {
-    "Document" { 
+    "Document #" { 
 	set order_by_clause "order by invoice_nr DESC" 
 	set counter_reset_expression {$effective_month}
     }
