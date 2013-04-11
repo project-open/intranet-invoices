@@ -388,10 +388,14 @@ foreach nr $item_list {
 
 foreach project_id $select_project {
     db_1row "get relations" "
-		select	count(*) as v_rel_exists
-                from    acs_rels
-                where   object_id_one = :project_id
-                        and object_id_two = :invoice_id
+                select  count(*) as v_rel_exists
+                from    acs_rels r,
+                        im_projects p,
+                        im_projects sub_p
+                where   p.project_id = :project_id and
+                        sub_p.tree_sortkey between p.tree_sortkey and tree_right(p.tree_sortkey) and
+                        r.object_id_one = sub_p.project_id and
+                        r.object_id_two = :invoice_id
     "
     if {0 ==  $v_rel_exists} {
 	set rel_id [db_exec_plsql create_rel ""]
