@@ -448,7 +448,7 @@ foreach col $column_headers {
     regsub -all "#" $col_key "hash_simbol" col_key
     set col_loc [lang::message::lookup ""  intranet-invoices.$col_key $col]
 
-    if { [string compare $order_by $col] == 0 } {
+    if {[string compare $order_by $col] == 0 || [regexp {input} $col match]} {
 	append table_header_html "  <td class=rowtitle>$col_loc</td>\n"
     } else {
 	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col_loc</a></td>\n"
@@ -561,14 +561,21 @@ set table_continuation_html "
   </td>
 </tr>"
 
+set invoice_options [list "<option value=save>[lang::message::lookup "" intranet-invoices.Save_Changes "Save Changes"]</option>\n"]
+lappend invoice_options "<option value=del>[lang::message::lookup "" intranet-invoices.Delete "Delete"]</option>\n"
+set options_sql "select * from im_cost_status"
+db_foreach options $options_sql {
+    regsub -all " " $cost_status "_" cost_status_mangled
+    lappend invoice_options "<option value=status_$cost_status_id>[lang::message::lookup "" intranet-invoices.Set_to_status_$cost_status_mangled "Set to $cost_status"]</option>"
+}
+
 set button_html "
 <tr>
-  <td colspan=[expr $colspan - 3]></td>
-  <td align=center>
-    <input type=submit name=submit_save value='[_ intranet-invoices.Save]'>
-  </td>
-  <td align=center>
-    <input type=submit name=submit_del value='[_ intranet-invoices.Del]'>
+  <td colspan=$colspan>
+  <select name=invoice_action>
+  $invoice_options
+  </select>
+  <input type=submit name=submit_save value='[lang::message::lookup "" intranet-invoices.Update_Financial_Documents "Update Financial Documents"]'>
   </td>
 </tr>"
 

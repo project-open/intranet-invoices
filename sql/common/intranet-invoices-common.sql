@@ -52,6 +52,12 @@ values (35, 'invoice_list_subtotal', 'view_finance');
 --
 delete from im_view_columns where view_id = 30;
 --
+
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
+extra_select, extra_where, sort_order, visible_for) values (3000,30,NULL,'<input type=checkbox name=_dummy onclick=\"acs_ListCheckAll(''cost'',this.checked)\">',
+'[if {[string equal "" $payment_amount]} { set ttt "<input type=checkbox name=cost value=$invoice_id id=''cost,$invoice_id''>"}]','','',0,'');
+
+
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
 '"<A HREF=/intranet-invoices/view?invoice_id=$invoice_id>$invoice_nr</A>"',
@@ -88,13 +94,6 @@ extra_select, extra_where, sort_order, visible_for) values (3013,30,NULL,'Paid',
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3017,30,NULL,'Status',
 '$status_select','','',17,'');
-insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
-extra_select, extra_where, sort_order, visible_for) values (3098,30,NULL,'Del',
-'[if {[string equal "" $payment_amount]} {
-	set ttt "
-		<input type=checkbox name=del_cost value=$invoice_id>
-		<input type=hidden name=object_type.$invoice_id value=$object_type>"
-}]','','',99,'');
 
 
 

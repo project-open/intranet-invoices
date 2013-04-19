@@ -9,8 +9,8 @@
   <table width="100%" cellpadding=2 cellspacing=2 border=0>
     @table_header_html;noquote@
     @table_body_html;noquote@
-    @table_continuation_html;noquote@
     @button_html;noquote@
+    @table_continuation_html;noquote@
   </table>
 </form>
 
