@@ -35,10 +35,11 @@ if {!$write_p} {
     ad_script_abort
 }
 
+if {![info exists payment_id]} { set payment_id {} }
+
 
 if {"" != $del} {
     ns_log Notice "payment-action: delete payments: $payment_id"
-
     foreach pid $payment_id {
 	db_dml delete_payment "delete from im_payments where payment_id = :pid"
     }
