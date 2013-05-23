@@ -16,7 +16,7 @@ ad_page_contract {
 } {
     { return_url "/intranet-invoices/" }
     { cost:multiple "" }
-    cost_status:array
+    { cost_status:array ""}
     { invoice_action ""}
 }
 

@@ -61,7 +61,7 @@ if {[info exists del_invoice]} {
 	set view_name "finance"
 	set return_url [export_vars -base "/intranet/projects/view" {project_id view_name}] 
     }
-    ad_returnredirect [export_vars -base delete {invoice_id return_url}]
+    ad_returnredirect [export_vars -base invoice-action {{cost $invoice_id} {invoice_action del} return_url}]
 }
 
 
