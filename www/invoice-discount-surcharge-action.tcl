@@ -79,5 +79,9 @@ foreach i [array names line_perc] {
 
 im_invoice_update_rounded_amount -invoice_id $invoice_id
 
+# Audit the action
+im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update
+
+
 
 ad_returnredirect $return_url
