@@ -107,7 +107,12 @@ set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
 set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
-if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { set show_company_project_nr 0 }
+if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { 
+    set show_company_project_nr 0 
+    set invoice_or_quote_p 0
+} else {
+    set invoice_or_quote_p 1
+}
 
 
 # Show or not "our" and the "company" project nrs.
@@ -143,9 +148,6 @@ im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 # ---------------------------------------------------------------
 # Determine if it's an Invoice or a Bill
 # ---------------------------------------------------------------
-
-# Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_order] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
 
 # Vars for ADP (can't use the commands in ADP)
 set quote_cost_type_id [im_cost_type_quote]
