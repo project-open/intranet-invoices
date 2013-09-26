@@ -207,6 +207,7 @@ set related_projects_sql "
 		p.project_name,
 		p.project_nr,
 		p.parent_id,
+		p.description,
 		trim(both p.company_project_nr) as customer_project_nr
 	from
 	        acs_rels r,
@@ -219,6 +220,7 @@ set related_projects_sql "
 set related_projects {}
 set related_project_nrs {}
 set related_project_names {}
+set related_project_descriptions ""
 set related_customer_project_nrs {}
 
 set num_related_projects 0
@@ -229,6 +231,12 @@ db_foreach related_projects $related_projects_sql {
     }
     if {"" != $project_name} { 
 	lappend related_project_names $project_name 
+    }
+    
+    if {"" != $description && 0 == $num_related_projects} {
+        append related_project_descriptions $description
+    } else {
+	append related_project_descriptions ", $description"
     }
 
     # Check of the "customer project nr" of the superproject, as the PMs
