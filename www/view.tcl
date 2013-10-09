@@ -1572,6 +1572,13 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
         eval [template::adp_compile -string $odt_template_content]
         set content $__adp_output
 
+	# Escape '&'. 
+	# Please note:  
+	# Other chars that would need to be escaped in XML are: <, >, ', "
+	# This needs to be done for all vars obtained from the db and that could be used as placeholder in a form
+	# ACS Template might provide a way of doing it.   
+	regsub -all {&} $content {&amp;} content
+
 	# Save the content to a file.
 	set file [open $odt_content w]
 	fconfigure $file -encoding "utf-8"
