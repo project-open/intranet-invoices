@@ -104,7 +104,7 @@
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
-	  <A HREF="/intranet-invoices/view?@preview_vars@&output_format=pdf">
+	  <A HREF="/intranet-invoices/view?@preview_vars@&output_format=pdf&pdf_p=1">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_as_PDF "Preview as PDF"] %>
 	  </A>
 	</li>
