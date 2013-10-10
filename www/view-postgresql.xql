@@ -23,7 +23,8 @@
 	im_category_from_id(i.item_uom_id) as item_uom,
 	p.project_nr as project_short_name,
 	round(i.price_per_unit * i.item_units * :rf) / :rf as amount,
-	to_char(round(i.price_per_unit * i.item_units * :rf) / :rf, :cur_format) as amount_formatted
+	to_char(round(i.price_per_unit * i.item_units * :rf) / :rf, :cur_format) as amount_formatted,
+        i.currency as item_currency
       from
 	im_invoice_items i
 	      LEFT JOIN im_projects p on i.project_id=p.project_id
