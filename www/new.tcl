@@ -506,19 +506,10 @@ for {set i 0} {$i < 3} {incr i} {
 # Pass along the number of projects related to this document
 # ---------------------------------------------------------------
 
-# fraber 080515: @CTP: the project_id comes from im_invoice_ITEMS,
-# and causes trouble (adding an additional project to the list of
-# related projects). Did this code (own_project_related) make ever
-# sense?
-
-set own_project_related ""
-if {0 != $project_id} { set own_project_related "UNION select :project_id as project_id" }
-
 set related_project_sql "
 	select	object_id_one as project_id
 	from	acs_rels r
 	where	r.object_id_two = :invoice_id
-	$own_project_related
 "
 
 set select_project_html ""
@@ -529,4 +520,3 @@ db_foreach related_project $related_project_sql {
 set sub_navbar [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] 
 
 db_release_unused_handles
-
