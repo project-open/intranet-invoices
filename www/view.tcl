@@ -1,6 +1,6 @@
 # /packages/intranet-invoices/www/view.tcl
 #
-# Copyright (C) 2003 - 2009 ]project-open[
+# Copyright (C) 2003 - 2013 ]project-open[
 #
 # All rights reserved. Please check
 # http://www.project-open.com/license/ for details.
@@ -22,6 +22,7 @@ ad_page_contract {
            and then redirect to the mail sending page.
 
     @author frank.bergmann@project-open.com
+    @author klaus.hofeditz@project-open.com
 } {
     { invoice_id:integer 0}
     { object_id:integer 0}
@@ -43,6 +44,19 @@ ad_page_contract {
 # Based on his decision the code should be cleaned up
 
 # ---------------------------------------------------------------
+# Helper Procs
+# ---------------------------------------------------------------
+
+proc encodeXmlValue {value} {
+    regsub -all {&} $value {&amp;} value
+    regsub -all {"} $value {&quot;} value; # "
+    # regsub -all {'} $value {&apos;} value
+    regsub -all {<} $value {&lt;} value
+    regsub -all {>} $value {&gt;} value
+    return $value
+}
+
+# ---------------------------------------------------------------
 # Defaults & Security
 # ---------------------------------------------------------------
 
@@ -56,6 +70,9 @@ set gen_vars ""
 set blurb ""
 set notify_vars ""
 set url ""
+
+# We have to avoid that already escaped vars in the item section will be escaped again 
+set vars_escaped [list]
 
 # Security is defered after getting the invoice information
 # from the database, because the customer's users should
@@ -592,7 +609,6 @@ if {"odt" == $template_type} {
 
     # Convert the tDom tree into XML for rendering
     set odt_row_template_xml [$odt_template_row_node asXML]
-    
 }
 
 
@@ -884,9 +900,25 @@ if { 0 == $item_list_type } {
 	          <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
 		</tr>"
 	
-	
 	    # Insert a new XML table row into OpenOffice document
 	    if {"odt" == $template_type} {
+		ns_log NOTICE "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
+		set lines [split $odt_row_template_xml \n]
+		foreach line $lines {
+		    set var_to_be_escaped ""
+		    regexp -nocase {@(.*?)@} $line var_to_be_escaped
+		    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
+		    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
+		    lappend vars_escaped $var_to_be_escaped
+		    if { "" != $var_to_be_escaped  } {
+			set value [eval "set value \"$$var_to_be_escaped\""]
+			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
+			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
+			eval $cmd
+		    }
+		}
+		
 		set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
 		# Replace placeholders in the OpenOffice template row with values
 		eval [template::adp_compile -string $odt_row_template_xml]
@@ -1556,11 +1588,11 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	# ------------------------------------------------
         # setup and constants
 	
-	if {$internal_path != "internal"} {
-	    set internal_tax_id "208 171 00202"
-	} else {
-	    set internal_tax_id "208 120 20138"
-	}
+	# if {$internal_path != "internal"} {
+	#    set internal_tax_id "208 171 00202"
+	# } else {
+	#    set internal_tax_id "208 120 20138"
+	# }
 
 	# ------------------------------------------------
 	# Delete the original template row, which is duplicate
@@ -1569,22 +1601,37 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	# ------------------------------------------------
         # Process the content.xml file
 
-	set odt_template_content [$root asXML -indent none]
+	set odt_template_content [$root asXML -indent 1]
+
+	# Escaping other vars used, skip vars already escaped for multiple lines  
+	ns_log NOTICE "intranet-invoices-www-view:: Now escaping all other vars used in template"
+	set lines [split $odt_template_content \n]
+	foreach line $lines {
+            ns_log NOTICE "intranet-invoices-www-view:: Line: $line"
+            set var_to_be_escaped ""
+	    regexp -nocase {@(.*?)@} $line var_to_be_escaped    
+            regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
+	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
+            ns_log NOTICE "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
+	    if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
+		if { "" != $var_to_be_escaped  } {
+		    set value [eval "set value \"$$var_to_be_escaped\""]
+		    ns_log NOTICE "intranet-invoices-www-view:: Other vars - Value: $value"
+		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+		    eval $cmd
+		}
+	    } else {
+		ns_log NOTICE "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
+	    }
+	}
 
 	# Perform replacements
-
 	regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
 	regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
 
+	# Rendering 
         eval [template::adp_compile -string $odt_template_content]
         set content $__adp_output
-
-	# Escape '&'. 
-	# Please note:  
-	# Other chars that would need to be escaped in XML are: <, >, ', "
-	# This needs to be done for all vars obtained from the db and that could be used as placeholder in a form
-	# ACS Template might provide a way of doing it.   
-	regsub -all {&} $content {&amp;} content
 
 	# Save the content to a file.
 	set file [open $odt_content w]
