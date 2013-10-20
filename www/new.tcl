@@ -19,7 +19,9 @@ ad_page_contract {
            Indicates that "Create Invoice" button was
            used to start creating an invoice from a Quote or a
            Provider Bill from a Purchase Order
-
+    @param par_im_next_invoice_nr 
+    	   Content that can be passed onto im_next_invoice_nr and from there to a 
+           custom routine generating the invoice_nr 
     @author frank.bergmann@project-open.com
 } {
     { include_task:multiple "" }
@@ -32,6 +34,7 @@ ad_page_contract {
     { invoice_currency ""}
     { create_invoice_from_template ""}
     { return_url "/intranet-invoices/list"}
+    { par_im_next_invoice_nr "" }
     del_invoice:optional
 }
 
@@ -244,7 +247,7 @@ if {$invoice_id} {
     set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.Finance]"] $page_title]
 
     set invoice_id [im_new_object_id]
-    set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id]
+    set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id -par_im_next_invoice_nr $par_im_next_invoice_nr]
     set cost_status_id [im_cost_status_created]
     set effective_date $todays_date
     set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
