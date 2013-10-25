@@ -1615,10 +1615,12 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
             ns_log NOTICE "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
 	    if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
 		if { "" != $var_to_be_escaped  } {
-		    set value [eval "set value \"$$var_to_be_escaped\""]
-		    ns_log NOTICE "intranet-invoices-www-view:: Other vars - Value: $value"
-		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
-		    eval $cmd
+		    if { [info exists $var_to_be_escaped] } {
+			set value [eval "set value \"$$var_to_be_escaped\""]
+			ns_log NOTICE "intranet-invoices-www-view:: Other vars - Value: $value"
+			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+			eval $cmd
+		    }
 		}
 	    } else {
 		ns_log NOTICE "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
