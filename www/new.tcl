@@ -509,16 +509,31 @@ for {set i 0} {$i < 3} {incr i} {
 # Pass along the number of projects related to this document
 # ---------------------------------------------------------------
 
+# To clarify with Frank: 
+# We only want to get the rels related to a project 
 set related_project_sql "
-	select	object_id_one as project_id
-	from	acs_rels r
-	where	r.object_id_two = :invoice_id
+	select	
+		object_id_one as rel_project_id
+	from	
+		acs_rels r,
+		acs_objects o
+	where	
+		r.object_id_two = :invoice_id and 
+		r.object_id_one = o.object_id and 
+		o.object_type = 'im_project'
 "
 
 set select_project_html ""
 db_foreach related_project $related_project_sql {
-	append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
+	append select_project_html "<input type=hidden name=select_project value=$rel_project_id>\n"
 }
+
+# To clarify with Frank 
+# No select_project is passed on to new-2 when document is to be created and therfore no relationship can't be found 
+if { "" == $select_project_html && "" != $project_id && 0 != $project_id } {
+    append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
+}
+
 
 set sub_navbar [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] 
 
