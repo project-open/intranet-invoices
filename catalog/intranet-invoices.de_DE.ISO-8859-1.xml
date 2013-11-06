@@ -9,6 +9,7 @@
   <msg key="Amount">Betrag</msg>
   <msg key="Associate_cost_type_with_project">Auftrag mit Projekt verknüpfen</msg>
   <msg key="Blurb_multiple_currencies">Sie haben mehr als eine Währung in diesem Zahlungspapier benutzt. Dies ist mit der aktuellen Version von Project Open leider nicht möglich. Bitte teilen Sie ihre Zahlungspapiere in mehrere Papiere mit einheitlicher Währung auf. Zu den genutzten Währungen gehören:</msg>
+  <msg key="Canned_Note">Gespeicherte Kommentartexte</msg>
   <msg key="CC">Cc</msg>
   <msg key="Client">Kunde</msg>
   <msg key="Clone">Kopieren:</msg>
@@ -30,6 +31,8 @@
   <msg key="Costs">Kosten</msg>
   <msg key="Country">Land</msg>
   <msg key="Customer">Kunde</msg>
+  <msg key="Customer_Documents">Kundendokumente</msg>
+  <msg key="Customer_Invoice">Kundenrechnung</msg>
   <msg key="Customers">Kunden</msg>
   <msg key="Date">Datum</msg>
   <msg key="days">Tage</msg>
@@ -44,6 +47,7 @@
   <msg key="Edit_cost_type">Bearbeiten %cost_type%</msg>
   <msg key="Edit_cost_type_1">Bearbeiten %cost_type</msg>
   <msg key="Email">E-Mail</msg>
+  <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
   <msg key="Error_multiple_currencies">mehrere Währungsfehler</msg>
   <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
   <msg key="Export_Company_Cube">Unternehmenscube exportieren</msg>
@@ -51,6 +55,7 @@
   <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen-CSV exportieren</msg>
   <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
   <msg key="Export_Project_Cube">Projektcube exportieren</msg>
+  <msg key="Export_Projects_CSV">Projektliste als CSV exportieren</msg>
   <msg key="Export_Provider_Invoice_Cube">Exportiere Anbieterrechnung</msg>
   <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen als CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
@@ -58,10 +63,13 @@
   <msg key="Finance">Finanzen</msg>
   <msg key="Financial_Documents">Finanzdokumente</msg>
   <msg key="From">Von</msg>
+  <msg key="General_Manager">Geschäftsführer</msg>
   <msg key="Generate_Delivery_Note_from_Quote">Neuer Lieferschein vom Angebot</msg>
   <msg key="Generate_Invoice_from_Quote">Neue Rechnung vom Angebot</msg>
+  <msg key="Generate_Provider_Bill_from_Purchase_Order">Neue Lieferantenrechnung auf Basis eines Lieferantenauftrags</msg>
   <msg key="Go">Los</msg>
   <msg key="Hour">Stunde</msg>
+  <msg key="InterCo_Quote_New">Neues InterCo Angebot</msg>
   <msg key="intranet-invoices.Error_multiple_currencies">mehrere Währungsfehler</msg>
   <msg key="Invoice_Address">Rechnungsadresse</msg>
   <msg key="Line">Zeile</msg>
@@ -101,14 +109,19 @@ Mit freundlichen Grüßen
   <msg key="New_Company_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_cost_type">Bestätigen</msg>
   <msg key="New_Customer_Invoice_from_Delivery_Note">Neue Kundenrechnung auf Basis eines Lieferscheins</msg>
+  <msg key="New_Customer_Invoice_from_Invoice">Neue Kundenrechnung auf Basis einer anderen Kundenrechnung</msg>
   <msg key="New_Customer_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Customer_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Neue Kundenrechnung auf Basis von erfaßten Stunden</msg>
   <msg key="New_Delivery_Note_from_Quote">Neuer Lieferschein auf Basis eines Angebots</msg>
   <msg key="New_Delivery_Note_from_scratch">Neuer Lieferschein von Hand</msg>
+  <msg key="New_Delivery_Note_from_Translation_Tasks">Neuer Lieferantenauftrag auf Basis von Übersetzungsaufgaben</msg>
+  <msg key="New_InterCo_Invoice_from_Translation_Tasks">Neue InterCo Rechnung auf Basis von Übersetzungsaufgaben</msg>
+  <msg key="New_InterCo_Quote_from_Translation_Tasks">Neues InterCo Angebot auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Personal_Absence">Neue Abwesenheit (privat)</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Neue Lieferantenrechnung auf Basis eines Lieferantenauftrags</msg>
   <msg key="New_Provider_Bill_from_scratch">Neue Lieferantenrechnung ohne Vorlage</msg>
+  <msg key="New_Provider_Bill_from_Translation_Tasks">Neue Lieferantenrechnung auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">Neue Lieferantenrechnung auf Basis von Übersetzungsaufgaben
 </msg>
   <msg key="New_Purchase_Order_from_scratch">Neuer Lieferantenauftrag</msg>
@@ -143,11 +156,15 @@ Mit freundlichen Grüßen
   <msg key="Preview">Vorschau</msg>
   <msg key="Preview_as_HTML">Vorschau als HTML</msg>
   <msg key="Preview_as_PDF">Vorschau als PDF</msg>
+  <msg key="Preview_using_template">Vorschau mit Vorlage</msg>
   <msg key="Previous_Page">Vorherige Seite</msg>
   <msg key="Provider">Zulieferer</msg>
   <msg key="Provider_1">Zulieferer</msg>
+  <msg key="Provider_Bill">Lieferantenrechnung</msg>
   <msg key="Providers">Zulieferer</msg>
+  <msg key="Purchase_Order">Lieferantenauftrag</msg>
   <msg key="Qty">Quantität</msg>
+  <msg key="Quote">Angebot</msg>
   <msg key="Rate">Satz</msg>
   <msg key="Recipient">Empfänger</msg>
   <msg key="Related_Payments">Verwandte Zahlungen</msg>
@@ -160,9 +177,13 @@ Mit freundlichen Grüßen
   <msg key="Select_Customer">Kunden wählen</msg>
   <msg key="Select_documents">Dokuemente auswählen</msg>
   <msg key="Select_Project">Projekt auswählen</msg>
+  <msg key="Send_document_as_HTML_attachment">Dokument senden als HTML Anhang</msg>
+  <msg key="Send_document_as_HTML_link">Dokument senden als HTML Link</msg>
+  <msg key="Send_document_as_PDF_attachment">Dokument senden als PDF Anhang</msg>
   <msg key="Send_invoice_as_HTML_attachment">Sende Rechnung als HTML Anhang</msg>
   <msg key="Send_invoice_as_HTML_link">Sende Rechnung als HTML Link</msg>
   <msg key="Send_invoice_as_link">Sende Rechnung als Link</msg>
+  <msg key="Show_Included_Timesheet_Hours">Enthaltene Stunden aus der Zeiterfassung anzeigen</msg>
   <msg key="Start_Confirmation_Workflow">Bestätigungsworkflow starten</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Ausführen</msg>

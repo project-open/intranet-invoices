@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" locale="en_US" charset="ISO-8859-1">
+
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
   <msg key="Add_a_user">Add a user</msg>
   <msg key="Admin_Links">Admin Links</msg>
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
+  <msg key="Associate_cost_type_with_project">Associate cost type with project</msg>
   <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of ]project-open[. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
   <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
@@ -42,8 +44,8 @@
   <msg key="Edit_cost_type">Save %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Email">Email</msg>
-  <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
+  <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
   <msg key="Export_Company_Cube">Export Companies Cube</msg>
   <msg key="Export_Customer_Invoice_Cube">Export Customer Invoice Cube</msg>
