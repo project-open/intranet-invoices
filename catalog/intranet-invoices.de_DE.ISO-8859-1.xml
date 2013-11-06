@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="de_DE" charset="ISO-8859-1">
+<message_catalog package_key="intranet-invoices" locale="de_DE" charset="ISO-8859-1">
 
   <msg key="Add_a_Payment">Neue Zahlung</msg>
   <msg key="Add_a_Project">Projekte assoziieren</msg>
@@ -7,6 +7,7 @@
   <msg key="Admin_Links">Administrationslinks</msg>
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Betrag</msg>
+  <msg key="Associate_cost_type_with_project">Auftrag mit Projekt verknüpfen</msg>
   <msg key="Blurb_multiple_currencies">Sie haben mehr als eine Währung in diesem Zahlungspapier benutzt. Dies ist mit der aktuellen Version von Project Open leider nicht möglich. Bitte teilen Sie ihre Zahlungspapiere in mehrere Papiere mit einheitlicher Währung auf. Zu den genutzten Währungen gehören:</msg>
   <msg key="CC">Cc</msg>
   <msg key="Client">Kunde</msg>
@@ -65,15 +66,15 @@
   <msg key="Invoice_Address">Rechnungsadresse</msg>
   <msg key="Line">Zeile</msg>
   <msg key="lt_Cant_find_the_documen">Dokument Nr. %invoice_id% nicht gefunden</msg>
-  <msg key="lt_Dear_accounting_conta">Sehr geehrte( r) Frau/Herr %accounting_contact_name%,
-Eine neue %cost_type% wurde für sie erstellt auf
-%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
-
-Das neue Dokument steht im Zusamennhang mit dem/den Projekt(en):
-%select_projects;noquote%
-Bitte besuchen Sie den obigen Link und drucken das Dokument für Ihre persönliche Referenz aus.
-
-Mit freundlichen Grüßen
+  <msg key="lt_Dear_accounting_conta">Sehr geehrte( r) Frau/Herr %accounting_contact_name%,
+Eine neue %cost_type% wurde für sie erstellt auf
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
+
+Das neue Dokument steht im Zusamennhang mit dem/den Projekt(en):
+%select_projects;noquote%
+Bitte besuchen Sie den obigen Link und drucken das Dokument für Ihre persönliche Referenz aus.
+
+Mit freundlichen Grüßen
 %current_user_name%</msg>
   <msg key="lt_Generate_Invoice_from">Neue Rechnung auf Basis dieses Angebots</msg>
   <msg key="lt_Generate_Provider_Bil">Neue Rechnung auf Basis eines Auftrags</msg>
@@ -173,6 +174,7 @@ Mit freundlichen Grüßen
   <msg key="Timesheet_Customers_and_Projects">Arbeitszeitnachweis Kunden und Projekte</msg>
   <msg key="Timesheet_Productivity">Arbeitszeitnachweis Produktivität</msg>
   <msg key="Timesheet_Project_Hierarchy___Finance">Arbeitszeitnachweis Projekthierarchie &amp;amp; Finanzen</msg>
+  <msg key="Timesheet_Weekly_Report">Zeiterfassung Wochenreport</msg>
   <msg key="To">An</msg>
   <msg key="Total">Gesamt</msg>
   <msg key="Total_Due">Gesamtsumme</msg>
