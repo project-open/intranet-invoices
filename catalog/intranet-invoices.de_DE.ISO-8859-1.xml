@@ -113,6 +113,7 @@ Mit freundlichen Grüßen
   <msg key="New_Customer_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Customer_Invoice_from_scratch">Neue Kundenrechnung</msg>
   <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Neue Kundenrechnung auf Basis von erfaßten Stunden</msg>
+  <msg key="New_Customer_Invoice_from_Translation_Tasks">Neue Kundenrechnung auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Delivery_Note_from_Quote">Neuer Lieferschein auf Basis eines Angebots</msg>
   <msg key="New_Delivery_Note_from_scratch">Neuer Lieferschein von Hand</msg>
   <msg key="New_Delivery_Note_from_Translation_Tasks">Neuer Lieferantenauftrag auf Basis von Übersetzungsaufgaben</msg>
@@ -130,6 +131,7 @@ Mit freundlichen Grüßen
 </msg>
   <msg key="New_Quote_from_scratch">Neues Angebot von Hand</msg>
   <msg key="New_Quote_from_Timesheet_Tasks">Neues Angebot auf Basis von erfaßten Stunden</msg>
+  <msg key="New_Quote_from_Translation_Tasks">Neues Angebot auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Sick_Leave">Neue Abwesenheit (Krank)</msg>
   <msg key="New_Translation_Customer_Invoice">Neue Kundenrechnung auf Basis von Übersetzungsaufgaben.</msg>
   <msg key="New_Translation_Invoice">Neue Übersetzungsrechnung</msg>
