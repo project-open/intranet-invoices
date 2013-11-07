@@ -9,6 +9,7 @@
   <msg key="Amount">Amount</msg>
   <msg key="Associate_cost_type_with_project">Associate cost type with project</msg>
   <msg key="Blurb_multiple_currencies">You have used more then one currency in this financial document. This is not possible with the current version of ]project-open[. Please split your financial document into several documents with a single currency each. Used currencies include:</msg>
+  <msg key="Canned_Note">Canned Note</msg>
   <msg key="CC">CC</msg>
   <msg key="Client">Client</msg>
   <msg key="Clone">Clone</msg>
@@ -30,6 +31,8 @@
   <msg key="Costs">Costs</msg>
   <msg key="Country">Country</msg>
   <msg key="Customer">Customer</msg>
+  <msg key="Customer_Documents">Customer Financial Documents</msg>
+  <msg key="Customer_Invoice">Customer Invoice</msg>
   <msg key="Customers">Customers</msg>
   <msg key="Date">Date</msg>
   <msg key="days">days</msg>
@@ -60,6 +63,9 @@
   <msg key="Finance">Finance</msg>
   <msg key="Financial_Documents">Financial Documents</msg>
   <msg key="From">From:</msg>
+  <msg key="General_Manager">General Manager</msg>
+  <msg key="Generate_Delivery_Note_from_Quote">New Delivery Note from Quote</msg>
+  <msg key="Generate_Invoice_from_Quote">New Invoice from Quote</msg>
   <msg key="Generate_Provider_Bill_from_Purchase_Order">Generate Provider Bill from Purchase Order</msg>
   <msg key="Go">Go</msg>
   <msg key="Hour">Hour</msg>
@@ -147,11 +153,15 @@ Best regards,
   <msg key="Preview">Preview</msg>
   <msg key="Preview_as_HTML">Preview as HTML</msg>
   <msg key="Preview_as_PDF">Preview as PDF</msg>
+  <msg key="Preview_using_template">Preview Using Template</msg>
   <msg key="Previous_Page">Previous Page</msg>
   <msg key="Provider">Provider</msg>
   <msg key="Provider_1">Provider:</msg>
+  <msg key="Provider_Bill">Provider Bill</msg>
   <msg key="Providers">Providers</msg>
+  <msg key="Purchase_Order">Purchase Order</msg>
   <msg key="Qty">Qty.</msg>
+  <msg key="Quote">Quote</msg>
   <msg key="Rate">Rate</msg>
   <msg key="Recipient">Recipient</msg>
   <msg key="Related_Payments">Related Payments</msg>
@@ -166,9 +176,11 @@ Best regards,
   <msg key="Select_Project">Project Select</msg>
   <msg key="Send_document_as_HTML_attachment">Send document as HTML attachment</msg>
   <msg key="Send_document_as_HTML_link">Send document as HTML link</msg>
+  <msg key="Send_document_as_PDF_attachment">Send document as PDF attachment</msg>
   <msg key="Send_invoice_as_HTML_attachment">Send invoice as HTML attachment</msg>
   <msg key="Send_invoice_as_HTML_link">Send invoice as HTML link</msg>
   <msg key="Send_invoice_as_link">Send invoice as link</msg>
+  <msg key="Show_Included_Timesheet_Hours">Show included timesheet hours</msg>
   <msg key="Start_Confirmation_Workflow">Start Confirmation Workflow</msg>
   <msg key="Status">Status</msg>
   <msg key="Submit">Submit</msg>
@@ -180,6 +192,7 @@ Best regards,
   <msg key="Timesheet_Customers_and_Projects">Timesheet Customers and Projects</msg>
   <msg key="Timesheet_Productivity">Timesheet Productivity</msg>
   <msg key="Timesheet_Project_Hierarchy___Finance">Timesheet Project Hierarchy &amp; Finance</msg>
+  <msg key="Timesheet_Weekly_Report">Timesheet Weekly Report</msg>
   <msg key="To">To:</msg>
   <msg key="Total">Total</msg>
   <msg key="Total_Due">Total Due</msg>
