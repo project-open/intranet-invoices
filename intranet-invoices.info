@@ -6,13 +6,16 @@
     <pretty-plural>Project/Open Invoices</pretty-plural>
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
+    <implements-subsite-p>f</implements-subsite-p>
+    <inherit-templates-p>t</inherit-templates-p>
     <auto-mount>intranet-invoices</auto-mount>
 
-    <version name="4.0.5.0.0" url="http://www.project-open.org/download/apm/intranet-invoices-4.0.5.0.0.apm">
+    <version name="4.0.5.0.1" url="http://www.project-open.org/download/apm/intranet-invoices-4.0.5.0.1.apm">
         <owner url="mailto:frank.bergmann@project-open.com">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">]project-open[</vendor>
+        <maturity>0</maturity>
 
-        <provides url="intranet-invoices" version="3.4.0.8.4"/>
+        <provides url="intranet-invoices" version="4.0.5.0.0"/>
         <requires url="intranet-core" version="3.4.0.0.0"/>
         <requires url="intranet-cost" version="3.4.0.0.0"/>
         <requires url="intranet-payments" version="3.4.0.0.0"/>
@@ -20,39 +23,42 @@
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="AccuracyFinDocItems"  default="2" description="Accurancy of items in financial documents."/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="CustomInvoiceNrGenerator"  description="Configure a customer specific generator for &amp;quot;invoice_nr&amp;quot;, for example in order to generate different invoice numbers for different profit centers writing invoices etc. The default value for this parameter is &amp;quot;&amp;quot;. Any other value is interpreted as a procedure that takes the parameters: -cost_type_id, -cost_center_id_id and -date_format and returns the new invoice_nr."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountFieldP"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeFieldP"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceTaxFieldP"  default="1" description="Should we enabled the 'Tax' field on financial documents? This field is used to represent additional taxes for example IRPF (Spain). You can disable the field for Germany and other countries."/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleAmount"  default="align=right" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleDescription"  default="align=left" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleItemNr"  default="align=center" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleOurRef"  default="align=center" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitlePoNumber"  default="align=center" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleQuantity"  default="align=right" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleRate"  default="align=right" description="Decoration for title of invoice table: "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleUnit"  default="align=left" description="Decoration for title of invoice table: "/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceNrAutoIncrementP"  default="0" description="Show the system automatically increment a financial document's invoice_nr if we find that the specified number already exists? This option is useful in large companies with many users creating projects in parallel. Default is 0 to disable this feature.
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="AccuracyFinDocItems"  default="2" description="Accurancy of items in financial documents."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="AllowDuplicateInvoiceItemNames" default="0" description="Allow duplicate invoice item names. If set to '1', database constraint 'im_invoice_items.im_invoice_items_un' needs to be dropped manually."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="CustomInvoiceNrGenerator"  description="Configure a customer specific generator for &amp;quot;invoice_nr&amp;quot;, for example in order to generate different invoice numbers for different profit centers writing invoices etc. The default value for this parameter is &amp;quot;&amp;quot;. Any other value is interpreted as a procedure that takes the parameters: -cost_type_id, -cost_center_id_id and -date_format and returns the new invoice_nr."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultDiscountPercentage"  default="-10.0" description="Default disounct in the invoice's 'Add Discount/Surcharge' field."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultProjectManagementFeePercentage"  default="10.0" description="Default PM fee in the invoice's 'Add Discount/Surcharge' field."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultSurchargePercentage"  default="10.0" description="Default surcharge fee in the invoice's 'Add Discount/Surcharge' field."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceCannedNoteP"  default="0" description="Should we enabled canned notes on financial documents? Nice feature, but adds some extra complexity..."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceDiscountFieldP"  default="0" description="Enable a &quot;Discount&quot; field in invoices and quotes?"/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceSurchargeFieldP"  default="0" description="Enable a &quot;Surcharge&quot; field in invoices and quotes?"/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="EnabledInvoiceTaxFieldP"  default="1" description="Should we enabled the 'Tax' field on financial documents? This field is used to represent additional taxes for example IRPF (Spain). You can disable the field for Germany and other countries."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="EnableDiscountSurchargeP"  default="0" description="Should we enable a widget in the InvoiceViewPage that allows to add discount/surcharges for a financial Document? This is very useful in translation agencies but not frequently used otherwise."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleAmount"  default="align=right" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleDescription"  default="align=left" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleItemNr"  default="align=center" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleOurRef"  default="align=center" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitlePoNumber"  default="align=center" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleQuantity"  default="align=right" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleRate"  default="align=right" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceDecorationTitleUnit"  default="align=left" description="Decoration for title of invoice table: "/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceNrAutoIncrementP"  default="0" description="Show the system automatically increment a financial document's invoice_nr if we find that the specified number already exists? This option is useful in large companies with many users creating projects in parallel. Default is 0 to disable this feature.
 "/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceNrDateFormat"  default="YYYY_MM" description="Determine the date format that specifies whether to restart the invoice every year (YYYY) or every month (YYYY_MM)."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceQuantityUnitRateEnabledP"  default="1" description="Make unit rates visible in invoices"/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/home/ppm/filestorage/templates" description="Path for Invoicing templates"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PreferAccountingContactOverProjectContactP"  default="0" description="Prefer the accounting contact (and then primary contact) over the project contact? Default is 1 for compatibility reasons."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowCostCenterP"  default="0" description="Should we show the cost centers? This is useful for larger companies, but add an extra level of complexity to smaller ones."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceCustomerProjectNr"  default="1" description="Show the &quot;Company Project Nr.&quot; field in the list of items in the InvoiceViewPage? Default is yes."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceItemMaterialFieldP"  default="0" description="Should we show a Material field for every invoice line? Default is 0 for compatibility with V3.3 and earlier, but V3.4 and higher should have this parameter set to 1."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceItemProjectTypeFieldP"  default="0" description="Should we show a Project Type field for every invoice line? Default is 1 for compatibility with V3.3 and earlier, but V3.4 and higher should have this parameter set to 0."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNr"  default="1" description="Show our &quot;Project Nr.&quot; field in the list of items in the InvoiceViewPage? This is useful if there are frequently invoices which include multiple projects. Default is yes."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNrFirstColumnP"  default="1" description="Show our &quot;Project Nr.&quot; field in the very first column of the invoice? This is the default."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowLeadingInvoiceItemNr"  default="0" description="Should we show a invoice item nr at the very left column?"/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="TimesheetInvoiceReport"  default="/intranet-reporting/timesheet-invoice-hours" description="Report to show the detailed list of hours for a timesheet invoice"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnableDiscountSurchargeP" default="0" description="Should we enable a widget in the InvoiceViewPage that allows to add discount/surcharges for a financial Document? This is very useful in translation agencies but not frequently used otherwise."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultProjectManagementFeePercentage" default="10.0" description="Default PM fee in the invoice's 'Add Discount/Surcharge' field."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultDiscountPercentage" default="-10.0" description="Default disounct in the invoice's 'Add Discount/Surcharge' field."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="DefaultSurchargePercentage" default="10.0" description="Default surcharge fee in the invoice's 'Add Discount/Surcharge' field."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceNrDateFormat"  default="YYYY_MM" description="Determine the date format that specifies whether to restart the invoice every year (YYYY) or every month (YYYY_MM)."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="InvoiceQuantityUnitRateEnabledP"  default="1" description="Make unit rates visible in invoices"/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoiceTemplatePathUnix"  default="/home/ppm/filestorage/templates" description="Path for Invoicing templates"/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="PreferAccountingContactOverProjectContactP"  default="0" description="Prefer the accounting contact (and then primary contact) over the project contact? Default is 1 for compatibility reasons."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowCostCenterP"  default="0" description="Should we show the cost centers? This is useful for larger companies, but add an extra level of complexity to smaller ones."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceCustomerProjectNr"  default="1" description="Show the &quot;Company Project Nr.&quot; field in the list of items in the InvoiceViewPage? Default is yes."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceItemMaterialFieldP"  default="0" description="Should we show a Material field for every invoice line? Default is 0 for compatibility with V3.3 and earlier, but V3.4 and higher should have this parameter set to 1."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceItemProjectTypeFieldP"  default="0" description="Should we show a Project Type field for every invoice line? Default is 1 for compatibility with V3.3 and earlier, but V3.4 and higher should have this parameter set to 0."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNr"  default="1" description="Show our &quot;Project Nr.&quot; field in the list of items in the InvoiceViewPage? This is useful if there are frequently invoices which include multiple projects. Default is yes."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowInvoiceOurProjectNrFirstColumnP"  default="1" description="Show our &quot;Project Nr.&quot; field in the very first column of the invoice? This is the default."/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowLeadingInvoiceItemNr"  default="0" description="Should we show a invoice item nr at the very left column?"/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="TimesheetHoursPerDay"  default="8" description="Conversion factor to calculate the number of days per project in organizations that track and bill time based on days. The default is 8."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="TimesheetInvoiceReport"  default="/intranet-reporting/timesheet-invoice-hours" description="Report to show the detailed list of hours for a timesheet invoice"/>
+            <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
         </parameters>
+
     </version>
 </package>
