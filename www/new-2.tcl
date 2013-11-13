@@ -307,20 +307,23 @@ db_dml delete_invoice_items "
 
 set item_list [array names item_name]
 
-# sanity check for double item names
-set name_list [list]
-foreach nr $item_list {
-    if {!("" == [string trim $item_name($nr)] && (0 == $item_units($nr) || "" == $item_units($nr)))} {
-        if { -1 != [lsearch $name_list $item_name($nr)] } {
-            ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr)<br>
+if { ![parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "AllowDuplicateInvoiceItemNames" -default 0] } {
+    # sanity check for double item names
+    set name_list [list]
+    foreach nr $item_list {
+	if {!("" == [string trim $item_name($nr)] && (0 == $item_units($nr) || "" == $item_units($nr)))} {
+	    if { -1 != [lsearch $name_list $item_name($nr)] } {
+		ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr)<br>
                     Please ensure that item names are unique. Use the back button of your browser to rename item.<br>
                     Consider adding spaces if item can't be renamed
-            "
-        } else {
-          lappend name_list $item_name($nr)
-        }
+                "
+	    } else {
+		lappend name_list $item_name($nr)
+	    }
+	}
     }
 }
+
 
 foreach nr $item_list {
     set name $item_name($nr)
