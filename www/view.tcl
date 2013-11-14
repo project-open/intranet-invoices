@@ -587,7 +587,7 @@ if {"odt" == $template_type} {
 	ad_script_abort
     }
 
-    # Seach for the 2nd table:table-row tag
+    # Search for the 2nd table:table-row tag
     set odt_table_rows_nodes [$odt_template_table_node selectNodes "//table:table-row"]
     set odt_template_row_node ""
     set odt_template_row_count 0
@@ -928,7 +928,7 @@ if { 0 == $item_list_type } {
 		set row_doc [dom parse $odt_row_xml]
 		set new_row [$row_doc documentElement]
 		$odt_template_table_node insertBefore $new_row $odt_template_row_node
-	
+
 	    }
 	
 	    incr ctr
@@ -1378,8 +1378,6 @@ set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amou
 
 set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $rounding_precision] "" $locale]
 set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
-
-
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
 set discount_perc_pretty $discount_perc
@@ -1632,7 +1630,15 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
 
 	# Rendering 
-        eval [template::adp_compile -string $odt_template_content]
+	if {[catch {
+	    eval [template::adp_compile -string $odt_template_content]
+	} err_msg]} {
+	    set err_txt "Error rendering Template. You might have used a placeholder that is not available. Here's a detailed error message:<br/> <strong>$err_msg</strong><br/>"
+	    append err_txt "Check the Configuration Manuals at <a href='www.project-open.org'>www.project-open.org</a> for a list of placeholders available and more information and tips on configuring templates."
+	    ad_return_complaint 1 [lang::message::lookup "" intranet-invoices $err_txt]
+	    return
+	}
+
         set content $__adp_output
 
 	# Save the content to a file.
