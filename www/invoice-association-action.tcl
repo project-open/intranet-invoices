@@ -121,7 +121,7 @@ if {"set_invoiced" == $action} {
 
 set customer_id_org $customer_id
 
-append query "
+set query "
 select
 	ic.customer_id,
 	ic.provider_id,
@@ -141,7 +141,8 @@ if { ![db_0or1row projects_info_query $query] } {
 }
 
 # Invoices and Quotes have a "Customer" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_delivery_note] || $cost_type_id == [im_cost_type_interco_quote] || $cost_type_id == [im_cost_type_interco_invoice]]
+set invoice_or_quote_p [im_category_is_a $cost_type_id [im_cost_type_customer_doc]]
+
 
 if {0 != $customer_id_org} { set customer_id $customer_id_org }
 
