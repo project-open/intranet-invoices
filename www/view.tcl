@@ -166,8 +166,11 @@ set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowC
 # Check if the invoices was changed outside of ]po[...
 # Normally, the current values of the invoice should match
 # exactly the last registered audit version...
-im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
-
+if {[catch {
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
+} err_msg]} {
+    ns_log Error "im_audit: Error action: 'before update' for object_id: $object_id"     
+}
 
 # ---------------------------------------------------------------
 # Determine if it's an Invoice or a Bill
