@@ -483,6 +483,19 @@ set idx $start_idx
 
 db_foreach invoices_info_query $selection {
 
+    # Provide PRETTY 'payment amount' 
+    if { "" != $payment_amount} { 
+	if {[catch {
+	    set payment_amount_pretty [lc_numeric $payment_amount "%.2f" "en_US"]
+	} err_msg]} {
+	    global errorInfo
+	    ns_log Error $errorInfo
+	    set payment_amount_pretty ""
+	}
+    } else {
+	set payment_amount_pretty [lc_numeric 0 "%.2f" "en_US"]
+    } 
+
     set url [im_maybe_prepend_http $url]
     if { [empty_string_p $url] } {
 	set url_string "&nbsp;"
