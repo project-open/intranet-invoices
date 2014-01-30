@@ -76,6 +76,7 @@ set return_url [im_url_with_query]
 set amp "&"
 set cur_format [im_l10n_sql_currency_format]
 set date_format [im_l10n_sql_date_format]
+set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 set local_url "/intranet-invoices/list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
@@ -274,6 +275,7 @@ select
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_cost_center_code_from_id(ci.cost_center_id) as cost_center_code,
+	c.company_id as invoice_company_id,
         c.company_name as customer_name,
         c.company_path as company_short_name,
 	p.company_name as provider_name,
@@ -463,6 +465,9 @@ foreach col $column_headers {
 	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col_loc</a></td>\n"
     }
 }
+
+# Add input field 
+
 append table_header_html "</tr>\n"
 
 
@@ -497,7 +502,7 @@ db_foreach invoices_info_query $selection {
 
     # ---- Deal with non-writable Invoices ----
 
-    # Calculate the statu-select drop-down for this invoice
+    # Calculate the status-select drop-down for this invoice
     set status_select [im_cost_status_select "cost_status.$invoice_id" $invoice_status_id]
 
     set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
@@ -507,8 +512,12 @@ db_foreach invoices_info_query $selection {
         if {"" == $payment_amount} { set payment_amount " " }
     }
 
-    # ---- Display the main line ----
+    # ---- Set vars for "bulk payment"  ----
+    set new_payment_amount "<input size='8' name='new_payment_amount.$invoice_id' id='new_payment_amount.$invoice_id' amount='[string trim $invoice_amount_formatted]' style='text-align:right;' onclick='javascript:setAmount(this)'/>" 
+    append new_payment_amount [im_currency_select "new_payment_currency.$invoice_id" $default_currency]
+    set new_payment_type_id "[im_payment_type_select new_payment_type_id.$invoice_id ""]<input type='hidden' name='new_payment_company_id.$invoice_id' value='$invoice_company_id' />"
 
+    # ---- Display the main line ----
     # Append together a line of data based on the "column_vars" parameter list
     append table_body_html "<tr$bgcolor([expr $ctr % 2])>\n"
     foreach column_var $column_vars {

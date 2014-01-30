@@ -16,8 +16,13 @@ ad_page_contract {
 } {
     { return_url "/intranet-invoices/" }
     { cost:multiple "" }
-    { cost_status:array ""}
-    { invoice_action ""}
+    { cost_status:array "" }
+    { new_payment_amount:array "" }
+    { new_payment_currency:array "" }
+    { new_payment_type_id:array "" }
+    { new_payment_company_id:array "" }
+    { invoice_action "" }
+
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -32,6 +37,63 @@ set invoice_status_id ""
 if {[regexp {status_([0-9]*)} $invoice_action match id]} {
     set invoice_action "status"
     set invoice_status_id $id
+}
+
+# No matter what action had been choosen, we handle payments 
+
+
+# ns_return 1 text/html [array get new_payment_amount]
+
+foreach {invoice_id invoice_amount} [array get new_payment_amount] {
+
+    if { "" != $invoice_amount } {
+
+	set payment_id [db_nextval "im_payments_id_seq"]
+	set cost_id $invoice_id
+
+	set _new_payment_currency $new_payment_currency($invoice_id)
+	set _new_payment_company_id $new_payment_company_id($invoice_id) 
+	set _new_payment_type_id $new_payment_type_id($invoice_id)
+	
+	set received_date [clock format [clock seconds] -format {%Y-%m-%d}]
+	
+	set sql "
+        insert into im_payments (
+                payment_id,
+                cost_id,
+                company_id,
+                provider_id,
+                amount,
+                currency,
+                received_date,
+                payment_type_id,
+                note,
+                last_modified,
+                last_modifying_user,
+                modified_ip_address
+    	) values (
+                :payment_id,
+                :cost_id,
+                :_new_payment_company_id,
+                :_new_payment_company_id,
+                :invoice_amount,
+                :_new_payment_currency,
+                :received_date,
+                :_new_payment_type_id,
+                'Bulk Processing: Field \"Payment received\" had been set with date of payment registration',
+                (select sysdate from dual),
+                :user_id,
+                '[ns_conn peeraddr]'
+    	)"
+	
+	if {[catch {
+	    db_dml register_payment $sql 
+	} err_msg]} {
+	    global errorInfo
+	    ad_return_complaint 1 "[lang::message::lookup "" intranet-invoices.UnableToRegisterPayment "Unable to register payment"] $errorInfo"
+	    return
+	}
+    }
 }
 
 switch $invoice_action {
@@ -54,6 +116,7 @@ switch $invoice_action {
 		set cost_status_id=:cost_status_id 
 		where cost_id = :invoice_id
 	    "
+
 	    im_audit -object_id $invoice_id
 	}
     }
