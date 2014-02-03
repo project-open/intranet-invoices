@@ -40,10 +40,6 @@ if {[regexp {status_([0-9]*)} $invoice_action match id]} {
 }
 
 # No matter what action had been choosen, we handle payments 
-
-
-# ns_return 1 text/html [array get new_payment_amount]
-
 foreach {invoice_id invoice_amount} [array get new_payment_amount] {
 
     if { "" != $invoice_amount } {
@@ -88,6 +84,7 @@ foreach {invoice_id invoice_amount} [array get new_payment_amount] {
 	
 	if {[catch {
 	    db_dml register_payment $sql 
+	    im_cost_update_payments $invoice_id
 	} err_msg]} {
 	    global errorInfo
 	    ad_return_complaint 1 "[lang::message::lookup "" intranet-invoices.UnableToRegisterPayment "Unable to register payment"] $errorInfo"
