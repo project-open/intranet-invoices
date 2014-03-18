@@ -19,6 +19,7 @@ ad_page_contract {
     { cost_status:array "" }
     { new_payment_amount:array "" }
     { new_payment_currency:array "" }
+    { new_payment_date:array "" }
     { new_payment_type_id:array "" }
     { new_payment_company_id:array "" }
     { invoice_action "" }
@@ -39,9 +40,9 @@ if {[regexp {status_([0-9]*)} $invoice_action match id]} {
     set invoice_status_id $id
 }
 
-# No matter what action had been choosen, we handle payments 
+# No matter what action had been chosen, we handle payments 
 foreach {invoice_id invoice_amount} [array get new_payment_amount] {
-
+    set payment_note ""
     if { "" != $invoice_amount } {
 
 	set payment_id [db_nextval "im_payments_id_seq"]
@@ -50,9 +51,13 @@ foreach {invoice_id invoice_amount} [array get new_payment_amount] {
 	set _new_payment_currency $new_payment_currency($invoice_id)
 	set _new_payment_company_id $new_payment_company_id($invoice_id) 
 	set _new_payment_type_id $new_payment_type_id($invoice_id)
-	
-	set received_date [clock format [clock seconds] -format {%Y-%m-%d}]
-	
+
+	set _new_payment_date $new_payment_date($invoice_id)
+	if { ![info exists _new_payment_date] || "" == $_new_payment_date } { 
+	    set _new_payment_date [clock format [clock seconds] -format {%Y-%m-%d}] 
+	    set payment_note [lang::message::lookup "" intranet-invoices.BulkPaymentNoDate "Bulk Processing: Field \"Payment received\" had been set with date of payment registration"]
+	}
+
 	set sql "
         insert into im_payments (
                 payment_id,
@@ -74,9 +79,9 @@ foreach {invoice_id invoice_amount} [array get new_payment_amount] {
                 :_new_payment_company_id,
                 :invoice_amount,
                 :_new_payment_currency,
-                :received_date,
+                :_new_payment_date,
                 :_new_payment_type_id,
-                'Bulk Processing: Field \"Payment received\" had been set with date of payment registration',
+                :payment_note,
                 (select sysdate from dual),
                 :user_id,
                 '[ns_conn peeraddr]'

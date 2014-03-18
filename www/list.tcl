@@ -525,10 +525,16 @@ db_foreach invoices_info_query $selection {
         if {"" == $payment_amount} { set payment_amount " " }
     }
 
-    # ---- Set vars for "bulk payment"  ----
-    set new_payment_amount "<input size='8' name='new_payment_amount.$invoice_id' id='new_payment_amount.$invoice_id' amount='[string trim $invoice_amount_formatted]' style='text-align:right;' onclick='javascript:setAmount(this)'/>" 
+    # ---- Set vars for "bulk payments"  ----
+    set new_payment_amount "<input size='8' name='new_payment_amount.$invoice_id' id='new_payment_amount.$invoice_id' amount='[string trim $invoice_amount_formatted]'"
+    append new_payment_amount " style='text-align:right;' onclick='javascript:setAmount(this)'/>" 
     append new_payment_amount [im_currency_select "new_payment_currency.$invoice_id" $default_currency]
+
     set new_payment_type_id "[im_payment_type_select new_payment_type_id.$invoice_id ""]<input type='hidden' name='new_payment_company_id.$invoice_id' value='$invoice_company_id' />"
+
+    set new_payment_date "<input name=\"new_payment_date.$invoice_id\" id=\"new_payment_date.$invoice_id\" value=\"[clock format [clock seconds] -format {%Y-%m-%d}]\" size=\"10\" "
+    append new_payment_date "type=\"textfield\"><input style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" " 
+    append new_payment_date "onclick=\"return showCalendar('new_payment_date.$invoice_id', 'y-m-d');\" type=\"button\">"
 
     # ---- Display the main line ----
     # Append together a line of data based on the "column_vars" parameter list
