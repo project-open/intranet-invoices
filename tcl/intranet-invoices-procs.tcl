@@ -20,7 +20,7 @@ ad_library {
 
 ad_proc -public im_package_invoices_id { } {
 } {
-    return [util_memoize "im_package_invoices_id_helper"]
+    return [util_memoize im_package_invoices_id_helper]
 }
 
 ad_proc -private im_package_invoices_id_helper {} {
@@ -84,7 +84,7 @@ ad_proc -public im_invoice_rounding_factor {
     Gets the right rounding factor per currency.
     A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
 } {
-    return [util_memoize "im_invoice_rounding_factor_helper -currency $currency"]
+    return [util_memoize [list im_invoice_rounding_factor_helper -currency $currency]]
 }
 
 ad_proc -public im_invoice_rounding_factor_helper {
