@@ -810,7 +810,7 @@ set decoration_amount [ad_parameter -package_id [im_package_invoices_id] "Invoic
 # start formatting the list of sums with the header...
 set invoice_item_html "<tr align=center>\n"
 
-if {$show_our_project_nr && $show_leading_invoice_item_nr} {
+if {$show_leading_invoice_item_nr} {
     append invoice_item_html "
           <td class=rowtitle $decoration_item_nr>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
     "
@@ -847,7 +847,7 @@ append invoice_item_html "
 "
 
 set ctr 1
-	set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr]
+set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr]
 
 set oo_table_xml ""
 
@@ -874,7 +874,7 @@ if { 0 == $item_list_type } {
 	
 	    if {$show_leading_invoice_item_nr} {
 	        append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=right>$sort_order</td>\n"
+	          <td $bgcolor([expr $ctr % 2]) align=right>$item_sort_order</td>\n"
 	    }
 	
 	    append invoice_item_html "

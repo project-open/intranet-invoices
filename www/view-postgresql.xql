@@ -24,7 +24,8 @@
 	p.project_nr as project_short_name,
 	round(i.price_per_unit * i.item_units * :rf) / :rf as amount,
 	to_char(round(i.price_per_unit * i.item_units * :rf) / :rf, :cur_format) as amount_formatted,
-        i.currency as item_currency
+        i.currency as item_currency,
+        i.sort_order as item_sort_order
       from
 	im_invoice_items i
 	      LEFT JOIN im_projects p on i.project_id=p.project_id
