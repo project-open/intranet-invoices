@@ -220,8 +220,10 @@ if {!$invoice_exists_p} {
 # Give company_contact_id READ permissions - required for Customer Portal 
 permission::grant -object_id $invoice_id -party_id $company_contact_id -privilege "read"
 
-# Check if the cost item was changed via outside SQL
-im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
+# Audit before update only if the invoice already existed
+if {$invoice_exists_p} {
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
+}
 
 # Update the invoice itself
 db_dml update_invoice "
@@ -261,7 +263,8 @@ set
 	note		= :note,
 	variable_cost_p = 't',
 	amount		= null,
-	currency	= :invoice_currency
+	currency	= :invoice_currency,
+	paid_currency	= :invoice_currency
 where
 	cost_id = :invoice_id
 "
