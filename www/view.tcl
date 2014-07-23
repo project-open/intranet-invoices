@@ -49,8 +49,6 @@ ad_page_contract {
 
 proc encodeXmlValue {value} {
     regsub -all {&} $value {&amp;} value
-    regsub -all {"} $value {&quot;} value; # "
-    # regsub -all {'} $value {&apos;} value
     regsub -all {<} $value {&lt;} value
     regsub -all {>} $value {&gt;} value
     return $value
@@ -917,17 +915,17 @@ if { 0 == $item_list_type } {
 			set value [eval "set value \"$$var_to_be_escaped\""]
 			set value [string map {\[ "\\[" \] "\\]"} $value]
 			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
-			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+			set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
 			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
 			eval $cmd
 		    }
 		}
-		
+
 		set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
 		# Replace placeholders in the OpenOffice template row with values
 		eval [template::adp_compile -string $odt_row_template_xml]
 		set odt_row_xml $__adp_output
-	
+
 		# Parse the new row and insert into OOoo document
 		set row_doc [dom parse $odt_row_xml]
 		set new_row [$row_doc documentElement]
