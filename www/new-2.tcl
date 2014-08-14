@@ -36,7 +36,7 @@ ad_page_contract {
     { surcharge_text "" }
     { canned_note_id:integer,multiple "" }
     { note ""}
-    item_sort_order:array
+    item_sort_order:array,integer
     item_name:array
     item_units:float,array
     item_uom_id:integer,array
