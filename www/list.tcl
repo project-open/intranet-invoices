@@ -216,7 +216,7 @@ switch $order_by {
 	set counter_reset_expression {$customer_id}
     }
     "Due Date" { 
-	set order_by_clause "order by (ci.effective_date)" 
+	set order_by_clause "order by (due_date_calculated) ASC" 
 	set counter_reset_expression {$effective_month}
     }
     "Amount" { 
