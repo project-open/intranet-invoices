@@ -210,6 +210,7 @@ set cost_center_select [im_cost_center_select -include_empty 1 -department_only_
 set invoice_nr [im_next_invoice_nr -cost_type_id $target_cost_type_id]
 
 set new_invoice_id [im_new_object_id]
+set new_status_id [im_cost_status_created]
 
 # ToDo: Create a link between the invoice and the quote
 # in order to indicate that the two belong together.
@@ -223,7 +224,7 @@ set new_invoice_id [im_new_object_id]
 
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
 set template_select [im_cost_template_select template_id $template_id]
-set status_select [im_cost_status_select cost_status_id $cost_status_id]
+set status_select [im_cost_status_select cost_status_id $new_status_id]
 
 # Type_select doesnt allow for options anymore...
 # set type_select [im_cost_type_select cost_type_id $target_cost_type_id 0 "financial_doc"]
