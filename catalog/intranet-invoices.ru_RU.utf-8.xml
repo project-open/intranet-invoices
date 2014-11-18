@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.6.1" locale="ru_RU" charset="utf-8">
+<message_catalog package_key="intranet-invoices" locale="ru_RU" charset="utf-8">
 
   <msg key="Add_a_Payment">Добавить платеж</msg>
   <msg key="Add_a_Project">Добавить проект</msg>
@@ -63,13 +63,6 @@
   <msg key="Invoice_Address">Адрес счета</msg>
   <msg key="Line">Строка</msg>
   <msg key="lt_Cant_find_the_documen">Не удается найти документ № %invoice_id%</msg>
-  <msg key="lt_Dear_accounting_conta">Уважаемый(ая) %accounting_contact_name%,
-
-Для вас создан новый документ %cost_type%, доступный по ссылке: %system_url%/intranet-invoices/view?invoice_id=%invoice_id%
-
-В него включены следующие проекты: %select_projects;noquote% Пожалуйста, пройдите по приведенной выше ссылке и сохраните либо распечатайте этот документ для справки.
-
-С уважением, %имя_текущего_пользователя%</msg>
   <msg key="lt_Generate_Invoice_from">Создать счет из предложения цены</msg>
   <msg key="lt_Generate_Provider_Bil">Создать счет от поставщика из заказа на приобретение</msg>
   <msg key="lt_Insufficient_Privileg">Недостаточно разрешений</msg>

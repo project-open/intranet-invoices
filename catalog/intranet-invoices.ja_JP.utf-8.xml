@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="ja_JP" charset="utf-8">
+<message_catalog package_key="intranet-invoices" locale="ja_JP" charset="utf-8">
 
   <msg key="Add_a_Payment">支払いを追加</msg>
   <msg key="Add_a_Project">プロジェクトを追加</msg>
