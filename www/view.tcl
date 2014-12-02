@@ -1382,11 +1382,14 @@ set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $ro
 set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
+
 set discount_perc_pretty $discount_perc
 set surcharge_perc_pretty $surcharge_perc
-
 set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
 set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
+
+
+
 
 set colspan_sub [expr $colspan - 1]
 
@@ -1724,6 +1727,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 # PM Fee. Set to "checked" if the customer has a default_pm_fee_percentage != ""
 set pm_fee_checked ""
 set pm_fee_perc ""
+set pm_fee_amount ""
 if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
 if {"" == $pm_fee_perc} { set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
 if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
@@ -1735,6 +1739,7 @@ set pm_fee_msg [lang::message::lookup "" intranet-invoices.PM_Fee_Msg "Project M
 # Surcharge. 
 set surcharge_checked ""
 set surcharge_perc ""
+set surcharge_amount ""
 if {[info exists default_surcharge_perc]} { set surcharge_perc $default_surcharge_perc }
 if {"" == $surcharge_perc} { set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
 if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
@@ -1743,6 +1748,7 @@ set surcharge_msg [lang::message::lookup "" intranet-invoices.Surcharge_Msg "Rus
 # Discount
 set discount_checked ""
 set discount_perc ""
+set discount_amount ""
 if {[info exists default_discount_perc]} { set discount_perc $default_discount_perc }
 if {"" == $discount_perc} { set discount_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
 if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }

@@ -17,6 +17,7 @@ ad_page_contract {
     line_check:array,optional
     line_perc:array,optional
     line_desc:array,optional
+    line_amount:array,optional
 }
 
 set user_id [ad_maybe_redirect_for_registration]
@@ -37,13 +38,32 @@ foreach i [array names line_perc] {
 
     set name $line_desc($i)
     set percentage $line_perc($i)
+    set amount_line $line_amount($i)
+
+    if { "" == [string trim $percentage] && "" == [string trim $amount_line]  } {
+	continue
+    }
+
+    if { "" != [string trim $percentage] && "" != [string trim $amount_line] } {
+	ad_return_complaint 1 [lang::message::lookup "" intranet-invoices.PleaseChooseEitherPercentOrAmount "Please choose either amount or percentage"]
+    }
+
+    if { ("" != [string trim $percentage] && ![string is double -strict $percentage]) || ("" != [string trim $amount_line] && ![string is double -strict $amount_line]) } {
+	ad_return_complaint 1 [lang::message::lookup "" intranet-invoices.AmountOrPercentageMustBeNumeric "Please make sure that percentage or amount are numeric."]
+    }
+
     set checked ""
     if {[info exists line_check($i)]} { set checked $line_check($i) }
     if {"" == $checked} { continue }
 
     set units 1
     set uom_id [im_uom_unit]
-    set rate [expr $amount * $percentage / 100.0]
+    if { "" != $percentage } {
+	set rate [expr $amount * $percentage / 100.0]	
+    } else {
+	set rate $amount_line
+    }
+
     set type_id ""
     set material_id ""
     set sort_order [db_string sort_order "select 10 + max(sort_order) from im_invoice_items where invoice_id = :invoice_id" -default ""]

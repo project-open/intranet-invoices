@@ -23,7 +23,7 @@
 	<form action=invoice-discount-surcharge-action method=POST>
 	<%= [export_form_vars return_url invoice_id] %>
 	<tr class=rowtitle>
-		<td class=rowtitle align=center colspan=3>@submit_msg@</td>
+		<td class=rowtitle align=center colspan=4>@submit_msg@</td>
 	</tr>
 
 <!--	<tr class=rowtitle>
@@ -35,27 +35,28 @@
 	<tr>
 		<td><input type=checkbox name=line_check.1 @pm_fee_checked@></td>
 		<td><input type=textbox size=30 name=line_desc.1 value="@pm_fee_msg@"></td>
-		<td><input type=textbox size=3 name=line_perc.1 value="@pm_fee_perc@">%</td>
+		<td><input type=textbox size=3 name=line_perc.1 value="@pm_fee_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
+		<td><input type=textbox size=3 name=line_amount.1 value="@pm_fee_amount@">@default_currency@</td>
 	</tr>
 	<tr>
 		<td><input type=checkbox name=line_check.2 @surcharge_checked@></td>
 		<td><input type=textbox size=30 name=line_desc.2 value="@surcharge_msg@"></td>
-		<td><input type=textbox size=3 name=line_perc.2 value="@surcharge_perc@">%</td>
+		<td><input type=textbox size=3 name=line_perc.2 value="@surcharge_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
+		<td><input type=textbox size=3 name=line_amount.2 value="@surcharge_amount@">@default_currency@</td>
 	</tr>
 	<tr>
 		<td><input type=checkbox name=line_check.3 @discount_checked@></td>
 		<td><input type=textbox size=30 name=line_desc.3 value="@discount_msg@"></td>
-		<td><input type=textbox size=3 name=line_perc.3 value="@discount_perc@">%</td>
+		<td><input type=textbox size=3 name=line_perc.3 value="@discount_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
+		<td><input type=textbox size=3 name=line_amount.3 value="@discount_amount@">@default_currency@</td>
 	</tr>
 	<tr>
-		<td colspan=3 align=right><input type=submit name=submit value="@submit_msg@"></td>
+		<td colspan=4 align=right><input type=submit name=submit value="@submit_msg@"></td>
 	</tr>
 	</form>
 	</table>
   </td>
 </if>
-
-
 
 
 
