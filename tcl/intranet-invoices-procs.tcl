@@ -138,11 +138,6 @@ ad_proc -public im_next_invoice_nr {
     before confirming the invoice.
 } {
 
-    if { ![info exists par_im_next_invoice_nr] } { 
-	ad_return_complaint 1 "ee"
-	set par_im_next_invoice_nr null 
-    }
-
     # ----------------------------------------------------
     # Get some parameters that influence the counters:
 
