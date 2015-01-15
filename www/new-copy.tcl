@@ -126,6 +126,10 @@ LIMIT 1
 # quote was old...
 set effective_date $todays_date
 
+# Backup in case no project_id is returned due to multiple finance documents
+if { "" == $project_id || ![info exists project_id] } {
+   db_0or1row get_project_id_from_invoice "select object_id_one as project_id from acs_rels where object_id_two=:invoice_id and object_id_one in (select object_id from acs_objects where object_type = 'im_project') limit 1"
+}
 
 # ---------------------------------------------------------------
 
