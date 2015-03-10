@@ -133,7 +133,7 @@ switch $invoice_action {
 		ad_return_complaint 1 "<li>You have insufficient privileges to perform this action"
 		ad_script_abort
 	    }
-	    im_audit -object_id $cost_id -action before_delete
+	    im_audit -object_id $cost_id -action before_nuke
 	    db_string delete_cost_item ""
 	}
     }
