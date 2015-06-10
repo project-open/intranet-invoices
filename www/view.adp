@@ -386,6 +386,13 @@
 
 </td></tr>
 </table>
+	
+<table cellpadding="5" cellspacing="5" border="0">
+<tr>
+<td><%=[im_component_insert "Filestorage Financial Document"]%></td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td><%=[im_component_insert "Invoice Notes"]%></td>
+</tr>
+</table>
 
-<%=[im_component_insert "Filestorage Financial Document"]%>
 <%=[im_component_insert "Audit Trail Invoices"]%>
