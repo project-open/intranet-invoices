@@ -524,7 +524,7 @@ begin
 	-- needs to be the first submenu in order to get selected
 	v_menu := im_menu__new (
 		null,				-- menu_id
-		''acs_object'',			-- object_type
+		''im_menu'',			-- object_type
 		now(),				-- creation_date
 		null,				-- creation_user
 		null,				-- creation_ip
@@ -546,7 +546,7 @@ begin
 
 	v_menu := im_menu__new (
 		null,				-- menu_id
-		''acs_object'',			-- object_type
+		''im_menu'',			-- object_type
 		now(),				-- creation_date
 		null,				-- creation_user
 		null,				-- creation_ip
@@ -601,7 +601,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,			-- menu_id
-		''acs_object'',		-- object_type
+		''im_menu'',		-- object_type
 		now(),			-- creation_date
 		null,			-- creation_user
 		null,			-- creation_ip
@@ -623,7 +623,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,				-- menu_id
-		''acs_object'',			-- object_type
+		''im_menu'',			-- object_type
 		now(),				-- creation_date
 		null,				-- creation_user
 		null,				-- creation_ip
@@ -645,7 +645,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,					-- menu_id
-		''acs_object'',				-- object_type
+		''im_menu'',				-- object_type
 		now(),					-- creation_date
 		null,					-- creation_user
 		null,					-- creation_ip
@@ -700,7 +700,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,				-- menu_id
-		''acs_object'',			-- object_type
+		''im_menu'',			-- object_type
 		now(),				-- creation_date
 		null,				-- creation_user
 		null,				-- creation_ip
@@ -722,7 +722,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,					-- menu_id
-		''acs_object'',				-- object_type
+		''im_menu'',				-- object_type
 		now(),					-- creation_date
 		null,					-- creation_user
 		null,					-- creation_ip
@@ -744,7 +744,7 @@ begin
 
 	v_finance_menu := im_menu__new (
 		null,			-- menu_id
-		''acs_object'',		-- object_type
+		''im_menu'',		-- object_type
 		now(),			-- creation_date
 		null,			-- creation_user
 		null,			-- creation_ip
@@ -808,7 +808,7 @@ begin
     IF v_count = 0 THEN
 	    v_finance_menu := im_menu__new (
 		null,					-- menu_id
-		''acs_object'',				-- object_type
+		''im_menu'',				-- object_type
 		now(),					-- creation_date
 		null,					-- creation_user
 		null,					-- creation_ip
@@ -856,7 +856,7 @@ begin
     IF v_count = 0 THEN
             v_menu := im_menu__new (
                 null,                      -- menu_id
-                ''acs_object'',          -- object_type
+                ''im_menu'',          -- object_type
                 now(),                    -- creation_date
                 null,                      -- creation_user
                 null,                      -- creation_ip
@@ -924,7 +924,7 @@ begin
     IF v_count = 0 THEN
 	    v_menu := im_menu__new (
 		null,						-- menu_id
-		''acs_object'',					-- object_type
+		''im_menu'',					-- object_type
 		now(),						-- creation_date
 		null,						-- creation_user
 		null,						-- creation_ip
@@ -948,7 +948,7 @@ begin
     IF v_count = 0 THEN
 	    v_menu := im_menu__new (
 		null,			   -- menu_id
-		''acs_object'',		 -- object_type
+		''im_menu'',		 -- object_type
 		now(),			  -- creation_date
 		null,			   -- creation_user
 		null,			   -- creation_ip
@@ -972,7 +972,7 @@ begin
     IF v_count = 0 THEN
 	    v_menu := im_menu__new (
 		null,			   -- menu_id
-		''acs_object'',		 -- object_type
+		''im_menu'',		 -- object_type
 		now(),			  -- creation_date
 		null,			   -- creation_user
 		null,			   -- creation_ip
@@ -1021,7 +1021,7 @@ begin
     IF v_count = 0 THEN
 	    v_menu := im_menu__new (
 		null,			   -- menu_id
-		''acs_object'',		 -- object_type
+		''im_menu'',		 -- object_type
 		now(),			  -- creation_date
 		null,			   -- creation_user
 		null,			   -- creation_ip
@@ -1080,7 +1080,7 @@ begin
     IF v_count = 0 THEN
 	    v_finance_menu := im_menu__new (
 		null,					-- menu_id
-		''acs_object'',				-- object_type
+		''im_menu'',				-- object_type
 		now(),					-- creation_date
 		null,					-- creation_user
 		null,					-- creation_ip
