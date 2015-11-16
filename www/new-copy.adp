@@ -9,14 +9,14 @@
 @select_project_html;noquote@
 <if @show_cost_center_p@></if><else><input type=hidden name=cost_center_id value=@cost_center_id@></else>
 
-<table border=0 width=100%>
+<table border=0 width="100%">
 <tr><td>
 
   <table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0>
     <tr valign=top> 
       <td>
 
-        <table border=0 cellPadding=0 cellspacing=2 width=100%>
+        <table border=0 cellPadding=0 cellspacing=2 width="100%">
 
 
 	        <tr><td align=middle class=rowtitle colspan=2>@target_cost_type@ Data</td></tr>
@@ -71,7 +71,7 @@
       </td>
       <td></td>
       <td align=right>
-        <table border=0 cellspacing=2 cellpadding=0 width=100%>
+        <table border=0 cellspacing=2 cellpadding=0 width="100%">
 
 <if @invoice_or_quote_p@>
 <!-- Let the user select the company. Provider=Internal -->
@@ -123,10 +123,10 @@
 </td></tr>
 <tr><td>
 
-  <table width=100%>
+  <table width="100%">
     <tr>
       <td align=right>
- 	<table border=0 cellspacing=2 cellpadding=1 width=100%>
+ 	<table border=0 cellspacing=2 cellpadding=1 width="100%">
 
 	<!-- the list of task sums, distinguised by type and UOM -->
         <tr align=center> 
