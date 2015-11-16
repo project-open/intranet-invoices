@@ -308,28 +308,7 @@ select	category_id as canned_note_id,
 from im_categories
 where category_type = 'Intranet Invoice Canned Notes';
 
-
-select im_dynfield_attribute__new (
-	null,			-- widget_id
-	'im_dynfield_attribute', -- object_type
-	now(),			-- creation_date
-	null,			-- creation_user
-	null,			-- creation_ip
-	null,			-- context_id
-
-	'im_invoice',		-- attribute_object_type
-	'canned_note_id',	-- attribute name
-	0,
-	0,
-	null,
-	'integer',
-	'#intranet-invoices.Canned_Note#',	-- pretty name
-	'#intranet-invoices.Canned_Note#',	-- pretty plural
-	'integer',		-- Widget (dummy)
-	'f',
-	'f'
-);
-
+SELECT im_dynfield_attribute_new ('im_invoice', 'canned_note_id', '#intranet-invoices.Canned_Note#', 'integer', 'integer', 'f', 0, 't');
 
 SELECT im_category_new(11600, 'Dummy Canned Note', 'Intranet Invoice Canned Note');
 SELECT im_category_new(11602, '2nd Dummy Canned Note', 'Intranet Invoice Canned Note');
