@@ -93,7 +93,7 @@ ad_proc -public im_invoice_rounding_factor_helper {
     Gets the right rounding factor per currency
     A rf (rounding factor) of 100 indicates two digits after the decimal separator precision.
 } {
-    if {"" == $currency} { set currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"] }
+    if {"" == $currency} { set currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"] }
     set rf 100
     if {[catch {
         set rf [db_string rf "select rounding_factor from currency_codes where iso = :currency" -default 100]

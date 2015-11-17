@@ -60,7 +60,7 @@ db_1row invoice_info "
 
 # create a reasonable name for the attachment.
 # Should look like: "invoice.2006_03_0005.html"
-set use_invoice_nr_type_prefix_p [ad_parameter -package_id [im_package_invoices_id] "UseInvoiceNrTypePrefixP" "" 0]
+set use_invoice_nr_type_prefix_p [im_parameter -package_id [im_package_invoices_id] "UseInvoiceNrTypePrefixP" "" 0]
 set attachment_filename "$cost_type."
 append attachment_filename [string range $cost_name $use_invoice_nr_type_prefix_p 99]
 append attachment_filename ".$send_to_user_as"
@@ -79,7 +79,7 @@ set current_user_name [db_string cur_user "select im_name_from_user_id(:user_id)
 set current_user_email [db_string cur_user "select im_email_from_user_id(:user_id) from dual"]
 
 # Get the SystemUrl without trailing "/"
-set system_url [ad_parameter -package_id [ad_acs_kernel_id] SystemURL ""]
+set system_url [im_parameter -package_id [ad_acs_kernel_id] SystemURL ""]
 set sysurl_len [string length $system_url]
 set last_char [string range $system_url [expr $sysurl_len-1] $sysurl_len]
 if {[string equal "/" $last_char]} {

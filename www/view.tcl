@@ -108,27 +108,27 @@ set rounding_factor [expr exp(log(10) * $rounding_precision)]
 set rf $rounding_factor
 
 # Default Currency
-set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 set invoice_currency [db_string cur "select currency from im_costs where cost_id = :invoice_id" -default $default_currency]
 set rf 100
 catch {set rf [db_string rf "select rounding_factor from currency_codes where iso = :invoice_currency" -default 100]}
 
 # Where is the template found on the disk?
-set invoice_template_base_path [ad_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
+set invoice_template_base_path [im_parameter -package_id [im_package_invoices_id] InvoiceTemplatePathUnix "" "/tmp/templates/"]
 
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
-set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
+set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 set surcharge_enabled_p 1
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
-set show_qty_rate_p [ad_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
-set show_our_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
-set show_our_project_nr_first_column_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
-set show_leading_invoice_item_nr [ad_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
+set show_qty_rate_p [im_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
+set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
+set show_our_project_nr_first_column_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
+set show_leading_invoice_item_nr [im_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
-set show_company_project_nr [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
+set show_company_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
 if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { 
     set show_company_project_nr 0 
     set invoice_or_quote_p 0
@@ -143,7 +143,7 @@ set show_company_project_nr [expr $show_company_project_nr && $company_project_n
 
 
 # Which report to show for timesheet invoices as the detailed list of hours
-set timesheet_report_url [ad_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
+set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
 
 # Check if (one of) the PDF converter(s) is installed
 set pdf_enabled_p [llength [info commands im_html2pdf]]
@@ -155,7 +155,7 @@ set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
 set show_link_group_by_quote_p [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "ShowLinkGroupByQuote" -default 0]
 
 # Show CC ?
-set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 
 # ---------------------------------------------------------------
 # Audit
@@ -795,14 +795,14 @@ where
 # 3. Select and format Invoice Items
 # ---------------------------------------------------------------
 
-set decoration_item_nr [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleItemNr" "" "align=center"]
-set decoration_description [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleDescription" "" "align=left"]
-set decoration_quantity [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleQuantity" "" "align=right"]
-set decoration_unit [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleUnit" "" "align=left"]
-set decoration_rate [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleRate" "" "align=right"]
-set decoration_po_number [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitlePoNumber" "" "align=center"]
-set decoration_our_ref [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleOurRef" "" "align=center"]
-set decoration_amount [ad_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleAmount" "" "align=right"]
+set decoration_item_nr [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleItemNr" "" "align=center"]
+set decoration_description [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleDescription" "" "align=left"]
+set decoration_quantity [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleQuantity" "" "align=right"]
+set decoration_unit [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleUnit" "" "align=left"]
+set decoration_rate [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleRate" "" "align=right"]
+set decoration_po_number [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitlePoNumber" "" "align=center"]
+set decoration_our_ref [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleOurRef" "" "align=center"]
+set decoration_amount [im_parameter -package_id [im_package_invoices_id] "InvoiceDecorationTitleAmount" "" "align=right"]
 
 
 # start formatting the list of sums with the header...
@@ -1729,7 +1729,7 @@ set pm_fee_checked ""
 set pm_fee_perc ""
 set pm_fee_amount ""
 if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
-if {"" == $pm_fee_perc} { set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
+if {"" == $pm_fee_perc} { set pm_fee_perc [im_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
 if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
     set pm_fee_perc $default_pm_fee_percentage 
     set pm_fee_checked "checked"
@@ -1741,7 +1741,7 @@ set surcharge_checked ""
 set surcharge_perc ""
 set surcharge_amount ""
 if {[info exists default_surcharge_perc]} { set surcharge_perc $default_surcharge_perc }
-if {"" == $surcharge_perc} { set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
+if {"" == $surcharge_perc} { set surcharge_perc [im_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
 if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
 set surcharge_msg [lang::message::lookup "" intranet-invoices.Surcharge_Msg "Rush Surcharge %surcharge_perc%%"]
 
@@ -1750,7 +1750,7 @@ set discount_checked ""
 set discount_perc ""
 set discount_amount ""
 if {[info exists default_discount_perc]} { set discount_perc $default_discount_perc }
-if {"" == $discount_perc} { set discount_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
+if {"" == $discount_perc} { set discount_perc [im_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
 if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }
 set discount_msg [lang::message::lookup "" intranet-invoices.Discount_Msg "Discount %discount_perc%%"]
 

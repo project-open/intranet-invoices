@@ -43,7 +43,7 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 set user_id [ad_maybe_redirect_for_registration]
-set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 set current_url [im_url_with_query]
 
 # Check if we have to forward to "new-copy":
@@ -135,18 +135,18 @@ set canned_note_id ""
 set tax_format "90.9"
 set vat_format "90.9"
 
-set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
-set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
+set discount_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
+set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 
 # Canned Notes is a field with multiple messages per invoice
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
+set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 
 # Should we show the "Tax" field?
-set tax_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
+set tax_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
 
 # Should we show a "Material" field for invoice lines?
-set material_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
-set project_type_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
+set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
+set project_type_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
@@ -250,7 +250,7 @@ if {$invoice_id} {
     set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id -par_im_next_invoice_nr $par_im_next_invoice_nr]
     set cost_status_id [im_cost_status_created]
     set effective_date $todays_date
-    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
+    set payment_days [im_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
     set tax 0
@@ -275,7 +275,7 @@ if {$invoice_id} {
 }
 
 if {"" == $invoice_currency} {
-    set invoice_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+    set invoice_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 }
 
 if {"t" == $read_only_p} {

@@ -61,7 +61,7 @@ set date_format [im_l10n_sql_date_format]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:target_cost_type_id" -default [_ intranet-invoices.Costs]]
 
 if { [empty_string_p $how_many] || $how_many < 1 } {
-    set how_many [ad_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
+    set how_many [im_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
 }
 set end_idx [expr $start_idx + $how_many - 1]
 

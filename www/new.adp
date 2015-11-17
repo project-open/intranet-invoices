@@ -5,7 +5,7 @@
 
 <% 
     # Determine a security token to authenticate the AJAX function
-    set auto_login [im_generate_auto_login -user_id [ad_get_user_id]] 
+    set auto_login [im_generate_auto_login -user_id [ad_conn user_id]] 
 %>
 
 <script type="text/javascript">

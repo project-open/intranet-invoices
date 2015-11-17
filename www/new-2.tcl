@@ -85,7 +85,7 @@ set rf [expr exp(log(10) * $rounding_precision)]
 
 
 if {"" == $payment_days} {
-    set payment_days [ad_parameter -package_id [im_package_cost_id] "DefaultProviderBillPaymentDays" "" 30]
+    set payment_days [im_parameter -package_id [im_package_cost_id] "DefaultProviderBillPaymentDays" "" 30]
 }
 
 
@@ -93,7 +93,7 @@ if {"" == $payment_days} {
 # Check Currency Consistency
 # ---------------------------------------------------------------
 
-set default_currency [ad_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 set invoice_currency [lindex [array get item_currency] 1]
 if {"" == $invoice_currency} { set invoice_currency $default_currency }
 
@@ -205,7 +205,7 @@ if {"" == $company_contact_id } {
    set company_contact_id [im_invoices_default_company_contact $company_id $project_id]
 }
 
-set canned_note_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]
+set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 1]
 
 # ---------------------------------------------------------------
 # Update invoice base data

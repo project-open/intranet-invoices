@@ -78,16 +78,16 @@ set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
 
-set discount_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
-set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
+set discount_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
+set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 
 
 # Should we show a "Material" field for invoice lines?
-set material_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
-set project_type_enabled_p [ad_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
+set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
+set project_type_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
 
 # Shoudl we chow CC ? 
-set show_cost_center_p [ad_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
+set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 
 # ---------------------------------------------------------------
 # Get everything about the original document
