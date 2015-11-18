@@ -5,7 +5,7 @@
 
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
-<%= [export_form_vars invoice_id project_id return_url reference_document_id] %>
+<%= [export_vars -form {invoice_id project_id return_url reference_document_id}] %>
 @select_project_html;noquote@
 <if @show_cost_center_p@></if><else><input type=hidden name=cost_center_id value=@cost_center_id@></else>
 

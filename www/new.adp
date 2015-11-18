@@ -88,7 +88,7 @@ function ajaxFunction() {
 
 
 <form action=new-2 name=invoice method=POST>
-<%= [export_form_vars invoice_id return_url] %>
+<%= [export_vars -form {invoice_id return_url}] %>
 
 <!-- Include a list of projects related to this document -->
 @select_project_html;noquote@

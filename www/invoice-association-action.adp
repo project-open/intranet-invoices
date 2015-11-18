@@ -9,7 +9,7 @@
 <td>
 
 	<form method=POST action=invoice-association-action-2.tcl>
-	<%= [export_form_vars invoice_id return_url] %>
+	<%= [export_vars -form {invoice_id return_url}] %>
 	<table border=0 cellspacing=1 cellpadding=1>
 	  <tr> 
 	    <td colspan=2 class=rowtitle align=center>
@@ -56,7 +56,7 @@
 Alternatively:<p>
 
 	<form method=POST action=invoice-association-action.tcl>
-	<%= [export_form_vars invoice_id return_url] %>
+	<%= [export_vars -form {invoice_id return_url] %>
 	<table border=0 cellspacing=1 cellpadding=1>
 	  <tr> 
 	    <td colspan=2 class=rowtitle align=center>

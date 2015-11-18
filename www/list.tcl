@@ -396,7 +396,7 @@ if {0 == $ctr} { set new_document_menu "" }
 # options
 set filter_html "
 	<form method=get action=\"/intranet-invoices/list\">
-	[export_form_vars order_by how_many view_name include_subinvoices_p]
+	[export_vars -form {order_by how_many view_name include_subinvoices_p}]
 	<table border=0 cellpadding=1 cellspacing=1>
 	  <tr>
 	    <td>[_ intranet-invoices.Document_Status]</td>

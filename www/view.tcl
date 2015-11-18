@@ -730,7 +730,7 @@ if {[im_table_exists im_payments]} {
     set cost_id $invoice_id
     set payment_list_html "
 	<form action=payment-action method=post>
-	[export_form_vars cost_id return_url]
+	[export_vars -form {cost_id return_url}]
 	<table border=0 cellPadding=1 cellspacing=1>
         <tr>
           <td align=middle class=rowtitle colspan=3>

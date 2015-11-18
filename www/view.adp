@@ -21,7 +21,7 @@
 <td>
 	<table cellpadding=0 cellspacing=0>
 	<form action=invoice-discount-surcharge-action method=POST>
-	<%= [export_form_vars return_url invoice_id] %>
+	<%= [export_vars -form {return_url invoice_id}] %>
 	<tr class=rowtitle>
 		<td class=rowtitle align=center colspan=4>@submit_msg@</td>
 	</tr>
@@ -300,7 +300,7 @@
 	<tr><td colspan=2 align=right>
 <if @write@>
 	  <form action=new method=POST>
-	    <%= [export_form_vars return_url invoice_id cost_type_id] %>
+	    <%= [export_vars -form {return_url invoice_id cost_type_id}] %>
 	    <input type=submit name=edit_invoice value='#intranet-invoices.Edit#'>
 	    <input type=submit name=del_invoice value='#intranet-core.Delete#'>
 	  </form>

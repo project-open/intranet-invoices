@@ -162,7 +162,7 @@ db_foreach select_projects $select_project_sql {
 }
 
 set user_id_from_search $accounting_contact_id
-set export_vars [export_form_vars user_id_from_search invoice_id return_url]
+set export_vars [export_vars -form {user_id_from_search invoice_id return_url}]
 
 if {"" != $send_to_user_as} {
 
@@ -179,5 +179,5 @@ if {"" != $send_to_user_as} {
 	    set attachment_mime_type "application/pdf" 
 	}
     }
-    append export_vars [export_form_vars attachment_mime_type send_to_user_as attachment]
+    append export_vars [export_vars -form {attachment_mime_type send_to_user_as attachment}]
 }
