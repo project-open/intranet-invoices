@@ -53,7 +53,7 @@ if {"" != $del} {
 
 if {"" != $add} {
     ns_log Notice "payment-action: add payment"
-    ad_returnredirect "/intranet-payments/new?[export_url_vars cost_id return_url]"
+    ad_returnredirect "/intranet-payments/new?[export_vars -url {cost_id return_url}]"
 }
 
 ad_return_complaint 1 "<li>[_ intranet-invoices.No_command_specified]"

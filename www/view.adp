@@ -71,13 +71,13 @@
 	<ul>
 	<li>
 	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template "Preview using template"] %>
 	  </A>
         <li>
           <% set render_template_id $template_id %>
-          <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+          <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
           <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=100">
                 <%= [lang::message::lookup "" intranet-invoices.Preview_grouped_invoice_items "Preview: Grouped invoice items (HTML only) "] %>
           </A>
@@ -85,7 +85,7 @@
 <if @show_link_group_by_quote_p@>
         <li>
           <% set render_template_id $template_id %>
-          <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+          <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
           <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=120">
                 <%= [lang::message::lookup "" intranet-invoices.ShowLinkGroupByQuoteTxt "Preview: Grouped invoice items by Quote (HTML only) "] %>
           </A>
@@ -94,7 +94,7 @@
 
 	<li>
 	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@&item_list_type=1">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template_with_task_info "Preview using template with task information"] %>
 	  </A>
@@ -103,7 +103,7 @@
 <if @pdf_enabled_p@>
 	<li>
 	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_url_vars invoice_id render_template_id return_url] %>
+	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@&output_format=pdf&pdf_p=1">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_as_PDF "Preview as PDF"] %>
 	  </A>
@@ -129,14 +129,14 @@
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_Quote "Generate Invoice from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_invoice] %>
-		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	
 	<li>
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Delivery_Note_from_Quote "Generate Delivery Note from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_delivery_note] %>
-		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
 
@@ -145,7 +145,7 @@
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_DelNote "Generate Invoice from Delivery Note"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_invoice] %>
-		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
 
@@ -155,7 +155,7 @@
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Provider_Bill_from_Purchase_Order "Generate Provider Bill from Purchase Order"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_bill] %>
-		<% set gen_vars [export_url_vars source_invoice_id target_cost_type_id return_url] %>
+		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
 
@@ -173,7 +173,7 @@
 <if @write@>
 <!--
 	<li>
-	  <% set notify_vars [export_url_vars invoice_id return_url] %>
+	  <% set notify_vars [export_vars -url {invoice_id return_url}] %>
 	  <A HREF="/intranet-invoices/notify?@notify_vars@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_link "Send this %cost_type% as HTML link"] %>
 	  </A>
@@ -200,7 +200,7 @@
 <if @ubl_enabled_p@>
         <li>
           <% set render_template_id $template_id %>
-          <% set preview_vars [export_url_vars invoice_id return_url] %>
+          <% set preview_vars [export_vars -url {invoice_id return_url}] %>
           <A HREF="/intranet-ubl/document.xml?@preview_vars@">
                 <%= [lang::message::lookup "" intranet-invoices.Export_as_XML
 		"Export as XML"] %>

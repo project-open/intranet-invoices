@@ -77,7 +77,7 @@ switch $source_cost_type_id {
 #
 if {"" != $customer_id} {
     set company_id $customer_id
-    ad_returnredirect new-copy-invoiceselect?[export_url_vars source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url]
+    ad_returnredirect new-copy-invoiceselect?[export_vars -url { source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url}]
     return
 }
 
