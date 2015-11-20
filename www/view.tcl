@@ -903,7 +903,7 @@ if { 0 == $item_list_type } {
 	
 	    # Insert a new XML table row into OpenOffice document
 	    if {"odt" == $template_type} {
-		ns_log NOTICE "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
+		ns_log Notice "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
 		set lines [split $odt_row_template_xml \n]
 		foreach line $lines {
 		    set var_to_be_escaped ""
@@ -914,9 +914,9 @@ if { 0 == $item_list_type } {
 		    if { "" != $var_to_be_escaped  } {
 			set value [eval "set value \"$$var_to_be_escaped\""]
 			set value [string map {\[ "\\[" \] "\\]"} $value]
-			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
+			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
 			set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
-			ns_log NOTICE "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
+			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
 			eval $cmd
 		    }
 		}
@@ -1607,26 +1607,26 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	set odt_template_content [$root asXML -indent 1]
 
 	# Escaping other vars used, skip vars already escaped for multiple lines  
-	ns_log NOTICE "intranet-invoices-www-view:: Now escaping all other vars used in template"
+	ns_log Notice "intranet-invoices-www-view:: Now escaping all other vars used in template"
 	set lines [split $odt_template_content \n]
 	foreach line $lines {
-            ns_log NOTICE "intranet-invoices-www-view:: Line: $line"
+            ns_log Notice "intranet-invoices-www-view:: Line: $line"
             set var_to_be_escaped ""
 	    regexp -nocase {@(.*?)@} $line var_to_be_escaped    
             regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
-            ns_log NOTICE "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
+            ns_log Notice "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
 	    if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
 		if { "" != $var_to_be_escaped  } {
 		    if { [info exists $var_to_be_escaped] } {
 			set value [eval "set value \"$$var_to_be_escaped\""]
-			ns_log NOTICE "intranet-invoices-www-view:: Other vars - Value: $value"
+			ns_log Notice "intranet-invoices-www-view:: Other vars - Value: $value"
 			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
 			eval $cmd
 		    }
 		}
 	    } else {
-		ns_log NOTICE "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
+		ns_log Notice "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
 	    }
 	}
 

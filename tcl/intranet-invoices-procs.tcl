@@ -152,7 +152,7 @@ ad_proc -public im_next_invoice_nr {
 
     # Check for a custom project_nr generator
     set invoice_nr_generator [parameter::get -package_id [im_package_invoices_id] -parameter "CustomInvoiceNrGenerator" -default ""]
-    ns_log NOTICE "intranet-invoices-procs::im_next_invoice_nr: call invoice_nr_generator: cost_type_id $cost_type_id cost_center_id $cost_center_id date_format $date_format par_im_next_invoice_nr $par_im_next_invoice_nr"
+    ns_log Notice "intranet-invoices-procs::im_next_invoice_nr: call invoice_nr_generator: cost_type_id $cost_type_id cost_center_id $cost_center_id date_format $date_format par_im_next_invoice_nr $par_im_next_invoice_nr"
 
     if {"" != $invoice_nr_generator} {
 	if { "" == $par_im_next_invoice_nr } {
