@@ -26,7 +26,7 @@ ad_page_contract {
 # Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
@@ -34,7 +34,7 @@ if {![im_permission $user_id add_invoices]} {
 
 # Make sure we can create invoices of target_cost_type_id...
 set allowed_cost_type [im_cost_type_write_permissions $user_id]
-if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+if {$target_cost_type_id ni $allowed_cost_type} {
     ad_return_complaint "Insufficient Privileges" "
         <li>You can't create documents of type #$target_cost_type_id."
     ad_script_abort
@@ -77,7 +77,7 @@ switch $source_cost_type_id {
 #
 if {"" != $customer_id} {
     set company_id $customer_id
-    ad_returnredirect new-copy-invoiceselect?[export_vars -url { source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url}]
+    ad_returnredirect [export_vars -base new-copy-invoiceselect { source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url}]
     return
 }
 

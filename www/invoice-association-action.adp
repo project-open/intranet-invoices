@@ -1,18 +1,18 @@
 <master src="../../intranet-core/www/master">
-<property name="title">@page_title;noquote@</property>
+<property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">finance</property>
 
 <%= [im_costs_navbar "none" "/intranet/invoices/index" "" "" [list]] %>
 
-<table border=0 cellspacing=5 cellpadding=5>
-<tr valign=top>
+<table border="0" cellspacing="5" cellpadding="5">
+<tr valign="top">
 <td>
 
 	<form method=POST action=invoice-association-action-2.tcl>
 	<%= [export_vars -form {invoice_id return_url}] %>
-	<table border=0 cellspacing=1 cellpadding=1>
+	<table border="0" cellspacing="1" cellpadding="1">
 	  <tr> 
-	    <td colspan=2 class=rowtitle align=center>
+	    <td colspan="2" class=rowtitle align="center">
 	     Associate with Project
 	    </td>
 	  </tr>
@@ -41,8 +41,8 @@
 	    </td>
 	  </tr>
 	  <tr>
-	    <td colspan=2 align=right>
-	      <input type=submit value="Assoiate">
+	    <td colspan="2" align="right">
+	      <input type="submit" value="Assoiate">
 	    </td>
 	  </tr>
 	</table>
@@ -57,9 +57,9 @@ Alternatively:<p>
 
 	<form method=POST action=invoice-association-action.tcl>
 	<%= [export_vars -form {invoice_id return_url}] %>
-	<table border=0 cellspacing=1 cellpadding=1>
+	<table border="0" cellspacing="1" cellpadding="1">
 	  <tr> 
-	    <td colspan=2 class=rowtitle align=center>
+	    <td colspan="2" class=rowtitle align="center">
 	     Associate with a different company
 	    </td>
 	  </tr>
@@ -80,8 +80,8 @@ Alternatively:<p>
 	    </td>
 	  </tr>
 	  <tr>
-	    <td colspan=2 align=right>
-	      <input type=submit value="Select Company">
+	    <td colspan="2" align="right">
+	      <input type="submit" value="Select Company">
 	    </td>
 	  </tr>
 	</table>

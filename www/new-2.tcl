@@ -81,7 +81,7 @@ if {$invoice_or_quote_p} {
 
 # rounding precision can be 2 (USD,EUR, ...) .. -5 (Old Turkish Lira).
 set rounding_precision 2
-set rf [expr exp(log(10) * $rounding_precision)]
+set rf [expr {exp(log(10) * $rounding_precision)}]
 
 
 if {"" == $payment_days} {
@@ -110,7 +110,7 @@ foreach item_nr [array names item_currency] {
 # ---------------------------------------------------------------
 
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
 # if !$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id
 if {!$write_p || ![im_permission $user_id add_invoices] } {

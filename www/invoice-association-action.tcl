@@ -32,7 +32,7 @@ ad_page_contract {
 # Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 im_cost_permissions $user_id $invoice_id view_p read_p write_p admin_p
 if {!$write_p} {
     ad_return_complaint "Insufficient Privileges" "

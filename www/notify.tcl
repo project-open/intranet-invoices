@@ -41,7 +41,7 @@ ad_page_contract {
 # Security and defaults
 # --------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 im_cost_permissions $user_id $invoice_id view read write admin
 if {!$write} {
     ad_return_complaint "[_ intranet-invoices.lt_Insufficient_Privileg]" "
@@ -81,9 +81,9 @@ set current_user_email [db_string cur_user "select im_email_from_user_id(:user_i
 # Get the SystemUrl without trailing "/"
 set system_url [im_parameter -package_id [ad_acs_kernel_id] SystemURL ""]
 set sysurl_len [string length $system_url]
-set last_char [string range $system_url [expr $sysurl_len-1] $sysurl_len]
-if {[string equal "/" $last_char]} {
-    set system_url "[string range $system_url 0 [expr $sysurl_len-2]]"
+set last_char [string range $system_url $sysurl_len-1 $sysurl_len]
+if {"/" eq $last_char} {
+    set system_url "[string range $system_url 0 $sysurl_len-2]"
 }
 
 db_1row invoice_info "

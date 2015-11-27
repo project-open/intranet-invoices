@@ -26,7 +26,7 @@ ad_page_contract {
 
 }
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint 1 "<li>You have insufficient privileges to see this page"
     return

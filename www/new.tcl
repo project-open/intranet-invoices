@@ -42,7 +42,7 @@ ad_page_contract {
 # 2. Defaults & Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 set current_url [im_url_with_query]
 
@@ -73,7 +73,7 @@ if {[info exists del_invoice]} {
 # Do we need the cost_center_id for creating a new invoice?
 # This is necessary if the invoice_nr depends on the cost_center_id (profit center).
 set cost_center_required_p [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceRequiresCostCenterP" -default 0]
-if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id == "" || $cost_center_id == 0)} {
+if {$cost_center_required_p && 0 == $invoice_id && ($cost_center_id eq "" || $cost_center_id == 0)} {
     ad_returnredirect [export_vars -base "new-cost-center-select" {
 	{pass_through_variables { cost_type_id customer_id provider_id include_task project_id invoice_currency create_invoice_from_template invoice_id select_project} }
 	include_task
@@ -101,7 +101,7 @@ if {0 == $invoice_id} {
     # CostCenter Permissions:
     # We are about to create a new invoice - Check specific creation perms
     set create_cost_types [im_cost_type_write_permissions $user_id]
-    if {[lsearch -exact $create_cost_types $cost_type_id] == -1} {
+    if {$cost_type_id ni $create_cost_types} {
 	ad_return_complaint "Insufficient Privileges" "
         <li>You don't have sufficient privileges to create a 
             [db_string t "select im_category_from_id(:cost_type_id)"]."
@@ -389,7 +389,7 @@ append task_sum_html "
 
 
 
-if {[string equal $invoice_mode "new"]} {
+if {$invoice_mode eq "new"} {
 
     # Start formatting the "reference price list" as well, even though it's going
     # to be shown at the very bottom of the page.
@@ -415,7 +415,7 @@ if {[string equal $invoice_mode "new"]} {
     db_foreach invoice_item "" {
 
 	append task_sum_html "
-	<tr $bgcolor([expr $ctr % 2])> 
+	<tr $bgcolor([expr {$ctr % 2}])> 
           <td>
 	    <input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
 	  </td>
@@ -465,7 +465,7 @@ if {[string equal $invoice_mode "new"]} {
 for {set i 0} {$i < 3} {incr i} {
     
     append task_sum_html "
-	<tr $bgcolor([expr $ctr % 2])> 
+	<tr $bgcolor([expr {$ctr % 2}])> 
           <td>
 	    <input type=text name=item_sort_order.$ctr size=2 value='$ctr'>
 	  </td>

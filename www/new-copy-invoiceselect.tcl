@@ -29,7 +29,7 @@ ad_page_contract {
 # Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
@@ -37,7 +37,7 @@ if {![im_permission $user_id add_invoices]} {
 
 # Make sure we can create invoices of target_cost_type_id...
 set allowed_cost_type [im_cost_type_write_permissions $user_id]
-if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+if {$target_cost_type_id ni $allowed_cost_type} {
     ad_return_complaint "Insufficient Privileges" "
         <li>You can't create documents of type #$target_cost_type_id."
     ad_script_abort
@@ -60,10 +60,10 @@ set date_format [im_l10n_sql_date_format]
 
 set cost_type [db_string get_cost_type "select category from im_categories where category_id=:target_cost_type_id" -default [_ intranet-invoices.Costs]]
 
-if { [empty_string_p $how_many] || $how_many < 1 } {
+if { $how_many eq "" || $how_many < 1 } {
     set how_many [im_parameter -package_id [im_package_core_id] NumberResultsPerPage "" 50]
 }
-set end_idx [expr $start_idx + $how_many - 1]
+set end_idx [expr {$start_idx + $how_many - 1}]
 
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint 1 "<li>You have insufficiente privileges to view this page"
@@ -166,7 +166,7 @@ if {"" != $company_id && "" == $project_id} {
 }
 
 set project_where_clause [join $criteria " and\n            "]
-if { ![empty_string_p $project_where_clause] } {
+if { $project_where_clause ne "" } {
     set project_where_clause " and $project_where_clause"
 }
 
@@ -250,7 +250,7 @@ set selection "select z.* from ($limited_query) z $order_by_clause"
 # ---------------------------------------------------------------
 
 # Set up colspan to be the number of headers + 1 for the # column
-set colspan [expr [llength $column_headers] + 1]
+set colspan [expr {[llength $column_headers] + 1}]
 
 set table_header_html ""
 append table_header_html "<tr>\n"
@@ -277,7 +277,7 @@ set idx $start_idx
 db_foreach invoices_info_query $selection {
 
     # Append together a line of data based on the "column_vars" parameter list
-    append table_body_html "<tr$bgcolor([expr $ctr % 2])>\n"
+    append table_body_html "<tr$bgcolor([expr {$ctr % 2}])>\n"
     foreach column_var $column_vars {
 	append table_body_html "\t<td valign=top>"
 	set cmd "append table_body_html $column_var"
@@ -298,7 +298,7 @@ db_foreach invoices_info_query $selection {
 
 
 # Show a reasonable message when there are no result rows:
-if { [empty_string_p $table_body_html] } {
+if { $table_body_html eq "" } {
     set table_body_html "
         <tr><td colspan=$colspan><ul><li><b> 
         [_ intranet-invoices.lt_There_are_currently_n]
@@ -308,7 +308,7 @@ if { [empty_string_p $table_body_html] } {
 if { $ctr == $how_many && $end_idx < $total_in_limited } {
     # This means that there are rows that we decided not to return
     # Include a link to go to the next page
-    set next_start_idx [expr $end_idx + 1]
+    set next_start_idx [expr {$end_idx + 1}]
     set next_page_url "$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]"
 } else {
     set next_page_url ""
@@ -317,7 +317,7 @@ if { $ctr == $how_many && $end_idx < $total_in_limited } {
 if { $start_idx > 0 } {
     # This means we didn't start with the first row - there is
     # at least 1 previous row. add a previous page link
-    set previous_start_idx [expr $start_idx - $how_many]
+    set previous_start_idx [expr {$start_idx - $how_many}]
     if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page_url "$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]"
 } else {
@@ -332,7 +332,7 @@ if { $start_idx > 0 } {
 # => include a link to go to the next page 
 #
 if {$ctr==$how_many && $total_in_limited > 0 && $end_idx < $total_in_limited} {
-    set next_start_idx [expr $end_idx + 1]
+    set next_start_idx [expr {$end_idx + 1}]
     set next_page "<a href=$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Next_Page]</a>"
 } else {
     set next_page ""
@@ -343,7 +343,7 @@ if {$ctr==$how_many && $total_in_limited > 0 && $end_idx < $total_in_limited} {
 # => add a previous page link
 #
 if { $start_idx > 0 } {
-    set previous_start_idx [expr $start_idx - $how_many]
+    set previous_start_idx [expr {$start_idx - $how_many}]
     if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page "<a href=$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]>[_ intranet-invoices.Previous_Page]</a>"
 } else {

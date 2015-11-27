@@ -64,7 +64,7 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 # User id already verified by filters
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set user_is_admin_p [im_is_user_site_wide_or_intranet_admin $user_id]
 set current_user_id $user_id
 set today [lindex [split [ns_localsqltimestamp] " "] 0]
@@ -87,10 +87,10 @@ if {![im_permission $user_id view_invoices]} {
     return
 }
 
-if { [empty_string_p $how_many] || $how_many < 1 } {
+if { $how_many eq "" || $how_many < 1 } {
     set how_many [im_parameter -package_id [im_package_core_id] NumberResultsPerPage  "" 50]
 }
-set end_idx [expr $start_idx + $how_many]
+set end_idx [expr {$start_idx + $how_many}]
 
 
 if {"" == $start_date} { set start_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultStartDate -default "2000-01-01"] }
@@ -147,17 +147,17 @@ db_foreach column_list_sql $column_sql {
 # ---------------------------------------------------------------
 
 set criteria [list]
-if { ![empty_string_p $cost_status_id] && $cost_status_id > 0 } {
+if { $cost_status_id ne "" && $cost_status_id > 0 } {
     lappend criteria "i.cost_status_id in ([join [im_sub_categories $cost_status_id] ","])"
 }
 
-if { ![empty_string_p $cost_type_id] && $cost_type_id != 0 } {
+if { $cost_type_id ne "" && $cost_type_id != 0 } {
     lappend criteria "i.cost_type_id in ([join [im_sub_categories $cost_type_id] ","])"
 }
-if { ![empty_string_p $company_id] && $company_id != 0 } {
+if { $company_id ne "" && $company_id != 0 } {
     lappend criteria "(i.customer_id = :company_id OR i.provider_id = :company_id)"
 }
-if { ![empty_string_p $provider_id] && $provider_id != 0 } {
+if { $provider_id ne "" && $provider_id != 0 } {
     lappend criteria "i.provider_id=:provider_id"
 }
 if {"" != $start_date} {
@@ -239,7 +239,7 @@ switch $order_by {
 }
 
 set where_clause [join $criteria " and\n            "]
-if { ![empty_string_p $where_clause] } {
+if { $where_clause ne "" } {
     set where_clause " and $where_clause"
 }
 
@@ -331,7 +331,7 @@ $order_by_clause
 # to be able to manage large sites
 #
 
-if {[string equal $letter "ALL"]} {
+if {$letter eq "ALL"} {
     # Set these limits to negative values to deactivate them
     set total_in_limited -1
     set how_many -1
@@ -440,7 +440,7 @@ set filter_html "
 # ---------------------------------------------------------------
 
 # Set up colspan to be the number of headers + 1 for the # column
-set colspan [expr [llength $column_headers] + 1]
+set colspan [expr {[llength $column_headers] + 1}]
 
 set table_header_html ""
 
@@ -449,7 +449,7 @@ set table_header_html ""
 #
 set url "$local_url?"
 set query_string [export_ns_set_vars url [list order_by]]
-if { ![empty_string_p $query_string] } {
+if { $query_string ne "" } {
     append url "$query_string&"
 }
 
@@ -459,7 +459,7 @@ foreach col $column_headers {
     regsub -all "#" $col_key "hash_simbol" col_key
     set col_loc [lang::message::lookup ""  intranet-invoices.$col_key $col]
 
-    if {[string compare $order_by $col] == 0 || [regexp {input} $col match]} {
+    if {$order_by eq $col  || [regexp {input} $col match]} {
 	append table_header_html "  <td class=rowtitle>$col_loc</td>\n"
     } else {
 	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col_loc</a></td>\n"
@@ -497,7 +497,7 @@ db_foreach invoices_info_query $selection {
     } 
 
     set url [im_maybe_prepend_http $url]
-    if { [empty_string_p $url] } {
+    if { $url eq "" } {
 	set url_string "&nbsp;"
     } else {
 	set url_string "<a href=\"$url\">$url</a>"
@@ -538,7 +538,7 @@ db_foreach invoices_info_query $selection {
 
     # ---- Display the main line ----
     # Append together a line of data based on the "column_vars" parameter list
-    append table_body_html "<tr$bgcolor([expr $ctr % 2])>\n"
+    append table_body_html "<tr$bgcolor([expr {$ctr % 2}])>\n"
     foreach column_var $column_vars {
 	append table_body_html "\t<td valign=top>"
 	set cmd "append table_body_html $column_var"
@@ -557,7 +557,7 @@ db_foreach invoices_info_query $selection {
 }
 
 # Show a reasonable message when there are no result rows:
-if { [empty_string_p $table_body_html] } {
+if { $table_body_html eq "" } {
     set table_body_html "
         <tr><td colspan=$colspan><ul><li><b> 
         [_ intranet-invoices.lt_There_are_currently_n]
@@ -567,7 +567,7 @@ if { [empty_string_p $table_body_html] } {
 if { $end_idx < $total_in_limited } {
     # This means that there are rows that we decided not to return
     # Include a link to go to the next page
-    set next_start_idx [expr $end_idx + 0]
+    set next_start_idx [expr {$end_idx + 0}]
     set next_page_url "$local_url?start_idx=$next_start_idx&[export_ns_set_vars url [list start_idx]]"
     set next_page "<a href=$next_page_url>[_ intranet-invoices.Next_Page]</a>"
 } else {
@@ -578,7 +578,7 @@ if { $end_idx < $total_in_limited } {
 if { $start_idx > 0 } {
     # This means we didn't start with the first row - there is
     # at least 1 previous row. add a previous page link
-    set previous_start_idx [expr $start_idx - $how_many]
+    set previous_start_idx [expr {$start_idx - $how_many}]
     if { $previous_start_idx < 0 } { set previous_start_idx 0 }
     set previous_page_url "$local_url?start_idx=$previous_start_idx&[export_ns_set_vars url [list start_idx]]"
     set previous_page "<a href=$previous_page_url>[_ intranet-invoices.Previous_Page]</a>"

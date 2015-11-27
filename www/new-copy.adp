@@ -1,29 +1,29 @@
 <master src="../../intranet-core/www/master">
-<property name="title">@page_title;noquote@</property>
+<property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">finance</property>
-<property name="sub_navbar">@sub_navbar_html;noquote@</property>
+<property name="sub_navbar">@sub_navbar_html;literal@</property>
 
 <form action=new-2 method=POST>
 <% set invoice_id $new_invoice_id %>
 <%= [export_vars -form {invoice_id project_id return_url reference_document_id}] %>
 @select_project_html;noquote@
-<if @show_cost_center_p@></if><else><input type=hidden name=cost_center_id value=@cost_center_id@></else>
+<if @show_cost_center_p@></if><else><input type="hidden" name="cost_center_id" value="@cost_center_id@"></else>
 
-<table border=0 width="100%">
+<table border="0" width="100%">
 <tr><td>
 
-  <table cellpadding=0 cellspacing=0 bordercolor=#6699CC border=0>
-    <tr valign=top> 
+  <table cellpadding="0" cellspacing="0" bordercolor="#6699CC" border="0">
+    <tr valign="top"> 
       <td>
 
-        <table border=0 cellPadding=0 cellspacing=2 width="100%">
+        <table border="0" cellPadding=0 cellspacing="2" width="100%">
 
 
-	        <tr><td align=middle class=rowtitle colspan=2>@target_cost_type@ Data</td></tr>
+	        <tr><td align=middle class=rowtitle colspan="2">@target_cost_type@ Data</td></tr>
 	        <tr>
 	          <td  class=rowodd>@target_cost_type@ nr.:</td>
 	          <td  class=rowodd> 
-	            <input type=text name=invoice_nr size=15 value='@invoice_nr@'>
+	            <input type="text" name="invoice_nr" size="15" value='@invoice_nr@'>
 	          </td>
 	        </tr>
 <if @show_cost_center_p@>
@@ -38,13 +38,13 @@
 	        <tr> 
 	          <td  class=roweven>@target_cost_type@ date:</td>
 	          <td  class=roweven> 
-	            <input type=text name=invoice_date size=15 value='@effective_date@'>
+	            <input type="text" name="invoice_date" size="15" value='@effective_date@'>
 	          </td>
 	        </tr>
 	        <tr> 
 	          <td class=roweven>Payment terms</td>
 	          <td class=roweven> 
-	            <input type=text name=payment_days size=5 value='@payment_days@'>
+	            <input type="text" name="payment_days" size="5" value='@payment_days@'>
 	            days</td>
 	        </tr>
 <if @invoice_or_bill_p@>
@@ -70,32 +70,32 @@
 
       </td>
       <td></td>
-      <td align=right>
-        <table border=0 cellspacing=2 cellpadding=0 width="100%">
+      <td align="right">
+        <table border="0" cellspacing="2" cellpadding="0" width="100%">
 
 <if @invoice_or_quote_p@>
 <!-- Let the user select the company. Provider=Internal -->
 
 		<tr>
-		  <td align=center valign=top class=rowtitle colspan=2>@company_type@</td>
+		  <td align="center" valign="top" class=rowtitle colspan="2">@company_type@</td>
 		</tr>
 		<tr>
 		  <td class=roweven>@company_type@:</td>
 		  <td class=roweven>@company_select;noquote@</td>
 		</tr>
-		<input type=hidden name=provider_id value=@provider_id@>
+		<input type="hidden" name="provider_id" value="@provider_id@">
 
 </if>
 <else>
 
 		<tr>
-		  <td align=center valign=top class=rowtitle colspan=2>Provider</td>
+		  <td align="center" valign="top" class=rowtitle colspan="2">Provider</td>
 		</tr>
 		<tr>
 		  <td class=roweven>Provider:</td>
 		  <td class=roweven>@provider_select;noquote@</td>
 		</tr>
-		<input type=hidden name=company_id value=@company_id@>
+		<input type="hidden" name="company_id" value="@company_id@">
 
 </else>
 
@@ -125,11 +125,11 @@
 
   <table width="100%">
     <tr>
-      <td align=right>
- 	<table border=0 cellspacing=2 cellpadding=1 width="100%">
+      <td align="right">
+ 	<table border="0" cellspacing="2" cellpadding="1" width="100%">
 
 	<!-- the list of task sums, distinguised by type and UOM -->
-        <tr align=center> 
+        <tr align="center"> 
           <td class=rowtitle>#intranet-invoices.Line#</td>
           <td class=rowtitle>#intranet-invoices.Description#</td>
 
@@ -149,12 +149,12 @@
         <tr>
           <td>
           </td>
-          <td colspan=99 align=right>
-            <table border=0 cellspacing=1 cellpadding=0>
+          <td colspan="99" align="right">
+            <table border="0" cellspacing="1" cellpadding="0">
               <tr>
                 <td>#intranet-invoices.Discount# &nbsp;</td>
-                <td><input type=text name=discount_text value="@discount_text@"> </td>
-                <td><input type=text name=discount_perc value="@discount_perc@" size=4> % &nbsp;</td>
+                <td><input type="text" name="discount_text" value="@discount_text@"> </td>
+                <td><input type="text" name="discount_perc" value="@discount_perc@" size="4"> % &nbsp;</td>
               </tr>
             </table>
           </td>
@@ -164,12 +164,12 @@
         <tr>
           <td>
           </td>
-          <td colspan=99 align=right>
-            <table border=0 cellspacing=1 cellpadding=0>
+          <td colspan="99" align="right">
+            <table border="0" cellspacing="1" cellpadding="0">
               <tr>
                 <td>#intranet-invoices.Surcharge# &nbsp;</td>
-                <td><input type=text name=surcharge_text value="@surcharge_text@"> </td>
-                <td><input type=text name=surcharge_perc value="@surcharge_perc@" size=4> % &nbsp;</td>
+                <td><input type="text" name="surcharge_text" value="@surcharge_text@"> </td>
+                <td><input type="text" name="surcharge_perc" value="@surcharge_perc@" size="4"> % &nbsp;</td>
               </tr>
             </table>
           </td>
@@ -179,11 +179,11 @@
         <tr>
           <td> 
           </td>
-          <td colspan=99 align=right> 
-            <table border=0 cellspacing=1 cellpadding=0>
+          <td colspan="99" align="right"> 
+            <table border="0" cellspacing="1" cellpadding="0">
               <tr> 
                 <td>#intranet-invoices.VAT#&nbsp;</td>
-                <td><input type=text name=vat value='@vat@' size=4> % &nbsp;</td>
+                <td><input type="text" name="vat" value='@vat@' size="4"> % &nbsp;</td>
               </tr>
             </table>
           </td>
@@ -191,19 +191,19 @@
         <tr> 
           <td> 
           </td>
-          <td colspan=99 align=right> 
-            <table border=0 cellspacing=1 cellpadding=0>
+          <td colspan="99" align="right"> 
+            <table border="0" cellspacing="1" cellpadding="0">
               <tr> 
                 <td>#intranet-invoices.TAX#&nbsp;</td>
-                <td><input type=text name=tax value='@tax@' size=4> % &nbsp;</td>
+                <td><input type="text" name="tax" value='@tax@' size="4"> % &nbsp;</td>
               </tr>
             </table>
           </td>
         </tr>
         <tr> 
           <td>&nbsp; </td>
-          <td colspan=6 align=right> 
-              <input type=submit name=submit value='@button_text@'>
+          <td colspan="6" align="right"> 
+              <input type="submit" name="submit" value='@button_text@'>
           </td>
         </tr>
 

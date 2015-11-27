@@ -1,6 +1,6 @@
 <master src="../../intranet-core/www/master">
-<property name=title>#intranet-invoices.Add_a_user#</property>
-<property name="context">@context;noquote@</property>
+<property name="doc(title)">#intranet-invoices.Add_a_user#</property>
+<property name="context">@context;literal@</property>
 <property name="main_navbar_label">finance</property>
 
 <H1>#intranet-invoices.lt_Send_cost_type_via_Em#</H1>
@@ -57,7 +57,7 @@
 <tr class=roweven>
 <td>Subject</td>
 <td>
-<input type=text name=subject value="#intranet-invoices.lt_system_name_New_cost_#" size=70>
+<input type="text" name="subject" value="#intranet-invoices.lt_system_name_New_cost_#" size="70">
 </td>
 
 <tr class=rowodd>
@@ -68,20 +68,20 @@
 </tr>
 
 <if @send_to_user_as@ ne "">
-<tr class=roweven valign=center>
+<tr class=roweven valign="center">
 <td>Attachment</td>
 <td>
-  <input type=text name=attachment_filename value="@attachment_filename@" size=40>
+  <input type="text" name="attachment_filename" value="@attachment_filename@" size="40">
   <%= [im_gif "exp-$send_to_user_as" $send_to_user_as] %>
 </td>
 </tr>
 </if>
 
-<tr valign=top>
+<tr valign="top">
 <td>&nbsp;</td>
-<td align=center>
+<td align="center">
 
-  <input type=checkbox name=send_me_a_copy value=1>
+  <input type="checkbox" name="send_me_a_copy" value="1">
   Send me a copy
   <input type="submit" value="Send Email" />
 

@@ -59,7 +59,7 @@ proc encodeXmlValue {value} {
 # ---------------------------------------------------------------
 
 # Get user parameters
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set user_locale [lang::user::locale]
 set locale $user_locale
 set page_title ""
@@ -104,7 +104,7 @@ set tax_format $cur_format
 
 # Rounding precision can be between 2 (USD,EUR, ...) and -5 (Old Turkish Lira, ...).
 set rounding_precision 2
-set rounding_factor [expr exp(log(10) * $rounding_precision)]
+set rounding_factor [expr {exp(log(10) * $rounding_precision)}]
 set rf $rounding_factor
 
 # Default Currency
@@ -139,7 +139,7 @@ if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} {
 
 # Show or not "our" and the "company" project nrs.
 set company_project_nr_exists [im_column_exists im_projects company_project_nr]
-set show_company_project_nr [expr $show_company_project_nr && $company_project_nr_exists]
+set show_company_project_nr [expr {$show_company_project_nr && $company_project_nr_exists}]
 
 
 # Which report to show for timesheet invoices as the detailed list of hours
@@ -267,7 +267,7 @@ db_foreach related_projects $related_projects_sql {
     # Check of the "customer project nr" of the superproject, as the PMs
     # are probably too lazy to maintain it in the subprojects...
     set cnt 0
-    while {[string equal "" $customer_project_nr] && ![string equal "" $parent_id] && $cnt < 10} {
+    while {"" eq $customer_project_nr && "" ne $parent_id && $cnt < 10} {
 	set customer_project_nr [db_string custpn "select company_project_nr from im_projects where project_id = :parent_id" -default ""]
 	set parent_id [db_string parentid "select parent_id from im_projects where project_id = :parent_id" -default ""]
 	incr cnt
@@ -530,7 +530,7 @@ if {"odt" == $template_type} {
 
     # ------------------------------------------------
     # Create a temporary directory for our contents
-    set odt_tmp_path [ns_tmpnam]
+    set odt_tmp_path [ad_tmpnam]
     ns_log Notice "view.tcl: odt_tmp_path=$odt_tmp_path"
     ns_mkdir $odt_tmp_path
     
@@ -752,7 +752,7 @@ where
     set payment_ctr 0
     db_foreach payment_list $payment_list_sql {
 	append payment_list_html "
-        <tr $bgcolor([expr $payment_ctr % 2])>
+        <tr $bgcolor([expr {$payment_ctr % 2}])>
           <td>
 	    <A href=/intranet-payments/view?payment_id=$payment_id>
 	      $received_date_pretty
@@ -779,7 +779,7 @@ where
 
     if {$write} {
 	append payment_list_html "
-        <tr $bgcolor([expr $payment_ctr % 2])>
+        <tr $bgcolor([expr {$payment_ctr % 2}])>
           <td align=right colspan=3>
 	    <input type=submit name=add value=\"[lang::message::lookup $locale intranet-invoices.Add_a_Payment]\">
 	    <input type=submit name=del value=\"[lang::message::lookup $locale intranet-invoices.Del]\">
@@ -845,7 +845,7 @@ append invoice_item_html "
 "
 
 set ctr 1
-set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr]
+set colspan [expr {2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr}]
 
 set oo_table_xml ""
 
@@ -862,43 +862,43 @@ if { 0 == $item_list_type } {
 		set project_short_name $project_short_name_default
 	    }
 	
-	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
+	    set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
+	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
 	
 	    append invoice_item_html "
-		<tr $bgcolor([expr $ctr % 2])>
+		<tr $bgcolor([expr {$ctr % 2}])>
 	    "
 	
 	    if {$show_leading_invoice_item_nr} {
 	        append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=right>$item_sort_order</td>\n"
+	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n"
 	    }
 	
 	    append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2])>$item_name</td>
+	          <td $bgcolor([expr {$ctr % 2}])>$item_name</td>
 	    "
 	    if {$show_qty_rate_p} {
 	        append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-	          <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-	          <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 	        "
 	    }
 
 	    if {$show_company_project_nr} {
 		# Only if intranet-translation has added the field
 		append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=left>$company_project_nr</td>\n"
+	          <td $bgcolor([expr {$ctr % 2}]) align=left>$company_project_nr</td>\n"
 	    }
 	
 	    if {$show_our_project_nr} {
 		append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+	          <td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
 	    }
 	
 	    append invoice_item_html "
-	          <td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=right>$amount_pretty&nbsp;$currency</td>
 		</tr>"
 	
 	    # Insert a new XML table row into OpenOffice document
@@ -971,7 +971,7 @@ if { 0 == $item_list_type } {
                 if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
 	                append invoice_item_html "
         	                <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 	"
                         set amount_sub_total 0
                 }		
@@ -982,27 +982,27 @@ if { 0 == $item_list_type } {
                         append invoice_item_html "<tr><td class='invoiceroweven'><b>$parent_project_name</b></td></tr>"
                         set old_parent_id $parent_id
                 }
-                set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-                set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-                set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+                set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
+                set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
+                set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
                 append invoice_item_html "<tr>"
                 append invoice_item_html "<td class='invoiceroweven'>$parent_name</td>"
                 if {$show_qty_rate_p} {
                 	append invoice_item_html "
-                        	<td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-                                <td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-                                <td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+                        	<td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
                         "
                 }
 
                 if {$show_our_project_nr} {
 	                append invoice_item_html "
-        	        <td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+        	        <td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
                 }
 		
-                append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$line_total&nbsp;$currency</td></tr>"
-                set amount_sub_total [expr $amount_sub_total + $line_total]
-		set amount_total [expr $amount_sub_total + $amount_total]
+                append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$line_total&nbsp;$currency</td></tr>"
+                set amount_sub_total [expr {$amount_sub_total + $line_total}]
+		set amount_total [expr {$amount_sub_total + $amount_total}]
 	       	incr ctr
 	} if_no_rows {
                 append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
@@ -1084,12 +1084,12 @@ if { 0 == $item_list_type } {
                         # Write Quote
                         append invoice_item_html "
                                 <tr>
-                                <td $bgcolor([expr $ctr % 2]) align=right>$quote_name</td>
-                                <td $bgcolor([expr $ctr % 2]) align=left colspan='2'>&nbsp;</td>
-                                <td $bgcolor([expr $ctr % 2]) align=right>$sum_quote</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=right>$quote_name</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=left colspan='2'>&nbsp;</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=right>$sum_quote</td>
                                 </tr>
                         "
-			set amount_sub_total [expr $amount_sub_total + $sum_quote]
+			set amount_sub_total [expr {$amount_sub_total + $sum_quote}]
 		} if_no_rows {
                 	append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
             	}
@@ -1097,9 +1097,9 @@ if { 0 == $item_list_type } {
 		# Subtotal for sub-project
 		append invoice_item_html "
                                 <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
 		"
-		set amount_total [expr $amount_sub_total + $amount_total]
+		set amount_total [expr {$amount_sub_total + $amount_total}]
                 set amount_sub_total 0
                 incr ctr
 	} if_no_rows {
@@ -1109,7 +1109,7 @@ if { 0 == $item_list_type } {
 	if { 0 != $amount_sub_total } {
 		append invoice_item_html "
                         <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                        [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 "
         }
 
@@ -1190,12 +1190,12 @@ if { 0 == $item_list_type } {
                         # Write Quote
                         append invoice_item_html "
                                 <tr>
-                                <td $bgcolor([expr $ctr % 2]) align=right>$quote_name</td>
-                                <td $bgcolor([expr $ctr % 2]) align=left colspan='2'>&nbsp;</td>
-                                <td $bgcolor([expr $ctr % 2]) align=right>$sum_quote</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=right>$quote_name</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=left colspan='2'>&nbsp;</td>
+                                <td $bgcolor([expr {$ctr % 2}]) align=right>$sum_quote</td>
                                 </tr>
                         "
-                set amount_sub_total [expr $amount_sub_total + $sum_quote]
+                set amount_sub_total [expr {$amount_sub_total + $sum_quote}]
             } if_no_rows {
                 append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
             }
@@ -1203,9 +1203,9 @@ if { 0 == $item_list_type } {
                 # Subtotal for sub-project
                 append invoice_item_html "
                                 <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                  "
-            set amount_total [expr $amount_sub_total + $amount_total]
+            set amount_total [expr {$amount_sub_total + $amount_total}]
                 set amount_sub_total 0
                 incr ctr
         } if_no_rows {
@@ -1214,7 +1214,7 @@ if { 0 == $item_list_type } {
         if { 0 != $amount_sub_total } {
                 append invoice_item_html "
                         <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                        [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 "
         }
 
@@ -1305,7 +1305,7 @@ if { 0 == $item_list_type } {
 			 if { "NULL"!=$task_id } {
 	    			append invoice_item_html "
 					<tr><td class='invoiceroweven' colspan ='100' align='right'>
-					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+					[lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
 				"
 				set amount_sub_total 0    		
 			} else {
@@ -1313,7 +1313,7 @@ if { 0 == $item_list_type } {
 			}
    		}
 		set indent ""
-		set indent_level_item [expr $indent_level - $level]  
+		set indent_level_item [expr {$indent_level - $level}]  
 		for {set i 0} {$i < $indent_level_item} {incr i} { 
 		    	append indent "&nbsp;&nbsp;" 
 		}
@@ -1328,16 +1328,16 @@ if { 0 == $item_list_type } {
 		    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
 		    		set old_parent_id $parent_id
 				} else {
-				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-			    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
+			    	set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
+		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
 				append invoice_item_html "<tr>" 
 				append invoice_item_html "<td class='invoiceroweven'>$indent$parent_name</td>" 
 				if {$show_qty_rate_p} {
 					append invoice_item_html "
-					<td $bgcolor([expr $ctr % 2]) align=right>$item_units_pretty</td>
-					<td $bgcolor([expr $ctr % 2]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-					<td $bgcolor([expr $ctr % 2]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
+					<td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
+					<td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+					<td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 		       			"
 				}
 
@@ -1347,17 +1347,17 @@ if { 0 == $item_list_type } {
 		    		}
 				if {$show_our_project_nr} {
 					append invoice_item_html "
-					<td $bgcolor([expr $ctr % 2]) align=left>$project_short_name</td>\n"
+					<td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
 		    		}
-				append invoice_item_html "<td $bgcolor([expr $ctr % 2]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
-					set amount_sub_total [expr $amount_sub_total + $amount]				
+				append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
+					set amount_sub_total [expr {$amount_sub_total + $amount}]				
 				}
 		}
 	    incr ctr
 	} if_no_rows {
 		append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
     	}
-	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
+	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
 }
 
 
@@ -1374,24 +1374,24 @@ if {"" == $tax} { set tax 0}
 # Calculate grand total based on the same inner SQL
 db_1row calc_grand_total ""
 
-set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0] $rounding_precision] "" $locale]
-set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
-set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
+set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$subtotal+0}] $rounding_precision] "" $locale]
+set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$vat_amount+0}] $rounding_precision] "" $locale]
+set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$tax_amount+0}] $rounding_precision] "" $locale]
 
-set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $rounding_precision] "" $locale]
-set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
-set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
-set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
+set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$vat+0}] $rounding_precision] "" $locale]
+set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$tax+0}] $rounding_precision] "" $locale]
+set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$grand_total+0}] $rounding_precision] "" $locale]
+set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$total_due+0}] $rounding_precision] "" $locale]
 
 set discount_perc_pretty $discount_perc
 set surcharge_perc_pretty $surcharge_perc
-set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
-set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
+set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$discount_amount+0}] $rounding_precision] "" $locale]
+set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$surcharge_amount+0}] $rounding_precision] "" $locale]
 
 
 
 
-set colspan_sub [expr $colspan - 1]
+set colspan_sub [expr {$colspan - 1}]
 
 # Add a subtotal
 set subtotal_item_html "
@@ -1437,7 +1437,7 @@ append subtotal_item_html "
 set payment_terms_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
-          <td valign=top colspan=[expr $colspan-1] class=rowplain> 
+          <td valign=top colspan=[expr {$colspan-1}] class=rowplain> 
             [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
@@ -1446,7 +1446,7 @@ set payment_terms_html "
 set payment_method_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
-          <td valign=top colspan=[expr $colspan-1] class=rowplain> $invoice_payment_method_desc</td>
+          <td valign=top colspan=[expr {$colspan-1}] class=rowplain> $invoice_payment_method_desc</td>
         </tr>
 "
 
@@ -1468,7 +1468,7 @@ if {$canned_note_enabled_p} {
     set canned_note_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Canned_Note "Canned Note"]</td>
-          <td valign=top colspan=[expr $colspan-1]>
+          <td valign=top colspan=[expr {$colspan-1}]>
 	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$canned_notes</font></pre>
 	  </td>
         </tr>
@@ -1479,7 +1479,7 @@ if {$canned_note_enabled_p} {
 set note_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Note]</td>
-          <td valign=top colspan=[expr $colspan-1]>
+          <td valign=top colspan=[expr {$colspan-1}]>
 	    <pre><span style=\"font-family: verdana, arial, helvetica, sans-serif\">$cost_note</font></pre>
 	  </td>
         </tr>
@@ -1524,7 +1524,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     # Always, as HTML is the input for the PDF converter
     set invoices_as_html [ns_adp_parse -file $invoice_template_path]
 
-    if {$output_format == "html" } {
+    if {$output_format eq "html" } {
 
 	# HTML preview or email
 	if {"" != $send_to_user_as} {
@@ -1548,7 +1548,7 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 
 
     # PDF output
-    if {$output_format == "pdf" && $pdf_enabled_p} {
+    if {$output_format eq "pdf" && $pdf_enabled_p} {
 	
 	ns_log Notice "view.tcl: pdf output format"
 	set result [im_html2pdf $invoices_as_html]
@@ -1585,13 +1585,13 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
     }
 
     # OpenOffice Output
-    if {$output_format == "odt"} {
+    if {$output_format eq "odt"} {
        
 	ns_log Notice "view.tcl: odf formatting"
 	# ------------------------------------------------
         # setup and constants
 	
-	# if {$internal_path != "internal"} {
+	# if {$internal_path ne "internal"} {
 	#    set internal_tax_id "208 171 00202"
 	# } else {
 	#    set internal_tax_id "208 120 20138"

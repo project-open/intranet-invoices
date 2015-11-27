@@ -27,7 +27,7 @@ ad_page_contract {
 # Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."
@@ -42,7 +42,7 @@ foreach source_id $source_invoice_id {
         ad_script_abort
     }
     set allowed_cost_type [im_cost_type_write_permissions $user_id]
-    if {[lsearch -exact $allowed_cost_type $target_cost_type_id] == -1} {
+    if {$target_cost_type_id ni $allowed_cost_type} {
 	ad_return_complaint "Insufficient Privileges" "
         <li>You can't create documents of type #$target_cost_type_id."
         ad_script_abort
@@ -57,7 +57,7 @@ foreach source_id $source_invoice_id {
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
 if {0 == [llength $source_invoice_id]} {
-    ad_returnredirect new-copy-custselect?[export_vars -url { source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url}]
+    ad_returnredirect [export_vars -base new-copy-custselect { source_cost_type_id target_cost_type_id customer_id provider_id project_id blurb return_url}]
     ad_script_abort
 }
 
@@ -268,7 +268,7 @@ db_foreach invoice_items "" {
     set item_name [ns_quotehtml $item_name]
 
     append task_sum_html "
-	<tr $bgcolor([expr $ctr % 2])> 
+	<tr $bgcolor([expr {$ctr % 2}])> 
           <td>
 	    <input type=text name=item_sort_order.$ctr size=2 value='$item_sort_order'>
 	  </td>

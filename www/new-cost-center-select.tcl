@@ -22,7 +22,7 @@ ad_page_contract {
 # Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 if {![im_permission $user_id add_invoices]} {
     ad_return_complaint "Insufficient Privileges" "
     <li>You don't have sufficient privileges to see this page."    
@@ -54,7 +54,7 @@ set pass_through_html ""
 foreach var $pass_through_variables {
     set value [ns_set get $form_vars $var]
    append pass_through_html "
-        <input type=hidden name=\"$var\" value=\"[ad_quotehtml $value]\">
+        <input type=hidden name=\"$var\" value=\"[ns_quotehtml $value]\">
    "
 }
 
@@ -101,7 +101,7 @@ db_foreach cost_centers $main_sql {
     incr ctr
     set object_id $cost_center_id
 
-    append table "\n<tr$bgcolor([expr $ctr % 2])>\n"
+    append table "\n<tr$bgcolor([expr {$ctr % 2}])>\n"
     append table "<td><input type=radio name=cost_center_id value=$cost_center_id></td>\n"
 
     if {0 != $indent_level} {

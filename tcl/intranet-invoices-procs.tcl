@@ -186,9 +186,9 @@ ad_proc -public im_next_invoice_nr {
 
     # Adjust the position of the start of date and nr in the invoice_nr
     set prefix_len [string length $prefix]
-    set date_start_idx [expr 1+$prefix_len]
+    set date_start_idx [expr {1+$prefix_len}]
     set date_format_len [string length $date_format]
-    set nr_start_idx [expr 2+$date_format_len+$prefix_len]
+    set nr_start_idx [expr {2+$date_format_len+$prefix_len}]
 
     set prefix_where ""
     if {$prefix_len} {
@@ -216,10 +216,10 @@ where
 
     set last_invoice_nr [db_string max_invoice_nr $sql -default ""]
     set last_invoice_nr [string trimleft $last_invoice_nr "0"] 
-    if {[empty_string_p $last_invoice_nr]} {
+    if {$last_invoice_nr eq ""} {
 	set last_invoice_nr 0
     }
-    set next_number [expr $last_invoice_nr + 1]
+    set next_number [expr {$last_invoice_nr + 1}]
 
 
     # ----------------------------------------------------
@@ -266,7 +266,7 @@ ad_proc -public im_invoice_nr_variant { invoice_nr } {
     }
 
     # second case: "a" .. "y"
-    if {1 == [string length $max_extension] && [string compare $max_extension "z"] < 0} { 
+    if {1 == [string length $max_extension] && $max_extension ne "z"  < 0} { 
 	ns_log Notice "im_invoice_nr_variant: $invoice_nr: 1 digit: '$max_extension': incrementing"
 	set chr [string first $max_extension "abcdefghijklmnopqrstuvwxyz"]
 	incr chr
@@ -421,7 +421,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 	    default { set extra_url "" }
 	}
 
-	append object_list_html "<tr $bgcolor([expr $ctr % 2])>\n"
+	append object_list_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
 	if {$write} {
 	    append object_list_html "<td><input type=checkbox name=object_ids.$object_id></td>\n"
 	}
@@ -432,7 +432,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 
     if {0 == $ctr} {
 	append object_list_html "
-        <tr $bgcolor([expr $ctr % 2])>
+        <tr $bgcolor([expr {$ctr % 2}])>
           <td><i>[_ intranet-invoices.No_objects_found]</i></td>
         </tr>\n"
     }
@@ -497,12 +497,12 @@ ad_proc im_invoices_select { select_name { default "" } { status "" } { exclude_
 		1=1
     "
 
-    if { ![empty_string_p $status] } {
+    if { $status ne "" } {
 	ns_set put $bind_vars status $status
 	append sql " and cost_status_id=(select cost_status_id from im_cost_status where cost_status=:status)"
     }
 
-    if { ![empty_string_p $exclude_status] } {
+    if { $exclude_status ne "" } {
 	set exclude_string [im_append_list_to_ns_set $bind_vars cost_status_type $exclude_status]
 	append sql " and cost_status_id in (select cost_status_id 
                                                   from im_cost_status 
@@ -621,9 +621,9 @@ ad_proc im_invoice_oo_tdom_explore {
     for {set i 0} {$i < $level} {incr i} { append indent "    " }
 
     set result "${indent}$name"
-    if {$type == "TEXT_NODE"} { return "$result=[$parent nodeValue]\n" }
+    if {$type eq "TEXT_NODE"} { return "$result=[$parent nodeValue]\n" }
 
-    if {$type != "ELEMENT_NODE"} { return "$result\n" }
+    if {$type ne "ELEMENT_NODE"} { return "$result\n" }
 
     # Create a key-value list of attributes behind the name of the tag
     append result " ("
@@ -639,7 +639,7 @@ ad_proc im_invoice_oo_tdom_explore {
 
     # Recursively descend to child nodes
     foreach child [$parent childNodes] { 
-	append result [im_invoice_oo_tdom_explore -parent $child -level [expr $level + 1]] 
+	append result [im_invoice_oo_tdom_explore -parent $child -level [expr {$level + 1}]] 
     }
     return $result
 }
@@ -662,7 +662,7 @@ ad_proc -public im_invoice_change_oo_content {
     @return The path to the new file.
 } {
     # Create a temporary directory
-    set dir [ns_tmpnam]
+    set dir [ad_tmpnam]
     ns_mkdir $dir
 
     array set content_array $contents
@@ -696,7 +696,7 @@ ad_proc -public im_invoice_change_oo_content {
     }
 
     # copy odt file
-    set new_file "[ns_tmpnam].odt"
+    set new_file "[ad_tmpnam].odt"
     ns_cp "${dir}/$document_filename" $new_file
 
     # delete other tmpfiles
