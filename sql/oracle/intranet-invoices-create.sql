@@ -1,13 +1,13 @@
 -- /package/intranet-invoices/sql/oracle/intranet-invoices-create.sql
 --
--- Copyright (c) 2003-2004 Project/Open
+-- Copyright (c) 2003-2004 ]project-open[
 --
 -- All rights reserved. Please check
 -- http://www.project-open.com/license/ for details.
 --
 -- @author frank.bergmann@project-open.com
 
--- Invoices module for Project/Open
+-- Invoices module for ]project-open[
 --
 -- Defines:
 --	im_invoices			Invoice biz object container
