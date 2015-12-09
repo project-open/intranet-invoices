@@ -692,8 +692,11 @@ if { ![db_0or1row category_info_query $query] } {
     set invoice_payment_method_desc ""
 }
 
+set invoice_payment_method_l10n $invoice_payment_method
 set invoice_payment_method_key [lang::util::suggest_key $invoice_payment_method]
-set invoice_payment_method_l10n [lang::message::lookup $locale intranet-core.$invoice_payment_method_key $invoice_payment_method]
+if {"" ne $invoice_payment_method_key} {
+    set invoice_payment_method_l10n [lang::message::lookup $locale intranet-core.$invoice_payment_method_key $invoice_payment_method]
+}
 
 
 # ---------------------------------------------------------------
