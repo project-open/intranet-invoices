@@ -862,9 +862,9 @@ if { 0 == $item_list_type } {
 		set project_short_name $project_short_name_default
 	    }
 	
-	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
-	    set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
-	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
+	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 	
 	    append invoice_item_html "
 		<tr $bgcolor([expr {$ctr % 2}])>
@@ -971,7 +971,7 @@ if { 0 == $item_list_type } {
                 if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
 	                append invoice_item_html "
         	                <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 	"
                         set amount_sub_total 0
                 }		
@@ -982,9 +982,9 @@ if { 0 == $item_list_type } {
                         append invoice_item_html "<tr><td class='invoiceroweven'><b>$parent_project_name</b></td></tr>"
                         set old_parent_id $parent_id
                 }
-                set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
-                set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
-                set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
+                set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+                set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+                set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
                 append invoice_item_html "<tr>"
                 append invoice_item_html "<td class='invoiceroweven'>$parent_name</td>"
                 if {$show_qty_rate_p} {
@@ -1097,7 +1097,7 @@ if { 0 == $item_list_type } {
 		# Subtotal for sub-project
 		append invoice_item_html "
                                 <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
 		"
 		set amount_total [expr {$amount_sub_total + $amount_total}]
                 set amount_sub_total 0
@@ -1109,7 +1109,7 @@ if { 0 == $item_list_type } {
 	if { 0 != $amount_sub_total } {
 		append invoice_item_html "
                         <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 "
         }
 
@@ -1203,7 +1203,7 @@ if { 0 == $item_list_type } {
                 # Subtotal for sub-project
                 append invoice_item_html "
                                 <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                  "
             set amount_total [expr {$amount_sub_total + $amount_total}]
                 set amount_sub_total 0
@@ -1214,7 +1214,7 @@ if { 0 == $item_list_type } {
         if { 0 != $amount_sub_total } {
                 append invoice_item_html "
                         <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
                 "
         }
 
@@ -1305,7 +1305,7 @@ if { 0 == $item_list_type } {
 			 if { "NULL"!=$task_id } {
 	    			append invoice_item_html "
 					<tr><td class='invoiceroweven' colspan ='100' align='right'>
-					[lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
+					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
 				"
 				set amount_sub_total 0    		
 			} else {
@@ -1328,9 +1328,9 @@ if { 0 == $item_list_type } {
 		    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
 		    		set old_parent_id $parent_id
 				} else {
-				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$amount+0}] $rounding_precision] "" $locale]
-			    	set item_units_pretty [lc_numeric [expr {$item_units+0}] "" $locale]
-		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$price_per_unit+0}] $rounding_precision] "" $locale]
+				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+			    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 				append invoice_item_html "<tr>" 
 				append invoice_item_html "<td class='invoiceroweven'>$indent$parent_name</td>" 
 				if {$show_qty_rate_p} {
@@ -1357,7 +1357,7 @@ if { 0 == $item_list_type } {
 	} if_no_rows {
 		append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
     	}
-	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr {$amount_sub_total+0}] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
+	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
 }
 
 
@@ -1374,19 +1374,19 @@ if {"" == $tax} { set tax 0}
 # Calculate grand total based on the same inner SQL
 db_1row calc_grand_total ""
 
-set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$subtotal+0}] $rounding_precision] "" $locale]
-set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$vat_amount+0}] $rounding_precision] "" $locale]
-set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$tax_amount+0}] $rounding_precision] "" $locale]
+set subtotal_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $subtotal+0] $rounding_precision] "" $locale]
+set vat_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat_amount+0] $rounding_precision] "" $locale]
+set tax_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax_amount+0] $rounding_precision] "" $locale]
 
-set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$vat+0}] $rounding_precision] "" $locale]
-set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$tax+0}] $rounding_precision] "" $locale]
-set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$grand_total+0}] $rounding_precision] "" $locale]
-set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$total_due+0}] $rounding_precision] "" $locale]
+set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $rounding_precision] "" $locale]
+set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
+set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
+set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
 
 set discount_perc_pretty $discount_perc
 set surcharge_perc_pretty $surcharge_perc
-set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$discount_amount+0}] $rounding_precision] "" $locale]
-set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr {$surcharge_amount+0}] $rounding_precision] "" $locale]
+set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
+set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
 
 
 
