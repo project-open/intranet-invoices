@@ -508,15 +508,14 @@ if {0 != $render_template_id} {
 
 # Check if the given locale throws an error
 # Reset the locale to the default locale then
-if {[catch {
-    lang::message::lookup $locale "dummy_text"
-} errmsg]} {
+#ad_return_complaint 1 "lang::message::lookup $locale dummy_text [lang::system::get_locales]"
+
+if {$locale in [lang::system::get_locales]} {
+    # Locale is part of the system locales - OK
+} else {
+    # invalid locale - revert to the user's locale
     set locale $user_locale
 }
-
-ns_log Notice "view.tcl: locale=$locale"
-ns_log Notice "view.tcl: template_type=$template_type"
-
 
 # ---------------------------------------------------------------
 # OOoo ODT Function
