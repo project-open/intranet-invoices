@@ -157,6 +157,9 @@ set show_link_group_by_quote_p [parameter::get -package_id [apm_package_id_from_
 # Show CC ?
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 
+set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
+
+
 # ---------------------------------------------------------------
 # Audit
 # ---------------------------------------------------------------

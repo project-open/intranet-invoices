@@ -1,4 +1,4 @@
-<master src="../../intranet-core/www/master">
+<master>
 <property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;literal@</property>
@@ -254,7 +254,7 @@
           <td  class=roweven>#intranet-invoices.cost_type_date#:</td>
           <td  class=roweven>@invoice_date_pretty@</td>
         </tr>
-<if [apm_package_installed_p "intranet-cost-center"] >
+<if @cost_center_installed_p@ >
     <if @show_cost_center_p@>
         <tr> 
           <td  class=roweven><%= [lang::message::lookup "" intranet-cost.Cost_Center "Cost Center"] %>:</td>
