@@ -90,6 +90,23 @@ set bgcolor(1) "class=invoicerowodd"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 
+
+# ---------------------------------------------------------------
+# Redirect to other page if this is not an invoice
+# ---------------------------------------------------------------
+
+set invoice_p [db_string invoice_p "select count(*) from im_invoices where invoice_id = :invoice_id"]
+if {!$invoice_p} {
+    # Check if there is a cost item with this ID and forward
+    set cost_exists_p [db_string cost_ex "select count(*) from im_costs where cost_id = :invoice_id"]
+    if {$cost_exists_p} { 
+	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}] 
+    } else {
+	ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
+    }
+    ad_script_abort
+}
+
 # ---------------------------------------------------------------
 # Set default values from parameters
 # ---------------------------------------------------------------
@@ -357,17 +374,12 @@ set query "
 		and ci.cost_id = i.invoice_id
 		$customer_or_provider_join
 "
-
 if { ![db_0or1row invoice_info_query $query] } {
-
-    # Check if there is a cost item with this ID and forward
-    set cost_exists_p [db_string cost_ex "select count(*) from im_costs where cost_id = :invoice_id"]
-    if {$cost_exists_p} { 
-	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}] 
-    } else {
-	ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
-    }
-    return
+    # We couldn't get the base information for this invoice.
+    # fraber 151210: This happened today with an invoice with
+    # a deleted customer company. No idea how that could happen...
+    ad_return_complaint 1 [lang::message::lookup $locale intranet-invoices.Unable_to_get_invoice_info_inconsistent_data "We are unable to get the invoice information for this object. This should never happen. In the past this happened once, after deleting the customer company of an invoice."]
+    ad_script_abort
 }
 
 
@@ -1768,6 +1780,7 @@ set submit_msg [lang::message::lookup "" intranet-invoices.Add_Discount_Surcharg
 
 # Choose the right subnavigation bar
 #
+set sub_navbar ""
 if {[llength $related_projects] != 1} {
     set sub_navbar [im_costs_navbar "none" "/intranet-invoices/index" "" "" [list] ""]
 } else {
