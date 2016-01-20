@@ -621,7 +621,7 @@ set sub_navbar [im_costs_navbar "no_alpha" "/intranet-invoices/list" $next_page_
 set left_navbar_html "
             <div class='filter-block'>
                 <div class='filter-title'>
-                #intranet-invoices.Filter_Documents#
+                [_ intranet-invoices.Filter_Documents]
                 </div>
                 $filter_html
             </div>
@@ -632,7 +632,7 @@ if { "" != $new_document_menu } {
             <hr/>
             <div class='filter-block'>
                 <div class='filter-title'>
-                #intranet-invoices.lt_New_Company_Documents#
+                [_ intranet-invoices.lt_New_Company_Documents]
                 </div>
                 $new_document_menu
             </div>
