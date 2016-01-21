@@ -217,8 +217,10 @@ if {!$invoice_exists_p} {
     set invoice_id [db_exec_plsql create_invoice ""]
 }
 
-# Give company_contact_id READ permissions - required for Customer Portal 
-permission::grant -object_id $invoice_id -party_id $company_contact_id -privilege "read"
+# Give company_contact_id READ permissions - required for Customer Portal
+if {"" ne $company_contact_id} {
+    permission::grant -object_id $invoice_id -party_id $company_contact_id -privilege "read"
+}
 
 # Audit before update only if the invoice already existed
 if {$invoice_exists_p} {
