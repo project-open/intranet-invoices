@@ -220,7 +220,7 @@ switch $order_by {
 	set counter_reset_expression {$effective_month}
     }
     "Amount" { 
-	set order_by_clause "order by ci.amount" 
+	set order_by_clause "order by ci.amount DESC" 
     }
     "Paid" { 
 	set order_by_clause "order by ci.paid_amount" 
