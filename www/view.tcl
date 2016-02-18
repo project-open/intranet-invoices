@@ -455,7 +455,6 @@ db_0or1row accounting_contact_info "
 	where	person_id = :company_contact_id
 "
 
-# Fields normally available from intranet-contacts.
 # Set these fields if contacts is not installed:
 if {![info exists salutation]} { set salutation "" }
 if {![info exists user_position]} { set user_position "" }
