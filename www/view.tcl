@@ -1606,7 +1606,8 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	ns_log Notice "view.tcl: odf formatting"
 	# ------------------------------------------------
         # setup and constants
-	
+
+	set internal_tax_id ""
 	# if {$internal_path ne "internal"} {
 	#    set internal_tax_id "208 171 00202"
 	# } else {
