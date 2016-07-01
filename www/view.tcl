@@ -929,7 +929,10 @@ if { 0 == $item_list_type } {
 		    lappend vars_escaped $var_to_be_escaped
 		    if { "" != $var_to_be_escaped  } {
 			set value [eval "set value \"$$var_to_be_escaped\""]
-			set value [string map {\[ "\\[" \] "\\]"} $value]
+
+			# KH: 160701 - Seems not be required anymore - tested with LibreOffice 5.0.2.2
+			# set value [string map {\[ "\\[" \] "\\]"} $value]
+
 			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
 			set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
 			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
