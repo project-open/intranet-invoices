@@ -320,12 +320,12 @@ set related_project_sql "
 		acs_rels r
         where
 		r.object_id_two in ([join $source_invoice_id ", "])
+		and object_id_two <> 0
 "
 set select_project_html ""
 db_foreach related_project $related_project_sql {
-        append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
+    append select_project_html "<input type=hidden name=select_project value=$project_id>\n"
 }
-
 
 # ---------------------------------------------------------------
 # NavBars
