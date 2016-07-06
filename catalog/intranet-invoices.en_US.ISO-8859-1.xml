@@ -4,6 +4,7 @@
   <msg key="Add_a_Payment">Add a Payment</msg>
   <msg key="Add_a_Project">Add a Project</msg>
   <msg key="Add_a_user">Add a user</msg>
+  <msg key="Add_Payment">Add Payment</msg>
   <msg key="Admin_Links">Admin Links</msg>
   <msg key="Adress">Adress</msg>
   <msg key="Amount">Amount</msg>
@@ -40,12 +41,14 @@
   <msg key="Description">Description</msg>
   <msg key="Document_">Document #</msg>
   <msg key="Document_hash_simbol">Document #</msg>
+  <msg key="Document_No">Document Nr</msg>
   <msg key="Document_Status">Document Status:</msg>
   <msg key="Document_Type">Document Type:</msg>
   <msg key="Due_Date">Due Date</msg>
   <msg key="Edit">Edit</msg>
   <msg key="Edit_cost_type">Save %cost_type%</msg>
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
+  <msg key="Effective_Date">Effective Date</msg>
   <msg key="Email">Email</msg>
   <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
   <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
@@ -73,7 +76,7 @@
   <msg key="intranet-invoices.Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Invoice_Address">Invoice Address</msg>
   <msg key="Line">Line</msg>
-  <msg key="lt_Cant_find_the_documen">Can't find the document# %invoice_id%</msg>
+  <msg key="lt_Cant_find_the_documen">Can&#39;t find the document# %invoice_id%</msg>
   <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
 
 Please find attached to this email a new %cost_type%. For any type of question please get back to me by email. 
@@ -93,11 +96,11 @@ Best regards,
   <msg key="lt_Send_as_email_to_prov">Send as email to %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Send %cost_type% via Email</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: New %cost_type%</msg>
-  <msg key="lt_The_company_company_n">The company '%company_name%' has not accounting contact defined
+  <msg key="lt_The_company_company_n">The company &#39;%company_name%&#39; has not accounting contact defined
 	to whom we could send this %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">There are currently no invoices matching the selected criteria</msg>
   <msg key="lt_This_invoice_is_past_">This invoice is past due if unpaid after %calculated_due_date_pretty%.</msg>
-  <msg key="lt_You_dont_have_suffici">You don't have sufficient privileges to see this page.</msg>
+  <msg key="lt_You_dont_have_suffici">You don&#39;t have sufficient privileges to see this page.</msg>
   <msg key="lt_You_have_insufficient">You have insufficient privileges to see this page</msg>
   <msg key="lt_You_have_insufficient_1">You have insufficient privileges to view this page.</msg>
   <msg key="lt_You_need_to_specify_a">You need to specify a invoice_id</msg>
@@ -139,16 +142,18 @@ Best regards,
   <msg key="No_command_specified">No command specified</msg>
   <msg key="No_objects_found">No objects found</msg>
   <msg key="No_payments_found">No payments found</msg>
-  <msg key="No_Template_Defined">You haven't defined a design template for your invoice, quote or purchase order. Please go back and select a suitable template.</msg>
+  <msg key="No_Template_Defined">You haven&#39;t defined a design template for your invoice, quote or purchase order. Please go back and select a suitable template.</msg>
   <msg key="Note">Note:</msg>
   <msg key="Notify_user">Notify user</msg>
   <msg key="One_cost_type">One %cost_type%</msg>
   <msg key="Our_Ref">Our Ref.</msg>
   <msg key="Paid">Paid</msg>
+  <msg key="Payment_date">Payment Date</msg>
   <msg key="Payment_Method">Payment Method</msg>
   <msg key="Payment_Method_1">Payment Method:</msg>
   <msg key="Payment_Terms">Payment Terms:</msg>
   <msg key="Payment_terms">Payment terms</msg>
+  <msg key="Payment_Type">Payment Type</msg>
   <msg key="Phone">Phone</msg>
   <msg key="Preview">Preview</msg>
   <msg key="Preview_as_HTML">Preview as HTML</msg>
@@ -187,7 +192,7 @@ Best regards,
   <msg key="Subtotal">Subtotal</msg>
   <msg key="TAX">TAX</msg>
   <msg key="TAXnbsp">TAX&amp;nbsp;</msg>
-  <msg key="The_indicated_prices_dont_include_VAT">The indicated prices don't include VAT.</msg>
+  <msg key="The_indicated_prices_dont_include_VAT">The indicated prices don&#39;t include VAT.</msg>
   <msg key="Timesheet_Cube">Timesheet Cube</msg>
   <msg key="Timesheet_Customers_and_Projects">Timesheet Customers and Projects</msg>
   <msg key="Timesheet_Productivity">Timesheet Productivity</msg>
