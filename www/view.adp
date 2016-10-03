@@ -6,7 +6,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span style="color:red;font-weight:bold;">@err_mess@</span>
 
-<table cellpadding="1" cellspacing="1" border="0">
+<table cellpadding="1" cellspacing="1" border="0" width="100%">
 <tr valign="top">
   <td>
 
@@ -60,7 +60,7 @@
 
 
 
-  <td>
+  <td align=right>
 	<table border="0" cellPadding=1 cellspacing="1">
 	  <tr class=rowtitle>
 	    <td colspan="2" class=rowtitle>#intranet-invoices.Admin_Links#</td>

@@ -136,7 +136,6 @@ set invoice_template_base_path [im_parameter -package_id [im_package_invoices_id
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
 set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
-set surcharge_enabled_p 1
 set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 set show_qty_rate_p [im_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
