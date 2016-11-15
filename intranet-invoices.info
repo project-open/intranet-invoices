@@ -13,6 +13,7 @@
     <version name="5.0.2.0.0" url="http://www.project-open.net/download/apm/intranet-invoices-5.0.2.0.0.apm">
         <owner url="mailto:frank.bergmann@project-open.com">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">]project-open[</vendor>
+        <release-date>2016-11-15</release-date>
         <maturity>0</maturity>
 
         <provides url="intranet-invoices" version="4.0.5.0.0"/>
