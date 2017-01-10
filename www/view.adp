@@ -7,15 +7,20 @@
 <span style="color:red;font-weight:bold;">@err_mess@</span>
 
 <table cellpadding="1" cellspacing="1" border="0" width="100%">
-<tr valign="top">
+<tr valign="top" align="left">
   <td>
-
-	  <%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
+	<table cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td valign="top">
+			<%= [im_invoices_object_list_component $user_id $invoice_id $read $write $return_url] %>
+		</td>
+		<td>&nbsp;&nbsp;</td>
+		<td valign="top">
+			@payment_list_html;noquote@
+		</td>
+	</tr>
+	</table>
   </td>
-  <td>
-    @payment_list_html;noquote@
-  </td>
-
 
 <if @surcharge_enabled_p@>
 <td>
