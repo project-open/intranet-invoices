@@ -229,10 +229,15 @@ create table im_invoice_items (
 	created_from_item_id	integer
 				constraint im_invoice_items_created_from_fk
 				references im_invoice_items,
+				-- Source invoice when copying
+	item_source_invoice_id	integer,
+
 		-- Make sure we can''t create duplicate entries per invoice
 		constraint im_invoice_items_un
 		unique (invoice_id, item_name, coalesce(sort_order, -1), item_uom_id)
 );
+
+
 
 
 ------------------------------------------------------
@@ -280,6 +285,7 @@ from
 where
 	ci.cost_id = i.invoice_id
 	and ci.cost_status_id not in (3812);
+
 
 
 create or replace view im_payment_type as 
@@ -470,6 +476,11 @@ end;' language 'plpgsql';
 -- located below intranet-invoices modules and would
 -- cause a RI error.
 
+
+-- Set the "Finance" tab to /intranet-invoices/list
+update im_menus set url = '/intranet-invoices/list' where label = 'finance';
+
+
 create or replace function inline_0 ()
 returns integer as '
 declare
@@ -647,6 +658,51 @@ begin
 end;' language 'plpgsql';
 select inline_0 ();
 drop function inline_0 ();
+
+
+create or replace function inline_1 ()
+returns integer as '
+declare
+        v_menu                  integer;
+        v_parent_menu           integer;
+        v_group_id              integer;
+begin 
+        select menu_id into v_parent_menu  from im_menus where label = ''invoices_customers'';
+ 
+        v_menu := im_menu__new (
+                null,                                   -- p_menu_id
+                ''im_menu'',                            -- object_type
+                now(),                                  -- creation_date
+                null,                                   -- creation_user
+                null,                                   -- creation_ip
+                null,                                   -- context_id
+                ''intranet-invoices'', 			-- package_name
+                ''new_invoice_from_invoice'',		 -- label
+                ''New Customer Invoice from Invoice'',   -- name
+                ''/intranet-invoices/new-copy?target_cost_type_id=3700&source_cost_type_id=3700'',   -- url
+                12,                                    -- sort_order
+                v_parent_menu,                          -- parent_menu_id
+                null                                    -- p_visible_tcl
+        );
+
+        select group_id into v_group_id from groups where group_name = ''Accounting''; 
+        PERFORM acs_permission__grant_permission(v_menu, v_group_id, ''read'');
+
+        select group_id into v_group_id from groups where group_name = ''Senior Managers'';
+        PERFORM acs_permission__grant_permission(v_menu, v_group_id, ''read'');
+
+        select group_id into v_group_id from groups where group_name = ''Project Managers'';
+        PERFORM acs_permission__grant_permission(v_menu, v_group_id, ''read'');
+
+        return 0;
+end;' language 'plpgsql';
+select inline_1 ();
+drop function inline_1();
+
+
+
+
+
 
 
 -- Setup the "Invoices New" admin menu for Company Documents
@@ -1305,6 +1361,32 @@ update im_menus
 set visible_tcl = '[im_cost_type_write_p $user_id 3704]'
 where label = 'invoices_providers_new_bill';
 
+
+
+
+
+SELECT  im_component_plugin__new (
+        null,                           		-- plugin_id
+        'im_component_plugin',                			-- object_type
+        now(),                        			-- creation_date
+        null,                           		-- creation_user
+        null,                           		-- creation_ip
+        null,                           		-- context_id
+        'Filestorage Financial Document', 		-- plugin_name
+        'intranet-invoices',            		-- package_name
+        'right',                        		-- location
+        '/intranet-invoices/view',      		-- page_url
+        null,                           		-- view_name
+        5,                              		-- sort_order
+        'im_filestorage_cost_component $user_id $invoice_id $invoice_id $return_url'  	-- component_tcl
+);
+
+
+SELECT im_grant_permission(
+	(select plugin_id from im_component_plugins where plugin_name = 'Filestorage Financial Document'),
+	(select group_id from groups where name = 'Employees'),
+	'read'
+);
 
 
 
