@@ -16,10 +16,11 @@
         <release-date>2016-11-15</release-date>
         <maturity>0</maturity>
 
-        <provides url="intranet-invoices" version="4.0.5.0.0"/>
-        <requires url="intranet-core" version="3.4.0.0.0"/>
-        <requires url="intranet-cost" version="3.4.0.0.0"/>
-        <requires url="intranet-payments" version="3.4.0.0.0"/>
+        <provides url="intranet-invoices" version="5.0.0.0.0"/>
+        <requires url="intranet-core" version="5.0.0.0.0"/>
+        <requires url="intranet-cost" version="5.0.0.0.0"/>
+        <requires url="intranet-payments" version="5.0.0.0.0"/>
+        <requires url="intranet-search-pg" version="5.0.0.0.0"/>
 
         <callbacks>
         </callbacks>
