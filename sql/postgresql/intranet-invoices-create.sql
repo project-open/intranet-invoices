@@ -517,8 +517,23 @@ end;' language 'plpgsql';
 -- cause a RI error.
 
 
--- Set the "Finance" tab to /intranet-invoices/list
-update im_menus set url = '/intranet-invoices/list' where label = 'finance';
+
+SELECT im_menu__new (
+		null, 'im_menu', now(), null, null, null,
+		'intranet-invoices',		-- package_name
+		'invoices_list',		-- label
+		'Invoices List',		-- name
+		'/intranet-invoices/list?cost_type_id=3700',
+		10,				-- sort_order
+		(select menu_id from im_menus where label = 'finance'),		-- parent_menu_id
+		null
+);
+SELECT acs_permission__grant_permission(
+	(select menu_id from im_menus where label = 'invoices_list'),
+	(select group_id from groups where group_name = 'Employees'), 
+	'read'
+);
+
 
 
 create or replace function inline_0 ()
@@ -1400,6 +1415,25 @@ where label = 'invoices_providers_new_bill_from_po';
 update im_menus
 set visible_tcl = '[im_cost_type_write_p $user_id 3704]'
 where label = 'invoices_providers_new_bill';
+
+
+
+
+-- Move dashboard to intranet-invoices
+update im_component_plugins set page_url = '/intranet-invoices/dashboard' where page_url in ('/intranet-cost/index', '/intranet-cost/dashboard');
+
+
+
+-- Finance
+update im_menus set sort_order = 1600					where label = 'finance';
+update im_menus set sort_order = 10, name = 'Finance List'		where label = 'invoices_list';
+update im_menus set sort_order = 20, name = 'Finance Dashboard', url = '/intranet-invoices/dashboard' where label = 'costs_home';
+update im_menus set sort_order = 30, name = 'Finance List Complete'	where label = 'costs';
+update im_menus set sort_order = 80					where label = 'invoices_customers';
+update im_menus set sort_order = 90					where label = 'invoices_providers';
+update im_menus set sort_order = 100					where label = 'finance_exchange_rates';
+update im_menus set parent_menu_id = (select menu_id from im_menus where label = 'finance_admin') where label = 'finance_exchange_rates';
+update im_menus set sort_order = 990					where label = 'invoices_providers_csv';
 
 
 
