@@ -76,7 +76,7 @@
   <msg key="lt_Send_as_email_to_prov">Отправить в виде эл. письма в компанию %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Отправить %cost_type% по эл.почте</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: новый документ %cost_type%</msg>
-  <msg key="lt_The_company_company_n">Для компании &quot;%company_name%&quot; не определено контактное лицо в бухгалтерии, которому можно было бы отправить этот документ %cost_type%.</msg>
+  <msg key="lt_The_company_company_n">Для компании &#34;%company_name%&#34; не определено контактное лицо в бухгалтерии, которому можно было бы отправить этот документ %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">Нет счетов, соответствующих заданным условиям</msg>
   <msg key="lt_This_invoice_is_past_">Последний день оплаты счета: %calculated_due_date_pretty%, после чего он будет просрочен.</msg>
   <msg key="lt_You_dont_have_suffici">У вас недостаточно разрешений для просмотра этой страницы.</msg>

@@ -75,7 +75,7 @@ Saudações, %current_user_name%</msg>
   <msg key="lt_Send_as_email_to_prov">Enviar como e-mail para %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Enviar %cost_type% via E-mail</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Novo %cost_type%</msg>
-  <msg key="lt_The_company_company_n">A Empresa '%company_name%' aind anão tem um contato contábil definido para quem possamos enviar este %cost_type%.</msg>
+  <msg key="lt_The_company_company_n">A Empresa &#39;%company_name%&#39; aind anão tem um contato contábil definido para quem possamos enviar este %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">Atualmente não existem faturas correspondentes ao critério selecionado</msg>
   <msg key="lt_This_invoice_is_past_">This invoice is past due if unpaid after %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">Você não tem privilégios suficientes para acessar esta página.</msg>

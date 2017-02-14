@@ -78,7 +78,7 @@
   <msg key="lt_Send_as_email_to_prov">Verstuur een email naar %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Verstuur %cost_type% via email</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Nieuw %cost_type%</msg>
-  <msg key="lt_The_company_company_n">Voor het bedrijf '%company_name%' is geen financieel contactpersoon gedefinieerd waar deze %cost_type% naar toe kunnen verzenden.</msg>
+  <msg key="lt_The_company_company_n">Voor het bedrijf &#39;%company_name%&#39; is geen financieel contactpersoon gedefinieerd waar deze %cost_type% naar toe kunnen verzenden.</msg>
   <msg key="lt_There_are_currently_n">Er zijn geen facturen die overeenkomen met de selectie criteria</msg>
   <msg key="lt_This_invoice_is_past_">Betalen voor %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">U heeft onvoldoende rechten om deze pagina te zien.</msg>

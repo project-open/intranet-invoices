@@ -78,7 +78,7 @@
   <msg key="lt_Send_as_email_to_prov">发送电子邮件给 %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">通过电子邮件发送 %cost_type%</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: New %cost_type%</msg>
-  <msg key="lt_The_company_company_n">公司 '%company_name%' 没有定义会计联系人可以让我们发送这个 %cost_type%.</msg>
+  <msg key="lt_The_company_company_n">公司 &#39;%company_name%&#39; 没有定义会计联系人可以让我们发送这个 %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">根据您的选择条件当前没有发票结果匹配</msg>
   <msg key="lt_This_invoice_is_past_">如果没有在 %calculated_due_date_pretty% 前支付这张发票将会过期.</msg>
   <msg key="lt_You_dont_have_suffici">您没有足够的权限来查看该页面</msg>

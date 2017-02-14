@@ -77,7 +77,7 @@
   <msg key="lt_Send_as_email_to_prov">Envíe como e-mail a %provider_company%</msg>
   <msg key="lt_Send_cost_type_via_Em">Enviar %cost_type% por e-mail</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Nuevo %cost_type%</msg>
-  <msg key="lt_The_company_company_n">La empresa '%company_name%' no tiene definida ninguna persona de contacto en Contabilidad a quien poder enviar este %cost_type%.</msg>
+  <msg key="lt_The_company_company_n">La empresa &#39;%company_name%&#39; no tiene definida ninguna persona de contacto en Contabilidad a quien poder enviar este %cost_type%.</msg>
   <msg key="lt_There_are_currently_n">Actualmente no existen facturas que coincidan con los criterios seleccionados.</msg>
   <msg key="lt_This_invoice_is_past_">Esta factura estará pendiente de pago después de %calculated_due_date_pretty%.</msg>
   <msg key="lt_You_dont_have_suffici">Carece de privilegios suficientes para ver esta página.</msg>
