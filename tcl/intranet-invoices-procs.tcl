@@ -692,7 +692,7 @@ ad_proc -public im_invoice_change_oo_content {
     # The zip command should replace the content.xml in the zipfile which
     # happens to be the OpenOffice File. 
     foreach filename [array names content_array] {
-	exec zip -j "${dir}/$document_filename" "${dir}/$filename"
+	im_exec zip -j "${dir}/$document_filename" "${dir}/$filename"
     }
 
     # copy odt file

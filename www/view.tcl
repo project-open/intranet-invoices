@@ -562,7 +562,7 @@ if {"odt" == $template_type} {
     ns_cp $invoice_template_path $odt_zip
     
     # Unzip the odt into the temorary directory
-    exec unzip -d $odt_tmp_path $odt_zip 
+    im_exec unzip -d $odt_tmp_path $odt_zip 
 
     # ------------------------------------------------
     # Read the content.xml file
@@ -1698,8 +1698,8 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	# The zip -j command replaces the specified file in the zipfile 
 	# which happens to be the OpenOffice File. 
 	ns_log Notice "view.tcl: before zipping"
-	exec zip -j $odt_zip $odt_content
-	exec zip -j $odt_zip $odt_styles
+	im_exec zip -j $odt_zip $odt_content
+	im_exec zip -j $odt_zip $odt_styles
 
         db_release_unused_handles
 
