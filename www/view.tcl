@@ -141,6 +141,8 @@ set show_qty_rate_p [im_parameter -package_id [im_package_invoices_id] "InvoiceQ
 set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
 set show_our_project_nr_first_column_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
 set show_leading_invoice_item_nr [im_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
+set show_outline_number [im_column_exists im_invoice_items item_outline_number]
+
 
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
@@ -823,15 +825,10 @@ set decoration_amount [im_parameter -package_id [im_package_invoices_id] "Invoic
 # start formatting the list of sums with the header...
 set invoice_item_html "<tr align=center>\n"
 
-if {$show_leading_invoice_item_nr} {
-    append invoice_item_html "
-          <td class=rowtitle $decoration_item_nr>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>
-    "
-}
+if {$show_leading_invoice_item_nr} { append invoice_item_html "<td class=rowtitle $decoration_item_nr>[lang::message::lookup $locale intranet-invoices.Line_no "#"]</td>" }
+if {$show_outline_number} { append invoice_item_html "<td class=rowtitle $decoration_item_nr>[lang::message::lookup $locale intranet-invoices.Outline "Outline"]</td>" }
 
-append invoice_item_html "
-          <td class=rowtitle $decoration_description>[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-"
+append invoice_item_html "<td class=rowtitle $decoration_description>[lang::message::lookup $locale intranet-invoices.Description]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
 
 if {$show_qty_rate_p} {
     append invoice_item_html "
@@ -860,7 +857,7 @@ append invoice_item_html "
 "
 
 set ctr 1
-set colspan [expr {2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr}]
+set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr + $show_outline_number]
 
 set oo_table_xml ""
 
@@ -881,18 +878,10 @@ if { 0 == $item_list_type } {
 	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
 	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 	
-	    append invoice_item_html "
-		<tr $bgcolor([expr {$ctr % 2}])>
-	    "
-	
-	    if {$show_leading_invoice_item_nr} {
-	        append invoice_item_html "
-	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n"
-	    }
-	
-	    append invoice_item_html "
-	          <td $bgcolor([expr {$ctr % 2}])>$item_name</td>
-	    "
+	    append invoice_item_html "<tr $bgcolor([expr {$ctr % 2}])>"
+	    if {$show_leading_invoice_item_nr} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n" }
+	    if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
+	    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>$item_name</td>"
 	    if {$show_qty_rate_p} {
 	        append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
