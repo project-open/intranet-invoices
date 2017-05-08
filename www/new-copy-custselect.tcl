@@ -55,22 +55,16 @@ set context_bar [im_context_bar [list /intranet/invoices/ "[_ intranet-invoices.
 set customer_select [im_company_select company_id 0 "" "CustOrIntl"]
 set provider_select [im_company_select company_id 0 "" "Provider"]
 
-switch $source_cost_type_id {
-    3700 - 3702 - 3708 - 3724 {
-        set company_select $customer_select
-        set cust_or_prov_text [lang::message::lookup "" intranet-core.Customer "Customer"]
-        set company_id $customer_id
-	set company_select_label  [lang::message::lookup "" intranet-invoices.Select_Customer "Select a Customer"]
-    }
-    3704 - 3706 - 3710 {
-        set company_select $provider_select
-        set cust_or_prov_text [lang::message::lookup "" intranet-core.Provider "Provider"]
-        set company_id $provider_id
-	set company_select_label  [lang::message::lookup "" intranet-invoices.Select_Provider "Select a Provider"]
-    }
-    default {
-        ad_return_complaint 1 "Unknown cost type '$source_cost_type_id'"
-    }
+if {[im_cost_type_is_invoice_or_quote_p $source_cost_type_id]} {
+    set company_select $customer_select
+    set cust_or_prov_text [lang::message::lookup "" intranet-core.Customer "Customer"]
+    set company_id $customer_id
+    set company_select_label  [lang::message::lookup "" intranet-invoices.Select_Customer "Select a Customer"]
+} else {
+    set company_select $provider_select
+    set cust_or_prov_text [lang::message::lookup "" intranet-core.Provider "Provider"]
+    set company_id $provider_id
+    set company_select_label  [lang::message::lookup "" intranet-invoices.Select_Provider "Select a Provider"]
 }
 
 # Check of customer and provider are already set...
