@@ -147,6 +147,9 @@ set tax_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInv
 # Should we show a "Material" field for invoice lines?
 set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
 set project_type_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
+set outline_number_enabled_p [im_column_exists im_invoice_items item_outline_number]
+
+
 
 # Tricky case: Sombebody has called this page from a project
 # So we need to find out the company of the project and create
@@ -369,25 +372,18 @@ if {$show_cost_center_p} {
 
 
 # start formatting the list of sums with the header...
-set task_sum_html "
-        <tr align=center> 
-          <td class=rowtitle>[_ intranet-invoices.Line]</td>
-          <td class=rowtitle>[_ intranet-invoices.Description]</td>
-"
-if {$material_enabled_p} {
-    append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Material "Material"]</td>"
-}
-if {$project_type_enabled_p} {
-    append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Type "Type"]</td>"
-}
+set task_sum_html "<tr align=center>\n"
+append task_sum_html "<td class=rowtitle>[_ intranet-invoices.Line]</td>\n"
+if {$outline_number_enabled_p} { append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Outline "Outline"]</td>" }
+append task_sum_html "<td class=rowtitle>[_ intranet-invoices.Description]</td>\n"
+if {$material_enabled_p} { append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Material "Material"]</td>" }
+if {$project_type_enabled_p} { append task_sum_html "<td class=rowtitle>[lang::message::lookup "" intranet-invoices.Type "Type"]</td>" }
 append task_sum_html "
           <td class=rowtitle>[_ intranet-invoices.Units]</td>
           <td class=rowtitle>[_ intranet-invoices.UOM]</td>
           <td class=rowtitle>[_ intranet-invoices.Rate]</td>
         </tr>
 "
-
-
 
 if {$invoice_mode eq "new"} {
 
@@ -414,15 +410,16 @@ if {$invoice_mode eq "new"} {
     set target_language_id ""
     db_foreach invoice_item "" {
 
-	append task_sum_html "
-	<tr $bgcolor([expr {$ctr % 2}])> 
-          <td>
-	    <input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
-	  </td>
-          <td>
-	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
-	  </td>
-	"
+	append task_sum_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
+	append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$sort_order'></td>\n"
+
+	if {$outline_number_enabled_p} {
+	    append task_sum_html "<td><input type=text name=item_outline_number.$ctr size=10 value='$item_outline_number'></td>\n"
+	} else {
+	    append task_sum_html "<input type=hidden name=item_outline_number.$ctr value='$item_outline_number'>"
+	}
+
+	append task_sum_html "<td><input type=text name=item_name.$ctr size=80 value='[ns_quotehtml $item_name]'></td>\n"
 	append task_sum_html "<input type=hidden name=item_task_id.$ctr value='$task_id'>"
 
 	if {$material_enabled_p} {
@@ -464,15 +461,16 @@ if {$invoice_mode eq "new"} {
 
 for {set i 0} {$i < 3} {incr i} {
     
-    append task_sum_html "
-	<tr $bgcolor([expr {$ctr % 2}])> 
-          <td>
-	    <input type=text name=item_sort_order.$ctr size=2 value='$ctr'>
-	  </td>
-          <td>
-	    <input type=text name=item_name.$ctr size=40 value=''>
-	  </td>
-    "
+    append task_sum_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
+    append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$ctr'></td>\n"
+
+    if {$outline_number_enabled_p} {
+	append task_sum_html "<td><input type=text size=10 name=item_outline_number.$ctr value=''></td>"
+    } else {
+	append task_sum_html "<input type=hidden name=item_outline_number.$ctr value=''>"
+    }
+
+    append task_sum_html "<td><input type=text name=item_name.$ctr size=80 value=''></td>\n"
     append task_sum_html "<input type=hidden name=item_task_id.$ctr value='-1'>"
 
     if {$material_enabled_p} {

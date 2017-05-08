@@ -52,6 +52,7 @@ ad_page_contract {
 
 
 set auto_increment_invoice_nr_p [parameter::get -parameter InvoiceNrAutoIncrementP -package_id [im_package_invoices_id] -default 0]
+set outline_number_exists_p [im_column_exists im_invoice_items item_outline_number]
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -312,7 +313,7 @@ db_dml delete_invoice_items "
 
 set item_list [array names item_name]
 
-if { ![parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "AllowDuplicateInvoiceItemNames" -default 0] } {
+if {![parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "AllowDuplicateInvoiceItemNames" -default 0] && !$outline_number_exists_p} {
     # sanity check for double item names
     set name_list [list]
     foreach nr $item_list {

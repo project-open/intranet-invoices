@@ -881,11 +881,13 @@ if { 0 == $item_list_type } {
 	    append invoice_item_html "<tr $bgcolor([expr {$ctr % 2}])>"
 	    if {$show_leading_invoice_item_nr} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n" }
 	    if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
-	    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>$item_name</td>"
+	    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>[string range $item_name 0 100]</td>"
 	    if {$show_qty_rate_p} {
+		set item_uom_l10n ""
+		if {"" ne $item_uom} { set item_uom_l10n [lang::message::lookup $locale intranet-core.$item_uom $item_uom] }
 	        append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
-	          <td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=left>$item_uom_l10n</td>
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 	        "
 	    }
