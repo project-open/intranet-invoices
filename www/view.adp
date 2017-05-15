@@ -74,6 +74,12 @@
 	    <td>
 
 	<ul>
+<if @show_import_from_csv@>
+        <li>
+          <A HREF="/intranet-cust-fttx/invoice-import/import-invoice?invoice_id=@invoice_id@">Import from CSV</A>
+        </li>
+</if>
+
 	<li>
 	  <% set render_template_id $template_id %>
 	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>

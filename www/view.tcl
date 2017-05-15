@@ -142,7 +142,7 @@ set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "Show
 set show_our_project_nr_first_column_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNrFirstColumnP" "" 1]
 set show_leading_invoice_item_nr [im_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 set show_outline_number [im_column_exists im_invoice_items item_outline_number]
-
+set show_import_from_csv $show_outline_number
 
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
