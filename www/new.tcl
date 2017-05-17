@@ -415,8 +415,6 @@ if {$invoice_mode eq "new"} {
 
 	if {$outline_number_enabled_p} {
 	    append task_sum_html "<td><input type=text name=item_outline_number.$ctr size=10 value='$item_outline_number'></td>\n"
-	} else {
-	    append task_sum_html "<input type=hidden name=item_outline_number.$ctr value='$item_outline_number'>"
 	}
 
 	append task_sum_html "<td><input type=text name=item_name.$ctr size=80 value='[ns_quotehtml $item_name]'></td>\n"
@@ -466,8 +464,6 @@ for {set i 0} {$i < 3} {incr i} {
 
     if {$outline_number_enabled_p} {
 	append task_sum_html "<td><input type=text size=10 name=item_outline_number.$ctr value=''></td>"
-    } else {
-	append task_sum_html "<input type=hidden name=item_outline_number.$ctr value=''>"
     }
 
     append task_sum_html "<td><input type=text name=item_name.$ctr size=80 value=''></td>\n"
