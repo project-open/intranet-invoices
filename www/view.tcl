@@ -626,8 +626,6 @@ if {"odt" == $template_type} {
     set odt_row_template_xml [$odt_template_row_node asXML]
 }
 
-
-
 # ---------------------------------------------------------------
 # Format Invoice date information according to locale
 # ---------------------------------------------------------------
@@ -883,11 +881,11 @@ if { 0 == $item_list_type } {
 	    if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
 	    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>[string range $item_name 0 100]</td>"
 	    if {$show_qty_rate_p} {
-		set item_uom_l10n ""
-		if {"" ne $item_uom} { set item_uom_l10n [lang::message::lookup $locale intranet-core.$item_uom $item_uom] }
+		set uom_l10n [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
+		if {"" eq $item_uom} { set uom_l10n "" }
 	        append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
-	          <td $bgcolor([expr {$ctr % 2}]) align=left>$item_uom_l10n</td>
+	          <td $bgcolor([expr {$ctr % 2}]) align=left>$uom_l10n</td>
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 	        "
 	    }
