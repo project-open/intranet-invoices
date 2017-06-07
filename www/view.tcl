@@ -1646,8 +1646,11 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	if {[catch {
 	    eval [template::adp_compile -string $odt_template_content]
 	} err_msg]} {
-	    set err_txt "Error rendering Template. You might have used a placeholder that is not available. Here's a detailed error message:<br/> <strong>$err_msg</strong><br/>"
-	    append err_txt "Check the Configuration Manuals at <a href='www.project-open.com/en/'>www.project-open.com/en/</a> for a list of placeholders available and more information and tips on configuring templates."
+	    set err_info $::errorInfo
+	    set err_txt [lang::message::lookup "" intranet-invoices.Error_rendering_template_blurb "Error rendering Template. You might have used a placeholder that is not available. Here's a detailed error message:"]
+	    append err_txt "<br/><br/> <strong>[ns_quotehtml $err_msg]</strong><br/>&nbsp;<br/><pre>[ns_quotehtml $err_info]</pre>"
+	    append err_txt [lang::message::lookup "" intranet-invoices.Check_the_config_manual_blurb "Please check the configuration manual for a list of placeholders available and more information on configuring templates:"]
+	    append err_txt "<br>&nbsp;<br><a href='www.project-open.com/en/'>www.project-open.com/en/</a>"
 	    ad_return_complaint 1 [lang::message::lookup "" intranet-invoices $err_txt]
 	    return
 	}
