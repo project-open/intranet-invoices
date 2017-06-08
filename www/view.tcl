@@ -708,6 +708,9 @@ if {"" ne $invoice_payment_method_key} {
 }
 
 
+set internal_country_name_l10n [lang::message::lookup $locale intranet-core.$internal_country_name $internal_country_name]
+
+
 # ---------------------------------------------------------------
 # Determine the country name and localize
 # ---------------------------------------------------------------
