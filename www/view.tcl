@@ -163,8 +163,9 @@ set show_company_project_nr [expr {$show_company_project_nr && $company_project_
 # Which report to show for timesheet invoices as the detailed list of hours
 set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
 
-# Check if (one of) the PDF converter(s) is installed
-set pdf_enabled_p [llength [info commands im_html2pdf]]
+# Check if ooffice is installed
+set status [util_memoize [list catch {set ooversion [im_exec ooffice --version]}] 3600]
+if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
 
 # Unified Business Language?
 set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
@@ -1702,30 +1703,46 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
         # Return the file
 
 	if {$pdf_p} {
-	    if { ![db_string memorized_transaction_installed_p "select count(*) from apm_packages where package_key = 'intranet-openoffice'"]  } {
-		ad_return_complaint 1 "Please contact your System Administrator. Package 'intranet-openoffice' is missing."
+	    set result ""
+	    set err_msg ""
+	    set status [catch {
+		ns_log Notice "view.tcl: exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
+		set result [exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
+	    } err_msg]
+
+	    ns_log Notice "view.tcl: result=$result"
+	    ns_log Notice "view.tcl: err_msg=$err_msg"
+	    ns_log Notice "view.tcl: status=$status"
+
+	    set odt_pdf "${odt_tmp_path}.pdf"
+	    set readable_msg ""
+	    if {![file readable $odt_pdf]} { set readable_msg "File=$odt_pdf was not created.<br>Maybe you didn't install LibreOffice?" }
+
+	    if {0 != $status || "" ne $readable_msg} {
+		ad_return_complaint 1 "<b>Error converting ODT to PDF</b>:<br><pre>$readable_msg<br>$err_msg</pre>"
+		ad_script_abort
 	    }
-	    set pdf_filename "[file rootname $odt_zip].pdf"
-	    intranet_oo::jodconvert -oo_file $odt_zip -output_file $pdf_filename
+	    
 	    set outputheaders [ns_conn outputheaders]
 	    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.pdf"
-	    ns_returnfile 200 application/pdf $pdf_filename
+	    ns_returnfile 200 "application/pdf" $odt_pdf
+
 	} else {
 	    ns_log Notice "view.tcl: before returning file"
 	    set outputheaders [ns_conn outputheaders]
 	    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
-	    ns_returnfile 200 application/odt $odt_zip
+	    ns_returnfile 200 "application/odt" $odt_zip
 	}
 
 	# ------------------------------------------------
         # Delete the temporary files
 
-	# delete other tmpfiles
-	# ns_unlink "${dir}/$document_filename"
-	# ns_unlink "${dir}/$content.xml"
-	# ns_unlink "${dir}/$style.xml"
-	# ns_unlink "${dir}/document.odf"
-	# ns_rmdir $dir
+	delete other tmpfiles
+	ns_unlink "${dir}/$document_filename"
+	ns_unlink "${dir}/$content.xml"
+	ns_unlink "${dir}/$style.xml"
+	ns_unlink "${dir}/document.odf"
+	ns_rmdir $dir
 	ad_script_abort
 	    
     }
