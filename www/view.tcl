@@ -1706,8 +1706,8 @@ if {0 != $render_template_id || "" != $send_to_user_as} {
 	    set result ""
 	    set err_msg ""
 	    set status [catch {
-		ns_log Notice "view.tcl: exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
-		set result [exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
+		ns_log Notice "view.tcl: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
+		set result [im_exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
 	    } err_msg]
 
 	    ns_log Notice "view.tcl: result=$result"
