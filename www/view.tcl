@@ -26,7 +26,6 @@ ad_page_contract {
     { invoice_id:integer 0}
     { render_template_id:integer 0 }
     { send_to_user_as ""}
-    { output_format "html" }
     { pdf_p 0 }
     { err_mess "" }
     { return_url "" }
@@ -66,7 +65,6 @@ if {0 == $invoice_id} {
     return
 }
 
-if {"pdf" eq $output_format} { set pdf_p 1 }
 if {"pdf" eq $send_to_user_as} { set pdf_p 1 }
 
 if {"" == $return_url} { set return_url [im_url_with_query] }
