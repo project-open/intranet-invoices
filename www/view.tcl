@@ -8,9 +8,8 @@
 ad_page_contract {
     View all the info about a specific project
 
-    @param render_template_id specifies whether the invoice should be show
-	   in plain HTML format or formatted using an .adp template
-    @param show_all_comments whether to show all comments
+    @param render_template_id specifies whether the invoice should be 
+           show in GUI mode (view/edit) or formatted using some template.
     @param send_to_user_as "html" or "pdf".
            Indicates that the content of the
            invoice should be rendered using the default template
@@ -25,23 +24,13 @@ ad_page_contract {
     @author klaus.hofeditz@project-open.com
 } {
     { invoice_id:integer 0}
-    { object_id:integer 0}
-    { show_all_comments 0 }
     { render_template_id:integer 0 }
-    { return_url "" }
     { send_to_user_as ""}
     { output_format "html" }
-    { err_mess "" }
-    { item_list_type:integer 0 }
     { pdf_p 0 }
+    { err_mess "" }
+    { return_url "" }
 }
-
-# Note: 
-# output_format = "pdf" used to work with im_html2pdf, an option that probably hadn't been used a lot
-# When we started experimenting using OO headless to create pdfs, parameter pdf_p had been added 
-# As of 10/2013 many clients use OO/LibreOffice for PDF creation successfully 
-# It's up to Frank to decide if we keep the im_html2pdf option. 
-# Based on his decision the code should be cleaned up
 
 # ---------------------------------------------------------------
 # Helper Procs
@@ -72,16 +61,13 @@ set url ""
 # We have to avoid that already escaped vars in the item section will be escaped again 
 set vars_escaped [list]
 
-# Security is defered after getting the invoice information
-# from the database, because the customer's users should
-# be able to see this invoice even if they don't have any
-# financial view permissions otherwise.
-
-if {0 == $invoice_id} {set invoice_id $object_id}
 if {0 == $invoice_id} {
     ad_return_complaint 1 "<li>[lang::message::lookup $locale intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
+
+if {"pdf" eq $output_format} { set pdf_p 1 }
+if {"pdf" eq $send_to_user_as} { set pdf_p 1 }
 
 if {"" == $return_url} { set return_url [im_url_with_query] }
 
@@ -114,6 +100,8 @@ if {!$invoice_p} {
 # Type of the financial document
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
+set internal_tax_id ""
+
 # Number formats
 set cur_format [im_l10n_sql_currency_format]
 set vat_format $cur_format
@@ -135,7 +123,6 @@ set invoice_template_base_path [im_parameter -package_id [im_package_invoices_id
 
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
-set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 set show_qty_rate_p [im_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
@@ -167,15 +154,8 @@ set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "Tim
 set status [util_memoize [list catch {set ooversion [im_exec ooffice --version]}] 3600]
 if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
 
-# Unified Business Language?
-set ubl_enabled_p [llength [info commands im_ubl_invoice2xml]]
-
-# Special View - Shows total of quotes for each project   
-set show_link_group_by_quote_p [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "ShowLinkGroupByQuote" -default 0]
-
 # Show CC ?
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
-
 set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
 
 
@@ -189,7 +169,7 @@ set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
 if {[catch {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 } err_msg]} {
-    ns_log Error "im_audit: Error action: 'before update' for object_id: $object_id"     
+    ns_log Error "im_audit: Error action: 'before update' for invoice_id: $invoice_id"     
 }
 
 # ---------------------------------------------------------------
@@ -366,7 +346,7 @@ set query "
 		im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 		im_category_from_id(ci.cost_status_id) as cost_status,
 		im_category_from_id(ci.cost_type_id) as cost_type, 
-		im_category_from_id(ci.template_id) as template
+		im_category_from_id(ci.template_id) as invoice_template
 	from
 		im_invoices i,
 		im_costs ci,
@@ -383,6 +363,41 @@ if { ![db_0or1row invoice_info_query $query] } {
     ad_return_complaint 1 [lang::message::lookup $locale intranet-invoices.Unable_to_get_invoice_info_inconsistent_data "We are unable to get the invoice information for this object. This should never happen. In the past this happened once, after deleting the customer company of an invoice."]
     ad_script_abort
 }
+
+
+
+# ---------------------------------------------------------------
+# Determine the locale
+# ---------------------------------------------------------------
+
+# Check for invoice_template using the convention "invoice.en_US.adp"
+set invoice_template_type ""
+if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $invoice_template match body loc invoice_template_type]} {
+    set locale $loc
+}
+set invoice_template_type [string tolower $invoice_template_type]
+
+if {$locale in [lang::system::get_locales]} {
+    # Locale is part of the system locales - OK
+} else {
+    # invalid locale - revert to the user's locale
+    set locale $user_locale
+}
+
+if {"adp" eq $invoice_template_type} { 
+    # We don't support the conversion of ADP templates to PDF anymore.
+    # Instead, please use .odt templates
+    # So this line disables the link in the GUI to download as PDF
+    set pdf_enabled_p 0 
+}
+
+
+set render_template [im_category_from_id $render_template_id]
+set render_template_type ""
+if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $render_template match body loc render_template_type]} {
+    # nothing...
+}
+set render_template_type [string tolower $render_template_type]
 
 
 # ---------------------------------------------------------------
@@ -498,46 +513,13 @@ db_1row accounting_contact_info "
 	u.user_id = :user_id
 "
 
-
-# ---------------------------------------------------------------
-# Determine the language of the template from the template name
-# ---------------------------------------------------------------
-
-set template_type ""
-if {0 != $render_template_id} {
-
-    # Maintain compatibility with old convention "invoice-english.adp"
-    # ToDo: Remove this compatibility with V4.0
-    if {[regexp {english} $template]} { set locale en }
-    if {[regexp {spanish} $template]} { set locale es }
-    if {[regexp {german} $template]} { set locale de }
-    if {[regexp {french} $template]} { set locale fr }
-    
-    # New convention, "invoice.en_US.adp"
-    if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $template match body loc template_type]} {
-	set locale $loc
-    }
-}
-
-# Check if the given locale throws an error
-# Reset the locale to the default locale then
-#ad_return_complaint 1 "lang::message::lookup $locale dummy_text [lang::system::get_locales]"
-
-if {$locale in [lang::system::get_locales]} {
-    # Locale is part of the system locales - OK
-} else {
-    # invalid locale - revert to the user's locale
-    set locale $user_locale
-}
-
 # ---------------------------------------------------------------
 # OOoo ODT Function
 # Split the template into the outer template and the one for
 # formatting the invoice lines.
 # ---------------------------------------------------------------
 
-
-if {"odt" == $template_type} {
+if {"odt" == $render_template_type} {
 
     # Special ODT functionality: We need to parse the ODT template
     # in order to extract the table row that needs to be formatted
@@ -558,7 +540,7 @@ if {"odt" == $template_type} {
     # Create a copy of the ODT
     
     # Determine the location of the template
-    set invoice_template_path "$invoice_template_base_path/$template"
+    set invoice_template_path "$invoice_template_base_path/$invoice_template"
     ns_log Notice "view.tcl: invoice_template_path='$invoice_template_path'"
 
     # Create a copy of the template into the temporary dir
@@ -572,7 +554,6 @@ if {"odt" == $template_type} {
     set file [open $odt_content]
     fconfigure $file -encoding "utf-8"
     set odt_template_content [read $file]
-
     close $file
     
     # ------------------------------------------------
@@ -860,517 +841,89 @@ append invoice_item_html "
 
 set ctr 1
 set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr + $show_outline_number]
-
 set oo_table_xml ""
-
-if { 0 == $item_list_type } {
-	db_foreach invoice_items {} {
-	    # $company_project_nr is normally related to each invoice item,
-	    # because invoice items can be created based on different projects.
-	    # However, frequently we only have one project per invoice, so that
-	    # we can use this project's company_project_nr as a default
-	    if {$company_project_nr_exists && "" == $company_project_nr} { 
-		set company_project_nr $customer_project_nr_default
-	    }
-	    if {"" == $project_short_name} { 
-		set project_short_name $project_short_name_default
-	    }
-	
-	    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-	    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-	    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
-	
-	    append invoice_item_html "<tr $bgcolor([expr {$ctr % 2}])>"
-	    if {$show_leading_invoice_item_nr} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n" }
-	    if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
-	    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>[string range $item_name 0 100]</td>"
-	    if {$show_qty_rate_p} {
-		set uom_l10n [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
-		if {"" eq $item_uom} { set uom_l10n "" }
-	        append invoice_item_html "
+db_foreach invoice_items {} {
+    # $company_project_nr is normally related to each invoice item,
+    # because invoice items can be created based on different projects.
+    # However, frequently we only have one project per invoice, so that
+    # we can use this project's company_project_nr as a default
+    if {$company_project_nr_exists && "" == $company_project_nr} { 
+	set company_project_nr $customer_project_nr_default
+    }
+    if {"" == $project_short_name} { 
+	set project_short_name $project_short_name_default
+    }
+    
+    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+    set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
+    set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
+    
+    append invoice_item_html "<tr $bgcolor([expr {$ctr % 2}])>"
+    if {$show_leading_invoice_item_nr} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n" }
+    if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
+    append invoice_item_html "<td $bgcolor([expr {$ctr % 2}])>[string range $item_name 0 100]</td>"
+    if {$show_qty_rate_p} {
+	set uom_l10n [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
+	if {"" eq $item_uom} { set uom_l10n "" }
+	append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
 	          <td $bgcolor([expr {$ctr % 2}]) align=left>$uom_l10n</td>
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
 	        "
-	    }
+    }
 
-	    if {$show_company_project_nr} {
-		# Only if intranet-translation has added the field
-		append invoice_item_html "
+    if {$show_company_project_nr} {
+	# Only if intranet-translation has added the field
+	append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=left>$company_project_nr</td>\n"
-	    }
-	
-	    if {$show_our_project_nr} {
-		append invoice_item_html "
+    }
+    
+    if {$show_our_project_nr} {
+	append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
-	    }
-	
-	    append invoice_item_html "
+    }
+    
+    append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$amount_pretty&nbsp;$currency</td>
 		</tr>"
-	
-	    # Insert a new XML table row into OpenOffice document
-	    if {"odt" == $template_type} {
-		ns_log Notice "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
-		set lines [split $odt_row_template_xml \n]
-		foreach line $lines {
-		    set var_to_be_escaped ""
-		    regexp -nocase {@(.*?)@} $line var_to_be_escaped
-		    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
-		    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
-		    lappend vars_escaped $var_to_be_escaped
-		    if { "" != $var_to_be_escaped  } {
-			set value [eval "set value \"$$var_to_be_escaped\""]
+    
+    # Insert a new XML table row into OpenOffice document
+    if {"odt" == $render_template_type} {
+	ns_log Notice "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
+	set lines [split $odt_row_template_xml \n]
+	foreach line $lines {
+	    set var_to_be_escaped ""
+	    regexp -nocase {@(.*?)@} $line var_to_be_escaped
+	    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
+	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
+	    lappend vars_escaped $var_to_be_escaped
+	    if { "" != $var_to_be_escaped  } {
+		set value [eval "set value \"$$var_to_be_escaped\""]
 
-			# KH: 160701 - Seems not be required anymore - tested with LibreOffice 5.0.2.2
-			# set value [string map {\[ "\\[" \] "\\]"} $value]
+		# KH: 160701 - Seems not be required anymore - tested with LibreOffice 5.0.2.2
+		# set value [string map {\[ "\\[" \] "\\]"} $value]
 
-			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
-			set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
-			ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
-			eval $cmd
-		    }
-		}
-
-		set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
-		# Replace placeholders in the OpenOffice template row with values
-		eval [template::adp_compile -string $odt_row_template_xml]
-		set odt_row_xml $__adp_output
-
-		# Parse the new row and insert into OOoo document
-		set row_doc [dom parse $odt_row_xml]
-		set new_row [$row_doc documentElement]
-		$odt_template_table_node insertBefore $new_row $odt_template_row_node
-
+		ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - Value: $value"
+		set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
+		ns_log Notice "intranet-invoices-www-view:: Escape vars for rows added - cmd: $cmd"
+		eval $cmd
 	    }
-	
-	    incr ctr
 	}
 
-} elseif { 100 == $item_list_type } {
-	# item_list_type: Translation Project Hirarchy   
-    	set invoice_items_sql "
-                        select
-                                ii.project_id as parent_id,
-				p.project_id as project_id,
-                                item_name as parent_name,
-                                item_name as project_name,
-                                item_units,
-                                item_type_id,
-                                item_uom_id,
-                                price_per_unit,
-				trunc((price_per_unit * item_units) :: numeric, 2) as line_total,
-				(select category from im_categories where category_id = item_uom_id) as item_uom
-                        from
-                                im_invoice_items ii 
-				left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=:invoice_id) )
-                        where
-                                invoice_id=:invoice_id
-			order by 
-				ii.project_id; 
-	"
+	set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
+	# Replace placeholders in the OpenOffice template row with values
+	eval [template::adp_compile -string $odt_row_template_xml]
+	set odt_row_xml $__adp_output
 
-        set old_parent_id -1
-	set amount_total 0
-        set amount_sub_total 0
+	# Parse the new row and insert into OOoo document
+	set row_doc [dom parse $odt_row_xml]
+	set new_row [$row_doc documentElement]
+	$odt_template_table_node insertBefore $new_row $odt_template_row_node
 
-        db_foreach related_projects $invoice_items_sql {
-	    	if { ![info exists parent_id] || "" == $parent_id } {
-			ad_return_complaint 1 "Preview not supported, maybe you created the invoice with an older version of PO" 
-		}
-                # SUBTOTALS
-                if { ("0"!=$ctr && $old_parent_id!=$parent_id && 0!=$amount_sub_total) } {
-	                append invoice_item_html "
-        	                <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-                	"
-                        set amount_sub_total 0
-                }		
-
-                if { $old_parent_id != $parent_id } {
-			set parent_project_name [db_string get_parent_project_name "select project_name from im_projects where project_id = $parent_id" -default 0]
-                        append invoice_item_html "<tr><td class='invoiceroweven'></td></tr>"
-                        append invoice_item_html "<tr><td class='invoiceroweven'><b>$parent_project_name</b></td></tr>"
-                        set old_parent_id $parent_id
-                }
-                set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-                set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-                set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
-                append invoice_item_html "<tr>"
-                append invoice_item_html "<td class='invoiceroweven'>$parent_name</td>"
-                if {$show_qty_rate_p} {
-                	append invoice_item_html "
-                        	<td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
-                        "
-                }
-
-                if {$show_our_project_nr} {
-	                append invoice_item_html "
-        	        <td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
-                }
-		
-                append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$line_total&nbsp;$currency</td></tr>"
-                set amount_sub_total [expr {$amount_sub_total + $line_total}]
-		set amount_total [expr {$amount_sub_total + $amount_total}]
-	       	incr ctr
-	} if_no_rows {
-                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-        }
-
-} elseif { 110 == $item_list_type } {
-	# Get Sub-Projects
-	set invoice_items_sql "
-		select distinct
-                	ii.project_id,
-			ii.currency
-		from
-			im_invoice_items ii
-			left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=:invoice_id) )
-		where
-			invoice_id=:invoice_id
-		order by
-			ii.project_id
-	"
-
-	set old_project_id -1
-	set amount_total 0
-	set amount_sub_total 0
-	set ctr 0
-
-	db_foreach related_projects $invoice_items_sql {
-		# SUBTOTALS
-		if { $old_project_id != $project_id } {
-			# Customer Project Number of sub-project, internal Project-Nr of sub-project, internal Project Name of sub-project
-			db_1row get_project_attributes "
-				select
-					company_project_nr,
-					project_nr,
-					project_name
-				from
-					im_projects
-				where
-					project_id = $project_id
-			"
-
-			# Write header
-			append invoice_item_html "
-				<tr><td class='invoiceroweven' colspan ='100' align='left'>$company_project_nr - $project_nr - $project_name</td></tr>
-			"
-			set old_project_id $project_id
-		}
-
-		# Get all quotes for sub-project
-		set quotes_sql "
-                        select distinct
-                                item_source_invoice_id,
-				currency
-                        from
-                                im_invoice_items
-                        where
-                                project_id = $project_id and
-                                invoice_id = $invoice_id
-                "
-
-		db_foreach quotes $quotes_sql {
-			if { ![info exists item_source_invoice_id] || "" == $item_source_invoice_id  } {
-                                ad_return_complaint 1 "Preview not supported.<br>Maybe you have created a quote for project <a href='/intranet/projects/view?project_id=$project_id'>$project_id</a> with an earlier version of PO"
-			}
-                        set sum_sql "
-                                select
-                                        sum(a.line_total) as sum_quote
-                                from
-                                        (select
-                                                trunc((ii.price_per_unit * ii.item_units) :: numeric, 2) as line_total
-                                        from
-                                                im_invoice_items ii
-                                        where
-                                                project_id = $project_id and
-                                                item_source_invoice_id = $item_source_invoice_id
-                                        ) a
-                        "
-			set sum_quote [db_string get_sum_quote $sum_sql -default 0]
-			set quote_name [db_string get_quote_name "select cost_name from im_costs where cost_id = $item_source_invoice_id" -default 0]
-                        # Write Quote
-                        append invoice_item_html "
-                                <tr>
-                                <td $bgcolor([expr {$ctr % 2}]) align=right>$quote_name</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=left colspan='2'>&nbsp;</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=right>$sum_quote</td>
-                                </tr>
-                        "
-			set amount_sub_total [expr {$amount_sub_total + $sum_quote}]
-		} if_no_rows {
-                	append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-            	}
-
-		# Subtotal for sub-project
-		append invoice_item_html "
-                                <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-		"
-		set amount_total [expr {$amount_sub_total + $amount_total}]
-                set amount_sub_total 0
-                incr ctr
-	} if_no_rows {
-		ad_return_complaint 1 "Preview not supported, maybe you created the invoice with an older version of PO"
-        }
-
-	if { 0 != $amount_sub_total } {
-		append invoice_item_html "
-                        <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-                "
-        }
-
-    } elseif { 120 == $item_list_type } {
-	
-        # Get Sub-Projects
-        set invoice_items_sql "
-                        select distinct
-                                ii.project_id
-                        from
-                                im_invoice_items ii
-                                left outer join im_projects p on (p.project_id in (select c.project_id from im_costs c where cost_id=:invoice_id) )
-                        where
-                                invoice_id=:invoice_id
-                        order by
-                                ii.project_id
-        "
-
-        set old_project_id -1
-        set amount_total 0
-        set amount_sub_total 0
-        set ctr 0
-        set currency "EUR"
-
-        db_foreach related_projects $invoice_items_sql {
-                # SUBTOTALS
-            if { $old_project_id != $project_id } {
-                        # Customer Project Number of sub-project, internal Project-Nr of sub-project, internal Project Name of sub-project
-                        db_1row get_project_attributes "
-                                select
-                                        company_project_nr,
-                                        project_nr,
-                                        project_name
-                                from
-                                        im_projects
-                                where
-                                        project_id = $project_id
-                        "
-
-                        # Write header
-                        append invoice_item_html "
-                                  <tr><td class='invoiceroweven' colspan ='100' align='left'>$company_project_nr - $project_nr - $project_name</td></tr>
-                        "
-                        set old_project_id $project_id
-                    }
-
-                # Get all quotes for sub-project
-
-                set quotes_sql "
-                        select distinct
-                                item_source_invoice_id
-                        from
-                                im_invoice_items
-                        where
-                                project_id = $project_id and
-                                invoice_id = $invoice_id
-                "
-
-            db_foreach quotes $quotes_sql {
-                if { ![info exists item_source_invoice_id] || "" == $item_source_invoice_id  } {
-                                ad_return_complaint 1 "Preview not supported.<br>Maybe you have created a quote for project <a href='/intranet/projects/view?project_id=$project_id'>$project_id</a> with an earlier version of PO"
-                }
-                        set sum_sql "
-                                select
-                                        sum(a.line_total) as sum_quote
-                                from
-                                        (select
-                                                trunc((ii.price_per_unit * ii.item_units) :: numeric, 2) as line_total
-                                        from
-                                                im_invoice_items ii
-                                        where
-                                                project_id = $project_id and
-                                                item_source_invoice_id = $item_source_invoice_id
-                                        ) a
-                        "
-                set sum_quote [db_string get_sum_quote $sum_sql -default 0]
-                set quote_name [db_string get_quote_name "select cost_name from im_costs where cost_id = $item_source_invoice_id" -default 0]
-                        # Write Quote
-                        append invoice_item_html "
-                                <tr>
-                                <td $bgcolor([expr {$ctr % 2}]) align=right>$quote_name</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=left colspan='2'>&nbsp;</td>
-                                <td $bgcolor([expr {$ctr % 2}]) align=right>$sum_quote</td>
-                                </tr>
-                        "
-                set amount_sub_total [expr {$amount_sub_total + $sum_quote}]
-            } if_no_rows {
-                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-            }
-
-                # Subtotal for sub-project
-                append invoice_item_html "
-                                <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                                [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-                 "
-            set amount_total [expr {$amount_sub_total + $amount_total}]
-                set amount_sub_total 0
-                incr ctr
-        } if_no_rows {
-                ad_return_complaint 1 "Preview not supported, maybe you created the invoice with an older version of PO"
-        }
-        if { 0 != $amount_sub_total } {
-                append invoice_item_html "
-                        <tr><td class='invoiceroweven' colspan ='100' align='right'>
-                        [lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-                "
-        }
-
-# ********************
-
-} else {
-
-	set indent_level [db_string get_view_id "
-			select 
-				tree_level(children.tree_sortkey) - tree_level(parent.tree_sortkey) as level
-		 	from
-				im_projects parent,
-				im_projects children
-			where
-				children.tree_sortkey between parent.tree_sortkey and tree_right(parent.tree_sortkey) and
-				children.project_id in (select task_id from im_invoice_items where invoice_id=$invoice_id)
-			order by 
-				level DESC
-			limit 1
-	" -default 0]
-
-	set invoice_items_sql "
-		select 
-			all_items.*,
-			im_category_from_id(item_type_id) as item_type,
-			im_category_from_id(item_uom_id) as item_uom,
-			round(price_per_unit * item_units * $rf) / $rf as amount,
-			to_char(round(price_per_unit * item_units * $rf) / $rf, '$cur_format' ) as amount_formatted
-		from 
-			(
-			select
-				parent.project_id as parent_id,
-				parent.project_nr as parent_nr,
-				parent.project_name as parent_name,
-				children.project_id,
-				children.project_nr,
-				children.project_name,
-				tree_level(children.tree_sortkey) - tree_level(parent.tree_sortkey) as level,
-				t.task_id,
-				(select item_units from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_units,
-				(select item_type_id from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_type_id,
-				(select i.item_uom_id from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as item_uom_id,
-				(select i.price_per_unit from im_invoice_items i where (t.task_id = i.task_id and i.invoice_id=$invoice_id)) as price_per_unit,
-				parent.tree_sortkey as parent_tree_sortkey,
-				children.tree_sortkey as children_tree_sortkey
-		 	from
-				im_projects parent,
-				im_projects children
-				LEFT OUTER JOIN im_timesheet_tasks t ON (children.project_id = t.task_id)
-			where
-				children.tree_sortkey between parent.tree_sortkey and tree_right(parent.tree_sortkey) and
-				children.project_id in (select task_id from im_invoice_items where invoice_id=$invoice_id)
-			UNION 
-			select 
-				0 as parent_id,
-				'' as parent_nr,
-				item_name as parent_name,
-				0 as project_id,
-				'' as project_nr,
-				item_name as project_name,
-				0 as level,
-				task_id,
-				item_units,
-				item_type_id,
-				item_uom_id,
-				price_per_unit,
-				'1111111111111111111111111111111111111' as parent_tree_sortkey,
-				'1111111111111111111111111111111111111' as children_tree_sortkey
-			from 
-				im_invoice_items
-			where  
-				invoice_id=:invoice_id
-				-- and task_id=-1
-			) all_items
-		
-		ORDER BY 
-			parent_tree_sortkey,
-			children_tree_sortkey,
-			project_id;
-	"
-
-	set old_parent_id -1
-	set amount_sub_total 0
-
-	db_foreach related_projects $invoice_items_sql {
-		# if {"" == $material_name} { set material_name $default_material_name }
-   		if { ("0"!=$ctr && $old_parent_id!=$parent_id && "0"!=$level && 0!=$amount_sub_total) || "-1"==$task_id } {
-			 if { "NULL"!=$task_id } {
-	    			append invoice_item_html "
-					<tr><td class='invoiceroweven' colspan ='100' align='right'>
-					[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>
-				"
-				set amount_sub_total 0    		
-			} else {
-                                append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-			}
-   		}
-		set indent ""
-		set indent_level_item [expr {$indent_level - $level}]  
-		for {set i 0} {$i < $indent_level_item} {incr i} { 
-		    	append indent "&nbsp;&nbsp;" 
-		}
-		# this items is not related to a task; it has been created as part of the financial document
-		if { "-1" == $task_id } { 
-			set indent ""
-		}
-		# insert headers for every project
-		if { $old_parent_id != $parent_id } {
-		    if { 0 != $level } {
-     			    append invoice_item_html "<tr><td class='invoiceroweven'></td></tr>"
-		    		append invoice_item_html "<tr><td class='invoiceroweven'>$indent$parent_name </td></tr>"
-		    		set old_parent_id $parent_id
-				} else {
-				    set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
-			    	set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
-		    		set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
-				append invoice_item_html "<tr>" 
-				append invoice_item_html "<td class='invoiceroweven'>$indent$parent_name</td>" 
-				if {$show_qty_rate_p} {
-					append invoice_item_html "
-					<td $bgcolor([expr {$ctr % 2}]) align=right>$item_units_pretty</td>
-					<td $bgcolor([expr {$ctr % 2}]) align=left>[lang::message::lookup $locale intranet-core.$item_uom $item_uom]</td>
-					<td $bgcolor([expr {$ctr % 2}]) align=right>$price_per_unit_pretty&nbsp;$currency</td>
-		       			"
-				}
-
-				if {$show_company_project_nr} {
-					# Only if intranet-translation has added the field
-					# append invoice_item_html "<td align=left>$company_project_nr</td>\n"
-		    		}
-				if {$show_our_project_nr} {
-					append invoice_item_html "
-					<td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
-		    		}
-				append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$amount_pretty&nbsp;$currency</td></tr>"
-					set amount_sub_total [expr {$amount_sub_total + $amount}]				
-				}
-		}
-	    incr ctr
-	} if_no_rows {
-		append invoice_item_html "<tr><td>[lang::message::lookup $locale intranet-timesheet2-invoices.No_Information]</td></tr>"
-    	}
-	append invoice_item_html "<tr><td class='invoiceroweven' colspan ='100' align='right'>[lc_numeric [im_numeric_add_trailing_zeros [expr $amount_sub_total+0] $rounding_precision] "" $locale]&nbsp;$currency</td></tr>"
+    }
+    
+    incr ctr
 }
-
 
 # ---------------------------------------------------------------
 # Add subtotal + VAT + TAX = Grand Total
@@ -1393,14 +946,6 @@ set vat_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $vat+0] $ro
 set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $rounding_precision] "" $locale]
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
-
-set discount_perc_pretty $discount_perc
-set surcharge_perc_pretty $surcharge_perc
-set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
-set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
-
-
-
 
 set colspan_sub [expr {$colspan - 1}]
 
@@ -1506,286 +1051,208 @@ set item_list_html [concat $invoice_item_html $subtotal_item_html]
 set item_html [concat $item_list_html $terms_html]
 
 
+
 # ---------------------------------------------------------------
-# Special Output: Format using a template and/or send out as PDF
+# ADP Template
 # ---------------------------------------------------------------
 
-# Use a specific template ("render_template_id") to render the "preview"
-# of this invoice
-if {0 != $render_template_id || "" != $send_to_user_as} {
-
-    # New template type: OpenOffice document
-    if {"odt" == $template_type} { set output_format "odt" }
-
-    if {"" == $template} {
-	ad_return_complaint "$cost_type Template not specified" "
-	<li>You haven't specified a template for your $cost_type."
-	return
-    }
-
-    set invoice_template_path "$invoice_template_base_path/$template"
-    if {![file isfile $invoice_template_path] || ![file readable $invoice_template_path]} {
-	ad_return_complaint "Unknown $cost_type Template" "
-	<li>$cost_type template '$invoice_template_path' doesn't exist or is not readable
-	for the web server. Please notify your system administrator."
-	return
-    }
+# Use an ADP template ("invoice_template") to render the preview of this invoice
+if {"adp" eq $render_template_type} {
 
     # Render the page using the template
     # Always, as HTML is the input for the PDF converter
-    set invoices_as_html [ns_adp_parse -file $invoice_template_path]
+    set render_template_path "$invoice_template_base_path/$render_template"
+    set invoices_as_html [ns_adp_parse -file $render_template_path]
 
-    if {$output_format eq "html" } {
-
-	# HTML preview or email
-	if {"" != $send_to_user_as} {
-	    # Redirect to mail sending page:
-	    # Add the rendered invoice to the form variables
-	    ns_log Notice "view.tcl: html sending email"
-	    rp_form_put invoice_html $invoices_as_html
-	    rp_internal_redirect notify
-	    ad_script_abort
-	    
-	} else {
-	    
-	    # Show invoice using template
-	    ns_log Notice "view.tcl: html showing template"
-	    db_release_unused_handles
-	    ns_return 200 text/html $invoices_as_html
-	    ad_script_abort
-	}
-
-    }
-
-
-    # PDF output
-    if {$output_format eq "pdf" && $pdf_enabled_p} {
-	
-	ns_log Notice "view.tcl: pdf output format"
-	set result [im_html2pdf $invoices_as_html]
-	set tmp_pdf_file [lindex $result 0]
-	set errlist [lindex $result 1]
-	
-	if {[llength $errlist] > 0} {
-	    # Delete the temp file
-	    im_html2pdf_read_file -delete_file_p 1 $tmp_pdf_file
-	    
-	    # Return the error
-	    ad_return_complaint 1 $errlist
-	    ad_script_abort
-	}
-	
-	# Write PDF out - either as preview or as email
-	if {"" != $send_to_user_as} {
-	    # Redirect to mail sending page:
-	    # Add the rendered invoice to the form variables
-	    ns_log Notice "view.tcl: pdf send out"
-	    rp_form_put invoice_pdf $binary_content
-	    rp_internal_redirect notify
-	    ad_script_abort
-	    
-	} else {
-	    
-	    # PDF Preview
-	    ns_log Notice "view.tcl: pdf preview"
-	    db_release_unused_handles
-	    ns_returnfile 200 application/pdf $tmp_pdf_file
-	    catch { file delete $tmp_pdf_file } err
-	    ad_script_abort
-	}
-    }
-
-    # OpenOffice Output
-    if {$output_format eq "odt"} {
-       
-	ns_log Notice "view.tcl: odf formatting"
-	# ------------------------------------------------
-        # setup and constants
-
-	set internal_tax_id ""
-	# if {$internal_path ne "internal"} {
-	#    set internal_tax_id "208 171 00202"
-	# } else {
-	#    set internal_tax_id "208 120 20138"
-	# }
-
-	# ------------------------------------------------
-	# Delete the original template row, which is duplicate
-	$odt_template_table_node removeChild $odt_template_row_node
-
-	# ------------------------------------------------
-        # Process the content.xml file
-
-	set odt_template_content [$root asXML -indent 1]
-
-	# Escaping other vars used, skip vars already escaped for multiple lines  
-	ns_log Notice "intranet-invoices-www-view:: Now escaping all other vars used in template"
-	set lines [split $odt_template_content \n]
-	foreach line $lines {
-            ns_log Notice "intranet-invoices-www-view:: Line: $line"
-            set var_to_be_escaped ""
-	    regexp -nocase {@(.*?)@} $line var_to_be_escaped    
-            regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
-	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
-            ns_log Notice "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
-	    if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
-		if { "" != $var_to_be_escaped  } {
-		    if { [info exists $var_to_be_escaped] } {
-			set value [eval "set value \"$$var_to_be_escaped\""]
-			ns_log Notice "intranet-invoices-www-view:: Other vars - Value: $value"
-			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
-			eval $cmd
-		    }
-		}
-	    } else {
-		ns_log Notice "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
-	    }
-	}
-
-	# Perform replacements
-	regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
-	regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
-
-	# Rendering 
-	if {[catch {
-	    eval [template::adp_compile -string $odt_template_content]
-	} err_msg]} {
-	    set err_info $::errorInfo
-	    set err_txt [lang::message::lookup "" intranet-invoices.Error_rendering_template_blurb "Error rendering Template. You might have used a placeholder that is not available. Here's a detailed error message:"]
-	    append err_txt "<br/><br/> <strong>[ns_quotehtml $err_msg]</strong><br/>&nbsp;<br/><pre>[ns_quotehtml $err_info]</pre>"
-	    append err_txt [lang::message::lookup "" intranet-invoices.Check_the_config_manual_blurb "Please check the configuration manual for a list of placeholders available and more information on configuring templates:"]
-	    append err_txt "<br>&nbsp;<br><a href='www.project-open.com/en/'>www.project-open.com/en/</a>"
-	    ad_return_complaint 1 [lang::message::lookup "" intranet-invoices $err_txt]
-	    return
-	}
-
-        set content $__adp_output
-
-	# Save the content to a file.
-	set file [open $odt_content w]
-	fconfigure $file -encoding "utf-8"
-	puts $file $content
-	flush $file
-	close $file
-
-
-	# ------------------------------------------------
-        # Process the styles.xml file
-
-        set file [open $odt_styles]
-	fconfigure $file -encoding "utf-8"
-        set style_content [read $file]
-        close $file
-
-        # Perform replacements
-        eval [template::adp_compile -string $style_content]
-        set style $__adp_output
-
-	# Save the content to a file.
-	set file [open $odt_styles w]
-	fconfigure $file -encoding "utf-8"
-	puts $file $style
-	flush $file
-	close $file
-
-	# ------------------------------------------------
-        # Replace the files inside the odt file by the processed files
-
-	# The zip -j command replaces the specified file in the zipfile 
-	# which happens to be the OpenOffice File. 
-	ns_log Notice "view.tcl: before zipping"
-	im_exec zip -j $odt_zip $odt_content
-	im_exec zip -j $odt_zip $odt_styles
-
-        db_release_unused_handles
-
-	# ------------------------------------------------
-        # Return the file
-
-	if {$pdf_p} {
-	    set result ""
-	    set err_msg ""
-	    set status [catch {
-		ns_log Notice "view.tcl: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
-		set result [im_exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
-	    } err_msg]
-
-	    ns_log Notice "view.tcl: result=$result"
-	    ns_log Notice "view.tcl: err_msg=$err_msg"
-	    ns_log Notice "view.tcl: status=$status"
-
-	    set odt_pdf "${odt_tmp_path}.pdf"
-	    set readable_msg ""
-	    if {![file readable $odt_pdf]} { set readable_msg "File=$odt_pdf was not created.<br>Maybe you didn't install LibreOffice?" }
-
-	    if {0 != $status || "" ne $readable_msg} {
-		ad_return_complaint 1 "<b>Error converting ODT to PDF</b>:<br><pre>$readable_msg<br>$err_msg</pre>"
-		ad_script_abort
-	    }
-	    
-	    set outputheaders [ns_conn outputheaders]
-	    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.pdf"
-	    ns_returnfile 200 "application/pdf" $odt_pdf
-
-	} else {
-	    ns_log Notice "view.tcl: before returning file"
-	    set outputheaders [ns_conn outputheaders]
-	    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
-	    ns_returnfile 200 "application/odt" $odt_zip
-	}
-
-	# ------------------------------------------------
-        # Delete the temporary files
-
-	delete other tmpfiles
-	ns_unlink "${dir}/$document_filename"
-	ns_unlink "${dir}/$content.xml"
-	ns_unlink "${dir}/$style.xml"
-	ns_unlink "${dir}/document.odf"
-	ns_rmdir $dir
+    if {"html" eq $send_to_user_as} {
+	# Redirect to mail sending page: Add the rendered invoice to the form variables
+	ns_log Notice "view.tcl: sending email with html attachment"
+	rp_form_put invoice_html $invoices_as_html
+	rp_internal_redirect notify
 	ad_script_abort
-	    
     }
 
-    ad_return_complaint 1 "Internal Error - No output format specified"
+    if {"" eq $send_to_user_as} {
+	# Show invoice using template
+	ns_log Notice "view.tcl: showing html template"
+	db_release_unused_handles
+	ns_return 200 text/html $invoices_as_html
+	ad_script_abort
+    }
 
-} 
-
-# ---------------------------------------------------------------------
-# Surcharge / Discount section
-# ---------------------------------------------------------------------
-
-# PM Fee. Set to "checked" if the customer has a default_pm_fee_percentage != ""
-set pm_fee_checked ""
-set pm_fee_perc ""
-set pm_fee_amount ""
-if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
-if {"" == $pm_fee_perc} { set pm_fee_perc [im_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
-if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
-    set pm_fee_perc $default_pm_fee_percentage 
-    set pm_fee_checked "checked"
 }
-set pm_fee_msg [lang::message::lookup "" intranet-invoices.PM_Fee_Msg "Project Management %pm_fee_perc%%"]
 
-# Surcharge. 
-set surcharge_checked ""
-set surcharge_perc ""
-set surcharge_amount ""
-if {[info exists default_surcharge_perc]} { set surcharge_perc $default_surcharge_perc }
-if {"" == $surcharge_perc} { set surcharge_perc [im_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
-if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
-set surcharge_msg [lang::message::lookup "" intranet-invoices.Surcharge_Msg "Rush Surcharge %surcharge_perc%%"]
 
-# Discount
-set discount_checked ""
-set discount_perc ""
-set discount_amount ""
-if {[info exists default_discount_perc]} { set discount_perc $default_discount_perc }
-if {"" == $discount_perc} { set discount_perc [im_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
-if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }
-set discount_msg [lang::message::lookup "" intranet-invoices.Discount_Msg "Discount %discount_perc%%"]
+# ---------------------------------------------------------------
+# ODT Template
+# ---------------------------------------------------------------
 
-set submit_msg [lang::message::lookup "" intranet-invoices.Add_Discount_Surcharge_Lines "Add Discount/Surcharge Lines"]
+# Use an ODT template ("invoice_template") to render the preview of this invoice
+if {"odt" eq $render_template_type} {
+
+    ns_log Notice "view.tcl: odf formatting"
+
+    # Delete the original template row, which is duplicate
+    $odt_template_table_node removeChild $odt_template_row_node
+    
+    # Process the content.xml file
+    set odt_template_content [$root asXML -indent 1]
+
+    # Escaping other vars used, skip vars already escaped for multiple lines  
+    ns_log Notice "intranet-invoices-www-view:: Now escaping all other vars used in template"
+    set lines [split $odt_template_content \n]
+    foreach line $lines {
+	ns_log Notice "intranet-invoices-www-view:: Line: $line"
+	set var_to_be_escaped ""
+	regexp -nocase {@(.*?)@} $line var_to_be_escaped    
+	regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
+	regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
+	ns_log Notice "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
+	if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
+	    if { "" != $var_to_be_escaped  } {
+		if { [info exists $var_to_be_escaped] } {
+		    set value [eval "set value \"$$var_to_be_escaped\""]
+		    ns_log Notice "intranet-invoices-www-view:: Other vars - Value: $value"
+		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+		    eval $cmd
+		}
+	    }
+	} else {
+	    ns_log Notice "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
+	}
+    }
+    
+    # Perform replacements
+    regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
+    regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
+    
+    # ------------------------------------------------
+    # Rendering 
+    #
+    if {[catch {
+	eval [template::adp_compile -string $odt_template_content]
+    } err_msg]} {
+	set err_info $::errorInfo
+	set err_txt [lang::message::lookup "" intranet-invoices.Error_rendering_template_blurb "Error rendering Template. You might have used a placeholder that is not available. Here's a detailed error message:"]
+	append err_txt "<br/><br/> <strong>[ns_quotehtml $err_msg]</strong><br/>&nbsp;<br/><pre>[ns_quotehtml $err_info]</pre>"
+	append err_txt [lang::message::lookup "" intranet-invoices.Check_the_config_manual_blurb "Please check the configuration manual for a list of placeholders available and more information on configuring templates:"]
+	append err_txt "<br>&nbsp;<br><a href='www.project-open.com/en/'>www.project-open.com/en/</a>"
+	ad_return_complaint 1 [lang::message::lookup "" intranet-invoices $err_txt]
+	ad_script_abort
+    }
+    set content $__adp_output
+
+    # Save the content to a file.
+    set file [open $odt_content w]
+    fconfigure $file -encoding "utf-8"
+    puts $file $content
+    flush $file
+    close $file
+
+    # ------------------------------------------------
+    # Process the styles.xml file
+    #
+    set file [open $odt_styles]
+    fconfigure $file -encoding "utf-8"
+    set style_content [read $file]
+    close $file
+    
+    # Perform replacements
+    eval [template::adp_compile -string $style_content]
+    set style $__adp_output
+    
+    # Save the content to a file.
+    set file [open $odt_styles w]
+    fconfigure $file -encoding "utf-8"
+    puts $file $style
+    flush $file
+    close $file
+
+    # ------------------------------------------------
+    # Replace the files inside the odt file by the processed files
+    
+    # The zip -j command replaces the specified file in the zipfile 
+    # which happens to be the OpenOffice File. 
+    ns_log Notice "view.tcl: before zipping"
+    im_exec zip -j $odt_zip $odt_content
+    im_exec zip -j $odt_zip $odt_styles
+    db_release_unused_handles
+
+    
+    # ------------------------------------------------
+    # Convert to PDF if requested
+    #
+    if {$pdf_p} {
+	set result ""
+	set err_msg ""
+	set status [catch {
+	    ns_log Notice "view.tcl: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
+	    set result [im_exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
+	} err_msg]
+	
+	ns_log Notice "view.tcl: result=$result"
+	ns_log Notice "view.tcl: err_msg=$err_msg"
+	ns_log Notice "view.tcl: status=$status"
+	
+	set odt_pdf "${odt_tmp_path}.pdf"
+	set readable_msg ""
+	if {![file readable $odt_pdf]} { set readable_msg "File=$odt_pdf was not created.<br>Maybe you didn't install LibreOffice?" }
+	
+	if {0 != $status || "" ne $readable_msg} {
+	    ad_return_complaint 1 "<b>Error converting ODT to PDF</b>:<br><pre>$readable_msg<br>$err_msg</pre>"
+	    ad_script_abort
+	}
+    }
+
+
+    # ------------------------------------------------
+    # Redirect to mail sending page:
+    # Add the rendered invoice to the form variables
+    #
+    if {"pdf" eq $send_to_user_as} {
+	ns_log Notice "view.tcl: sending PDF email"
+	rp_form_put invoice_pdf_file $odt_pdf
+	rp_internal_redirect notify
+	ad_script_abort
+    }
+
+    # ------------------------------------------------
+    # Simple return of ODT file
+    #
+    if {!$pdf_p} {
+	ns_log Notice "view.tcl: before returning file as ODT"
+	set outputheaders [ns_conn outputheaders]
+	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
+	ns_returnfile 200 "application/odt" $odt_zip
+	ad_script_abort
+    } 
+
+    # ------------------------------------------------
+    # Return of ODT file as PDF
+    #
+    if {$pdf_p} {
+	ns_log Notice "view.tcl: before returning file as PDF"
+	set outputheaders [ns_conn outputheaders]
+	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.pdf"
+	ns_returnfile 200 "application/odt" $odt_pdf
+	ad_script_abort
+    } 
+
+
+    
+    # ------------------------------------------------
+    # Delete the temporary files
+
+    delete other tmpfiles
+    ns_unlink "${dir}/$document_filename"
+    ns_unlink "${dir}/$content.xml"
+    ns_unlink "${dir}/$style.xml"
+    ns_unlink "${dir}/document.odf"
+    ns_rmdir $dir
+
+    ad_script_abort
+    
+}
 
 
 # ---------------------------------------------------------------------
@@ -1820,16 +1287,10 @@ if {$cost_type_id == [im_cost_type_po]} {
 
 
 # ---------------------------------------------------------------------
-# Allow Memorized Transaction if package is installed 
-# ---------------------------------------------------------------------
-
-set memorized_transaction_installed_p [db_string memorized_transaction_installed_p "select count(*) from apm_packages where package_key = 'intranet-memorized-transaction'"]
-
-# ---------------------------------------------------------------------
 # ERR mess from intranet-trans-invoices
 # ---------------------------------------------------------------------
 
-if { "" != $err_mess } {
+if {"" != $err_mess} {
     set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
 }
 

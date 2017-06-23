@@ -22,49 +22,6 @@
 	</table>
   </td>
 
-<if @surcharge_enabled_p@>
-<td>
-	<table cellpadding="0" cellspacing="0">
-	<form action=invoice-discount-surcharge-action method=POST>
-	<%= [export_vars -form {return_url invoice_id}] %>
-	<tr class=rowtitle>
-		<td class=rowtitle align="center" colspan="4">@submit_msg@</td>
-	</tr>
-
-<!--	<tr class=rowtitle>
-		<td class=rowtitle align="center">&nbsp;</td>
-		<td class=rowtitle align="center">#intranet-invoices.Description#</td>
-		<td class=rowtitle align="center">%</td>
-	</tr>
--->
-	<tr>
-		<td><input type="checkbox" name="line_check.1" @pm_fee_checked@></td>
-		<td><input type="text"box size="30" name="line_desc.1" value="@pm_fee_msg@"></td>
-		<td><input type="text"box size="3" name="line_perc.1" value="@pm_fee_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
-		<td><input type="text"box size="3" name="line_amount.1" value="@pm_fee_amount@">@default_currency@</td>
-	</tr>
-	<tr>
-		<td><input type="checkbox" name="line_check.2" @surcharge_checked@></td>
-		<td><input type="text"box size="30" name="line_desc.2" value="@surcharge_msg@"></td>
-		<td><input type="text"box size="3" name="line_perc.2" value="@surcharge_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
-		<td><input type="text"box size="3" name="line_amount.2" value="@surcharge_amount@">@default_currency@</td>
-	</tr>
-	<tr>
-		<td><input type="checkbox" name="line_check.3" @discount_checked@></td>
-		<td><input type="text"box size="30" name="line_desc.3" value="@discount_msg@"></td>
-		<td><input type="text"box size="3" name="line_perc.3" value="@discount_perc@">% <%=[lang::message::lookup "" intranet-invoices.Or "or"]%></td>
-		<td><input type="text"box size="3" name="line_amount.3" value="@discount_amount@">@default_currency@</td>
-	</tr>
-	<tr>
-		<td colspan="4" align="right"><input type="submit" name="submit" value="@submit_msg@"></td>
-	</tr>
-	</form>
-	</table>
-  </td>
-</if>
-
-
-
   <td align=right>
 	<table border="0" cellPadding=1 cellspacing="1">
 	  <tr class=rowtitle>
@@ -81,44 +38,14 @@
 </if>
 
 	<li>
-	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
+	  <% set preview_vars [export_vars -url {invoice_id {render_template_id $invoice_template_id} return_url}] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template "Preview using template"] %>
 	  </A>
-<!--
-        <li>
-          <% set render_template_id $template_id %>
-          <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
-          <A HREF="/intranet-invoices/view?@preview_vars@&amp;item_list_type=100">
-                <%= [lang::message::lookup "" intranet-invoices.Preview_grouped_invoice_items "Preview: Grouped invoice items (HTML only) "] %>
-          </A>
-        </li>
--->
-<if @show_link_group_by_quote_p@>
-        <li>
-          <% set render_template_id $template_id %>
-          <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
-          <A HREF="/intranet-invoices/view?@preview_vars@&amp;item_list_type=120">
-                <%= [lang::message::lookup "" intranet-invoices.ShowLinkGroupByQuoteTxt "Preview: Grouped invoice items by Quote (HTML only) "] %>
-          </A>
-        </li>
-</if>
-
-<!--
-	<li>
-	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
-	  <A HREF="/intranet-invoices/view?@preview_vars@&amp;item_list_type=1">
-		<%= [lang::message::lookup "" intranet-invoices.Preview_using_template_with_task_info "Preview using template with task information"] %>
-	  </A>
-	</li>
--->
 
 <if @pdf_enabled_p@>
 	<li>
-	  <% set render_template_id $template_id %>
-	  <% set preview_vars [export_vars -url {invoice_id render_template_id return_url}] %>
+	  <% set preview_vars [export_vars -url {invoice_id {render_template_id $invoice_template_id} return_url}] %>
 	  <A HREF="/intranet-invoices/view?@preview_vars@&amp;output_format=pdf&amp;pdf_p=1">
 		<%= [lang::message::lookup "" intranet-invoices.Preview_as_PDF "Preview as PDF"] %>
 	  </A>
@@ -126,7 +53,6 @@
 </if>
 
 <if @timesheet_report_enabled_p@>
-
 	<li>
 	  <% 
 		set level_of_details [parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter LevelOfDetailsTimesheetHoursReport -default 4]
@@ -146,7 +72,6 @@
 		<% set target_cost_type_id [im_cost_type_invoice] %>
 		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
-	
 	<li>
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Delivery_Note_from_Quote "Generate Delivery Note from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
@@ -186,58 +111,21 @@
 
 
 <if @write@>
-<!--
+<if "adp" eq @invoice_template_type@>
 	<li>
-	  <% set notify_vars [export_vars -url {invoice_id return_url}] %>
-	  <A HREF="/intranet-invoices/notify?@notify_vars@">
-	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_link "Send this %cost_type% as HTML link"] %>
-	  </A>
--->
-
-	<li>
-	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "html"} return_url}] %>
+	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $invoice_template_id} {send_to_user_as "html"} return_url}] %>
 	  <A HREF="@url@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_attachment "Send this %cost_type% as HTML attachment"] %>
 	  </A>
-
+</if>
 <if @pdf_enabled_p@>
 	<li>
-	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $template_id} {send_to_user_as "pdf"} return_url}] %>
+	  <% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $invoice_template_id} {send_to_user_as "pdf"} return_url}] %>
 	  <A HREF="@url@">
 	  <%= [lang::message::lookup "" intranet-invoices.Send_document_as_PDF_attachment "Send this %cost_type% as PDF attachment"] %>
 	  </A>
 </if>
-
 </if>
-
-
-<if 0>
-<if @ubl_enabled_p@>
-        <li>
-          <% set render_template_id $template_id %>
-          <% set preview_vars [export_vars -url {invoice_id return_url}] %>
-          <A HREF="/intranet-ubl/document.xml?@preview_vars@">
-                <%= [lang::message::lookup "" intranet-invoices.Export_as_XML
-		"Export as XML"] %>
-          </A>
-          (<%= [lang::message::lookup "" intranet-invoices.See_kolon "See:"]
-	  %>
-          <A HREF="/intranet-ubl/doc/"><%= [lang::message::lookup ""
-	  intranet-invoices.UBL_XML_Documentation "UBL-XML\
- Documentation"] %></a>)
-</if>
-</if>
-
-<if @memorized_transaction_installed_p@>
-        <li>
-          <a href="/intranet-memorized-transaction/new?object_id=@invoice_id@&amp;return_url=@return_url@">
-                <%=[lang::message::lookup "" intranet-memorized-transaction.Create_New_Memorized_Transaction "Create new memorized transaction "] %>
-          </a>
-        </li>
-</if>
-
-
-
 
 	</ul>
 
@@ -299,7 +187,7 @@
 
 	<tr>
           <td class=roweven>#intranet-invoices.cost_type_template#</td>
-          <td class=roweven>@template@</td>
+          <td class=roweven>@invoice_template@</td>
 	</tr>
 
 	<tr>
@@ -388,7 +276,6 @@
 <table cellpadding="0" cellspacing="2" border="0" width="100%">
 <tr valign="top">
 <td>
-<!-- Discount/Surcharge -->
 </td>
 <td align="right">
   <table cellpadding="1" cellspacing="2" border="0">

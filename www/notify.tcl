@@ -33,6 +33,7 @@ ad_page_contract {
     invoice_id:integer
     {invoice_html:allhtml ""}
     {invoice_pdf:allhtml ""}
+    {invoice_pdf_file ""}
     {send_to_user_as ""}
     return_url
 }
@@ -50,8 +51,7 @@ if {!$write} {
 
 # Build the name of the attachment
 db_1row invoice_info "
-	select 
-		c.*,
+	select	c.*,
 		im_category_from_id(cost_type_id) as cost_type
 	from	im_costs c
 	where	cost_id = :invoice_id
@@ -87,19 +87,15 @@ if {"/" eq $last_char} {
 }
 
 db_1row invoice_info "
-select 
-	i.*,
+select	i.*,
 	i.company_contact_id as invoice_accounting_contact_id,
 	ci.*,
 	im_category_from_id(ci.cost_type_id) as cost_type
-from
-	im_invoices i,
+from	im_invoices i,
 	im_costs ci
-where
-	i.invoice_id = ci.cost_id
+where	i.invoice_id = ci.cost_id
 	and i.invoice_id = :invoice_id
 "
-
 
 if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invoice]} {
     set company_id $customer_id
@@ -142,8 +138,6 @@ select
 	im_email_from_user_id(:accounting_contact_id) as accounting_contact_email
 "
 
-
-
 set select_projects ""
 set select_project_sql "
 	select
@@ -164,20 +158,19 @@ db_foreach select_projects $select_project_sql {
 set user_id_from_search $accounting_contact_id
 set export_vars [export_vars -form {user_id_from_search invoice_id return_url}]
 
-if {"" != $send_to_user_as} {
-
-    set attachment ""
-    set attachment_mime_type "text/plain"
-
-    switch $send_to_user_as {
-	"html" { 
-	    set attachment $invoice_html
-	    set attachment_mime_type "text/html" 
-	}
-	"pdf" { 
-	    set attachment $invoice_pdf
-	    set attachment_mime_type "application/pdf" 
-	}
+switch $send_to_user_as {
+    "html" { 
+	set attachment $invoice_html
+	set attachment_mime_type "text/html" 
+	append export_vars [export_vars -form {attachment_mime_type send_to_user_as attachment}]
+	ad_return_template
     }
-    append export_vars [export_vars -form {attachment_mime_type send_to_user_as attachment}]
+    "pdf" {
+	set attachment_mime_type "application/pdf" 
+	append export_vars [export_vars -form {attachment_mime_type send_to_user_as {attachment_binary_file $invoice_pdf_file}}]
+	ad_return_template
+    }
+    default {
+	ad_return_complaint 1 "Notify: Found invalid send_to_user_as variable with value='$send_to_user_as'"
+    }
 }
