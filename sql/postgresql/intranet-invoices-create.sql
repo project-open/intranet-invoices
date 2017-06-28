@@ -1463,38 +1463,6 @@ SELECT im_grant_permission(
 );
 
 
-
-
-
-SELECT  im_component_plugin__new (
-        null,                           		-- plugin_id
-        'im_component_plugin',                			-- object_type
-        now(),                        			-- creation_date
-        null,                           		-- creation_user
-        null,                           		-- creation_ip
-        null,                           		-- context_id
-        'Financial Cross-Tracking', 			-- plugin_name
-        'intranet-invoices',            		-- package_name
-        'bottom',                        		-- location
-        '/intranet/projects/view',      		-- page_url
-        null,                           		-- view_name
-        100,                              		-- sort_order
-        'im_invoice_cross_tracking_component $project_id'  	-- component_tcl
-);
-
-SELECT im_grant_permission(
-	(select plugin_id from im_component_plugins where plugin_name = 'Financial Cross-Tracking'),
-	(select group_id from groups where group_name = 'Accounting'),
-	'read'
-);
-SELECT im_grant_permission(
-	(select plugin_id from im_component_plugins where plugin_name = 'Financial Cross-Tracking'),
-	(select group_id from groups where group_name = 'Senior Managers'),
-	'read'
-);
-
-
-
 SELECT  im_component_plugin__new (
         null,                           		-- plugin_id
         'im_component_plugin',                			-- object_type
