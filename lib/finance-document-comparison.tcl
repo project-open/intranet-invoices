@@ -11,6 +11,22 @@ if {!$read_p} {
     ad_script_abort
 }
 
+
+set union_task_nrs "
+	UNION
+		select distinct
+			sub_p.project_nr,
+			320 as item_uom_id,
+			sub_p.project_name,
+			main_p.tree_sortkey
+		from	im_projects sub_p,
+			im_projects main_p
+		where	main_p.project_id = :project_id and
+			sub_p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
+			0 = (select count(*) from im_projects children where children.parent_id = sub_p.project_id) -- exclude super-tasks
+"
+# set union_task_nrs ""
+
 set html [im_ad_hoc_query -format html "
 	select	i.item_outline_number as outline,
 		i.item_name,
@@ -62,9 +78,18 @@ set html [im_ad_hoc_query -format html "
 				tc.cost_type_id = 3704 and
 				tc.project_id = p.project_id and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
-		) as bills
+		) as bills,
+		(
+			select	sum(tt.planned_units)
+			from	im_timesheet_tasks tt,
+				im_projects p
+			where	tt.task_id = p.project_id and
+				p.project_nr = i.item_outline_number and
+				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
+		) as tasks
 
-	from	(select distinct
+	from	(
+		select distinct
 			ii.item_outline_number,
 			ii.item_uom_id,
 			ii.item_name,
@@ -79,7 +104,8 @@ set html [im_ad_hoc_query -format html "
 			c.project_id = sub_p.project_id and
 			sub_p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
 			main_p.project_id = :project_id
+		$union_task_nrs
 		) i
 
-	order by i.item_outline_number
+	order by i.item_outline_number, i.item_name
 "]
