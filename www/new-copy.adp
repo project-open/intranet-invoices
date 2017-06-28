@@ -131,9 +131,12 @@
 	<!-- the list of task sums, distinguised by type and UOM -->
         <tr align="center"> 
           <td class=rowtitle>#intranet-invoices.Line#</td>
+<if @outline_number_enabled_p@>
+          <td class=rowtitle><%= [lang::message::lookup "" intranet-invoices.Outline Outline] %></td>
+</if>
           <td class=rowtitle>#intranet-invoices.Description#</td>
 
-<if @$material_enabled_p@>
+<if @material_enabled_p@>
           <td class=rowtitle>#intranet-invoices.Material#</td>
 </if>
 <if @project_type_enabled_p@>

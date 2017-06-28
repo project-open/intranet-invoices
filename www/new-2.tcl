@@ -37,6 +37,7 @@ ad_page_contract {
     { canned_note_id:integer,multiple "" }
     { note ""}
     item_sort_order:array,integer
+    item_outline_number:array
     item_name:array
     item_units:float,array
     item_uom_id:integer,array
@@ -349,10 +350,11 @@ foreach nr $item_list {
 
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
+    set outline_number $item_outline_number($nr)
     set task_id $item_task_id($nr)
     
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
-    ns_log Notice "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, item_uom_id: $uom_id"
+    ns_log Notice "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, outline_number: $outline_number, item_uom_id: $uom_id"
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
@@ -382,8 +384,11 @@ foreach nr $item_list {
                 null, '', :task_id,
 		:item_source_invoice_id
 	)" 
-
         db_dml insert_invoice_items $insert_invoice_items_sql
+
+	if {$outline_number_exists_p} {
+	    db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :item_id"
+	}
 
 	# Don't audit the update/creation of invoice items!
 	# That would be too much, and we re-create them, so

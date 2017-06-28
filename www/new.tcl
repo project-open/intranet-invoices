@@ -45,6 +45,7 @@ ad_page_contract {
 set user_id [auth::require_login]
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 set current_url [im_url_with_query]
+set org_invoice_id $invoice_id
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
@@ -66,9 +67,6 @@ if {[info exists del_invoice]} {
     }
     ad_returnredirect [export_vars -base invoice-action {{cost $invoice_id} {invoice_action del} return_url}]
 }
-
-
-
 
 # Do we need the cost_center_id for creating a new invoice?
 # This is necessary if the invoice_nr depends on the cost_center_id (profit center).
@@ -463,7 +461,9 @@ for {set i 0} {$i < 3} {incr i} {
     append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$ctr'></td>\n"
 
     if {$outline_number_enabled_p} {
-	append task_sum_html "<td><input type=text size=10 name=item_outline_number.$ctr value=''></td>"
+	set outline_value ""
+	if {0 eq $org_invoice_id} { set outline_value $ctr } ;# Set default numbers for "from scratch" invoices
+	append task_sum_html "<td><input type=text size=10 name=item_outline_number.$ctr value='$outline_value'></td>"
     }
 
     append task_sum_html "<td><input type=text name=item_name.$ctr size=80 value=''></td>\n"

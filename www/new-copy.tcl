@@ -77,10 +77,9 @@ set bgcolor(0) " class=roweven"
 set bgcolor(1) " class=rowodd"
 set required_field "<font color=red size=+1><B>*</B></font>"
 
-
 set discount_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceDiscountFieldP" "" 0]
 set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
-
+set outline_number_enabled_p [im_column_exists im_invoice_items item_outline_number]
 
 # Should we show a "Material" field for invoice lines?
 set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
@@ -272,8 +271,19 @@ db_foreach invoice_items "" {
           <td>
 	    <input type=text name=item_sort_order.$ctr size=2 value='$item_sort_order'>
 	  </td>
+    "
+
+    if {$outline_number_enabled_p} {
+	append task_sum_html "
           <td>
-	    <input type=text name=item_name.$ctr size=40 value='[ns_quotehtml $item_name]'>
+	    <input type=text name=item_outline_number.$ctr size=10 value='$item_outline_number'>
+	  </td>
+        "
+    }
+
+    append task_sum_html "
+          <td>
+	    <input type=text name=item_name.$ctr size=80 value='[ns_quotehtml $item_name]'>
 	  </td>
     "
     append task_sum_html "<input type=hidden name=item_task_id.$ctr value='$task_id'>"
