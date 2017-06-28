@@ -392,6 +392,48 @@ ad_proc im_invoices_default_company_template {
 # Components
 # ---------------------------------------------------------------
 
+ad_proc -public im_invoices_finance_document_comparison_component {
+   project_id
+} {
+    Returns a HTML table with a comparison of the volume of FinDocs
+    per type and outline_number.
+} {
+    set params [list \
+                    [list project_id $project_id] \
+    ]
+
+    set result [ad_parse_template -params $params "/packages/intranet-invoices/lib/finance-document-comparison"]
+    return [string trim $result]
+}
+
+
+
+ad_proc im_invoices_project_cross_tracking_component { project_id } {
+    Track the financial performance of projects based on outline numbers.
+} {
+    set outline_number_enabled_p [im_column_exists im_invoice_items item_outline_number]
+    if {!$outline_number_enabled_p} { return "" }
+
+    # Get the list of all invoice outline numbers across the project
+    set outline_numbers [db_list outline_numbers "
+	select	distinct item_outline_number
+	from	im_invoice_items ii,
+		im_invoices i,
+		im_costs c,
+		im_projects main_p,
+		im_projects sub_p
+	where	c.cost_id = i.invoice_id and
+		c.cost_id = ii.invoice_id and
+		c.project_id = sub_p.project_id and
+		sub_p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
+		main_p.project_id = :project_id
+	order by item_outline_number
+    "]
+
+    return ""
+}
+
+
 ad_proc im_invoices_object_list_component { user_id invoice_id read write return_url } {
     Returns a HTML table containing a list of objects
     associated with a particular financial document.
