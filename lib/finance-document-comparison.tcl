@@ -17,7 +17,6 @@ set union_task_nrs "
 		select distinct
 			sub_p.project_nr,
 			320 as item_uom_id,
-			sub_p.project_name,
 			main_p.tree_sortkey
 		from	im_projects sub_p,
 			im_projects main_p
@@ -29,7 +28,6 @@ set union_task_nrs "
 
 set html [im_ad_hoc_query -format html "
 	select	i.item_outline_number as outline,
-		i.item_name,
 		im_category_from_id(i.item_uom_id) as uom,
 		(	
 			select	sum(tii.item_units)
@@ -86,13 +84,20 @@ set html [im_ad_hoc_query -format html "
 			where	tt.task_id = p.project_id and
 				p.project_nr = i.item_outline_number and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
-		) as tasks
+		) as tasks_planned,
+		(
+			select	sum(h.hours)
+			from	im_projects p,
+				im_hours h
+			where	p.project_id = h.project_id and
+				p.project_nr = i.item_outline_number and
+				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
+		) as tasks_logged
 
 	from	(
 		select distinct
 			ii.item_outline_number,
 			ii.item_uom_id,
-			ii.item_name,
 			main_p.tree_sortkey
 		from	im_costs c,
 			im_invoices i,
@@ -107,5 +112,5 @@ set html [im_ad_hoc_query -format html "
 		$union_task_nrs
 		) i
 
-	order by i.item_outline_number, i.item_name
+	order by i.item_outline_number
 "]
