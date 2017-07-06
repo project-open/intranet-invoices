@@ -37,7 +37,7 @@ ad_page_contract {
     { canned_note_id:integer,multiple "" }
     { note ""}
     item_sort_order:array,integer
-    item_outline_number:array
+    item_outline_number:array,optional
     item_name:array
     item_units:float,array
     item_uom_id:integer,array
@@ -350,7 +350,10 @@ foreach nr $item_list {
 
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
-    set outline_number $item_outline_number($nr)
+    set outline_number ""
+    if {[info exists $item_outline_number($nr)]} {
+	set outline_number $item_outline_number($nr)
+    }
     set task_id $item_task_id($nr)
     
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
