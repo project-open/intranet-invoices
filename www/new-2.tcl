@@ -351,7 +351,7 @@ foreach nr $item_list {
     set rate $item_rate($nr)
     set sort_order $item_sort_order($nr)
     set outline_number ""
-    if {[info exists $item_outline_number($nr)]} {
+    if {[info exists item_outline_number($nr)]} {
 	set outline_number $item_outline_number($nr)
     }
     set task_id $item_task_id($nr)
