@@ -460,6 +460,10 @@ im_invoice_update_rounded_amount \
 if {!$invoice_exists_p} {
     # Audit creation
     im_audit -object_type "im_invoice" -object_id $invoice_id -action after_create -status_id $cost_status_id -type_id $cost_type_id
+
+    # Start a new workflow case
+    im_workflow_start_wf -object_id $invoice_id -object_type_id $cost_type_id -skip_first_transition_p 1
+
 } else {
     # Audit the update
     im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update -status_id $cost_status_id -type_id $cost_type_id
