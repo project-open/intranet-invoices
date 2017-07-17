@@ -4,7 +4,6 @@
   <msg key="Add_a_Payment">Neue Zahlung</msg>
   <msg key="Add_a_Project">Neues Projekt</msg>
   <msg key="Add_a_user">Neuer Benutzer</msg>
-  <msg key="Add_Payment">Neue Zahlung</msg>
   <msg key="Admin_Links">Admin</msg>
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Betrag</msg>
@@ -159,7 +158,6 @@ Mit freundlichen Grüßen
   <msg key="Payment_Method_1">Zahlungsmethode</msg>
   <msg key="Payment_Terms">Zahlungsbedingungen</msg>
   <msg key="Payment_terms">Zahlungsbedingungen</msg>
-  <msg key="Payment_Type">Zahlungstyp</msg>
   <msg key="Phone">Telefon</msg>
   <msg key="Preview">Vorschau</msg>
   <msg key="Preview_as_HTML">Vorschau als HTML</msg>

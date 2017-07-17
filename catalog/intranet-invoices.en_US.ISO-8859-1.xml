@@ -41,7 +41,7 @@
   <msg key="Description">Description</msg>
   <msg key="Document_">Document #</msg>
   <msg key="Document_hash_simbol">Document #</msg>
-  <msg key="Document_No">Document Nr</msg>
+  <msg key="Document_No">Document No.</msg>
   <msg key="Document_Status">Document Status:</msg>
   <msg key="Document_Type">Document Type:</msg>
   <msg key="Due_Date">Due Date</msg>
