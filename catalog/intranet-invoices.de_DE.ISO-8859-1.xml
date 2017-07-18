@@ -77,13 +77,17 @@
   <msg key="Invoice_Address">Rechnungsadresse</msg>
   <msg key="Line">Zeile</msg>
   <msg key="lt_Cant_find_the_documen">Dokument Nr. %invoice_id% nicht gefunden</msg>
-  <msg key="lt_Dear_accounting_conta">Sehr geehrte( r) Frau/Herr %accounting_contact_name%,
-Eine neue %cost_type% wurde für sie erstellt auf
+  <msg key="lt_Dear_accounting_conta">Sehr geehrte(r) Frau/Herr %accounting_contact_name%,
+
+
+Eine neue %cost_type% wurde für sie erstellt auf:
 %system_url%/intranet-invoices/view?invoice_id=%invoice_id%
 
-Das neue Dokument steht im Zusamennhang mit dem/den Projekt(en):
+Das neue Dokument steht im Zusamennhang mit dem Projekt:
 %select_projects;noquote%
+
 Bitte besuchen Sie den obigen Link und drucken das Dokument für Ihre persönliche Referenz aus.
+
 
 Mit freundlichen Grüßen
 %current_user_name%</msg>

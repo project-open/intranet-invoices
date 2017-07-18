@@ -78,12 +78,21 @@
   <msg key="Invoice_Address">Invoice Address</msg>
   <msg key="Line">Line</msg>
   <msg key="lt_Cant_find_the_documen">Can&#39;t find the document# %invoice_id%</msg>
-  <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%,
+  <msg key="lt_Dear_accounting_conta">Dear %accounting_contact_name%, 
 
-Please find attached to this email a new %cost_type%. For any type of question please get back to me by email. 
 
-Best regards,
-%current_user_name%</msg>
+A new %cost_type% has been created for you at: 
+%system_url%/intranet-invoices/view?invoice_id=%invoice_id%
+Please visit the link above and print the document. 
+
+The new document is related to the project:
+%select_projects;noquote%
+
+For any type of question please get back to me by email. 
+
+Best regards, 
+%current_user_name%
+</msg>
   <msg key="lt_Generate_Invoice_from">Generate Invoice from Quote</msg>
   <msg key="lt_Generate_Provider_Bil">Generate Provider Bill from PO</msg>
   <msg key="lt_Insufficient_Privileg">Insufficient Privileges</msg>
