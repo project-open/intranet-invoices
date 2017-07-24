@@ -189,6 +189,7 @@ Best regards,
   <msg key="Select_Customer">Select a Customer</msg>
   <msg key="Select_documents">Select Documents</msg>
   <msg key="Select_Project">Project Select</msg>
+  <msg key="Select_Provider">Select a Provider</msg>
   <msg key="Send_document_as_HTML_attachment">Send document as HTML attachment</msg>
   <msg key="Send_document_as_HTML_link">Send document as HTML link</msg>
   <msg key="Send_document_as_PDF_attachment">Send document as PDF attachment</msg>

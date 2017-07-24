@@ -190,6 +190,7 @@ Mit freundlichen Grüßen
   <msg key="Select_Customer">Kunden wählen</msg>
   <msg key="Select_documents">Dokuemente auswählen</msg>
   <msg key="Select_Project">Projekt auswählen</msg>
+  <msg key="Select_Provider">Auswahl Lieferant</msg>
   <msg key="Send_document_as_HTML_attachment">Dokument senden als HTML Anhang</msg>
   <msg key="Send_document_as_HTML_link">Dokument senden als HTML Link</msg>
   <msg key="Send_document_as_PDF_attachment">Dokument senden als PDF Anhang</msg>
