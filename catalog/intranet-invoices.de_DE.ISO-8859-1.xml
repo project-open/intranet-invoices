@@ -4,6 +4,7 @@
   <msg key="Add_a_Payment">Neue Zahlung</msg>
   <msg key="Add_a_Project">Neues Projekt</msg>
   <msg key="Add_a_user">Neuer Benutzer</msg>
+  <msg key="Add_Payment">Neue Zahlung</msg>
   <msg key="Admin_Links">Admin</msg>
   <msg key="Adress">Adresse</msg>
   <msg key="Amount">Betrag</msg>
@@ -64,6 +65,7 @@
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Dokumente filtern</msg>
   <msg key="Finance">Finanzen</msg>
+  <msg key="Finance_List">Finanzen Liste</msg>
   <msg key="Financial_Documents">Finanzdokumente</msg>
   <msg key="From">Von</msg>
   <msg key="General_Manager">Geschäftsführer</msg>
@@ -101,7 +103,7 @@ Mit freundlichen Grüßen
   <msg key="lt_payment_days_days_dat">%payment_days% Tage</msg>
   <msg key="lt_Please_contact_your_s">Bitte benachrichtigen sie ihren Systemadministrator.</msg>
   <msg key="lt_Please_visit_the_link">Bitte %link_to_page% besuchen und einen Abrechnungskontakt hinzufügen.</msg>
-  <msg key="lt_Send_as_email_to_prov">E-Mail senden zu %provider_company% </msg>
+  <msg key="lt_Send_as_email_to_prov">E-Mail senden an %provider_company% </msg>
   <msg key="lt_Send_cost_type_via_Em">%cost_type% per E-Mail senden</msg>
   <msg key="lt_system_name_New_cost_">%system_name%: Neue(s) %cost_type% </msg>
   <msg key="lt_The_company_company_n">Die Firma &#39;%company_name%&#39; hat keinen Rechnungswesenkontakt definiert, zu denen wir diese %cost_type% senden könnten.</msg>
@@ -162,6 +164,7 @@ Mit freundlichen Grüßen
   <msg key="Payment_Method_1">Zahlungsmethode</msg>
   <msg key="Payment_Terms">Zahlungsbedingungen</msg>
   <msg key="Payment_terms">Zahlungsbedingungen</msg>
+  <msg key="Payment_Type">Zahlungstyp</msg>
   <msg key="Phone">Telefon</msg>
   <msg key="Preview">Vorschau</msg>
   <msg key="Preview_as_HTML">Vorschau als HTML</msg>
