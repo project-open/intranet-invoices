@@ -18,6 +18,7 @@ ad_page_contract {
     {customer_id:integer ""}
     {provider_id:integer ""}
     {project_id:integer ""}
+    {zero_quantities_p 0}
     blurb
     return_url
 }
@@ -71,7 +72,7 @@ if {[im_cost_type_is_invoice_or_quote_p $source_cost_type_id]} {
 #
 if {"" != $customer_id} {
     set company_id $customer_id
-    ad_returnredirect [export_vars -base new-copy-invoiceselect { source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb return_url}]
+    ad_returnredirect [export_vars -base new-copy-invoiceselect { source_cost_type_id target_cost_type_id customer_id provider_id company_id project_id blurb zero_quantities_p return_url}]
     return
 }
 
