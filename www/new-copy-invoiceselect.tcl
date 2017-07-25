@@ -15,6 +15,7 @@ ad_page_contract {
 } {
     source_cost_type_id:integer
     target_cost_type_id:integer
+    {zero_quantities_p 0}
     {blurb "" }
     return_url
     { company_id:integer "" }
