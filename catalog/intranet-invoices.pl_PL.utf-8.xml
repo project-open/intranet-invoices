@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<message_catalog package_key="intranet-invoices" package_version="3.4.0.7.0" locale="pl_PL" charset="utf-8">
+<message_catalog package_key="intranet-invoices" locale="pl_PL" charset="utf-8">
 
+  <msg key="Amount">Ilość</msg>
+  <msg key="Company">Firma</msg>
+  <msg key="cost_type_Data">%cost_type% Dane</msg>
+  <msg key="cost_type_date">%cost_type% data:</msg>
+  <msg key="cost_type_nr">%cost_type% nr.:</msg>
+  <msg key="cost_type_status">%cost_type% status</msg>
+  <msg key="cost_type_template">%cost_type% szablon:</msg>
+  <msg key="cost_type_type">%cost_type% typ</msg>
+  <msg key="Customer">Klient</msg>
+  <msg key="days">dni</msg>
+  <msg key="Description">Opis</msg>
+  <msg key="Document_Status">Status Dokumentu:</msg>
+  <msg key="Document_Type">Rodzaj Dokumentu:</msg>
+  <msg key="Due_Date">Termin</msg>
+  <msg key="Export_Customer_Invoices_CSV">Eksport Faktur Sprzedażowych Do CSV</msg>
+  <msg key="Filter_Documents">Filtr Dokumentów</msg>
+  <msg key="Financial_Documents">Dokumenty Finansowe</msg>
+  <msg key="Go">Idź</msg>
+  <msg key="Invoice_Address">Adres Faktury</msg>
+  <msg key="Line">Linia</msg>
+  <msg key="lt_New_Company_Documents">Nowe dokumenty</msg>
+  <msg key="lt_There_are_currently_n">Obecnie nie ma żadnych faktur spełniających zadane kryteria</msg>
+  <msg key="New_cost_type">Nowa %cost_type%</msg>
+  <msg key="New_Customer_Invoice_from_Delivery_Note">Nowa Faktura Sprzedażowa Na Podstawie Protokołu Dostawy</msg>
+  <msg key="New_Customer_Invoice_from_Invoice">Nowa Faktura Sprzedażowa Na Podstawie Faktury</msg>
+  <msg key="New_Customer_Invoice_from_Quote">Nowa Faktura Sprzedażowa Na Podstawie Wyceny</msg>
+  <msg key="New_Customer_Invoice_from_scratch">Nowa Faktura Sprzedażowa</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Nowa Faktura Sprzedażowa Na Podstawie Harmonogramu Zadań</msg>
+  <msg key="New_Delivery_Note_from_Quote">Nowy Protokół Dostawy Na Podstawie Wyceny</msg>
+  <msg key="New_Delivery_Note_from_scratch">Nowy Protokół Dostawy</msg>
+  <msg key="New_Quote_from_Quote">Nowa Wycena Na Podstawie Wyceny</msg>
+  <msg key="New_Quote_from_scratch">Nowa Wycena</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Nowa Wycena Na Podstawie Harmonogramu Zadań</msg>
+  <msg key="Note">Uwagi:</msg>
+  <msg key="Paid">Płatność</msg>
+  <msg key="Payment_Method">Metoda płatności</msg>
+  <msg key="Payment_terms">Warunki płatności</msg>
+  <msg key="Provider">Dostawca</msg>
+  <msg key="Rate">Stawka</msg>
+  <msg key="Status">Status</msg>
   <msg key="Timesheet_Cube">Zestawienie czasu pracy</msg>
   <msg key="Timesheet_Customers_and_Projects">Czas pracy nad klientami i projektami</msg>
+  <msg key="Type">Typ</msg>
+  <msg key="Units">Jednostki</msg>
+  <msg key="UOM">J.M.</msg>
 </message_catalog>
