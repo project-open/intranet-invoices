@@ -100,10 +100,7 @@ if {0 == $invoice_id} {
     # We are about to create a new invoice - Check specific creation perms
     set create_cost_types [im_cost_type_write_permissions $user_id]
     if {$cost_type_id ni $create_cost_types} {
-	ad_return_complaint "Insufficient Privileges" "
-        <li>You don't have sufficient privileges to create a 
-            [db_string t "select im_category_from_id(:cost_type_id)"]."
-	return
+	ad_return_complaint "Insufficient Privileges" "<li>You don't have sufficient privileges to create a [im_category_from_id $cost_type_id]."
     }
 
 } else {
@@ -112,8 +109,7 @@ if {0 == $invoice_id} {
     # The invoice already exists - Check invoice permissions
     im_cost_permissions $user_id $invoice_id view read write admin
     if {!$write} {
-	ad_return_complaint "Insufficient Privileges" "
-        <li>You don't have sufficient privileges to see this page."    
+	ad_return_complaint "Insufficient Privileges" "<li>You don't have sufficient privileges to see this page."    
     }
 }
 
