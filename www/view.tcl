@@ -390,7 +390,7 @@ if {"adp" eq $invoice_template_type} {
 }
 
 
-set render_template [im_category_from_id $render_template_id]
+set render_template [im_category_from_id -translate_p 0 $render_template_id]
 set render_template_type ""
 if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $render_template match body loc render_template_type]} {
     # nothing...
