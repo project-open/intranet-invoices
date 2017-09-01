@@ -8,14 +8,14 @@
 ad_page_contract {
     View all the info about a specific project
 
-    @param render_template_id specifies whether the invoice should be 
+    @param render_template_id specifies whether the invoice should be
            show in GUI mode (view/edit) or formatted using some template.
     @param send_to_user_as "html" or "pdf".
            Indicates that the content of the
            invoice should be rendered using the default template
            and sent to the default contact.
            The difficulty is that it's not sufficient just to redirect
-           to a mail sending page, because it is only this page that 
+           to a mail sending page, because it is only this page that
            "knows" how to render an invoice. So in order to send the
            PDF we first need to redirect to this page, render the invoice
            and then redirect to the mail sending page.
@@ -57,7 +57,7 @@ set blurb ""
 set notify_vars ""
 set url ""
 
-# We have to avoid that already escaped vars in the item section will be escaped again 
+# We have to avoid that already escaped vars in the item section will be escaped again
 set vars_escaped [list]
 
 if {0 == $invoice_id} {
@@ -74,6 +74,8 @@ set bgcolor(1) "class=invoicerowodd"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
 
+set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
+
 
 # ---------------------------------------------------------------
 # Redirect to other page if this is not an invoice
@@ -81,22 +83,35 @@ set required_field "<font color=red size=+1><B>*</B></font>"
 
 set invoice_p [db_string invoice_p "select count(*) from im_invoices where invoice_id = :invoice_id"]
 if {!$invoice_p} {
-    # Check if there is a cost item with this ID and forward
-    set cost_exists_p [db_string cost_ex "select count(*) from im_costs where cost_id = :invoice_id"]
-    if {$cost_exists_p} { 
-	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}] 
+    # This tends to happen in error situations.
+    # First check if this is really a financial document suitable to be displayed by this page:
+    #  3700 | Customer Invoice
+    #  3702 | Quote
+    #  3704 | Provider Bill
+    #  3706 | Purchase Order
+    #  3708 | Customer Documents
+    #  3710 | Provider Documents
+    #  3724 | Delivery Note
+    #  3730 | InterCo Invoice
+    #  3732 | InterCo Quote
+    #  3734 | Provider Receipt
+    set findoc_type_ids {3700 3702 3704 3706 3708 3710 3724 3730 3732 3734}
+    if {[lsearch $findoc_type_ids $cost_type_id] < 0} {
+	# This is a cost item different from a financial document - redirect
+	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}]
     } else {
-	ad_return_complaint 1 "[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]"
+	# This seems to be an inconsistent object...
+	ad_return_complaint 1 "<b>[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]</b>:<br>
+        This situation usually happens when there is inconsistent data<br>
+        in the database with an im_costs entry of type 'im_invoice',<br>
+        but no entry in the 'im_invoices' table."
+	ad_script_abort
     }
-    ad_script_abort
 }
 
 # ---------------------------------------------------------------
 # Set default values from parameters
 # ---------------------------------------------------------------
-
-# Type of the financial document
-set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
 
 set internal_tax_id ""
 
@@ -132,8 +147,8 @@ set show_import_from_csv $show_outline_number
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
 set show_company_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
-if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} { 
-    set show_company_project_nr 0 
+if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} {
+    set show_company_project_nr 0
     set invoice_or_quote_p 0
 } else {
     set invoice_or_quote_p 1
@@ -167,7 +182,7 @@ set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
 if {[catch {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 } err_msg]} {
-    ns_log Error "im_audit: Error action: 'before update' for invoice_id: $invoice_id"     
+    ns_log Error "im_audit: Error action: 'before update' for invoice_id: $invoice_id"
 }
 
 # ---------------------------------------------------------------
@@ -251,13 +266,13 @@ set related_customer_project_nrs {}
 set num_related_projects 0
 db_foreach related_projects $related_projects_sql {
     lappend related_projects $project_id
-    if {"" != $project_nr} { 
-	lappend related_project_nrs $project_nr 
+    if {"" != $project_nr} {
+	lappend related_project_nrs $project_nr
     }
-    if {"" != $project_name} { 
-	lappend related_project_names $project_name 
+    if {"" != $project_name} {
+	lappend related_project_names $project_name
     }
-    
+
     if {"" != $description && 0 == $num_related_projects} {
         append related_project_descriptions $description
     } else {
@@ -272,8 +287,8 @@ db_foreach related_projects $related_projects_sql {
 	set parent_id [db_string parentid "select parent_id from im_projects where project_id = :parent_id" -default ""]
 	incr cnt
     }
-    if {"" != $customer_project_nr} { 
-	lappend related_customer_project_nrs $customer_project_nr 
+    if {"" != $customer_project_nr} {
+	lappend related_customer_project_nrs $customer_project_nr
     }
     incr num_related_projects
 }
@@ -343,13 +358,13 @@ set query "
 		to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
 		im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 		im_category_from_id(ci.cost_status_id) as cost_status,
-		im_category_from_id(ci.cost_type_id) as cost_type, 
+		im_category_from_id(ci.cost_type_id) as cost_type,
 		im_category_from_id(ci.template_id) as invoice_template
 	from
 		im_invoices i,
 		im_costs ci,
 	        im_companies c
-	where 
+	where
 		i.invoice_id=:invoice_id
 		and ci.cost_id = i.invoice_id
 		$customer_or_provider_join
@@ -382,11 +397,11 @@ if {$locale in [lang::system::get_locales]} {
     set locale $user_locale
 }
 
-if {"adp" eq $invoice_template_type} { 
+if {"adp" eq $invoice_template_type} {
     # We don't support the conversion of ADP templates to PDF anymore.
     # Instead, please use .odt templates
     # So this line disables the link in the GUI to download as PDF
-    set pdf_enabled_p 0 
+    set pdf_enabled_p 0
 }
 
 
@@ -447,11 +462,11 @@ db_1row office_info_query "
 
 if { ![info exists company_contact_id] } { set company_contact_id ""}
 
-if {"" == $company_contact_id} { 
+if {"" == $company_contact_id} {
     set company_contact_id $accounting_contact_id
 }
-if {"" == $company_contact_id} { 
-    set company_contact_id $primary_contact_id 
+if {"" == $company_contact_id} {
+    set company_contact_id $primary_contact_id
 }
 set org_company_contact_id $company_contact_id
 
@@ -528,24 +543,24 @@ if {"odt" == $render_template_type} {
     set odt_tmp_path [ad_tmpnam]
     ns_log Notice "view.tcl: odt_tmp_path=$odt_tmp_path"
     ns_mkdir $odt_tmp_path
-    
-    # The document 
+
+    # The document
     set odt_zip "${odt_tmp_path}.odt"
     set odt_content "${odt_tmp_path}/content.xml"
     set odt_styles "${odt_tmp_path}/styles.xml"
-    
+
     # ------------------------------------------------
     # Create a copy of the ODT
-    
+
     # Determine the location of the template
     set invoice_template_path "$invoice_template_base_path/$invoice_template"
     ns_log Notice "view.tcl: invoice_template_path='$invoice_template_path'"
 
     # Create a copy of the template into the temporary dir
     ns_cp $invoice_template_path $odt_zip
-    
+
     # Unzip the odt into the temorary directory
-    im_exec unzip -d $odt_tmp_path $odt_zip 
+    im_exec unzip -d $odt_tmp_path $odt_zip
 
     # ------------------------------------------------
     # Read the content.xml file
@@ -553,7 +568,7 @@ if {"odt" == $render_template_type} {
     fconfigure $file -encoding "utf-8"
     set odt_template_content [read $file]
     close $file
-    
+
     # ------------------------------------------------
     # Search the <row> ...<cell>..</cell>.. </row> line
     # representing the part of the template that needs to
@@ -671,7 +686,7 @@ set query "
 select
         pm_cat.category as invoice_payment_method,
 	pm_cat.category_description as invoice_payment_method_desc
-from 
+from
         im_categories pm_cat
 where
         pm_cat.category_id = :payment_method_id
@@ -845,17 +860,17 @@ db_foreach invoice_items {} {
     # because invoice items can be created based on different projects.
     # However, frequently we only have one project per invoice, so that
     # we can use this project's company_project_nr as a default
-    if {$company_project_nr_exists && "" == $company_project_nr} { 
+    if {$company_project_nr_exists && "" == $company_project_nr} {
 	set company_project_nr $customer_project_nr_default
     }
-    if {"" == $project_short_name} { 
+    if {"" == $project_short_name} {
 	set project_short_name $project_short_name_default
     }
-    
+
     set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
     set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
     set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
-    
+
     append invoice_item_html "<tr $bgcolor([expr {$ctr % 2}])>"
     if {$show_leading_invoice_item_nr} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=right>$item_sort_order</td>\n" }
     if {$show_outline_number} { append invoice_item_html "<td $bgcolor([expr {$ctr % 2}]) align=left>$item_outline_number</td>\n" }
@@ -875,16 +890,16 @@ db_foreach invoice_items {} {
 	append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=left>$company_project_nr</td>\n"
     }
-    
+
     if {$show_our_project_nr} {
 	append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=left>$project_short_name</td>\n"
     }
-    
+
     append invoice_item_html "
 	          <td $bgcolor([expr {$ctr % 2}]) align=right>$amount_pretty&nbsp;$currency</td>
 		</tr>"
-    
+
     # Insert a new XML table row into OpenOffice document
     if {"odt" == $render_template_type} {
 	ns_log Notice "intranet-invoices-www-view:: Now escaping vars for rows newly added. Row# $ctr"
@@ -919,7 +934,7 @@ db_foreach invoice_items {} {
 	$odt_template_table_node insertBefore $new_row $odt_template_row_node
 
     }
-    
+
     incr ctr
 }
 
@@ -949,7 +964,7 @@ set colspan_sub [expr {$colspan - 1}]
 
 # Add a subtotal
 set subtotal_item_html "
-        <tr> 
+        <tr>
           <td class=roweven colspan=$colspan_sub align=right><B>[lang::message::lookup $locale intranet-invoices.Subtotal]</B></td>
           <td class=roweven align=right><B><nobr>$subtotal_pretty $currency</nobr></B></td>
         </tr>
@@ -974,7 +989,7 @@ if {"" != $vat && 0 != $vat} {
 
 if {"" != $tax && 0 != $tax} {
     append subtotal_item_html "
-        <tr> 
+        <tr>
           <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.TAX]: $tax_perc_pretty  %&nbsp;</td>
           <td class=roweven align=right>$tax_amount_pretty $currency</td>
         </tr>
@@ -982,7 +997,7 @@ if {"" != $tax && 0 != $tax} {
 }
 
 append subtotal_item_html "
-        <tr> 
+        <tr>
           <td class=roweven colspan=$colspan_sub align=right><b>[lang::message::lookup $locale intranet-invoices.Total_Due]</b></td>
           <td class=roweven align=right><b><nobr>$total_due_pretty $currency</nobr></b></td>
         </tr>
@@ -991,7 +1006,7 @@ append subtotal_item_html "
 set payment_terms_html "
         <tr>
 	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
-          <td valign=top colspan=[expr {$colspan-1}] class=rowplain> 
+          <td valign=top colspan=[expr {$colspan-1}] class=rowplain>
             [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
         </tr>
@@ -1006,7 +1021,7 @@ set payment_method_html "
 
 set canned_note_html ""
 if {$canned_note_enabled_p} {
-    
+
     set canned_note_sql "
                 select  c.aux_string1 as canned_note
                 from    im_dynfield_attr_multi_value v,
@@ -1092,17 +1107,17 @@ if {"odt" eq $render_template_type} {
 
     # Delete the original template row, which is duplicate
     $odt_template_table_node removeChild $odt_template_row_node
-    
+
     # Process the content.xml file
     set odt_template_content [$root asXML -indent 1]
 
-    # Escaping other vars used, skip vars already escaped for multiple lines  
+    # Escaping other vars used, skip vars already escaped for multiple lines
     ns_log Notice "intranet-invoices-www-view:: Now escaping all other vars used in template"
     set lines [split $odt_template_content \n]
     foreach line $lines {
 	ns_log Notice "intranet-invoices-www-view:: Line: $line"
 	set var_to_be_escaped ""
-	regexp -nocase {@(.*?)@} $line var_to_be_escaped    
+	regexp -nocase {@(.*?)@} $line var_to_be_escaped
 	regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
 	ns_log Notice "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
@@ -1119,13 +1134,13 @@ if {"odt" eq $render_template_type} {
 	    ns_log Notice "intranet-invoices-www-view:: Other vars: Skipping $var_to_be_escaped "
 	}
     }
-    
+
     # Perform replacements
     regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
     regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
-    
+
     # ------------------------------------------------
-    # Rendering 
+    # Rendering
     #
     if {[catch {
 	eval [template::adp_compile -string $odt_template_content]
@@ -1154,11 +1169,11 @@ if {"odt" eq $render_template_type} {
     fconfigure $file -encoding "utf-8"
     set style_content [read $file]
     close $file
-    
+
     # Perform replacements
     eval [template::adp_compile -string $style_content]
     set style $__adp_output
-    
+
     # Save the content to a file.
     set file [open $odt_styles w]
     fconfigure $file -encoding "utf-8"
@@ -1168,15 +1183,15 @@ if {"odt" eq $render_template_type} {
 
     # ------------------------------------------------
     # Replace the files inside the odt file by the processed files
-    
-    # The zip -j command replaces the specified file in the zipfile 
-    # which happens to be the OpenOffice File. 
+
+    # The zip -j command replaces the specified file in the zipfile
+    # which happens to be the OpenOffice File.
     ns_log Notice "view.tcl: before zipping"
     im_exec zip -j $odt_zip $odt_content
     im_exec zip -j $odt_zip $odt_styles
     db_release_unused_handles
 
-    
+
     # ------------------------------------------------
     # Convert to PDF if requested
     #
@@ -1223,7 +1238,7 @@ if {"odt" eq $render_template_type} {
 	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
 	ns_returnfile 200 "application/odt" $odt_zip
 	ad_script_abort
-    } 
+    }
 
     # ------------------------------------------------
     # Return of ODT file as PDF
@@ -1234,10 +1249,10 @@ if {"odt" eq $render_template_type} {
 	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.pdf"
 	ns_returnfile 200 "application/odt" $odt_pdf
 	ad_script_abort
-    } 
+    }
 
 
-    
+
     # ------------------------------------------------
     # Delete the temporary files
 
@@ -1249,7 +1264,7 @@ if {"odt" eq $render_template_type} {
     ns_rmdir $dir
 
     ad_script_abort
-    
+
 }
 
 
@@ -1276,7 +1291,7 @@ if {[llength $related_projects] != 1} {
 }
 
 # ---------------------------------------------------------------------
-# correct problem created by -r 1.33 view.adp 
+# correct problem created by -r 1.33 view.adp
 # ---------------------------------------------------------------------
 
 if {$cost_type_id == [im_cost_type_po]} {
