@@ -42,7 +42,7 @@
   <msg key="Description">Beschreibung</msg>
   <msg key="Document_">Dokument Nr.</msg>
   <msg key="Document_hash_simbol">Dokument Nr.</msg>
-  <msg key="Document_No">Dokument Nr.</msg>
+  <msg key="Document_No">Dokument-Nr.</msg>
   <msg key="Document_Status">Dokumentenstatus</msg>
   <msg key="Document_Type">Typ</msg>
   <msg key="Due_Date">Fällig</msg>
@@ -56,16 +56,16 @@
   <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
   <msg key="Export_Company_Cube">Unternehmenscube exportieren</msg>
   <msg key="Export_Customer_Invoice_Cube">Exportiere Debitorenrechnung</msg>
-  <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen-CSV exportieren</msg>
+  <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen nach CSV exportieren</msg>
   <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
   <msg key="Export_Project_Cube">Projektcube exportieren</msg>
   <msg key="Export_Projects_CSV">Projektliste als CSV exportieren</msg>
   <msg key="Export_Provider_Invoice_Cube">Lieferantrechnungen Würfel exportieren</msg>
-  <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen als CSV exportieren</msg>
+  <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen nach CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
   <msg key="Filter_Documents">Dokumente filtern</msg>
   <msg key="Finance">Finanzen</msg>
-  <msg key="Finance_List">Finanzen Liste</msg>
+  <msg key="Finance_List">Finanzen-Liste</msg>
   <msg key="Financial_Documents">Finanzdokumente</msg>
   <msg key="From">Von</msg>
   <msg key="General_Manager">Geschäftsführer</msg>
@@ -121,7 +121,7 @@ Mit freundlichen Grüßen
   <msg key="New_Customer_Invoice_from_Invoice">Neue Kundenrechnung auf Basis einer anderen Kundenrechnung</msg>
   <msg key="New_Customer_Invoice_from_Quote">Neue Kundenrechnung auf Basis eines Angebots</msg>
   <msg key="New_Customer_Invoice_from_scratch">Neue Kundenrechnung</msg>
-  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Neue Kundenrechnung auf Basis von erfaßten Stunden</msg>
+  <msg key="New_Customer_Invoice_from_Timesheet_Tasks">Neue Kundenrechnung auf Basis von erfassten Stunden</msg>
   <msg key="New_Customer_Invoice_from_Translation_Tasks">Neue Kundenrechnung auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Delivery_Note_from_Quote">Neuer Lieferschein auf Basis eines Angebots</msg>
   <msg key="New_Delivery_Note_from_scratch">Neuer Lieferschein von Hand</msg>
@@ -139,7 +139,7 @@ Mit freundlichen Grüßen
   <msg key="New_Quote_from_Quote">Neues Angebot auf Basis eines Angebots
 </msg>
   <msg key="New_Quote_from_scratch">Neues Angebot von Hand</msg>
-  <msg key="New_Quote_from_Timesheet_Tasks">Neues Angebot auf Basis von erfaßten Stunden</msg>
+  <msg key="New_Quote_from_Timesheet_Tasks">Neues Angebot auf Basis von erfassten Stunden</msg>
   <msg key="New_Quote_from_Translation_Tasks">Neues Angebot auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Sick_Leave">Neue Abwesenheit (Krank)</msg>
   <msg key="New_Translation_Customer_Invoice">Neue Kundenrechnung auf Basis von Übersetzungsaufgaben.</msg>
