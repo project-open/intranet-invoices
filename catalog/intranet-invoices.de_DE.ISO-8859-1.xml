@@ -39,6 +39,7 @@
   <msg key="Date">Datum</msg>
   <msg key="days">Tage</msg>
   <msg key="Del">Löschen</msg>
+  <msg key="Delete">Löschen</msg>
   <msg key="Description">Beschreibung</msg>
   <msg key="Document_">Dokument Nr.</msg>
   <msg key="Document_hash_simbol">Dokument Nr.</msg>
@@ -46,6 +47,7 @@
   <msg key="Document_Status">Dokumentenstatus</msg>
   <msg key="Document_Type">Typ</msg>
   <msg key="Due_Date">Fällig</msg>
+  <msg key="Duplicate_Invoice">Doppelte Rechnung</msg>
   <msg key="Edit">Bearbeiten</msg>
   <msg key="Edit_cost_type">Bearbeiten %cost_type%</msg>
   <msg key="Edit_cost_type_1">Bearbeiten %cost_type</msg>
@@ -53,13 +55,13 @@
   <msg key="Email">E-Mail</msg>
   <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
   <msg key="Error_multiple_currencies">mehrere Währungsfehler</msg>
-  <msg key="Export_Companies_CSV">Firmen-CSV exportieren</msg>
-  <msg key="Export_Company_Cube">Unternehmenscube exportieren</msg>
-  <msg key="Export_Customer_Invoice_Cube">Exportiere Debitorenrechnung</msg>
+  <msg key="Export_Companies_CSV">Firmen nach CSV exportieren</msg>
+  <msg key="Export_Company_Cube">Firmen - Data-Warehouse Würfel exportieren</msg>
+  <msg key="Export_Customer_Invoice_Cube">Finanzen - Kundenrechnungen Data-Warehouse Würfel exportieren</msg>
   <msg key="Export_Customer_Invoices_CSV">Kundenrechnungen nach CSV exportieren</msg>
-  <msg key="Export_Invoices_CSV">Rechnungs-CSV exportieren</msg>
-  <msg key="Export_Project_Cube">Projektcube exportieren</msg>
-  <msg key="Export_Projects_CSV">Projektliste als CSV exportieren</msg>
+  <msg key="Export_Invoices_CSV">Rechnungen nach CSV exportieren</msg>
+  <msg key="Export_Project_Cube">Projekte - Data-Warehouse Würfel exportieren</msg>
+  <msg key="Export_Projects_CSV">Projekte nach CSV exportieren</msg>
   <msg key="Export_Provider_Invoice_Cube">Lieferantrechnungen Würfel exportieren</msg>
   <msg key="Export_Provider_Invoices_CSV">Lieferantenrechnungen nach CSV exportieren</msg>
   <msg key="Fax">Fax</msg>
@@ -130,7 +132,7 @@ Mit freundlichen Grüßen
   <msg key="New_InterCo_Quote_from_Translation_Tasks">Neues InterCo Angebot auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Personal_Absence">Neue Abwesenheit (privat)</msg>
   <msg key="New_Provider_Bill_from_Purchase_Order">Neue Lieferantenrechnung auf Basis eines Lieferantenauftrags</msg>
-  <msg key="New_Provider_Bill_from_scratch">Neue Lieferantenrechnung ohne Vorlage</msg>
+  <msg key="New_Provider_Bill_from_scratch">Neue Lieferantenrechnung von Hand</msg>
   <msg key="New_Provider_Bill_from_Translation_Tasks">Neue Lieferantenrechnung auf Basis von Übersetzungsaufgaben</msg>
   <msg key="New_Provider_Invoice_from_Translation_Tasks">Neue Lieferantenrechnung auf Basis von Übersetzungsaufgaben
 </msg>
@@ -185,6 +187,7 @@ Mit freundlichen Grüßen
   <msg key="Resource_Planning_Report">Bericht Ressourcenplanung</msg>
   <msg key="S-Line">Quell-Zeile</msg>
   <msg key="Save">Speichern</msg>
+  <msg key="Save_Changes">Änderungen speichern</msg>
   <msg key="Sel">Ausw.</msg>
   <msg key="Select">Auswählen</msg>
   <msg key="Select_Customer">Kunden wählen</msg>
@@ -197,6 +200,15 @@ Mit freundlichen Grüßen
   <msg key="Send_invoice_as_HTML_attachment">Sende Rechnung als HTML Anhang</msg>
   <msg key="Send_invoice_as_HTML_link">Sende Rechnung als HTML Link</msg>
   <msg key="Send_invoice_as_link">Sende Rechnung als Link</msg>
+  <msg key="Set_to_invoiced">Setzen auf &#39;abgerechnet&#39;</msg>
+  <msg key="Set_to_status_Created">Setzen auf &#39;neu&#39;</msg>
+  <msg key="Set_to_status_Filed">Setzen auf &#39;abgehäftet&#39;</msg>
+  <msg key="Set_to_status_Outstanding">Setzen auf &#39;ausstehend&#39;</msg>
+  <msg key="Set_to_status_Paid">Setzen auf &#39;bezahlt&#39;</msg>
+  <msg key="Set_to_status_Partially_Paid">Setzen auf &#39;teilweise bezahlt&#39;</msg>
+  <msg key="Set_to_status_Past_Due">Setzen auf &#39;überfällig&#39;</msg>
+  <msg key="Set_to_status_Rejected">Setzen auf &#39;zurückgewiesen&#39;</msg>
+  <msg key="Set_to_status_Requested">Setzen auf &#39;angefordert&#39;</msg>
   <msg key="Show_Included_Timesheet_Hours">Enthaltene Stunden aus der Zeiterfassung anzeigen</msg>
   <msg key="Start_Confirmation_Workflow">Bestätigungsworkflow starten</msg>
   <msg key="Status">Status</msg>
@@ -205,8 +217,8 @@ Mit freundlichen Grüßen
   <msg key="TAX">Steuer</msg>
   <msg key="TAXnbsp">Steuer&amp;nbsp;</msg>
   <msg key="The_indicated_prices_dont_include_VAT">Die angegebenen Preise enthalten keine Mehrwertsteuer.</msg>
-  <msg key="Timesheet_Cube">Zeiterfassungs-Cube</msg>
-  <msg key="Timesheet_Customers_and_Projects">Arbeitszeitnachweis Kunden und Projekte</msg>
+  <msg key="Timesheet_Cube">Zeiterfassung - Date-Warehouse Würfel</msg>
+  <msg key="Timesheet_Customers_and_Projects">Zeiterfassung - Kunden und Projekte</msg>
   <msg key="Timesheet_Productivity">Arbeitszeitnachweis Produktivität</msg>
   <msg key="Timesheet_Project_Hierarchy___Finance">Arbeitszeitnachweis Projekthierarchie &amp;amp; Finanzen</msg>
   <msg key="Timesheet_Weekly_Report">Zeiterfassung Wochenreport</msg>
@@ -218,6 +230,7 @@ Mit freundlichen Grüßen
   <msg key="Unit">Einheit</msg>
   <msg key="Units">Einheiten</msg>
   <msg key="UOM">Einheit</msg>
+  <msg key="Update_Financial_Documents">Finanzdokument aktualisieren</msg>
   <msg key="VAT">MwSt.</msg>
   <msg key="VATnbsp">MwSt.&amp;nbsp;</msg>
   <msg key="Your_Reference">Ihr Zeichen</msg>
