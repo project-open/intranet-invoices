@@ -151,7 +151,7 @@ if {$invoice_or_quote_p} {
     # Invoice or Quote
     set company_id $customer_id
     set company_select [im_company_select customer_id $customer_id "" "Customer"]
-    set project_select [im_project_select -exclude_subprojects_p 0 object_id $project_id "" "" "" "" "" $company_id]
+    set project_select [im_project_select -exclude_subprojects_p 1 object_id $project_id "" "" "" "" "" $company_id]
 
 } else {
 
@@ -161,6 +161,46 @@ if {$invoice_or_quote_p} {
     set project_select [im_project_select -exclude_subprojects_p 1 object_id $project_id "" "" "" "" ""]
 
 }
+
+
+set task_options_level [db_list_of_lists task_options "
+	select	tree_level(child.tree_sortkey)-1 || ' ' || child.project_name,
+		child.project_id
+	from	im_projects child,
+		im_projects parent
+	where	parent.project_id = :project_id and
+		child.tree_sortkey between parent.tree_sortkey and tree_right(parent.tree_sortkey)
+	order by child.tree_sortkey
+"]
+
+set task_options [list]
+foreach tuple $task_options_level {
+    set name [lindex $tuple 0]
+    set id [lindex $tuple 1]
+    set level [lindex $name 0]
+    set name [lrange $name 1 end]
+    
+    for {set i 0} {$i < $level} {incr i} { set name "&nbsp;&nbsp;&nbsp;&nbsp;$name" }
+
+    lappend task_options [list $name $id]
+}
+
+
+set options_html ""
+foreach option $task_options {
+    set value [lindex $option 0]
+    set id [lindex $option 1]
+    
+    if {$id eq $project_id} {
+	append options_html "\t\t<option selected=\"selected\" value=\"$id\">$value</option>\n"
+    } else {
+	append options_html "\t\t<option value=\"$id\">$value</option>\n"	
+    }
+}
+
+set task_select "<select name=\"object_id\">$options_html</select>"
+
+
 
 set company_name [db_string customer_name "select company_name from im_companies where company_id = :company_id" -default ""]
 
