@@ -73,8 +73,16 @@ set bgcolor(0) "class=invoiceroweven"
 set bgcolor(1) "class=invoicerowodd"
 
 set required_field "<font color=red size=+1><B>*</B></font>"
-
 set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs where cost_id = :invoice_id" -default 0]
+
+set document_quote_p [im_category_is_a $cost_type_id [im_cost_type_quote]]
+set document_invoice_p [im_category_is_a $cost_type_id [im_cost_type_invoice]]
+set document_bill_p [im_category_is_a $cost_type_id [im_cost_type_bill]]
+set document_po_p [im_category_is_a $cost_type_id [im_cost_type_po]]
+set document_delnote_p [im_category_is_a $cost_type_id [im_cost_type_delivery_note]]
+
+set document_customer_doc_p [im_category_is_a $cost_type_id [im_cost_type_customer_doc]]
+set document_provider_doc_p [im_category_is_a $cost_type_id [im_cost_type_provider_doc]]
 
 
 # ---------------------------------------------------------------
@@ -85,18 +93,7 @@ set invoice_p [db_string invoice_p "select count(*) from im_invoices where invoi
 if {!$invoice_p} {
     # This tends to happen in error situations.
     # First check if this is really a financial document suitable to be displayed by this page:
-    #  3700 | Customer Invoice
-    #  3702 | Quote
-    #  3704 | Provider Bill
-    #  3706 | Purchase Order
-    #  3708 | Customer Documents
-    #  3710 | Provider Documents
-    #  3724 | Delivery Note
-    #  3730 | InterCo Invoice
-    #  3732 | InterCo Quote
-    #  3734 | Provider Receipt
-    set findoc_type_ids {3700 3702 3704 3706 3708 3710 3724 3730 3732 3734}
-    if {[lsearch $findoc_type_ids $cost_type_id] < 0} {
+    if {$cost_type_id ni [im_cost_financial_document_type_ids]} {
 	# This is a cost item different from a financial document - redirect
 	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}]
     } else {
@@ -147,7 +144,7 @@ set show_import_from_csv $show_outline_number
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
 set show_company_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceCustomerProjectNr" "" 1]
-if {![im_category_is_a $cost_type_id [im_cost_type_customer_doc]]} {
+if {!$document_customer_doc_p} {
     set show_company_project_nr 0
     set invoice_or_quote_p 0
 } else {
@@ -197,16 +194,16 @@ set invoice_cost_type_id [im_cost_type_invoice]
 set bill_cost_type_id [im_cost_type_bill]
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
+set invoice_or_bill_p [expr $document_invoice_p || $document_bill_p]
 
 # CostType for "Generate Invoice from Quote" or "Generate Bill from PO"
 set target_cost_type_id ""
 set generation_blurb ""
-if {$cost_type_id == [im_cost_type_quote]} {
+if {$document_quote_p} {
     set target_cost_type_id [im_cost_type_invoice]
     set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Invoice_from]"
 }
-if {$cost_type_id == [im_cost_type_po]} {
+if {$document_po_p} {
     set target_cost_type_id [im_cost_type_bill]
     set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Provider_Bil]"
 }
@@ -229,7 +226,7 @@ if {!$invoice_or_quote_p} { set company_project_nr_exists 0}
 set cost_object_type [db_string cost_object_type "select object_type from acs_objects where object_id = :invoice_id" -default ""]
 set timesheet_report_enabled_p 0
 if {"im_timesheet_invoice" == $cost_object_type} {
-    if {$cost_type_id == [im_cost_type_invoice]} {
+    if {$document_invoice_p} {
 	set timesheet_report_enabled_p 1
     }
 }
@@ -1055,7 +1052,7 @@ set note_html "
 "
 
 set terms_html ""
-if {$cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]} {
+if {$document_invoice_p || $document_bill_p} {
     set terms_html [concat $payment_terms_html $payment_method_html]
 }
 append terms_html "$canned_note_html $note_html"
@@ -1294,7 +1291,7 @@ if {[llength $related_projects] != 1} {
 # correct problem created by -r 1.33 view.adp
 # ---------------------------------------------------------------------
 
-if {$cost_type_id == [im_cost_type_po]} {
+if {$document_po_p} {
    set customer_id $comp_id
 }
 

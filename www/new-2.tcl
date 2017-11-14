@@ -59,12 +59,13 @@ set outline_number_exists_p [im_column_exists im_invoice_items item_outline_numb
 # Determine whether it's an Invoice or a Bill
 # ---------------------------------------------------------------
 
+if {"" eq $cost_type_id} { ad_return_complaint 1 "You need to specify the cost type" }
 # Invoices and Quotes have a "Company" fields.
-set invoice_or_quote_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_quote]]
+set invoice_or_quote_p [expr [im_category_is_a $cost_type_id [im_cost_type_invoice]] || [im_category_is_a $cost_type_id [im_cost_type_quote]]]
 ns_log Notice "intranet-invoices/new-2: invoice_or_quote_p=$invoice_or_quote_p"
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $cost_type_id == [im_cost_type_invoice] || $cost_type_id == [im_cost_type_bill]]
+set invoice_or_bill_p [expr [im_category_is_a $cost_type_id [im_cost_type_invoice]] || [im_category_is_a $cost_type_id [im_cost_type_bill]]]
 ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {

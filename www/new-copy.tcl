@@ -176,7 +176,7 @@ if {[im_column_exists im_companies default_tax]} {
 }
 
 
-if {$target_cost_type_id == [im_cost_type_invoice]} {
+if {[im_category_is_a $target_cost_type_id [im_cost_type_invoice]]} {
     if {"" != $default_vat} { set vat $default_vat }
     if {"" != $default_tax} { set tax $default_tax }
     if {"" != $default_payment_days} { set payment_days $default_payment_days }

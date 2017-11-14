@@ -334,13 +334,10 @@ set payment_method_select [im_invoice_payment_method_select payment_method_id $p
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
 
-set type_select [im_cost_type_select cost_type_id $cost_type_id 0 "financial_doc"]
-if {"" != $cost_type_id} {
-    set type_select "
-	<input type=hidden name=cost_type_id value=$cost_type_id>
-	$cost_type
-    "
-}
+set super_type_id 0
+if {"" != $cost_type_id} { set super_type_id $cost_type_id }
+set type_select [im_cost_type_select cost_type_id $cost_type_id $super_type_id "financial_doc"]
+if {0 && "" != $cost_type_id} { set type_select "<input type=hidden name=cost_type_id value=$cost_type_id>$cost_type" }
 
 set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} provider_id $provider_id "" "Provider"]

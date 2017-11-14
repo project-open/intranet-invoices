@@ -65,7 +65,7 @@
 
 
 <if @admin@>
-	<if @cost_type_id@ eq @quote_cost_type_id@>
+	<if @document_quote_p@ eq "1">
 	<li>
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_Quote "Generate Invoice from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
@@ -80,7 +80,7 @@
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
 
-	<if @cost_type_id@ eq @delnote_cost_type_id@>
+	<if @document_delnote_p@ eq "1">
 	<li>
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_DelNote "Generate Invoice from Delivery Note"] %>
 		<% set source_invoice_id $invoice_id %>
@@ -90,7 +90,7 @@
 	</if>
 
 
-	<if @cost_type_id@ eq @po_cost_type_id@>
+	<if @document_po_p@ eq "1">
 	<li>
 		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Provider_Bill_from_Purchase_Order "Generate Provider Bill from Purchase Order"] %>
 		<% set source_invoice_id $invoice_id %>
@@ -99,7 +99,7 @@
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	</if>
 
-        <if @cost_type_id@ eq @invoice_cost_type_id@>
+        <if @document_invoice_p@ eq "1">
         <li>
            <A HREF="/intranet-invoices/new-copy?target_cost_type_id=3700&amp;source_cost_type_id=3700&amp;source_invoice_id=<%=$invoice_id%>">
                  <%= [lang::message::lookup "" intranet-invoices.Duplicate_Invoice "Duplicate Invoice"] %>

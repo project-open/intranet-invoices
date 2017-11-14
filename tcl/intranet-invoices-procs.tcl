@@ -137,7 +137,6 @@ ad_proc -public im_next_invoice_nr {
     To deal with this situation, the calling procedure has to double check
     before confirming the invoice.
 } {
-
     # ----------------------------------------------------
     # Get some parameters that influence the counters:
 
@@ -174,8 +173,10 @@ ad_proc -public im_next_invoice_nr {
 	    3706 { set prefix "P" }
 	    3718 { set prefix "T" }
 	    3720 { set prefix "E" }
-	    3720 { set prefix "R" }
 	    3724 { set prefix "D" }
+	    3730 { set prefix "II" }
+	    3732 { set prefix "IQ" }
+	    3734 { set prefix "R" }
 	    default { set prefix "" }
 	}
     }

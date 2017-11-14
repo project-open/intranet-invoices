@@ -159,7 +159,7 @@ if {"" != $project_id} {
 # In a project, we may have POs for multiple providers...
 if {"" != $company_id && "" == $project_id} {
 
-    if {$source_cost_type_id == [im_cost_type_invoice] || $source_cost_type_id == [im_cost_type_quote] || $source_cost_type_id == [im_cost_type_delivery_note] || $source_cost_type_id == [im_cost_type_interco_invoice] || $source_cost_type_id == [im_cost_type_interco_quote]} {
+    if {[im_category_is_a $source_cost_type_id [im_cost_type_invoice]] || [im_category_is_a $source_cost_type_id [im_cost_type_quote]] || [im_category_is_a $source_cost_type_id [im_cost_type_delivery_note]] || [im_category_is_a $source_cost_type_id [im_cost_type_interco_invoice]] || [im_category_is_a $source_cost_type_id [im_cost_type_interco_quote]]} {
         lappend criteria "i.customer_id = :company_id"
     } else {
         lappend criteria "i.provider_id = :company_id"
@@ -213,14 +213,14 @@ from
 			and m.member_id = :user_id
 			and p.privilege = h.privilege
 			and p.grantee_id = m.party_id
-			and ct.cost_type_id = :source_cost_type_id
+			and ct.cost_type_id in (select * from im_sub_categories(:source_cost_type_id))
 	) readable_ccs
 where
 	i.invoice_id = o.object_id
 	and i.invoice_id = ci.cost_id
  	and i.customer_id = c.company_id
 	and i.provider_id = p.company_id
-	and ci.cost_type_id = :source_cost_type_id
+	and ci.cost_type_id in (select * from im_sub_categories(:source_cost_type_id))
 	and ci.cost_center_id = readable_ccs.cost_center_id
 	$project_where_clause
 $order_by_clause

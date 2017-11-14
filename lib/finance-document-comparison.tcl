@@ -37,7 +37,7 @@ set html [im_ad_hoc_query -format html "
 			where	tii.invoice_id = tc.cost_id and
 				tii.item_outline_number = i.item_outline_number and
 				tii.item_uom_id = i.item_uom_id and
-				tc.cost_type_id = 3702 and
+				tc.cost_type_id in (select im_sub_categories(3702)) and
 				tc.project_id = p.project_id and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
 		) as quotes,
@@ -49,7 +49,7 @@ set html [im_ad_hoc_query -format html "
 			where	tii.invoice_id = tc.cost_id and
 				tii.item_outline_number = i.item_outline_number and
 				tii.item_uom_id = i.item_uom_id and
-				tc.cost_type_id = 3700 and
+				tc.cost_type_id in (select im_sub_categories(3700)) and
 				tc.project_id = p.project_id and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
 		) as invoices,
@@ -61,7 +61,7 @@ set html [im_ad_hoc_query -format html "
 			where	tii.invoice_id = tc.cost_id and
 				tii.item_outline_number = i.item_outline_number and
 				tii.item_uom_id = i.item_uom_id and
-				tc.cost_type_id = 3706 and
+				tc.cost_type_id n (select im_sub_categories(3706)) and
 				tc.project_id = p.project_id and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
 		) as pos,
@@ -73,7 +73,7 @@ set html [im_ad_hoc_query -format html "
 			where	tii.invoice_id = tc.cost_id and
 				tii.item_outline_number = i.item_outline_number and
 				tii.item_uom_id = i.item_uom_id and
-				tc.cost_type_id = 3704 and
+				tc.cost_type_id in (select im_sub_categories(3704)) and
 				tc.project_id = p.project_id and
 				p.tree_sortkey between i.tree_sortkey and tree_right(i.tree_sortkey)
 		) as bills,

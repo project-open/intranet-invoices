@@ -97,7 +97,7 @@ where	i.invoice_id = ci.cost_id
 	and i.invoice_id = :invoice_id
 "
 
-if {$cost_type_id == [im_cost_type_quote] || $cost_type_id == [im_cost_type_invoice]} {
+if {[im_category_is_a $cost_type_id [im_cost_type_quote]] || [im_category_is_a $cost_type_id [im_cost_type_invoice]]} {
     set company_id $customer_id
 } else {
     set company_id $provider_id
