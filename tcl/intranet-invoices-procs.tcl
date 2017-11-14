@@ -419,7 +419,8 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 
     db_1row invoice_company_id "
 	select	customer_id,
-		provider_id
+		provider_id,
+		project_id
 	from	im_costs
 	where	cost_id = :invoice_id
     "
@@ -456,7 +457,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
     set return_url [im_url_with_query]
     set return_html "
       <form action=invoice-association-action method=post>
-      [export_vars -form {invoice_id return_url}]
+      [export_vars -form {invoice_id project_id return_url}]
       <table border=0 cellspacing=1 cellpadding=1>
         <tr>
           <td align=middle class=rowtitle colspan=2>[_ intranet-invoices.Related_Projects]</td>
