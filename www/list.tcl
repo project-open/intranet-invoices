@@ -356,7 +356,7 @@ if {$letter eq "ALL"} {
 set new_document_menu ""
 set parent_menu_label ""
 
-if {[im_category_is_a [$cost_type_id [im_cost_type_company_doc]]} {
+if {[im_category_is_a $cost_type_id [im_cost_type_company_doc]]} {
     set parent_menu_label "invoices_customers"
     set parent_menu_sql "'invoices_customers'"
 } elseif {[im_category_is_a $cost_type_id [im_cost_type_provider_doc]]} {

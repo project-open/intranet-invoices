@@ -105,21 +105,32 @@ switch $invoice_action {
 	    set cost_status_id $cost_status($invoice_id)
 	    ns_log Notice "set cost_status($invoice_id) = $cost_status_id"
 	    
-	    # Check CostCenter Permissions
-	    im_cost_permissions $user_id $invoice_id view_p read_p write_p admin_p
-	    if {!$write_p} {
-		ad_return_complaint 1 "<li>You have insufficient privileges to perform this action"
-		ad_script_abort
-	    }
-	    
-	    # Update the invoice
-	    db_dml update_cost_status "
-		update im_costs 
-		set cost_status_id=:cost_status_id 
-		where cost_id = :invoice_id
-	    "
+	    set old_cost_status_id [db_string old_cost_status "select cost_status_id from im_costs where cost_id = :invoice_id" -default ""]
+	    if {$cost_status_id != $old_cost_status_id} {
 
-	    im_audit -object_id $invoice_id
+		# Check CostCenter Permissions
+		im_cost_permissions $user_id $invoice_id view_p read_p write_p admin_p
+		if {!$write_p} {
+		    ad_return_complaint 1 "<li>You have insufficient privileges to perform this action"
+		    ad_script_abort
+		}
+
+		# Is there already a workflow controlling the lifecycle of the invoice?
+		set wf_case_p [db_string wf_case "select count(*) from wf_cases where object_id = :invoice_id"]
+		if {$wf_case_p} {
+		    ad_return_complaint 1 "<li>Invoice #$invoice_id is controlled by a workflow, you can't change the status manually."
+		    ad_script_abort
+		}
+
+		# Update the invoice
+		db_dml update_cost_status "
+			update im_costs 
+			set cost_status_id=:cost_status_id 
+			where cost_id = :invoice_id
+	        "
+
+		im_audit -object_id $invoice_id
+	    }
 	}
     }
     del {
