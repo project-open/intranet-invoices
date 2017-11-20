@@ -5,31 +5,54 @@
 # All rights reserved. Please check
 # http://www.project-open.com/license/ for details.
 
-ad_page_contract {
-    View all the info about a specific project
+# Skip if this page is called as part of a Workflow panel
+if {![info exists task]} {
 
-    @param render_template_id specifies whether the invoice should be
-           show in GUI mode (view/edit) or formatted using some template.
-    @param send_to_user_as "html" or "pdf".
-           Indicates that the content of the
-           invoice should be rendered using the default template
-           and sent to the default contact.
-           The difficulty is that it's not sufficient just to redirect
-           to a mail sending page, because it is only this page that
-           "knows" how to render an invoice. So in order to send the
-           PDF we first need to redirect to this page, render the invoice
-           and then redirect to the mail sending page.
+    ad_page_contract {
+	View all the info about a specific project
+	
+	@param render_template_id specifies whether the invoice should be
+	show in GUI mode (view/edit) or formatted using some template.
+	@param send_to_user_as "html" or "pdf".
+	Indicates that the content of the
+	invoice should be rendered using the default template
+	and sent to the default contact.
+	The difficulty is that it's not sufficient just to redirect
+	to a mail sending page, because it is only this page that
+	"knows" how to render an invoice. So in order to send the
+	PDF we first need to redirect to this page, render the invoice
+	and then redirect to the mail sending page.
+	
+	@author frank.bergmann@project-open.com
+	@author klaus.hofeditz@project-open.com
+    } {
+	{ invoice_id:integer 0}
+	{ render_template_id:integer 0 }
+	{ send_to_user_as ""}
+	{ pdf_p 0 }
+	{ err_mess "" }
+	{ return_url "" }
+    }
 
-    @author frank.bergmann@project-open.com
-    @author klaus.hofeditz@project-open.com
-} {
-    { invoice_id:integer 0}
-    { render_template_id:integer 0 }
-    { send_to_user_as ""}
-    { pdf_p 0 }
-    { err_mess "" }
-    { return_url "" }
+    set show_components_p 1
+    set enable_master_p 1
+
+} else {
+    
+    set show_components_p 0
+    set enable_master_p 0
+
+    set task_id $task(task_id)
+    set case_id $task(case_id)
+
+    set invoice_id [db_string pid "select object_id from wf_cases where case_id = :case_id" -default ""]
+    set render_template_id 0
+    set send_to_user_as ""
+    set pdf_p 0
+    set err_mess ""
+    set return_url [im_url_with_query]
 }
+
 
 # ---------------------------------------------------------------
 # Helper Procs

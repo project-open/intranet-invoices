@@ -1,4 +1,4 @@
-<master>
+<if @enable_master_p@><master></if>
 <property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;literal@</property>
@@ -288,13 +288,17 @@
 
 </td></tr>
 </table>
-	
-<table cellpadding="5" cellspacing="5" border="0">
-<tr>
-<td><%=[im_component_insert "Filestorage Financial Document"]%></td>
-<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td><%=[im_component_insert "Invoice Notes"]%></td>
-</tr>
-</table>
 
-<%=[im_component_insert "Audit Trail Invoices"]%>
+
+<if @show_components_p@>	
+	<table cellpadding="5" cellspacing="5" border="0">
+	<tr>
+	<td><%=[im_component_insert "Filestorage Financial Document"]%></td>
+	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	<td><%=[im_component_insert "Invoice Notes"]%></td>
+	</tr>
+	</table>
+	
+	<%=[im_component_insert "Audit Trail Invoices"]%>
+	<%= [im_component_bay bottom] %>
+</if>
