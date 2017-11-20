@@ -143,6 +143,8 @@ set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowI
 set project_type_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
 set outline_number_enabled_p [im_column_exists im_invoice_items item_outline_number]
 
+# Is there already a workflow controlling the lifecycle of the invoice?
+set wf_case_p [db_string wf_case "select count(*) from wf_cases where object_id = :invoice_id"]
 
 
 # Tricky case: Sombebody has called this page from a project
@@ -333,6 +335,11 @@ if {"" == $invoice_office_id} {
 set payment_method_select [im_invoice_payment_method_select payment_method_id $payment_method_id]
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
+
+if {$wf_case_p} {
+    set status_select "<input type=hidden name=cost_status_id value=$cost_status_id>[im_category_from_id $cost_status_id]"
+    append status_select " ([lang::message::lookup "" intranet-invoices.Controlled_by_WF "Controlled by WF"])"
+}
 
 set super_type_id 0
 if {"" != $cost_type_id} { set super_type_id $cost_type_id }
