@@ -202,7 +202,7 @@
 
 	<tr><td colspan="2" align="right">
 <if @write@>
-	  <form action=new method=POST>
+	  <form action="/intranet-invoices/new" method=POST>
 	    <%= [export_vars -form {return_url invoice_id cost_type_id}] %>
 	    <input type="submit" name="edit_invoice" value='#intranet-invoices.Edit#'>
 	    <input type="submit" name="del_invoice" value='#intranet-core.Delete#'>
