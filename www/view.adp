@@ -67,13 +67,13 @@
 <if @admin@>
 	<if @document_quote_p@ eq "1">
 	<li>
-		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_Quote "Generate Invoice from Quote"] %>
+		<% set blurb [lang::message::lookup $user_locale intranet-invoices.Generate_Invoice_from_Quote "Generate Invoice from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_invoice] %>
 		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
 		<A HREF="/intranet-invoices/new-copy?@gen_vars@">@blurb@</A>
 	<li>
-		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Delivery_Note_from_Quote "Generate Delivery Note from Quote"] %>
+		<% set blurb [lang::message::lookup $user_locale intranet-invoices.Generate_Delivery_Note_from_Quote "Generate Delivery Note from Quote"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_delivery_note] %>
 		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
@@ -82,7 +82,7 @@
 
 	<if @document_delnote_p@ eq "1">
 	<li>
-		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Invoice_from_DelNote "Generate Invoice from Delivery Note"] %>
+		<% set blurb [lang::message::lookup $user_locale intranet-invoices.Generate_Invoice_from_DelNote "Generate Invoice from Delivery Note"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_invoice] %>
 		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
@@ -92,7 +92,7 @@
 
 	<if @document_po_p@ eq "1">
 	<li>
-		<% set blurb [lang::message::lookup $locale intranet-invoices.Generate_Provider_Bill_from_Purchase_Order "Generate Provider Bill from Purchase Order"] %>
+		<% set blurb [lang::message::lookup $user_locale intranet-invoices.Generate_Provider_Bill_from_Purchase_Order "Generate Provider Bill from Purchase Order"] %>
 		<% set source_invoice_id $invoice_id %>
 		<% set target_cost_type_id [im_cost_type_bill] %>
 		<% set gen_vars [export_vars -url {source_invoice_id target_cost_type_id return_url}] %>
@@ -202,7 +202,7 @@
 
 	<tr><td colspan="2" align="right">
 <if @write@>
-	  <form action="/intranet-invoices/new" method=POST>
+	  <form action="/intranet-invoices/new" method=GET>
 	    <%= [export_vars -form {return_url invoice_id cost_type_id}] %>
 	    <input type="submit" name="edit_invoice" value='#intranet-invoices.Edit#'>
 	    <input type="submit" name="del_invoice" value='#intranet-core.Delete#'>

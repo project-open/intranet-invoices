@@ -33,7 +33,7 @@ ad_page_contract {
     { cost_center_id:integer 0}
     { invoice_currency ""}
     { create_invoice_from_template ""}
-    { return_url "/intranet-invoices/list"}
+    { return_url ""}
     { par_im_next_invoice_nr "" }
     del_invoice:optional
 }
@@ -114,7 +114,7 @@ if {0 == $invoice_id} {
 }
 
 
-set return_url [im_url_with_query]
+#if {"" eq $return_url} { set return_url [im_url_with_query] }
 set todays_date [db_string get_today "select to_char(sysdate,'YYYY-MM-DD') from dual"]
 set page_focus "im_header_form.keywords"
 set view_name "invoice_tasks"

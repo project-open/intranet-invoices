@@ -36,12 +36,13 @@ if {![info exists task]} {
 
     set show_components_p 1
     set enable_master_p 1
+    set task_id 0
+    set case_id 0
 
 } else {
     
     set show_components_p 0
     set enable_master_p 0
-
     set task_id $task(task_id)
     set case_id $task(case_id)
 
@@ -84,7 +85,7 @@ set url ""
 set vars_escaped [list]
 
 if {0 == $invoice_id} {
-    ad_return_complaint 1 "<li>[lang::message::lookup $locale intranet-invoices.lt_You_need_to_specify_a]"
+    ad_return_complaint 1 "<li>[lang::message::lookup $user_locale intranet-invoices.lt_You_need_to_specify_a]"
     return
 }
 
@@ -121,7 +122,7 @@ if {!$invoice_p} {
 	ad_returnredirect [export_vars -base "/intranet-cost/costs/new" {{form_mode display} {cost_id $invoice_id}}]
     } else {
 	# This seems to be an inconsistent object...
-	ad_return_complaint 1 "<b>[lang::message::lookup $locale intranet-invoices.lt_Cant_find_the_documen]</b>:<br>
+	ad_return_complaint 1 "<b>[lang::message::lookup $user_locale intranet-invoices.lt_Cant_find_the_documen]</b>:<br>
         This situation usually happens when there is inconsistent data<br>
         in the database with an im_costs entry of type 'im_invoice',<br>
         but no entry in the 'im_invoices' table."
@@ -191,6 +192,11 @@ if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
 
+# Is there already a workflow controlling the lifecycle of the invoice?
+set wf_case_p [db_string wf_case "select count(*) from wf_cases where object_id = :invoice_id"]
+set wf_transition_key [db_string wf_transition "select transition_key from wf_tasks where task_id = :task_id" -default ""]
+if {"modify" eq $wf_transition_key} { set wf_case_p 0 }
+
 
 # ---------------------------------------------------------------
 # Audit
@@ -224,11 +230,11 @@ set target_cost_type_id ""
 set generation_blurb ""
 if {$document_quote_p} {
     set target_cost_type_id [im_cost_type_invoice]
-    set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Invoice_from]"
+    set generation_blurb "[lang::message::lookup $user_locale intranet-invoices.lt_Generate_Invoice_from]"
 }
 if {$document_po_p} {
     set target_cost_type_id [im_cost_type_bill]
-    set generation_blurb "[lang::message::lookup $locale intranet-invoices.lt_Generate_Provider_Bil]"
+    set generation_blurb "[lang::message::lookup $user_locale intranet-invoices.lt_Generate_Provider_Bil]"
 }
 
 if {$invoice_or_quote_p} {
@@ -393,7 +399,7 @@ if { ![db_0or1row invoice_info_query $query] } {
     # We couldn't get the base information for this invoice.
     # fraber 151210: This happened today with an invoice with
     # a deleted customer company. No idea how that could happen...
-    ad_return_complaint 1 [lang::message::lookup $locale intranet-invoices.Unable_to_get_invoice_info_inconsistent_data "We are unable to get the invoice information for this object. This should never happen. In the past this happened once, after deleting the customer company of an invoice."]
+    ad_return_complaint 1 [lang::message::lookup $user_locale intranet-invoices.Unable_to_get_invoice_info_inconsistent_data "We are unable to get the invoice information for this object. This should never happen. In the past this happened once, after deleting the customer company of an invoice."]
     ad_script_abort
 }
 
@@ -683,18 +689,23 @@ if {$company_project_nr_exists && $rel_project_id} {
 
 im_cost_permissions $user_id $invoice_id view read write admin
 if {!$read} {
-    ad_return_complaint "[lang::message::lookup $locale intranet-invoices.lt_Insufficient_Privileg]" "
-    <li>[lang::message::lookup $locale intranet-invoices.lt_You_have_insufficient_1]<BR>
-    [lang::message::lookup $locale intranet-invoices.lt_Please_contact_your_s]"
+    ad_return_complaint "[lang::message::lookup $user_locale intranet-invoices.lt_Insufficient_Privileg]" "
+    <li>[lang::message::lookup $user_locale intranet-invoices.lt_You_have_insufficient_1]<BR>
+    [lang::message::lookup $user_locale intranet-invoices.lt_Please_contact_your_s]"
     ad_script_abort
 }
+if {$wf_case_p} { 
+    set write 0
+    set admin 0
+}
+
 
 # ---------------------------------------------------------------
 # Page Title and Context Bar
 # ---------------------------------------------------------------
 
-set page_title [lang::message::lookup $locale intranet-invoices.One_cost_type]
-set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::lookup $locale intranet-invoices.Finance]"] $page_title]
+set page_title [lang::message::lookup $user_locale intranet-invoices.One_cost_type]
+set context_bar [im_context_bar [list /intranet-invoices/ "[lang::message::lookup $user_locale intranet-invoices.Finance]"] $page_title]
 
 
 # ---------------------------------------------------------------
@@ -767,7 +778,7 @@ if {[im_table_exists im_payments]} {
 	<table border=0 cellPadding=1 cellspacing=1>
         <tr>
           <td align=middle class=rowtitle colspan=3>
-	    [lang::message::lookup $locale intranet-invoices.Related_Payments]
+	    [lang::message::lookup $user_locale intranet-invoices.Related_Payments]
 	  </td>
         </tr>"
 
@@ -806,7 +817,7 @@ where
     }
 
     if {!$payment_ctr} {
-	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[lang::message::lookup $locale intranet-invoices.No_payments_found]</i></td></tr>\n"
+	append payment_list_html "<tr class=roweven><td colspan=2 align=center><i>[lang::message::lookup $user_locale intranet-invoices.No_payments_found]</i></td></tr>\n"
     }
 
 
@@ -814,8 +825,8 @@ where
 	append payment_list_html "
         <tr $bgcolor([expr {$payment_ctr % 2}])>
           <td align=right colspan=3>
-	    <input type=submit name=add value=\"[lang::message::lookup $locale intranet-invoices.Add_a_Payment]\">
-	    <input type=submit name=del value=\"[lang::message::lookup $locale intranet-invoices.Del]\">
+	    <input type=submit name=add value=\"[lang::message::lookup $user_locale intranet-invoices.Add_a_Payment]\">
+	    <input type=submit name=del value=\"[lang::message::lookup $user_locale intranet-invoices.Del]\">
           </td>
         </tr>\n"
     }

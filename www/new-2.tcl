@@ -48,9 +48,8 @@ ad_page_contract {
     item_currency:array
     item_task_id:integer,array
     source_invoice_id:array,optional,integer  
-    { return_url "/intranet-invoices/" }
+    { return_url "" }
 }
-
 
 set auto_increment_invoice_nr_p [parameter::get -parameter InvoiceNrAutoIncrementP -package_id [im_package_invoices_id] -default 0]
 set outline_number_exists_p [im_column_exists im_invoice_items item_outline_number]
@@ -471,6 +470,10 @@ if {!$invoice_exists_p} {
 }
 
 
+if {"" eq $return_url} { 
+    set return_url "/intranet-invoices/view?invoice_id=$invoice_id" 
+}
 
 db_release_unused_handles
-ad_returnredirect "/intranet-invoices/view?invoice_id=$invoice_id"
+ad_returnredirect $return_url
+
