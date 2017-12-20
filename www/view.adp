@@ -276,6 +276,7 @@
 <table cellpadding="0" cellspacing="2" border="0" width="100%">
 <tr valign="top">
 <td>
+	<%= [im_component_bay left] %>
 </td>
 <td align="right">
   <table cellpadding="1" cellspacing="2" border="0">
@@ -299,6 +300,6 @@
 	</tr>
 	</table>
 	
-	<%=[im_component_insert "Audit Trail Invoices"]%>
+	<%= [im_component_insert "Audit Trail Invoices"]%>
 	<%= [im_component_bay bottom] %>
 </if>
