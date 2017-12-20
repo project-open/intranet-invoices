@@ -28,7 +28,8 @@ ad_page_contract {
     { payment_days:integer ""}
     { payment_method_id:integer "" }
     template_id:integer
-    vat:trim,float
+    { vat:trim,float "" }
+    { vat_type_id:integer "" }
     tax:trim,float
     { discount_perc "0" }
     { surcharge_perc "0" }
@@ -126,7 +127,7 @@ if {!$write_p || ![im_permission $user_id add_invoices] } {
 # Invoices and Bills need a payment method, quotes and POs don't.
 if {$invoice_or_bill_p && ("" == $payment_method_id || 0 == $payment_method_id)} {
     ad_return_complaint 1 "<li>No payment method specified"
-    return
+    ad_script_abort
 }
 
 if {"" == $provider_id || 0 == $provider_id} { set provider_id [im_company_internal] }
@@ -229,6 +230,16 @@ if {$invoice_exists_p} {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 }
 
+if {"" ne $vat_type_id} {
+    set vat [db_string vat_from_vat_type "select aux_int1 from im_categories where category_id = :vat_type_id" -default ""]
+}
+
+if {"" eq $vat} {
+    ad_return_complaint 1 "<li>No VAT specified"
+    ad_script_abort
+}
+
+
 # Update the invoice itself
 db_dml update_invoice "
 update im_invoices 
@@ -264,6 +275,7 @@ set
 	payment_days	= :payment_days,
 	vat		= :vat,
 	tax		= :tax,
+	vat_type_id	= :vat_type_id,
 	note		= :note,
 	variable_cost_p = 't',
 	amount		= null,

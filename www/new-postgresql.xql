@@ -24,6 +24,7 @@
 		ci.payment_days,
 		to_char(ci.vat, :vat_format) as vat,
 		to_char(ci.tax, :tax_format) as tax,
+		ci.vat_type_id,
 		ci.note as cost_note,
 		ci.template_id,
 		ci.cost_status_id,

@@ -137,6 +137,8 @@ set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "En
 
 # Should we show the "Tax" field?
 set tax_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
+set vat_type_id_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceVatTypeIdP" "" 1]
+
 
 # Should we show a "Material" field for invoice lines?
 set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
@@ -252,6 +254,7 @@ if {$invoice_id} {
     set payment_days [im_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
     set vat 0
+    set vat_type_id ""
     set tax 0
     set discount_text ""
     set discount_perc 0
@@ -288,6 +291,9 @@ if {"t" == $read_only_p} {
     "
     ad_script_abort
 }
+
+
+set vat_type_select [im_category_select "Intranet VAT Type" vat_type_id $vat_type_id]
 
 
 # ---------------------------------------------------------------
@@ -362,6 +368,7 @@ if {$show_cost_center_p} {
 } else {
     set cost_center_hidden "<input type=hidden name=cost_center_id value=$cost_center_id>"
 }
+
 
 # ---------------------------------------------------------------
 # 7. Select and format the sum of the invoicable items

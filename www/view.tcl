@@ -1003,19 +1003,23 @@ set subtotal_item_html "
 
 
 if {"" != $vat && 0 != $vat} {
+
+    set vat_type_l10n ""
+    if {"" ne $vat_type_id} { set vat_type_l10n " ([im_category_from_id $vat_type_id])" }
+
     append subtotal_item_html "
         <tr>
-          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: $vat_perc_pretty %&nbsp;</td>
+          <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]$vat_type_l10n: $vat_perc_pretty %&nbsp;</td>
           <td class=roweven align=right>$vat_amount_pretty $currency</td>
         </tr>
-"
+    "
 } else {
     append subtotal_item_html "
         <tr>
           <td class=roweven colspan=$colspan_sub align=right>[lang::message::lookup $locale intranet-invoices.VAT]: 0 %&nbsp;</td>
           <td class=roweven align=right>0 $currency</td>
         </tr>
-"
+    "
 }
 
 if {"" != $tax && 0 != $tax} {
