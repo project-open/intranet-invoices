@@ -182,6 +182,9 @@ select
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
+	ci.project_id,
+	acs_object__name(ci.project_id) as project_name,
+	(select project_nr from im_projects sub_p where p.project_id = ci.project_id) as project_nr,
 	to_char(ci.amount,:cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
@@ -190,7 +193,7 @@ select
 	p.company_name as provider_name,
 	p.company_path as provider_short_name,
         im_category_from_id(i.invoice_status_id) as invoice_status,
-        im_category_from_id(i.cost_type_id) as cost_type
+        im_category_from_id(i.cost_type_id) as cost_type,
 from
         im_invoices_active i,
         im_costs ci,
