@@ -269,7 +269,7 @@ function ajaxFunction() {
               <tr> 
                 <td>#intranet-invoices.VATnbsp#</td>
                 <td>
-<if @vat_type_id_enabled_p@>
+<if @vat_type_id_enabled_p@ gt 0>
 		@vat_type_select;noquote@
 </if>
 <else>
