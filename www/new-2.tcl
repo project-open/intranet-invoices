@@ -100,6 +100,7 @@ set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurr
 set invoice_currency [lindex [array get item_currency] 1]
 if {"" == $invoice_currency} { set invoice_currency $default_currency }
 
+
 foreach item_nr [array names item_currency] {
     if {$item_currency($item_nr) != $invoice_currency} {
         ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
@@ -444,7 +445,7 @@ set currencies [db_list distinct_currencies "
 		and currency is not null
 "]
 
-if {1 != [llength $currencies]} {
+if {[llength $currencies] > 1} {
 	ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
 	[_ intranet-invoices.Blurb_multiple_currencies] <pre>$currencies</pre>"
 	return
