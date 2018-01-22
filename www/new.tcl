@@ -304,7 +304,8 @@ if {[im_column_exists im_companies default_invoice_template_id]} {
     if {0 == $vat} {
 	set vat [db_string default_vat "select default_vat from im_companies where company_id = :company_id" -default "0"]
     }
-    
+    if {"" == [string trim $vat]} { set vat 0.0 }
+
     if {"" == $template_id} {
 	set template_id [db_string default_template "select default_invoice_template_id from im_companies where company_id = :company_id" -default ""]
     }
