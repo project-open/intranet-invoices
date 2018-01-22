@@ -33,7 +33,7 @@
 	<ul>
 <if @show_import_from_csv@>
         <li>
-          <A HREF="/intranet-cust-fttx/invoice-import/import-invoice?invoice_id=@invoice_id@">Import from CSV</A>
+          <A HREF="/intranet-cust-fttx/invoice-import/import-invoice?invoice_id=@invoice_id@">Import from Ava-Plan CSV</A>
         </li>
 </if>
 
