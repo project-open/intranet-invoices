@@ -137,7 +137,7 @@ set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "En
 
 # Should we show the "Tax" field?
 set tax_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceTaxFieldP" "" 1]
-set vat_type_id_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceVatTypeIdP" "" 1]
+set vat_type_id_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceVatTypeIdP" "" 0]
 
 
 # Should we show a "Material" field for invoice lines?
