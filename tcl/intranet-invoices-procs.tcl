@@ -172,11 +172,19 @@ ad_proc -public im_next_invoice_nr {
 	    3704 { set prefix "B" }
 	    3706 { set prefix "P" }
 	    3718 { set prefix "T" }
-	    3720 { set prefix "E" }
+	    3720 { set prefix "EI" }
+	    3722 { set prefix "EB" }
 	    3724 { set prefix "D" }
 	    3730 { set prefix "II" }
 	    3732 { set prefix "IQ" }
 	    3734 { set prefix "R" }
+
+	    3737 { set prefix "T" }
+	    3738 { set prefix "L" }
+	    3739 { set prefix "CR" }
+	    3740 { set prefix "DP" }
+	    3741 { set prefix "CE" }
+
 	    default { set prefix "" }
 	}
     }
@@ -193,7 +201,7 @@ ad_proc -public im_next_invoice_nr {
 
     set prefix_where ""
     if {$prefix_len} {
-	set prefix_where "and substr(invoice_nr, 1, 1) = :prefix"
+	set prefix_where "and substr(invoice_nr, 1, $prefix_len) = :prefix"
     }
 
     set sql "
