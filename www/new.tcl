@@ -184,13 +184,19 @@ if {$invoice_or_quote_p} {
     }
     set ajax_company_widget "customer_id"
     set custprov "customer"
+    set invoice_material_type_id [im_material_type_customer]
+
 } else {
     set company_id $provider_id
     set ajax_company_widget "provider_id"
     set custprov "provider"
+    set invoice_material_type_id [im_material_type_provider]
 }
 
-# ad_return_complaint 1 $company_id
+# Check if there are materials in the selected sub-type.
+# Otherwise fallback to V4.x behavior
+set num_materials [db_string sum "select count(*) from im_materials where material_type_id in ([join [im_sub_categories $invoice_material_type_id] ","])"]
+if {0 eq $num_materials} { set invoice_material_type_id "" }
 
 
 # ---------------------------------------------------------------
@@ -427,7 +433,7 @@ if {$invoice_mode eq "new"} {
 	append task_sum_html "<input type=hidden name=item_task_id.$ctr value='$task_id'>"
 
 	if {$material_enabled_p} {
-	    append task_sum_html "<td>[im_material_select -max_option_len 100 item_material_id.$ctr $item_material_id]</td>"
+	    append task_sum_html "<td>[im_material_select -restrict_to_type_id $invoice_material_type_id -max_option_len 100 item_material_id.$ctr $item_material_id]</td>"
 	} else {
 	    append task_sum_html "<input type=hidden name=item_material_id.$ctr value='$item_material_id'>"
 	}
@@ -478,7 +484,7 @@ for {set i 0} {$i < 3} {incr i} {
     append task_sum_html "<input type=hidden name=item_task_id.$ctr value='-1'>"
 
     if {$material_enabled_p} {
-	append task_sum_html "<td>[im_material_select -max_option_len 100 item_material_id.$ctr ""]</td>"
+	append task_sum_html "<td>[im_material_select -restrict_to_type_id $invoice_material_type_id -max_option_len 100 item_material_id.$ctr ""]</td>"
     } else {
 	append task_sum_html "<input type=hidden name=item_material_id.$ctr value=''>"
     }
