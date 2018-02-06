@@ -46,6 +46,7 @@ set user_id [auth::require_login]
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
 set current_url [im_url_with_query]
 set org_invoice_id $invoice_id
+set user_is_admin_p [im_user_is_admin_p $user_id]
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
@@ -349,7 +350,7 @@ set payment_method_select [im_invoice_payment_method_select payment_method_id $p
 set template_select [im_cost_template_select template_id $template_id]
 set status_select [im_cost_status_select cost_status_id $cost_status_id]
 
-if {$wf_case_p} {
+if {!$user_is_admin_p && $wf_case_p} {
     set status_select "<input type=hidden name=cost_status_id value=$cost_status_id>[im_category_from_id $cost_status_id]"
     append status_select " ([lang::message::lookup "" intranet-invoices.Controlled_by_WF "Controlled by WF"])"
 }
