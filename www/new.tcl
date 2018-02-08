@@ -48,6 +48,8 @@ set current_url [im_url_with_query]
 set org_invoice_id $invoice_id
 set user_is_admin_p [im_user_is_admin_p $user_id]
 
+set default_cost_status_id [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultStatusId" -default [im_cost_status_created]]
+
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
     ad_returnredirect [export_vars -base "new-copy" {invoice_id cost_type_id}]
@@ -256,7 +258,7 @@ if {$invoice_id} {
 
     set invoice_id [im_new_object_id]
     set invoice_nr [im_next_invoice_nr -cost_type_id $cost_type_id -cost_center_id $cost_center_id -par_im_next_invoice_nr $par_im_next_invoice_nr]
-    set cost_status_id [im_cost_status_created]
+    set cost_status_id $default_cost_status_id
     set effective_date $todays_date
     set payment_days [im_parameter -package_id [im_package_cost_id] "DefaultCompanyInvoicePaymentDays" "" 30] 
     set due_date [db_string get_due_date "select sysdate+:payment_days from dual"]
