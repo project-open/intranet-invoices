@@ -240,6 +240,21 @@ if {"" eq $vat} {
     ad_script_abort
 }
 
+# Determine whether the invoice is related to a specific project or not
+set invoice_project_ids [db_list invoice_projects "
+                select  p.project_id as rel_project_id
+                from    acs_rels r,
+			im_projects p
+                where   r.object_id_two = :invoice_id and
+			r.object_id_one = p.project_id
+"]
+switch [llength $invoice_project_ids] {
+    0 { set invoice_project_id "" }
+    1 { set invoice_project_id [lindex $invoice_project_ids 0] }
+    default { set invoice_project_id "" }
+}
+
+
 
 # Update the invoice itself
 db_dml update_invoice "
@@ -260,7 +275,7 @@ where
 db_dml update_costs "
 update im_costs
 set
-	project_id	= :project_id,
+	project_id	= :invoice_project_id,
 	cost_name	= :invoice_nr,
 	customer_id	= :customer_id,
 	cost_nr		= :invoice_id,
@@ -417,8 +432,8 @@ foreach nr $item_list {
 # ---------------------------------------------------------------
 
 foreach project_id $select_project {
-    db_1row "get relations" "
-                select  count(*) as v_rel_exists
+    set v_rel_exists [db_string get_rels "
+                select  count(*)
                 from    acs_rels r,
                         im_projects p,
                         im_projects sub_p
@@ -426,8 +441,9 @@ foreach project_id $select_project {
                         sub_p.tree_sortkey between p.tree_sortkey and tree_right(p.tree_sortkey) and
                         r.object_id_one = sub_p.project_id and
                         r.object_id_two = :invoice_id
-    "
-    if {0 ==  $v_rel_exists} {
+    "]
+
+    if {0 == $v_rel_exists} {
 	set rel_id [db_exec_plsql create_rel ""]
     }
 }
