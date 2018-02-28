@@ -102,7 +102,13 @@ if {"" == $invoice_currency} { set invoice_currency $default_currency }
 
 
 foreach item_nr [array names item_currency] {
-    if {$item_currency($item_nr) != $invoice_currency} {
+    set item_cur $item_currency($item_nr)
+    if {"" eq $item_cur} { 
+	# Avoid stupid error with empty currency
+	set item_cur $invoice_currency
+	set item_currency($item_nr) $invoice_currency
+    }
+    if {$item_cur != $invoice_currency} {
         ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
         [_ intranet-invoices.Blurb_multiple_currencies]"
         ad_script_abort
