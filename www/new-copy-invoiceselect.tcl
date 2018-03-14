@@ -23,6 +23,7 @@ ad_page_contract {
     { start_idx:integer 0 }
     { how_many "" }
     { view_name "invoice_select" }
+    { filter_cost_id:integer,multiple {} }
 }
 
 
@@ -165,6 +166,11 @@ if {"" != $company_id && "" == $project_id} {
         lappend criteria "i.provider_id = :company_id"
     }
 }
+
+if {"" ne $filter_cost_id} {
+    lappend criteria "i.cost_id in ([join $filter_cost_id ","])"
+}
+
 
 set project_where_clause [join $criteria " and\n            "]
 if { $project_where_clause ne "" } {
