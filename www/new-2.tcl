@@ -259,6 +259,12 @@ switch [llength $invoice_project_ids] {
     1 { set invoice_project_id [lindex $invoice_project_ids 0] }
     default { set invoice_project_id "" }
 }
+# SALO: 2018-04-10 /Financial Report/Proforma Export/ fails when
+# im_costs.project_id is NULL. This only happens when a new invoice
+# is created, and it becomes fixed when the invoice is edited and
+# saved (indeed if nothing has been changed).
+# This fix is of the same kind as the one done later with project_id_item
+if { ""==$invoice_project_id } { set invoice_project_id $project_id }
 
 
 
