@@ -73,11 +73,11 @@ if {[info exists del_invoice]} {
 			r.object_id_one = p.project_id
         " -default 0]
     }
-
-    if {"" eq $return_url && "" != $project_id && 0 != $project_id} {
+    if {"" != $project_id && 0 != $project_id} {
 	set view_name "finance"
 	set return_url [export_vars -base "/intranet/projects/view" {project_id view_name}] 
     }
+
     ad_returnredirect [export_vars -base invoice-action {{cost $invoice_id} {invoice_action del} return_url}]
 }
 
