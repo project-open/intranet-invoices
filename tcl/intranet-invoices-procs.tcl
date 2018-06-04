@@ -15,6 +15,19 @@ ad_library {
 
 
 # -----------------------------------------------------------
+# States and types
+# -----------------------------------------------------------
+
+
+
+ad_proc -public im_invoice_item_status_active {} { return 47000 }
+ad_proc -public im_invoice_item_status_deleted {} { return 47001 }
+
+ad_proc -public im_invoice_item_type_default {} { return 47100 }
+
+
+
+# -----------------------------------------------------------
 # Package Routines
 # -----------------------------------------------------------
 

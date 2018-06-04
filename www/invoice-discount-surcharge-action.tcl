@@ -68,29 +68,19 @@ foreach i [array names line_perc] {
     set material_id ""
     set sort_order [db_string sort_order "select 10 + max(sort_order) from im_invoice_items where invoice_id = :invoice_id" -default ""]
     if {"" == $sort_order} { set sort_order 0 }
-    set item_id [db_nextval "im_invoice_items_seq"]
 
-    set insert_invoice_item_sql "
-        INSERT INTO im_invoice_items (
-                item_id, item_name,
-                project_id, invoice_id,
-                item_units, item_uom_id,
-                price_per_unit, currency,
-                sort_order, item_type_id,
-                item_material_id,
-                item_status_id, description, task_id
-        ) VALUES (
-                :item_id, :name,
-                :project_id, :invoice_id,
-                :units, :uom_id,
-                :rate, :currency,
-                :sort_order, :type_id,
-                :material_id,
-                null, '', null
-        )
+    set item_id [db_string new_invoice_item "select im_invoice_item__new (
+			null, 'im_invoice_item', now(), :current_user_id, '[ad_conn peeraddr]', null,
+			:name, :invoice_id, :sort_order,
+			:units, :uom_id, :rate, :currency,
+			[im_invoice_item_type_default], [im_invoice_item_status_active]
+    )"]
+    db_dml update_new_invoice_item "
+		    	update im_invoice_items set
+			       		project_id = :new_project_id,
+			       		item_material_id = :material_id
+			where item_id = :item_id
     "
-    db_dml insert_invoice_items $insert_invoice_item_sql
-
 }
 
 # ---------------------------------------------------------------

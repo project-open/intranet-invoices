@@ -44,22 +44,27 @@ end;' language 'plpgsql';
    select acs_privilege__drop_privilege ('add_finance');
 -- end;
 
+
 delete from im_biz_object_urls where object_type='im_invoice';
+delete from im_biz_object_urls where object_type='im_invoice_items';
 
 delete from acs_rels where object_id_two in (select invoice_id from im_invoices);
 delete from im_invoice_items;
 delete from im_payments where cost_id in (select invoice_id from im_invoices);
 delete from im_costs where cost_id in (select invoice_id from im_invoices); 
 delete from im_invoices;
+
 delete from acs_objects where object_type = 'im_invoice';
 select acs_object_type__drop_type('im_invoice', 'f');
+
+delete from acs_objects where object_type = 'im_invoice_item';
+select acs_object_type__drop_type('im_invoice_item', 'f');
 
 delete from im_view_columns where view_id >= 30 and view_id <=39;
 delete from im_views where view_id >= 30 and view_id <=39;
 
 -- drop sequence im_invoices_seq;
-drop sequence im_invoice_items_seq;
-
+drop sequence if exists im_invoice_items_seq;
 drop table im_invoice_items;
 
 -- drop table im_invoices_audit;

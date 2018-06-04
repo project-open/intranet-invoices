@@ -145,6 +145,9 @@ switch $invoice_action {
 		ad_script_abort
 	    }
 	    im_audit -object_id $cost_id -action before_nuke
+
+	    if {[im_table_exists im_rule_logs]} { db_dml rule_logs "delete from im_rule_logs where rule_log_object_id = :cost_id" }
+
 	    db_string delete_cost_item ""
 	}
     }

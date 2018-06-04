@@ -120,7 +120,8 @@ foreach item_nr [array names item_currency] {
 # ---------------------------------------------------------------
 
 
-set user_id [auth::require_login]
+set current_user_id [auth::require_login]
+set user_id $current_user_id
 set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
 # if !$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id
 if {!$write_p || ![im_permission $user_id add_invoices] } {
@@ -347,10 +348,11 @@ if {$canned_note_enabled_p} {
 # ---------------------------------------------------------------
 
 # Delete the old items if they exist
-db_dml delete_invoice_items "
-	DELETE from im_invoice_items
-	WHERE invoice_id=:invoice_id
-"
+
+set item_ids [db_list item_ids "select item_id from im_invoice_items where invoice_id = :invoice_id"]
+foreach item_id $item_ids {
+    db_string del_invoice_item "select im_invoice_item__delete(:item_id)"
+}
 
 set item_list [array names item_name]
 
@@ -401,37 +403,34 @@ foreach nr $item_list {
 
     # Insert only if it's not an empty line from the edit screen
     if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
-	set item_id [db_nextval "im_invoice_items_seq"]
 
 	if { ![info exists source_invoice_id] } {
 		set source_invoice_id -1
 	}
 
-        set insert_invoice_items_sql "
-        INSERT INTO im_invoice_items (
-                item_id, item_name,
-                project_id, invoice_id,
-                item_units, item_uom_id,
-                price_per_unit, currency,
-                sort_order, item_type_id,
-                item_material_id,
-                item_status_id, description, task_id,
-		item_source_invoice_id
-        ) VALUES (
-                :item_id, :name,
-                :project_id_item, :invoice_id,
-                :units, :uom_id,
-                :rate, :invoice_currency,
-                :sort_order, :type_id,
-                :material_id,
-                null, '', :task_id,
-		:item_source_invoice_id
-	)" 
-        db_dml insert_invoice_items $insert_invoice_items_sql
+	set item_id [db_string new_invoice_item "select im_invoice_item__new(
+			null, 'im_invoice_item', now(), :current_user_id, '[ad_conn peeraddr]', null,
+			:name, :invoice_id, :sort_order,
+			:units, :uom_id, :rate, :invoice_currency,
+			[im_invoice_item_type_default], [im_invoice_item_status_active]
+	)"]
+
+	db_dml update_new_invoice_item "
+		    	update im_invoice_items set
+			       		project_id = :project_id,
+			       		item_material_id = :material_id,
+			       		task_id = :task_id,
+					item_source_invoice_id = :item_source_invoice_id
+			where item_id = :item_id
+	"
 
 	if {$outline_number_exists_p} {
 	    db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :item_id"
 	}
+
+	# ToDo: 2018-05-30: Do audit, now that invoice_items are objects.
+	# However, we'd first have to change the algorithm to
+	# compare edited with database items.
 
 	# Don't audit the update/creation of invoice items!
 	# That would be too much, and we re-create them, so
