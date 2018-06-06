@@ -13,15 +13,14 @@
     <version name="5.0.2.4.0" url="http://www.project-open.net/download/apm/intranet-invoices-5.0.2.4.0.apm">
         <owner url="mailto:frank.bergmann@project-open.com">Frank Bergmann</owner>
         <vendor url="http://www.project-open.com/">]project-open[</vendor>
+	<license>]project-open[ Free License (FL)</license>
         <release-date>2016-11-15</release-date>
         <maturity>0</maturity>
-
         <provides url="intranet-invoices" version="5.0.0.0.0"/>
         <requires url="intranet-core" version="5.0.0.0.0"/>
         <requires url="intranet-cost" version="5.0.0.0.0"/>
         <requires url="intranet-payments" version="5.0.0.0.0"/>
         <requires url="intranet-search-pg" version="5.0.0.0.0"/>
-
         <callbacks>
         </callbacks>
         <parameters>
