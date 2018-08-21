@@ -181,8 +181,8 @@ Cordiali saluti,
   <msg key="Unit">Unità</msg>
   <msg key="Units">Unità</msg>
   <msg key="UOM">UM</msg>
-  <msg key="VAT">IVA</msg>
-  <msg key="VATnbsp">IVA&amp;nbsp;</msg>
+  <msg key="VAT">MARK UP</msg>
+  <msg key="VATnbsp">MARK UP</msg>
   <msg key="Your_Reference">Vostro riferimento</msg>
   <msg key="Yr_Job__PO_No">OdA n.</msg>
   <msg key="Zip">CAP</msg>
