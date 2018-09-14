@@ -509,6 +509,10 @@ if {!$invoice_exists_p} {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update -status_id $cost_status_id -type_id $cost_type_id
 }
 
+# Propagate the audit to the project, because it might be changed by the document
+im_audit -object_id $project_id -action after_update
+
+
 
 if {"" eq $return_url} { 
     set return_url "/intranet-invoices/view?invoice_id=$invoice_id" 
