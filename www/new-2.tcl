@@ -50,6 +50,7 @@ ad_page_contract {
     item_task_id:integer,array
     source_invoice_id:array,optional,integer  
     { return_url "" }
+    { also_associated_with_object_id "" }
 }
 
 set auto_increment_invoice_nr_p [parameter::get -parameter InvoiceNrAutoIncrementP -package_id [im_package_invoices_id] -default 0]
@@ -458,6 +459,23 @@ foreach project_id $select_project {
 	set rel_id [db_exec_plsql create_rel ""]
     }
 }
+
+
+# Should we associate this invoice with another object?
+if {"" ne $also_associated_with_object_id} {
+    set v_rel_exists [db_string get_rels "
+                select  count(*)
+                from    acs_rels r
+                where   r.object_id_one = :also_associated_with_object_id and
+                        r.object_id_two = :invoice_id
+    "]
+
+    if {0 == $v_rel_exists} {
+	set project_id $also_associated_with_object_id
+	set rel_id [db_exec_plsql create_rel ""]
+    }
+}
+
 
 # ---------------------------------------------------------------
 # Update the invoice amount and currency 
