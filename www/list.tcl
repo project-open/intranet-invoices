@@ -93,7 +93,7 @@ if { $how_many eq "" || $how_many < 1 } {
 set end_idx [expr {$start_idx + $how_many}]
 
 
-if {"" == $start_date} { set start_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultStartDate -default "2000-01-01"] }
+if {"" == $start_date} { set start_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultStartDate -default "2016-01-01"] }
 if {"" == $end_date} { set end_date [parameter::get_from_package_key -package_key "intranet-cost" -parameter DefaultEndDate -default "2100-01-01"] }
 
 
@@ -148,23 +148,23 @@ db_foreach column_list_sql $column_sql {
 
 set criteria [list]
 if { $cost_status_id ne "" && $cost_status_id > 0 } {
-    lappend criteria "i.cost_status_id in ([join [im_sub_categories $cost_status_id] ","])"
+    lappend criteria "ci.cost_status_id in ([join [im_sub_categories $cost_status_id] ","])"
 }
 
 if { $cost_type_id ne "" && $cost_type_id != 0 } {
-    lappend criteria "i.cost_type_id in ([join [im_sub_categories $cost_type_id] ","])"
+    lappend criteria "ci.cost_type_id in ([join [im_sub_categories $cost_type_id] ","])"
 }
 if { $company_id ne "" && $company_id != 0 } {
-    lappend criteria "(i.customer_id = :company_id OR i.provider_id = :company_id)"
+    lappend criteria "(ci.customer_id = :company_id OR ci.provider_id = :company_id)"
 }
 if { $provider_id ne "" && $provider_id != 0 } {
-    lappend criteria "i.provider_id=:provider_id"
+    lappend criteria "ci.provider_id = :provider_id"
 }
 if {"" != $start_date} {
-    lappend criteria "i.effective_date >= :start_date::timestamptz"
+    lappend criteria "ci.effective_date >= :start_date::timestamptz"
 }
 if {"" != $end_date} {
-    lappend criteria "i.effective_date < :end_date::timestamptz"
+    lappend criteria "ci.effective_date < :end_date::timestamptz"
 }
 
 
@@ -260,18 +260,17 @@ set extra_where ""
 # -----------------------------------------------------------------
 
 set sql "
-select
-        i.*,
-	(to_date(to_char(i.invoice_date,:date_format),:date_format) + i.payment_days) as due_date_calculated,
-	o.object_type,
+select	i.*,
+	ci.*,
+	(to_date(to_char(ci.effective_date, :date_format), :date_format) + ci.payment_days) as due_date_calculated,
         to_char(ci.effective_date, 'YYYY-MM-DD') as cost_effective_date,
-	(ci.amount * (1 + coalesce(ci.vat,0)/100 + coalesce(ci.tax,0)/100)) as invoice_amount,
+	(ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100)) as invoice_amount,
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
 	pr.project_nr,
-	to_char(ci.effective_date, 'YYYY-MM') as effective_month,
-	to_char(ci.amount * (1 + coalesce(ci.vat,0)/100 + coalesce(ci.tax,0)/100), :cur_format) as invoice_amount_formatted,
+	to_char(ci.effective_date,  'YYYY-MM') as effective_month,
+	to_char(ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100),  :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_cost_center_code_from_id(ci.cost_center_id) as cost_center_code,
@@ -280,16 +279,16 @@ select
         c.company_path as company_short_name,
 	p.company_name as provider_name,
 	p.company_path as provider_short_name,
-        im_category_from_id(i.invoice_status_id) as invoice_status,
-        im_category_from_id(i.cost_type_id) as cost_type,
-        im_category_from_id(i.cost_status_id) as cost_status,
-	to_date(:today, :date_format) - (to_date(to_char(i.invoice_date, :date_format),:date_format) + i.payment_days) as overdue
+	ci.cost_status_id as invoice_status_id,
+        im_category_from_id(ci.cost_status_id) as invoice_status,
+        im_category_from_id(ci.cost_status_id) as cost_status,
+        im_category_from_id(ci.cost_type_id) as cost_type,
+	to_date(:today, :date_format) - (to_date(to_char(ci.effective_date, :date_format), :date_format) + ci.payment_days) as overdue
 	$extra_select
 from
-        im_invoices_active i,
+        im_invoices i,
         im_costs ci
 	LEFT OUTER JOIN im_projects pr on (ci.project_id = pr.project_id),
-	acs_objects o,
         im_companies c,
         im_companies p,
 	(	select distinct
@@ -299,7 +298,7 @@ from
 			im_cost_types ct,
 			acs_permissions p,
 			party_approved_member_map m,
-			acs_object_context_index c, 
+			acs_object_context_index c,
 			acs_privilege_descendant_map h
 		where
 			p.object_id = c.ancestor_id
@@ -311,10 +310,9 @@ from
 	) readable_ccs
 	$extra_from
 where
-	i.invoice_id = o.object_id
-	and i.invoice_id = ci.cost_id
- 	and i.customer_id=c.company_id
-        and i.provider_id=p.company_id
+	i.invoice_id = ci.cost_id
+ 	and ci.customer_id = c.company_id
+        and ci.provider_id = p.company_id
 	and ci.cost_center_id = readable_ccs.cost_center_id
 	and ci.cost_type_id = readable_ccs.cost_type_id
 	$company_where
@@ -369,7 +367,7 @@ if {[im_category_is_a $cost_type_id [im_cost_type_company_doc]]} {
 set menu_select_sql "
         select  m.*
         from    im_menus m
-        where   parent_menu_id in (select menu_id from im_menus where label in ($parent_menu_sql)) 
+        where   parent_menu_id in (select menu_id from im_menus where label in ($parent_menu_sql))
                 and im_object_permission_p(m.menu_id, :user_id, 'read') = 't'
         order by sort_order"
 
