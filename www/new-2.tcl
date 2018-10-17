@@ -536,6 +536,10 @@ if {"" eq $return_url} {
     set return_url "/intranet-invoices/view?invoice_id=$invoice_id" 
 }
 
+# Fraber 2018-10-17: There are many issues with return-redirect.
+set return_url "/intranet-invoices/view?invoice_id=$invoice_id" 
+
+
 db_release_unused_handles
 ad_returnredirect $return_url
 
