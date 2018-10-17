@@ -222,7 +222,7 @@ declare
 	p_invoice_item_id alias for $1;
 begin
 	delete from 	im_invoice_items
-	where		invoice_id = p_invoice_item_id;
+	where		item_id = p_invoice_item_id;
 
 	PERFORM acs_object__delete(p_invoice_item_id);
 	return 0;
