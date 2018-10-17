@@ -243,7 +243,8 @@ if {"" ne $vat_type_id} {
     set vat [db_string vat_from_vat_type "select aux_int1 from im_categories where category_id = :vat_type_id" -default ""]
 }
 
-if {"" eq $vat} {
+# Complaint about missing VAT only in Customer Invoices
+if {"" eq $vat && [lsearch [im_sub_categories [im_cost_type_invoice]] $cost_type_id] > -1} {
     ad_return_complaint 1 "<li>No VAT specified"
     ad_script_abort
 }
