@@ -273,7 +273,7 @@ db_foreach invoice_items "" {
     append task_sum_html "
 	<tr $bgcolor([expr {$ctr % 2}])> 
           <td>
-	    <input type=text name=item_sort_order.$ctr size=2 value='$item_sort_order'>
+	    <input type=text name=item_sort_order.$ctr size=2 value='$ctr'>
 	  </td>
     "
 
