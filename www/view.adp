@@ -26,7 +26,7 @@
 <td>
 	<table cellpadding=0 cellspacing=0>
 	<form action=invoice-discount-surcharge-action method=POST>
-	<%= [export_form_vars return_url invoice_id] %>
+	<%= [export_form_vars {{return_url $current_url} invoice_id}] %>
 	<tr class=rowtitle>
 		<td class=rowtitle align=center colspan=3>@submit_msg@</td>
 	</tr>

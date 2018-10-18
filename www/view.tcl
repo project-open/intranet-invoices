@@ -80,6 +80,8 @@ set blurb ""
 set notify_vars ""
 set url ""
 
+set current_url [im_url_with_query]
+
 # We have to avoid that already escaped vars in the item section will be escaped again
 set vars_escaped [list]
 
