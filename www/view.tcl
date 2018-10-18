@@ -156,6 +156,7 @@ set invoice_template_base_path [im_parameter -package_id [im_package_invoices_id
 
 # Invoice Variants showing or not certain fields.
 # Please see the parameters for description.
+set surcharge_enabled_p [ad_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 set canned_note_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceCannedNoteP" "" 0]
 set show_qty_rate_p [im_parameter -package_id [im_package_invoices_id] "InvoiceQuantityUnitRateEnabledP" "" 0]
 set show_our_project_nr [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceOurProjectNr" "" 1]
@@ -993,6 +994,12 @@ set tax_perc_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $tax+0] $ro
 set grand_total_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $grand_total+0] $rounding_precision] "" $locale]
 set total_due_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $total_due+0] $rounding_precision] "" $locale]
 
+set discount_perc_pretty $discount_perc
+set surcharge_perc_pretty $surcharge_perc
+
+set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $discount_amount+0] $rounding_precision] "" $locale]
+set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
+
 set colspan_sub [expr {$colspan - 1}]
 
 # Add a subtotal
@@ -1303,6 +1310,41 @@ if {"odt" eq $render_template_type} {
     ad_script_abort
 
 }
+
+
+# ---------------------------------------------------------------------
+# Surcharge / Discount section
+# ---------------------------------------------------------------------
+
+# PM Fee. Set to "checked" if the customer has a default_pm_fee_percentage != ""
+set pm_fee_checked ""
+set pm_fee_perc ""
+if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
+if {"" == $pm_fee_perc} { set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
+if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
+    set pm_fee_perc $default_pm_fee_percentage 
+    set pm_fee_checked "checked"
+}
+set pm_fee_msg [lang::message::lookup "" intranet-invoices.PM_Fee_Msg "Project Management %pm_fee_perc%%"]
+
+# Surcharge. 
+set surcharge_checked ""
+set surcharge_perc ""
+if {[info exists default_surcharge_perc]} { set surcharge_perc $default_surcharge_perc }
+if {"" == $surcharge_perc} { set surcharge_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultSurchargePercentage" "" "10.0"] }
+if {[info exists default_surcharge_percentage]} { set surcharge_perc $default_surcharge_percentage }
+set surcharge_msg [lang::message::lookup "" intranet-invoices.Surcharge_Msg "Rush Surcharge %surcharge_perc%%"]
+
+# Discount
+set discount_checked ""
+set discount_perc ""
+if {[info exists default_discount_perc]} { set discount_perc $default_discount_perc }
+if {"" == $discount_perc} { set discount_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultDiscountPercentage" "" "10.0"] }
+if {[info exists default_discount_percentage]} { set discount_perc $default_discount_percentage }
+
+set discount_msg [lang::message::lookup "" intranet-invoices.Discount_Msg "Discount %discount_perc%%"]
+set submit_msg [lang::message::lookup "" intranet-invoices.Add_Discount_Surcharge_Lines "Add Discount/Surcharge Lines"]
+
 
 
 # ---------------------------------------------------------------------
