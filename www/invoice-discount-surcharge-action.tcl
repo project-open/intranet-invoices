@@ -38,7 +38,8 @@ foreach i [array names line_perc] {
 
     set name $line_desc($i)
     set percentage $line_perc($i)
-    set amount_line $line_amount($i)
+    set amount_line ""
+    if {[info exists line_amount($i)]} { set amount_line $line_amount($i) }
 
     if { "" == [string trim $percentage] && "" == [string trim $amount_line]  } {
 	continue
