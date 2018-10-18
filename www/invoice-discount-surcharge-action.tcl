@@ -20,8 +20,8 @@ ad_page_contract {
     line_amount:array,optional
 }
 
-set user_id [auth::require_login]
-if {![im_permission $user_id add_invoices]} {
+set current_user_id [auth::require_login]
+if {![im_permission $current_user_id add_invoices]} {
     ad_return_complaint 1 "<li>You have insufficient privileges to see this page"
     return
 }
