@@ -417,7 +417,8 @@ if {[regexp {(.*)\.([_a-zA-Z]*)\.([a-zA-Z][a-zA-Z][a-zA-Z])} $invoice_template m
 }
 set invoice_template_type [string tolower $invoice_template_type]
 
-if {$locale in [lang::system::get_locales]} {
+set two_letter_locales [db_list two_letter_locales "select substring(locale for 2) from ad_locales where enabled_p = 't'"]
+if {$locale in $two_letter_locales || $locale in [lang::system::get_locales]} {
     # Locale is part of the system locales - OK
 } else {
     # invalid locale - revert to the user's locale
