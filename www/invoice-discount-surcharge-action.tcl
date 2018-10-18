@@ -67,6 +67,7 @@ foreach i [array names line_perc] {
 
     set type_id ""
     set material_id ""
+    set new_project_id ""
     set sort_order [db_string sort_order "select 10 + max(sort_order) from im_invoice_items where invoice_id = :invoice_id" -default ""]
     if {"" == $sort_order} { set sort_order 0 }
 
