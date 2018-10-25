@@ -147,6 +147,7 @@ create table im_invoice_items (
 		unique (invoice_id, item_name, coalesce(sort_order, -1), item_uom_id)
 );
 
+create index im_invoice_items_invoice_idx on im_invoice_items(invoice_id);
 
 
 ---------------------------------------------------------
