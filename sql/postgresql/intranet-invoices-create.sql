@@ -239,7 +239,7 @@ begin
 	select	item_name
 	into	v_name
 	from	im_invoice_items
-	where	item_ = p_invoice_item_id;
+	where	item_id = p_invoice_item_id;
 
 	return v_name;
 end; $body$ language 'plpgsql';
