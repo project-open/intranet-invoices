@@ -315,9 +315,7 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="100%">
 <tr valign="top">
-<td>
-	<%= [im_component_bay left] %>
-</td>
+<td>&nbsp;</td>
 <td align="right">
   <table cellpadding="1" cellspacing="2" border="0">
     @item_list_html;noquote@
@@ -330,16 +328,13 @@
 </td></tr>
 </table>
 
-
-<if @show_components_p@>	
-	<table cellpadding="5" cellspacing="5" border="0">
-	<tr>
-	<td><%=[im_component_insert "Filestorage Financial Document"]%></td>
-	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-	<td><%=[im_component_insert "Invoice Notes"]%></td>
+<if @show_components_p@>
+    <%= [im_component_bay top] %>
+    <table width="100%">
+	<tr valign="top">
+	    <td width="50%"><%= [im_component_bay left] %></td>
+	    <td width="50%"><%= [im_component_bay right] %></td>
 	</tr>
-	</table>
-	
-	<%= [im_component_insert "Audit Trail Invoices"]%>
-	<%= [im_component_bay bottom] %>
+    </table>
+    <%= [im_component_bay bottom] %>
 </if>

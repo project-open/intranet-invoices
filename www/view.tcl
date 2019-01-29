@@ -70,7 +70,10 @@ proc encodeXmlValue {value} {
 # ---------------------------------------------------------------
 
 # Get user parameters
-set user_id [auth::require_login]
+set current_user_id [auth::require_login]
+set user_id $current_user_id
+set user_admin_p [im_is_user_site_wide_or_intranet_admin $current_user_id]
+
 set user_locale [lang::user::locale]
 set locale $user_locale
 set page_title ""
