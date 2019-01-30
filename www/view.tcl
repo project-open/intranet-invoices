@@ -72,7 +72,6 @@ proc encodeXmlValue {value} {
 # Get user parameters
 set current_user_id [auth::require_login]
 set user_id $current_user_id
-set user_admin_p [im_is_user_site_wide_or_intranet_admin $current_user_id]
 
 set user_locale [lang::user::locale]
 set locale $user_locale
@@ -706,6 +705,10 @@ if {$wf_case_p} {
     set write 0
     set admin 0
 }
+
+# user_admin_p is used by the "Object Member Portlet" to determine
+# if the current_user can add new members to the object etc
+set user_admin_p $write
 
 
 # ---------------------------------------------------------------
@@ -1390,5 +1393,3 @@ if {$document_po_p} {
 if {"" != $err_mess} {
     set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
 }
-
-set admin_p 1
