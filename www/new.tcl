@@ -50,6 +50,10 @@ set user_is_admin_p [im_user_is_admin_p $user_id]
 
 set default_cost_status_id [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultStatusId" -default [im_cost_status_created]]
 
+set default_empty_invoice_item_lines [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultEmptyItemLines" -default 4]
+
+
+
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {
     ad_returnredirect [export_vars -base "new-copy" {invoice_id cost_type_id}]
@@ -482,7 +486,7 @@ if {$invoice_mode eq "new"} {
 # Add some empty new lines for editing purposes
 # ---------------------------------------------------------------
 
-for {set i 0} {$i < 3} {incr i} {
+for {set i 0} {$i < $default_empty_invoice_item_lines} {incr i} {
     
     append task_sum_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
     append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$ctr'></td>\n"
