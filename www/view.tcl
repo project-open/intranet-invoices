@@ -140,7 +140,7 @@ if {!$invoice_p} {
 set internal_tax_id ""
 
 # Number formats
-set cur_format [im_l10n_sql_currency_format]
+set cur_format [im_l10n_sql_currency_format -style separators]
 set vat_format $cur_format
 set tax_format $cur_format
 
@@ -328,6 +328,7 @@ db_foreach related_projects $related_projects_sql {
 set rel_project_id 0
 if {1 == [llength $related_projects]} {
     set rel_project_id [lindex $related_projects 0]
+    set related_project_names [lindex $related_project_names 0]
 }
 
 
