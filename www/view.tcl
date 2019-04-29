@@ -952,7 +952,7 @@ db_foreach invoice_items {} {
 	    regexp -nocase {@(.*?)@} $line var_to_be_escaped
 	    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
-	    lappend vars_escaped $var_to_be_escaped
+	    # lappend vars_escaped $var_to_be_escaped
 	    if { "" != $var_to_be_escaped  } {
 		set value [eval "set value \"$$var_to_be_escaped\""]
 
@@ -1167,6 +1167,8 @@ if {"odt" eq $render_template_type} {
     # Escaping other vars used, skip vars already escaped for multiple lines
     ns_log Notice "intranet-invoices-www-view:: Now escaping all other vars used in template"
     set lines [split $odt_template_content \n]
+    set vars_already_escaped {item_name item_units_pretty item_uom price_per_unit amount_formatted}
+
     foreach line $lines {
 	ns_log Notice "intranet-invoices-www-view:: Line: $line"
 	set var_to_be_escaped ""
@@ -1174,13 +1176,14 @@ if {"odt" eq $render_template_type} {
 	regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
 	ns_log Notice "intranet-invoices-www-view:: var_to_be_escaped: $var_to_be_escaped"
-	if { -1 == [lsearch $vars_escaped $var_to_be_escaped] } {
+	if { -1 == [lsearch $vars_already_escaped $var_to_be_escaped] } {
 	    if { "" != $var_to_be_escaped  } {
 		if { [info exists $var_to_be_escaped] } {
 		    set value [eval "set value \"$$var_to_be_escaped\""]
 		    ns_log Notice "intranet-invoices-www-view:: Other vars - Value: $value"
 		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
 		    eval $cmd
+		    lappend vars_already_escaped $var_to_be_escaped
 		}
 	    }
 	} else {
