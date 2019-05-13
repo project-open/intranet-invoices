@@ -380,6 +380,7 @@ set query "
 	select
 		c.*,
 		i.*,
+		now()::date as todays_date,
 		ci.effective_date::date + ci.payment_days AS due_date,
 		ci.effective_date AS invoice_date,
 		ci.cost_status_id AS invoice_status_id,
@@ -661,6 +662,7 @@ if {"odt" == $render_template_type} {
 
 set invoice_date_pretty [lc_time_fmt $invoice_date "%x" $locale]
 set calculated_due_date_pretty [lc_time_fmt $calculated_due_date "%x" $locale]
+set todays_date_pretty [lc_time_fmt $todays_date "%x" $locale]
 
 set invoice_period_start_pretty [lc_time_fmt $invoice_period_start "%x" $locale]
 set invoice_period_end_pretty [lc_time_fmt $invoice_period_end "%x" $locale]
