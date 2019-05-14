@@ -61,6 +61,7 @@
             <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="UseInvoiceNrTypePrefixP"  default="0" description="Specifies if a prefix (I for Invoices, B for Bills, Q for Quotes and P for Purchase Orders) should be used for differentiating the counter for different types of financial documents. Use &quot;0&quot; for compatibility with versions before 3.0.0.8 or &quot;1&quot; otherwise. You might want to change the numeration at the end of a month or even at the end of a year."/>
             <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="NewInvoiceDefaultStatusId"  default="3802" description="What is the default status of new financial documents? Default is 3802 for 'created'."/>
             <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="NewInvoiceDefaultEmptyItemLines"  default="3" description="Number of empty lines to show below the existing lines when creating or editing a financial document. Default is 3, but 10 would also be reasonable..."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="InvoicesRedirectPackageUrl" default="" description="Use a custom implementation of basic financial document management? Default is '' (empty string), in order to use the standard implementation. A value of '/intranet-cust-custname/invoices' would redirect to a custom implementation in ~/packages/intranet-cust-custname/www/invoices/."/>
         </parameters>
 
     </version>
