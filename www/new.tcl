@@ -49,10 +49,18 @@ set org_invoice_id $invoice_id
 set user_is_admin_p [im_user_is_admin_p $user_id]
 
 set default_cost_status_id [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultStatusId" -default [im_cost_status_created]]
-
 set default_empty_invoice_item_lines [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultEmptyItemLines" -default 4]
 
 
+# Custom redirect? Only here in "page mode"
+set redirect_package_url [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectPackageUrl" -default ""]
+if {"" != $redirect_package_url} {
+    set form_vars [ns_conn form]
+    if {"" == $form_vars} { set form_vars [ns_set create] }
+    set var_list [ns_set array $form_vars]
+    set redirect_url [export_vars -base "$redirect_package_url/new" $var_list]
+    ad_returnredirect $redirect_url
+}
 
 # Check if we have to forward to "new-copy":
 if {"" != $create_invoice_from_template} {

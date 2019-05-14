@@ -1,4 +1,4 @@
-<master src="../../intranet-core/www/master">
+<master>
 <property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">finance</property>
 <property name="sub_navbar">@sub_navbar;literal@</property>

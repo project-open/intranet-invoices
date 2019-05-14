@@ -39,6 +39,16 @@ if {![info exists task]} {
     set task_id 0
     set case_id 0
 
+    # Custom redirect? Only here in "page mode"
+    set redirect_package_url [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectPackageUrl" -default ""]
+    if {"" != $redirect_package_url} {
+	set form_vars [ns_conn form]
+	if {"" == $form_vars} { set form_vars [ns_set create] }
+	set var_list [ns_set array $form_vars]
+	set redirect_url [export_vars -base "$redirect_package_url/view" $var_list]
+	ad_returnredirect $redirect_url
+    }
+
 } else {
     
     set show_components_p 0
