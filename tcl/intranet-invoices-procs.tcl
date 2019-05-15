@@ -463,7 +463,13 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 	if {$write} {
 	    append object_list_html "<td><input type=checkbox name=object_ids.$object_id></td>\n"
 	}
-	append object_list_html "<td><A href=\"$url$object_id$extra_url\">$object_name</A></td>\n"
+	set main_project_url [export_vars -base "/intranet/projects/view" {{project_id $main_project_id}}]
+	append object_list_html "<td>"
+	append object_list_html "<a href=\"$url$object_id$extra_url\" target=_>$object_name</a>"
+	if {$object_id ne $main_project_id} {
+	    append object_list_html "(<a href=\"$main_project_url\" target=_>[acs_object_name $main_project_id]</a>)"
+	}
+	append object_list_html "</td>\n"
 	append object_list_html "</tr>\n"
 	incr ctr
     }
