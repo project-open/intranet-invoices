@@ -355,6 +355,10 @@ if {1 == [llength $related_projects]} {
 set related_main_projects [lsort [array names related_main_projects_hash]]
 set related_main_project_nrs [lsort [array names related_main_project_nrs_hash]]
 set related_main_project_names [lsort [array names related_main_project_names_hash]]
+if {1 == [llength $related_main_projects]} {
+    set related_main_project_nrs [lindex $related_main_project_nrs 0]
+    set related_main_project_names [lindex $related_main_project_names 0]
+}
 
 
 # ---------------------------------------------------------------
