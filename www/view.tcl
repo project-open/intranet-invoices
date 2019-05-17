@@ -326,6 +326,8 @@ db_foreach related_projects $related_projects_sql {
 	append related_project_descriptions ", $description"
     }
 
+    set main_project_nr [string trim $main_project_nr]
+    set main_project_name [string trim $main_project_name]
     set related_main_projects_hash($main_project_id) $main_project_id
     set related_main_project_nrs_hash($main_project_nr) $main_project_nr
     set related_main_project_names_hash($main_project_name) $main_project_name
