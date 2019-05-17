@@ -290,13 +290,18 @@ set related_projects_sql "
 		p.project_nr,
 		p.parent_id,
 		p.description,
-		trim(both p.company_project_nr) as customer_project_nr
+		trim(both p.company_project_nr) as customer_project_nr,
+		main_p.project_id as main_project_id,
+		main_p.project_nr as main_project_nr,
+		main_p.project_name as main_project_name
 	from
 	        acs_rels r,
-		im_projects p
+		im_projects p,
+		im_projects main_p
 	where
-		r.object_id_one = p.project_id
-	        and r.object_id_two = :invoice_id
+		r.object_id_one = p.project_id and
+	        r.object_id_two = :invoice_id and
+		tree_root_key(p.tree_sortkey) = main_p.tree_sortkey
 "
 
 set related_projects {}
@@ -321,6 +326,10 @@ db_foreach related_projects $related_projects_sql {
 	append related_project_descriptions ", $description"
     }
 
+    set related_main_projects_hash($main_project_id) $main_project_id
+    set related_main_project_nrs_hash($main_project_nr) $main_project_nr
+    set related_main_project_names_hash($main_project_name) $main_project_name
+
     # Check of the "customer project nr" of the superproject, as the PMs
     # are probably too lazy to maintain it in the subprojects...
     set cnt 0
@@ -340,6 +349,10 @@ if {1 == [llength $related_projects]} {
     set rel_project_id [lindex $related_projects 0]
     set related_project_names [lindex $related_project_names 0]
 }
+
+set related_main_projects [lsort [array names related_main_projects_hash]]
+set related_main_project_nrs [lsort [array names related_main_project_nrs_hash]]
+set related_main_project_names [lsort [array names related_main_project_names_hash]]
 
 
 # ---------------------------------------------------------------
