@@ -126,6 +126,16 @@ set document_provider_doc_p [im_category_is_a $cost_type_id [im_cost_type_provid
 # Redirect to other page if this is not an invoice
 # ---------------------------------------------------------------
 
+# Custom redirection by cost_type
+set redirect_cost_type_list [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectPackageUrl" -default {3741 "/intranet-cust-fttx/construction-estimates/view"}]
+array set redirect_cost_type_hash $redirect_cost_type_list
+if {[info exists redirect_cost_type_hash($cost_type_id)]} {
+    set base_url $redirect_cost_type_hash($cost_type_id)
+    set redirect_url [export_vars -base $base_url {invoice_id return_ur}]
+    ad_returnredirect $redirect_url
+}
+
+# What to do if this is not an invoice (but another cost type...)
 set invoice_p [db_string invoice_p "select count(*) from im_invoices where invoice_id = :invoice_id"]
 if {!$invoice_p} {
     # This tends to happen in error situations.
