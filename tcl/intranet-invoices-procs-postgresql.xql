@@ -13,15 +13,16 @@
 		) as main_project_id,
 		u.url
 	from
-	        acs_objects o
-		LEFT OUTER JOIN im_projects p ON (o.object_id = p.project_id),
+	        acs_objects o,
+		im_projects p,
 	        acs_rels r,
 		im_biz_object_urls u
 	where
 	        r.object_id_one = o.object_id and
 	        r.object_id_two = :invoice_id and
 		u.object_type = o.object_type and
-		u.url_type = 'view'
+		u.url_type = 'view' and
+		o.object_id = p.project_id
    </querytext>
 </fullquery>
 </queryset>
