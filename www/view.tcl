@@ -127,7 +127,7 @@ set document_provider_doc_p [im_category_is_a $cost_type_id [im_cost_type_provid
 # ---------------------------------------------------------------
 
 # Custom redirection by cost_type
-set redirect_cost_type_list [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectPackageUrl" -default {3741 "/intranet-cust-fttx/construction-estimates/view"}]
+set redirect_cost_type_list [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectCostTypeUrlMap" -default {3741 "/intranet-cust-fttx/construction-estimates/view"}]
 array set redirect_cost_type_hash $redirect_cost_type_list
 if {[info exists redirect_cost_type_hash($cost_type_id)]} {
     set base_url $redirect_cost_type_hash($cost_type_id)
