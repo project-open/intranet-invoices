@@ -448,7 +448,10 @@ if {$invoice_mode eq "new"} {
     db_foreach invoice_item "" {
 
 	append task_sum_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
-	append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$sort_order'></td>\n"
+	append task_sum_html "<td>
+		<input type=hidden name=item_id.$ctr value='$item_id'>
+		<input type=text name=item_sort_order.$ctr size=2 value='$sort_order'>
+	</td>\n"
 
 	if {$outline_number_enabled_p} {
 	    append task_sum_html "<td><input type=text name=item_outline_number.$ctr size=10 value='$item_outline_number'></td>\n"
@@ -478,9 +481,9 @@ if {$invoice_mode eq "new"} {
 	  </td>
           <td align=right>
 	    <nobr><input type=text name=item_rate.$ctr size=7 value='$price_per_unit'>[im_currency_select item_currency.$ctr $currency]</nobr>
+	    <input type=hidden name=item_project_id.$ctr value='$project_id'>
 	  </td>
         </tr>
-	<input type=hidden name=item_project_id.$ctr value='$project_id'>
 	"
 	if { [info exists item_source_invoice_id] } {
 	    append task_sum_html " <input type=hidden name=source_invoice_id.$ctr value='$item_source_invoice_id'>"
@@ -530,9 +533,9 @@ for {set i 0} {$i < $default_empty_invoice_item_lines} {incr i} {
           <td align=right>
             <!-- rate and currency need to be together so that the line doesn't break -->
 	    <nobr><input type=text name=item_rate.$ctr size=7 value='0'>[im_currency_select item_currency.$ctr $invoice_currency]</nobr>
+	    <input type=hidden name=item_project_id.$ctr value=''>
 	  </td>
         </tr>
-	<input type=hidden name=item_project_id.$ctr value=''>
     "
 
     incr ctr

@@ -40,6 +40,7 @@ ad_page_contract {
     item_sort_order:array,integer
     item_outline_number:array,optional
     item_name:array
+    item_id:integer,array
     item_units:float,array
     item_uom_id:integer,array
     item_type_id:integer,array
@@ -349,19 +350,14 @@ if {$canned_note_enabled_p} {
 # Create the im_invoice_items for the invoice
 # ---------------------------------------------------------------
 
-# Delete the old items if they exist
+set db_item_ids [db_list db_item_ids "select item_id from im_invoice_items where invoice_id = :invoice_id"]
+set form_item_nrs [array names item_name]
 
-set item_ids [db_list item_ids "select item_id from im_invoice_items where invoice_id = :invoice_id"]
-foreach item_id $item_ids {
-    db_string del_invoice_item "select im_invoice_item__delete(:item_id)"
-}
-
-set item_list [array names item_name]
 
 if {![parameter::get -package_id [apm_package_id_from_key intranet-invoices] -parameter "AllowDuplicateInvoiceItemNames" -default 0] && !$outline_number_exists_p} {
     # sanity check for double item names
     set name_list [list]
-    foreach nr $item_list {
+    foreach nr $form_item_nrs {
 	if {!("" == [string trim $item_name($nr)] && (0 == $item_units($nr) || "" == $item_units($nr)))} {
 	    if { -1 != [lsearch $name_list $item_name($nr)] } {
 		ad_return_complaint 1 "Found duplicate invoice item: $item_name($nr)<br>
@@ -375,70 +371,84 @@ if {![parameter::get -package_id [apm_package_id_from_key intranet-invoices] -pa
     }
 }
 
-
-foreach nr $item_list {
+set form_item_ids {}
+foreach nr $form_item_nrs {
+    set sort_order $item_sort_order($nr)
     set name $item_name($nr)
     set units $item_units($nr)
     set uom_id $item_uom_id($nr)
     set type_id $item_type_id($nr)
     set material_id $item_material_id($nr)
-    if { [info exists source_invoice_id($nr)] } {
-	set item_source_invoice_id $source_invoice_id($nr)     
-    } else {
-	set item_source_invoice_id ""
-    }
-    set project_id_item $item_project_id($nr)   
-    # project_id is empty when document is created from scratch
-    # project_id is required for grouped invoice items 
-    if { ""==$project_id_item } { set project_id_item $project_id }
-
     set rate $item_rate($nr)
-    set sort_order $item_sort_order($nr)
-    set outline_number ""
-    if {[info exists item_outline_number($nr)]} {
-	set outline_number $item_outline_number($nr)
-    }
     set task_id $item_task_id($nr)
     
+    if {[info exists item_id($nr)]} { set id $item_id($nr) } else { set id "" }
+    if {[info exists source_invoice_id($nr)]} { set item_source_invoice_id $source_invoice_id($nr) } else { set item_source_invoice_id "" }
+    if {[info exists item_outline_number($nr)]} { set outline_number $item_outline_number($nr) } else { set outline_number "" }
+
+    # project_id is empty when document is created from scratch
+    # project_id is required for grouped invoice items 
+    set project_id_item $item_project_id($nr)   
+    if {"" == $project_id_item } { set project_id_item $project_id }
+
     ns_log Notice "item($nr, $name, $units, $uom_id, $project_id, $rate)"
     ns_log Notice "KHD: Now creating invoice item: item_name: $name, invoice_id: $invoice_id, project_id: $project_id, sort_order: $sort_order, outline_number: $outline_number, item_uom_id: $uom_id"
 
-    # Insert only if it's not an empty line from the edit screen
-    if {!("" == [string trim $name] && (0 == $units || "" == $units))} {
+    # Skip if invalid data
+    if {"" == [string trim $name] || 0 == $units || "" == $units} { continue }
 
-	if { ![info exists source_invoice_id] } {
-		set source_invoice_id -1
-	}
+    # Keep track on valid entries in the form, for deleting below
+    lappend form_item_ids $id
 
-	set item_id [db_string new_invoice_item "select im_invoice_item__new(
+    # Create or update?
+    if {"" eq $id} {
+	ns_log Notice "new-2: Creating a new invoice item: id=$id, sort_order=%sort_order, name=$name"
+	set id [db_string new_invoice_item "select im_invoice_item__new(
 			null, 'im_invoice_item', now(), :current_user_id, '[ad_conn peeraddr]', null,
 			:name, :invoice_id, :sort_order,
 			:units, :uom_id, :rate, :invoice_currency,
 			[im_invoice_item_type_default], [im_invoice_item_status_active]
 	)"]
+    }
+    ns_log Notice "new-2: Updating invoice item: id=$id, sort_order=%sort_order, name=$name"
+    db_dml update_new_invoice_item "
+	update im_invoice_items set
+		item_name = :name,
+		sort_order = :sort_order,
+		item_units = :units,
+		item_uom_id = :uom_id,
+		price_per_unit = :rate,
+		currency = :invoice_currency,		
+		project_id = :project_id,
+		item_material_id = :material_id,
+		task_id = :task_id,
+		item_source_invoice_id = :item_source_invoice_id
+	where item_id = :id
+    "
 
-	db_dml update_new_invoice_item "
-		    	update im_invoice_items set
-			       		project_id = :project_id,
-			       		item_material_id = :material_id,
-			       		task_id = :task_id,
-					item_source_invoice_id = :item_source_invoice_id
-			where item_id = :item_id
-	"
+    if {$outline_number_exists_p} {
+	db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :item_id"
+    }
 
-	if {$outline_number_exists_p} {
-	    db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :item_id"
-	}
+    # invoice_items are now objects, so we can audit them.
+    ns_log Notice "new-2: Audit item: id=$id, sort_order=%sort_order, name=$name"
+    im_audit -object_id $id
+}
 
-	# ToDo: 2018-05-30: Do audit, now that invoice_items are objects.
-	# However, we'd first have to change the algorithm to
-	# compare edited with database items.
 
-	# Don't audit the update/creation of invoice items!
-	# That would be too much, and we re-create them, so
-	# audit doesn't make much sense...
+
+# ---------------------------------------------------------------
+# Delete those items that are in the DB but not in the form anymore
+# ---------------------------------------------------------------
+
+foreach id $db_item_ids {
+    if {!($id in $form_item_ids)} {
+	ns_log Notice "new-2: Deleting item: id=$id"
+	db_string del_invoice_item "select im_invoice_item__delete(:id)"
     }
 }
+
+
 
 # ---------------------------------------------------------------
 # Associate the invoice with the project via acs_rels
