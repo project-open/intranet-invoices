@@ -85,11 +85,8 @@ update acs_object_types set
 where object_type = 'im_invoice_item';
 
 
--- Do not show autmatic links to invoice items at the moment.
--- insert into acs_object_type_tables (object_type,table_name,id_column)
--- values ('im_invoice', 'im_invoices', 'invoice_id');
--- insert into acs_object_type_tables (object_type,table_name,id_column)
--- values ('im_invoice', 'im_costs', 'cost_id');
+insert into acs_object_type_tables (object_type, table_name, id_column)
+values ('im_invoice_item', 'im_invoice_items', 'item_id');
 
 
 create table im_invoice_items (
