@@ -500,7 +500,10 @@ if {$invoice_mode eq "new"} {
 for {set i 0} {$i < $default_empty_invoice_item_lines} {incr i} {
     
     append task_sum_html "<tr $bgcolor([expr {$ctr % 2}])>\n"
-    append task_sum_html "<td><input type=text name=item_sort_order.$ctr size=2 value='$ctr'></td>\n"
+    append task_sum_html "<td>
+		<input type=hidden name=item_id.$ctr value=''>
+		<input type=text name=item_sort_order.$ctr size=2 value='$ctr'>
+    </td>\n"
 
     if {$outline_number_enabled_p} {
 	set outline_value ""
