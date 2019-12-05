@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<message_catalog package_key="intranet-invoices" locale="zh_TW" charset="utf-8">
+
+  <msg key="New_Customer_Invoice_from_Delivery_Note">來自發貨通知的新顧客發票</msg>
+  <msg key="New_Customer_Invoice_from_scratch">New Customer Invoice from Scratch
+來自Scratch的新顧客發票</msg>
+  <msg key="New_Delivery_Note_from_scratch">來自Scratch的新發貨通知</msg>
+  <msg key="New_Provider_Bill_from_Purchase_Order">來自採購單的新供應商帳單</msg>
+  <msg key="New_Provider_Bill_from_scratch">New Provider Bill from Scratch
+來自Scratch的新供應商帳單</msg>
+  <msg key="New_Purchase_Order_from_scratch">來自Scratch的新採購單</msg>
+  <msg key="Timesheet_Customers_and_Projects">專案和顧客的工時單</msg>
+  <msg key="Timesheet_Productivity">生產率工時單</msg>
+  <msg key="Timesheet_Project_Hierarchy___Finance">專案層次和財務工時單</msg>
+</message_catalog>
