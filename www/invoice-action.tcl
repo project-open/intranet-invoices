@@ -147,6 +147,12 @@ switch $invoice_action {
 	    im_audit -object_id $cost_id -action before_nuke
 
 	    if {[im_table_exists im_rule_logs]} { db_dml rule_logs "delete from im_rule_logs where rule_log_object_id = :cost_id" }
+	    set rels [db_list rels "select rel_id from acs_rels where object_id_one = :cost_id or object_id_two = :cost_id"]
+	    foreach rel_id $rels {
+		db_dml del_rels "delete from im_biz_object_members where rel_id = :rel_id"
+		db_dml del_rels "delete from acs_rels where rel_id = :rel_id"
+		db_dml del_rels "delete from acs_objects where object_id = :rel_id"
+	    }
 
 	    db_string delete_cost_item ""
 	}
