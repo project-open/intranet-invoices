@@ -40,7 +40,7 @@ ad_page_contract {
     item_sort_order:array,integer
     item_outline_number:array,optional
     item_name:array
-    item_id:integer,array
+    item_id:integer,array,optional
     item_units:float,array
     item_uom_id:integer,array
     item_type_id:integer,array
