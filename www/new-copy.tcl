@@ -133,8 +133,13 @@ if { "" == $project_id || ![info exists project_id] } {
 
 # ---------------------------------------------------------------
 
-set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
-set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+# set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
+# set provider_select [im_company_select provider_id $provider_id "" "Provider"]
+
+set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} customer_id $customer_id "" "CustOrIntl"]
+set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} provider_id $provider_id "" "Provider"]
+
+
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill
@@ -147,10 +152,12 @@ set invoice_or_quote_p [im_cost_type_is_invoice_or_quote_p $target_cost_type_id]
 set invoice_or_bill_p [im_cost_type_is_invoice_or_bill_p $target_cost_type_id]
 
 if {$invoice_or_quote_p} {
+    set ajax_company_widget "customer_id"
     set company_id $customer_id
     set company_type [_ intranet-core.Customer]
     set company_select $customer_select
 } else {
+    set ajax_company_widget "provider_id"
     set company_id $provider_id
     set company_type [_ intranet-core.Provider]
     set company_select $provider_select
