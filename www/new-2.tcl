@@ -427,7 +427,7 @@ foreach nr $form_item_nrs {
     "
 
     if {$outline_number_exists_p} {
-	db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :item_id"
+	db_dml outline "update im_invoice_items set item_outline_number = :outline_number where item_id = :id"
     }
 
     # invoice_items are now objects, so we can audit them.
