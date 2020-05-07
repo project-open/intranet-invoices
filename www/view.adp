@@ -231,14 +231,25 @@
 	</tr>
 
 	<tr>
-          <td class=roweven>#intranet-invoices.cost_type_type_1#</td>
-          <td class=roweven>@cost_type@</td>
+          <td class=rowodd>#intranet-invoices.cost_type_type_1#</td>
+          <td class=rowodd>@cost_type@</td>
         </tr>
 
         <tr> 
-          <td class=rowodd>#intranet-invoices.cost_type_status#:</td>
-          <td class=rowodd>@cost_status@</td>
+          <td class=roweven>#intranet-invoices.cost_type_status#:</td>
+          <td class=roweven>@cost_status@</td>
         </tr>
+
+<if @timesheet_invoice_p@>
+        <tr>
+          <td class=rowodd><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_Start "Invoice Period Start"] %>:</td>
+          <td class=rowodd>@invoice_period_start_pretty@</td>
+        </tr>
+        <tr>
+          <td class=roweven><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_Start "Invoice Period End"] %>:</td>
+          <td class=roweven>@invoice_period_end_pretty@</td>
+        </tr>
+</if>
 
 	<tr><td colspan="2" align="right">
 <if @write@>

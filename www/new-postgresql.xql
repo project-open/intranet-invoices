@@ -38,9 +38,13 @@
 		c.default_vat as company_vat,
 		c.default_invoice_template_id as company_template_id,
 		p.company_name as provider_name,
-		p.company_path as provider_short_name
+		p.company_path as provider_short_name,
+		ti.invoice_period_start::date as invoice_period_start_pretty,
+		ti.invoice_period_end::date as invoice_period_end_pretty,
+		(select object_type from acs_objects o where o.object_id = i.invoice_id) as object_type
 	from
-		im_invoices i, 
+		im_invoices i
+		LEFT OUTER JOIN im_timesheet_invoices ti ON (i.invoice_id = ti.invoice_id),
 		im_costs ci
 		LEFT JOIN im_companies c ON ci.customer_id = c.company_id
 		LEFT JOIN im_companies p ON ci.provider_id = p.company_id

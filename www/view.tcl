@@ -432,7 +432,8 @@ set query "
 		im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 		im_category_from_id(ci.cost_status_id) as cost_status,
 		im_category_from_id(ci.cost_type_id) as cost_type,
-		im_category_from_id(ci.template_id) as invoice_template
+		im_category_from_id(ci.template_id) as invoice_template,
+		(select object_type from acs_objects o where o.object_id = i.invoice_id) as object_type
 	from
 		im_invoices i,
 		im_costs ci,
@@ -493,15 +494,21 @@ set render_template_type [string tolower $render_template_type]
 
 set invoice_period_start ""
 set invoice_period_end ""
+set invoice_period_start_pretty ""
+set invoice_period_end_pretty ""
 set timesheet_invoice_p 0
 
-set query "
+if {"im_timesheet_invoice" eq $object_type} {
+    set query "
 	select	ti.*,
 		1 as timesheet_invoice_p
 	from	im_timesheet_invoices ti
 	where 	ti.invoice_id = :invoice_id
-"
-catch { db_1row timesheet_invoice_info_query $query } err_msg
+    "
+    if {[catch { db_1row timesheet_invoice_info_query $query } err_msg]} {
+        ad_return_complaint 1 "<pre>$err_msg</pre>"
+    }
+}
 
 
 # ---------------------------------------------------------------

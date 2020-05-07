@@ -51,6 +51,7 @@ set user_is_admin_p [im_user_is_admin_p $user_id]
 set default_cost_status_id [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultStatusId" -default [im_cost_status_created]]
 set default_empty_invoice_item_lines [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "NewInvoiceDefaultEmptyItemLines" -default 4]
 
+set timesheet_invoice_p 0
 
 # Custom redirect? Only here in "page mode"
 set redirect_package_url [parameter::get_from_package_key -package_key "intranet-invoices" -parameter "InvoicesRedirectPackageUrl" -default ""]
@@ -236,6 +237,9 @@ if {$invoice_id} {
 
     db_1row invoices_info_query ""
     
+    # Is this a timesheet invoice? In that case show the start- and end of the billing period
+    if {"im_timesheet_invoice" eq $object_type} { set timesheet_invoice_p 1 }
+
     # Canned Notes is a field with multiple messages per invoice
     if {$canned_note_enabled_p} {
 	    set canned_note_id [db_list canned_notes "

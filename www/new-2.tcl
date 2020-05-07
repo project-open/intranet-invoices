@@ -25,6 +25,8 @@ ad_page_contract {
     cost_status_id:integer 
     cost_type_id:integer
     cost_center_id:integer
+    { invoice_period_start "" }
+    { invoice_period_end "" }
     { payment_days:integer ""}
     { payment_method_id:integer "" }
     template_id:integer
@@ -315,6 +317,14 @@ set
 	paid_currency	= :invoice_currency
 where
 	cost_id = :invoice_id
+"
+
+
+db_dml update_timesheet_invoices "
+	update im_timesheet_invoices set
+		invoice_period_start = :invoice_period_start,
+		invoice_period_end = :invoice_period_end
+	where invoice_id = :invoice_id
 "
 
 if {$canned_note_enabled_p} {

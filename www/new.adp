@@ -152,6 +152,23 @@ function ajaxFunction() {
 	          <td class=roweven>@type_select;noquote@</td>
 	        </tr>
 
+
+<if @timesheet_invoice_p@>
+	        <tr>
+	          <td class=rowodd><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_Start "Invoice Period Start"] %>:</td>
+	          <td class=rowodd>
+			<input type="text" name="invoice_period_start" size="15" value='@invoice_period_start_pretty@'>
+		  </td>
+	        </tr>
+	        <tr>
+	          <td class=roweven><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_Start "Invoice Period End"] %>:</td>
+	          <td class=roweven>
+			<input type="text" name="invoice_period_end" size="15" value='@invoice_period_end_pretty@'>
+		  </td>
+	        </tr>
+</if>
+
+
         </table>
 
       </td>
