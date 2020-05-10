@@ -234,7 +234,7 @@ if {[im_user_is_admin_p $user_id]} { set wf_case_p 0 }
 if {[catch {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
 } err_msg]} {
-    ns_log Error "intranet-invoices/view: im_audit: Error action: 'before update' for invoice_id: $invoice_id"
+    ns_log Error "intranet-invoice/view: im_audit: Error action: 'before update' for invoice_id: $invoice_id"
 }
 
 # ---------------------------------------------------------------
@@ -622,7 +622,7 @@ if {"odt" == $render_template_type} {
     # ------------------------------------------------
     # Create a temporary directory for our contents
     set odt_tmp_path [ad_tmpnam]
-    ns_log Notice "intranet-invoices/view: odt_tmp_path=$odt_tmp_path"
+    ns_log Notice "intranet-invoice/view: odt_tmp_path=$odt_tmp_path"
     ns_mkdir $odt_tmp_path
 
     # The document
@@ -635,7 +635,7 @@ if {"odt" == $render_template_type} {
 
     # Determine the location of the template
     set invoice_template_path "$invoice_template_base_path/$invoice_template"
-    ns_log Notice "intranet-invoices/view: invoice_template_path='$invoice_template_path'"
+    ns_log Notice "intranet-invoice/view: invoice_template_path='$invoice_template_path'"
 
     # Create a copy of the template into the temporary dir
     ns_cp $invoice_template_path $odt_zip
@@ -656,11 +656,9 @@ if {"odt" == $render_template_type} {
     # be repeated for every template.
 
     # Get the list of all "tables" in the document
-    ns_log Notice "intranet-invoices/view: dom parse '$odt_template_content'"
     set odt_doc [dom parse $odt_template_content]
     set root [$odt_doc documentElement]
     set odt_table_nodes [$root selectNodes "//table:table"]
-    ns_log Notice "intranet-invoices/view: odt_table_nodes=$odt_table_nodes"
 
     # Search for the table that contains "@item_name_pretty"
     set odt_template_table_node ""
@@ -668,7 +666,6 @@ if {"odt" == $render_template_type} {
 	set table_as_list [$table_node asList]
 	if {[regexp {item_units_pretty} $table_as_list match]} { set odt_template_table_node $table_node }
     }
-    ns_log Notice "intranet-invoices/view: odt_template_table_node=$odt_template_table_node"
 
     # Deal with the the situation that we didn't find the line
     if {"" == $odt_template_table_node} {
@@ -690,7 +687,6 @@ if {"odt" == $render_template_type} {
 	if {[regexp {item_units_pretty} $row_as_list match]} { set odt_template_row_node $row_node }
 	incr odt_template_row_count
     }
-    ns_log Notice "intranet-invoices/view: odt_template_row_node=$odt_template_row_node"
 
     if {"" == $odt_template_row_node} {
 	ad_return_complaint 1 "
@@ -704,7 +700,6 @@ if {"odt" == $render_template_type} {
 
     # Convert the tDom tree into XML for rendering
     set odt_row_template_xml [$odt_template_row_node asXML]
-    ns_log Notice "intranet-invoices/view: odt_row_template_xml=$odt_row_template_xml"
 }
 
 # ---------------------------------------------------------------
@@ -998,7 +993,7 @@ db_foreach invoice_items {} {
 
     # Insert a new XML table row into OpenOffice document
     if {"odt" == $render_template_type} {
-	ns_log Notice "intranet-invoices/view: Now escaping vars for rows newly added. Row# $ctr"
+	ns_log Notice "intranet-invoice/view: Now escaping vars for rows newly added. Row# $ctr"
 	set lines [split $odt_row_template_xml \n]
 	foreach line $lines {
 	    set var_to_be_escaped ""
@@ -1006,30 +1001,43 @@ db_foreach invoice_items {} {
 	    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
 	    # lappend vars_escaped $var_to_be_escaped
-	    if {"" != $var_to_be_escaped  } {
+	    if { "" != $var_to_be_escaped  } {
 		set value [eval "set value \"$$var_to_be_escaped\""]
 
 		# KH: 160701 - Seems not be required anymore - tested with LibreOffice 5.0.2.2
 		# set value [string map {\[ "\\[" \] "\\]"} $value]
 
-		ns_log Notice "intranet-invoices/view: Escape vars for rows added - Value: $value"
+		ns_log Notice "intranet-invoice/view: Escape vars for rows added - Value: $value"
 		set cmd "set $var_to_be_escaped {[encodeXmlValue $value]}"
-		ns_log Notice "intranet-invoices/view: Escape vars for rows added - cmd: $cmd"
+		ns_log Notice "intranet-invoice/view: Escape vars for rows added - cmd: $cmd"
 		eval $cmd
 	    }
 	}
 
 	set item_uom [lang::message::lookup $locale intranet-core.$item_uom $item_uom]
 	# Replace placeholders in the OpenOffice template row with values
-	ns_log Notice "intranet-invoices/view: odt_row_template_xml=$odt_row_template_xml"
 	eval [template::adp_compile -string $odt_row_template_xml]
 	set odt_row_xml $__adp_output
 
+	# Add a valid xmlns XML NameSpace declaration, otherwise the new version of tDom produces an errors
+	set odt_row_xml "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<office:document-content xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\" xmlns:style=\"urn:oasis:names:tc:opendocument:xmlns:style:1.0\" xmlns:text=\"urn:oasis:names:tc:opendocument:xmlns:text:1.0\" xmlns:table=\"urn:oasis:names:tc:opendocument:xmlns:table:1.0\" xmlns:draw=\"urn:oasis:names:tc:opendocument:xmlns:drawing:1.0\" xmlns:fo=\"urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:meta=\"urn:oasis:names:tc:opendocument:xmlns:meta:1.0\" xmlns:number=\"urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0\" xmlns:svg=\"urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0\" xmlns:chart=\"urn:oasis:names:tc:opendocument:xmlns:chart:1.0\" xmlns:dr3d=\"urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0\" xmlns:math=\"http://www.w3.org/1998/Math/MathML\" xmlns:form=\"urn:oasis:names:tc:opendocument:xmlns:form:1.0\" xmlns:script=\"urn:oasis:names:tc:opendocument:xmlns:script:1.0\" xmlns:ooo=\"http://openoffice.org/2004/office\" xmlns:ooow=\"http://openoffice.org/2004/writer\" xmlns:oooc=\"http://openoffice.org/2004/calc\" xmlns:dom=\"http://www.w3.org/2001/xml-events\" xmlns:xforms=\"http://www.w3.org/2002/xforms\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:rpt=\"http://openoffice.org/2005/report\" xmlns:of=\"urn:oasis:names:tc:opendocument:xmlns:of:1.2\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\" xmlns:grddl=\"http://www.w3.org/2003/g/data-view#\" xmlns:officeooo=\"http://openoffice.org/2009/office\" xmlns:tableooo=\"http://openoffice.org/2009/table\" xmlns:drawooo=\"http://openoffice.org/2010/draw\" xmlns:calcext=\"urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0\" xmlns:loext=\"urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0\" xmlns:field=\"urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0\" xmlns:formx=\"urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0\" xmlns:css3t=\"http://www.w3.org/TR/css3-text/\" office:version=\"1.2\">
+$odt_row_xml
+</office:document-content>
+"
+
 	# Parse the new row and insert into OOoo document
-	ns_log Notice "intranet-invoices/view: dom parse '$odt_row_xml'"
 	set row_doc [dom parse $odt_row_xml]
-	set new_row [$row_doc documentElement]
-	$odt_template_table_node insertBefore $new_row $odt_template_row_node
+	ns_log Notice "intranet-invoice/view: doc_row parsed: [$row_doc asXML]"
+
+	set row_doc_root [$row_doc documentElement]
+
+	set row_table_nodes [$row_doc_root selectNodes "//table:table-row"]
+	set row_table_node ""
+	foreach table_node $row_table_nodes { set row_table_node $table_node }
+
+	ns_log Notice "intranet-invoice/view: row_table_node: [$row_table_node asXML]"
+	$odt_template_table_node insertBefore $row_table_node $odt_template_row_node
 
     }
 
@@ -1187,7 +1195,7 @@ if {"adp" eq $render_template_type} {
 
     if {"html" eq $send_to_user_as} {
 	# Redirect to mail sending page: Add the rendered invoice to the form variables
-	ns_log Notice "intranet-invoices/view: sending email with html attachment"
+	ns_log Notice "intranet-invoice/view: sending email with html attachment"
 	rp_form_put invoice_html $invoices_as_html
 	rp_internal_redirect notify
 	ad_script_abort
@@ -1195,7 +1203,7 @@ if {"adp" eq $render_template_type} {
 
     if {"" eq $send_to_user_as} {
 	# Show invoice using template
-	ns_log Notice "intranet-invoices/view: showing html template"
+	ns_log Notice "intranet-invoice/view: showing html template"
 	db_release_unused_handles
 	ns_return 200 text/html $invoices_as_html
 	ad_script_abort
@@ -1211,7 +1219,7 @@ if {"adp" eq $render_template_type} {
 # Use an ODT template ("invoice_template") to render the preview of this invoice
 if {"odt" eq $render_template_type} {
 
-    ns_log Notice "intranet-invoices/view: odf formatting"
+    ns_log Notice "intranet-invoice/view: odf formatting"
 
     # Delete the original template row, which is duplicate
     $odt_template_table_node removeChild $odt_template_row_node
@@ -1220,29 +1228,29 @@ if {"odt" eq $render_template_type} {
     set odt_template_content [$root asXML -indent 1]
 
     # Escaping other vars used, skip vars already escaped for multiple lines
-    ns_log Notice "intranet-invoices/view: Now escaping all other vars used in template"
+    ns_log Notice "intranet-invoice/view: Now escaping all other vars used in template"
     set lines [split $odt_template_content \n]
     set vars_already_escaped {item_name item_units_pretty item_uom price_per_unit amount_formatted}
 
     foreach line $lines {
-	ns_log Notice "intranet-invoices/view: Line: $line"
+	ns_log Notice "intranet-invoice/view: Line: $line"
 	set var_to_be_escaped ""
 	regexp -nocase {@(.*?)@} $line var_to_be_escaped
 	regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
-	ns_log Notice "intranet-invoices/view: var_to_be_escaped: $var_to_be_escaped"
+	ns_log Notice "intranet-invoice/view: var_to_be_escaped: $var_to_be_escaped"
 	if { -1 == [lsearch $vars_already_escaped $var_to_be_escaped] } {
 	    if { "" != $var_to_be_escaped  } {
 		if { [info exists $var_to_be_escaped] } {
 		    set value [eval "set value \"$$var_to_be_escaped\""]
-		    ns_log Notice "intranet-invoices/view: Other vars - Value: $value"
+		    ns_log Notice "intranet-invoice/view: Other vars - Value: $value"
 		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
 		    eval $cmd
 		    lappend vars_already_escaped $var_to_be_escaped
 		}
 	    }
 	} else {
-	    ns_log Notice "intranet-invoices/view: Other vars: Skipping $var_to_be_escaped "
+	    ns_log Notice "intranet-invoice/view: Other vars: Skipping $var_to_be_escaped "
 	}
     }
 
@@ -1297,7 +1305,7 @@ if {"odt" eq $render_template_type} {
 
     # The zip -j command replaces the specified file in the zipfile
     # which happens to be the OpenOffice File.
-    ns_log Notice "intranet-invoices/view: before zipping"
+    ns_log Notice "intranet-invoice/view: before zipping"
     im_exec zip -j $odt_zip $odt_content
     im_exec zip -j $odt_zip $odt_styles
     db_release_unused_handles
@@ -1310,13 +1318,13 @@ if {"odt" eq $render_template_type} {
 	set result ""
 	set err_msg ""
 	set status [catch {
-	    ns_log Notice "intranet-invoices/view: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
+	    ns_log Notice "intranet-invoice/view: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
 	    set result [im_exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
 	} err_msg]
 	
-	ns_log Notice "intranet-invoices/view: result=$result"
-	ns_log Notice "intranet-invoices/view: err_msg=$err_msg"
-	ns_log Notice "intranet-invoices/view: status=$status"
+	ns_log Notice "intranet-invoice/view: result=$result"
+	ns_log Notice "intranet-invoice/view: err_msg=$err_msg"
+	ns_log Notice "intranet-invoice/view: status=$status"
 	
 	set odt_pdf "${odt_tmp_path}.pdf"
 	set readable_msg ""
@@ -1334,7 +1342,7 @@ if {"odt" eq $render_template_type} {
     # Add the rendered invoice to the form variables
     #
     if {"pdf" eq $send_to_user_as} {
-	ns_log Notice "intranet-invoices/view: sending PDF email"
+	ns_log Notice "intranet-invoice/view: sending PDF email"
 	rp_form_put invoice_pdf_file $odt_pdf
 	rp_internal_redirect notify
 	ad_script_abort
@@ -1344,7 +1352,7 @@ if {"odt" eq $render_template_type} {
     # Simple return of ODT file
     #
     if {!$pdf_p} {
-	ns_log Notice "intranet-invoices/view: before returning file as ODT"
+	ns_log Notice "intranet-invoice/view: before returning file as ODT"
 	set outputheaders [ns_conn outputheaders]
 	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.odt"
 	ns_returnfile 200 "application/odt" $odt_zip
@@ -1355,7 +1363,7 @@ if {"odt" eq $render_template_type} {
     # Return of ODT file as PDF
     #
     if {$pdf_p} {
-	ns_log Notice "intranet-invoices/view: before returning file as PDF"
+	ns_log Notice "intranet-invoice/view: before returning file as PDF"
 	set outputheaders [ns_conn outputheaders]
 	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${invoice_nr}.pdf"
 	ns_returnfile 200 "application/odt" $odt_pdf
