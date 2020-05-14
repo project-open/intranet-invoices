@@ -188,6 +188,7 @@ set show_our_project_nr_first_column_p [im_parameter -package_id [im_package_inv
 set show_leading_invoice_item_nr [im_parameter -package_id [im_package_invoices_id] "ShowLeadingInvoiceItemNr" "" 0]
 set show_outline_number [im_column_exists im_invoice_items item_outline_number]
 set show_import_from_csv $show_outline_number
+set show_promote_to_timesheet_invoice_p [im_parameter -package_id [im_package_invoices_id] "ShowPromoteInvoiceToTimesheetInvoiceP" "" 0]
 
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
@@ -284,6 +285,10 @@ if {"im_timesheet_invoice" == $cost_object_type} {
     if {$document_invoice_p} {
 	set timesheet_report_enabled_p 1
     }
+
+    # Don't show the link to make this invoice a timesheet invoice
+    # if it's already a timesheet invoice.
+    set show_promote_to_timesheet_invoice_p 0
 }
 
 
@@ -315,6 +320,7 @@ set related_projects_sql "
 "
 
 set related_projects {}
+set related_main_projects {}
 set related_project_nrs {}
 set related_project_names {}
 set related_project_descriptions ""
@@ -323,6 +329,7 @@ set related_customer_project_nrs {}
 set num_related_projects 0
 db_foreach related_projects $related_projects_sql {
     lappend related_projects $project_id
+    lappend related_main_projects $main_project_id
     if {"" != $project_nr} {
 	lappend related_project_nrs $project_nr
     }
@@ -369,6 +376,46 @@ if {1 == [llength $related_main_projects]} {
     set related_main_project_nrs [lindex $related_main_project_nrs 0]
     set related_main_project_names [lindex $related_main_project_names 0]
 }
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------
+# Find out if there is a Customer Purchase Order in one of the related projects.
+# ---------------------------------------------------------------
+
+if {[llength $related_main_projects] == 0} { lappend related_main_projects 0 }
+set customer_pos_sql "
+        select distinct
+		c.cost_id,
+		c.cost_nr
+	from	im_projects main_p,
+		im_projects p,
+		im_costs c
+	where	main_p.project_id in ([join $related_main_projects ","]) and
+		p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
+		c.project_id = p.project_id and
+		c.cost_type_id in (select * from im_sub_categories([im_cost_type_customer_po]))
+	order by c.cost_id
+"
+
+set customer_pos {}
+set customer_po_nrs {}
+set num_customer_pos 0
+db_foreach customer_pos $customer_pos_sql {
+    lappend customer_pos $cost_id
+    lappend customer_po_nrs $cost_nr
+    incr num_customer_pos
+}
+
+set customer_po [lindex $customer_pos 0]
+set customer_po_nr [lindex $customer_po_nrs 0]
+
+# ad_return_complaint 1 "[im_ad_hoc_query -format html $customer_pos_sql]<br><pre>customer_pos=$customer_pos\n$customer_po_nrs=$customer_po_nrs</pre>"
 
 
 # ---------------------------------------------------------------
@@ -443,7 +490,7 @@ set query "
 		and ci.cost_id = i.invoice_id
 		$customer_or_provider_join
 "
-if { ![db_0or1row invoice_info_query $query] } {
+if {![db_0or1row invoice_info_query $query]} {
     # We couldn't get the base information for this invoice.
     # fraber 151210: This happened today with an invoice with
     # a deleted customer company. No idea how that could happen...
@@ -505,7 +552,7 @@ if {"im_timesheet_invoice" eq $object_type} {
 	from	im_timesheet_invoices ti
 	where 	ti.invoice_id = :invoice_id
     "
-    if {[catch { db_1row timesheet_invoice_info_query $query } err_msg]} {
+    if {[catch {db_1row timesheet_invoice_info_query $query } err_msg]} {
         ad_return_complaint 1 "<pre>$err_msg</pre>"
     }
 }
@@ -541,7 +588,7 @@ db_1row office_info_query "
 # Fallback to the accounting_contact_id and primary_contact_id
 # if not present.
 
-if { ![info exists company_contact_id] } { set company_contact_id ""}
+if {![info exists company_contact_id]} { set company_contact_id ""}
 
 if {"" == $company_contact_id} {
     set company_contact_id $accounting_contact_id
@@ -782,7 +829,7 @@ from
 where
         pm_cat.category_id = :payment_method_id
 "
-if { ![db_0or1row category_info_query $query] } {
+if {![db_0or1row category_info_query $query]} {
     set invoice_payment_method ""
     set invoice_payment_method_desc ""
 }
@@ -807,7 +854,7 @@ if {"" != $address_country_code} {
 	select	cc.country_name
 	from	country_codes cc
 	where	cc.iso = :address_country_code"
-    if { ![db_0or1row country_info_query $query] } {
+    if {![db_0or1row country_info_query $query]} {
 	    set country_name $address_country_code
     }
     set country_name [lang::message::lookup $locale intranet-core.$country_name $country_name]
@@ -1000,8 +1047,9 @@ db_foreach invoice_items {} {
 	    regexp -nocase {@(.*?)@} $line var_to_be_escaped
 	    regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	    regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
+
 	    # lappend vars_escaped $var_to_be_escaped
-	    if { "" != $var_to_be_escaped  } {
+	    if {"" != $var_to_be_escaped} {
 		set value [eval "set value \"$$var_to_be_escaped\""]
 
 		# KH: 160701 - Seems not be required anymore - tested with LibreOffice 5.0.2.2
@@ -1239,13 +1287,19 @@ if {"odt" eq $render_template_type} {
 	regsub -all "@" $var_to_be_escaped "" var_to_be_escaped
 	regsub -all ";noquote" $var_to_be_escaped "" var_to_be_escaped
 	ns_log Notice "intranet-invoice/view: var_to_be_escaped: $var_to_be_escaped"
-	if { -1 == [lsearch $vars_already_escaped $var_to_be_escaped] } {
-	    if { "" != $var_to_be_escaped  } {
-		if { [info exists $var_to_be_escaped] } {
+	if {-1 == [lsearch $vars_already_escaped $var_to_be_escaped] } {
+	    if {"" != $var_to_be_escaped} {
+		if {[info exists $var_to_be_escaped]} {
 		    set value [eval "set value \"$$var_to_be_escaped\""]
 		    ns_log Notice "intranet-invoice/view: Other vars - Value: $value"
-		    set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
-		    eval $cmd
+
+		    # Fraber 2020-05-10: Don't Quote variables in the body of the documents
+		    if {0} {
+			set cmd "set $var_to_be_escaped \"[encodeXmlValue $value]\""
+			eval $cmd
+		    } else {
+			set $var_to_be_escaped $value
+		    }
 		    lappend vars_already_escaped $var_to_be_escaped
 		}
 	    }
@@ -1273,6 +1327,7 @@ if {"odt" eq $render_template_type} {
 	ad_script_abort
     }
     set content $__adp_output
+    ns_log Notice "intranet-invoice/view: content=$content"
 
     # Save the content to a file.
     set file [open $odt_content w]
@@ -1396,7 +1451,7 @@ set pm_fee_checked ""
 set pm_fee_perc ""
 if {[info exists default_pm_fee_perc]} { set pm_fee_perc $default_pm_fee_perc }
 if {"" == $pm_fee_perc} { set pm_fee_perc [ad_parameter -package_id [im_package_invoices_id] "DefaultProjectManagementFeePercentage" "" "10.0"] }
-if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} { 
+if {[info exists default_pm_fee_percentage] && "" != $default_pm_fee_percentage} {
     set pm_fee_perc $default_pm_fee_percentage 
     set pm_fee_checked "checked"
 }

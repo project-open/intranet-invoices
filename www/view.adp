@@ -69,11 +69,11 @@
 	  </tr>
 	  <tr>
 	    <td>
-
 	<ul>
+
 <if @show_import_from_csv@>
         <li>
-          <A HREF="/intranet-cust-fttx/invoice-import/import-invoice?invoice_id=@invoice_id@">Import from Ava-Plan CSV</A>
+          <A HREF="/intranet-cust-fttx/invoice-import/import-invoice?invoice_id=@invoice_id@"><%= [lang::message::lookup "" intranet-invoices.Import_from_CVS_Ava_Plan "Import from CVS (Ava-Plan)"] %></A>
         </li>
 </if>
 
@@ -101,6 +101,12 @@
 		<%= [lang::message::lookup "" intranet-invoices.Show_Included_Timesheet_Hours "Show Included Timesheet Hours"] %>
 	  </A>
 	</li>
+</if>
+
+<if @show_promote_to_timesheet_invoice_p@>
+        <li>
+          <A HREF="<%= [export_vars -base "/intranet-timesheet2-invoices/invoices/promote-invoice-to-timesheet-invoice" {invoice_id return_url}] %>"><%= [lang::message::lookup "" intranet-invoices.Promote_Invoice_to_Timesheet_Invoice "Promote Invoice to Timesheet Invoice"] %></A>
+        </li>
 </if>
 
 
