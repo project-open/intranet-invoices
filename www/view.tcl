@@ -210,8 +210,14 @@ set show_company_project_nr [expr {$show_company_project_nr && $company_project_
 set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
 
 # Check if ooffice is installed
-set status [util_memoize [list catch {set ooversion [im_exec ooffice --version]}] 3600]
+set err_msg ""
+set ooversion ""
+set status [util_memoize [list catch {set ooversion [im_exec ooffice --version]} err_msg] 3600]
 if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
+
+# ad_return_complaint 1 "status=$status, pdf_enabled_p=$pdf_enabled_p, ooversion=$ooversion, err_msg=$err_msg"
+
+
 
 # Show CC ?
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
