@@ -999,6 +999,7 @@ append invoice_item_html "
 set ctr 1
 set colspan [expr 2 + 3*$show_qty_rate_p + 1*$show_company_project_nr + $show_our_project_nr + $show_leading_invoice_item_nr + $show_outline_number]
 set oo_table_xml ""
+array set source_invoice_ids_hash {}; # A list of source financial documents from which this one was created
 db_foreach invoice_items {} {
     # $company_project_nr is normally related to each invoice item,
     # because invoice items can be created based on different projects.
@@ -1095,6 +1096,9 @@ $odt_row_xml
 
     }
 
+    # Create the list of all source financial documents
+    if {"" ne $item_source_invoice_id} { set source_invoice_ids_hash($item_source_invoice_id) $item_source_invoice_id }
+
     incr ctr
 }
 
@@ -1127,6 +1131,23 @@ set discount_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $dis
 set surcharge_amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $surcharge_amount+0] $rounding_precision] "" $locale]
 
 set colspan_sub [expr {$colspan - 1}]
+
+
+# Format the list of source financial documents
+set source_invoice_id ""
+set source_invoice_id_list ""
+set source_invoice_name ""
+set source_invoice_name_list ""
+foreach sid [array names source_invoice_ids_hash] {
+    set source_invoice_id $sid
+    lappend source_invoice_id_list $sid
+    set name [acs_object_name $sid]
+    set source_invoice_name $name
+    lappend source_invoice_name_list $name
+}
+
+set source_invoice_names [join $source_invoice_name_list ", "]
+
 
 # Add a subtotal
 set subtotal_item_html "
