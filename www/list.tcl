@@ -125,7 +125,8 @@ if {0 == $view_id} {
 set column_sql "
 select	column_name,
 	column_render_tcl,
-	visible_for
+	visible_for,
+	order_by_clause as column_order_by_clause
 from	im_view_columns
 where	view_id = :view_id
 	and group_id is null
@@ -135,11 +136,17 @@ order by
 # Get the main view
 set column_headers [list]
 set column_vars [list]
+set order_by_clause ""
 db_foreach column_list_sql $column_sql {
     if {"" == $visible_for || [eval $visible_for]} {
 	lappend column_headers "$column_name"
 	lappend column_vars "$column_render_tcl"
     }
+
+    if {$order_by eq $column_name} { 
+	set order_by_clause $column_order_by_clause
+    }
+
 }
 
 # ---------------------------------------------------------------
@@ -193,7 +200,6 @@ if {![im_permission $user_id view_invoices]} {
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
 set counter_reset_expression ""
-set order_by_clause ""
 
 # If filter is set to Customer or Provider Doc's and no order_by is providedwe order by creation date.
 # Before order_by was set to default (Document No). This way documents showed up grouped by document types. 
@@ -283,7 +289,7 @@ select	i.*,
         im_category_from_id(ci.cost_status_id) as invoice_status,
         im_category_from_id(ci.cost_status_id) as cost_status,
         im_category_from_id(ci.cost_type_id) as cost_type,
-	to_date(:today, :date_format) - (to_date(to_char(ci.effective_date, :date_format), :date_format) + ci.payment_days) as overdue
+	now()::date - (ci.effective_date::date + ci.payment_days) as overdue
 	$extra_select
 from
         im_invoices i,
