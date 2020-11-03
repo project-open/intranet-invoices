@@ -9,7 +9,7 @@
     set auto_login [im_generate_auto_login -user_id [ad_conn user_id]] 
 %>
 
-<script type="text/javascript">
+<script type="text/javascript" <if @::__csp_nonce@ not nil>nonce="@::__csp_nonce;literal@"</if>>
 
 
 function ltrim(str, chars) {

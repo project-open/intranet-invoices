@@ -423,13 +423,13 @@ set filter_html "
 	  <tr>
 	    <td class=form-label>[_ intranet-core.Start_Date]</td>
 	    <td class=form-widget>
-	      <input type='textfield' name='start_date' id='start_date' value='$start_date' size='10'><input style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" onclick=\"return showCalendar('start_date', 'y-m-d');\" type=\"button\">
+	      <input type='textfield' name='start_date' id='start_date' value='$start_date' size='10'><input id=start_date_calendar style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" type=\"button\">
 	    </td>
 	  </tr>
 	  <tr>
 	    <td class=form-label>[lang::message::lookup "" intranet-core.End_Date "End Date"]</td>
 	    <td class=form-widget>
-	      <input type='textfield' name='end_date' id='end_date' value='$end_date' size='10'><input style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" onclick=\"return showCalendar('end_date', 'y-m-d');\" type=\"button\">
+	      <input type='textfield' name='end_date' id='end_date' value='$end_date' size='10'><input id=end_date_calendar style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" type=\"button\">
 	    </td>
 	  </tr>
 	  <tr>

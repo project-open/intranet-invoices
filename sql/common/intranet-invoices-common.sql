@@ -52,11 +52,12 @@ values (35, 'invoice_list_subtotal', 'view_finance');
 --
 delete from im_view_columns where view_id = 30;
 --
-
-insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
-extra_select, extra_where, sort_order, visible_for) values (3000,30,NULL,'<input type=checkbox name=_dummy onclick=\"acs_ListCheckAll(''cost'',this.checked)\">',
-'[if {[string equal "" $payment_amount]} { set ttt "<input type=checkbox name=cost value=$invoice_id id=''cost,$invoice_id''>"}]','','',0,'');
-
+insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl, extra_select, extra_where, sort_order, visible_for) 
+values (
+	3000,30,NULL,'<input type=checkbox id=list_check_all name=_dummy>',
+	'[if {[string equal "" $payment_amount]} { set ttt "<input type=checkbox name=cost value=$invoice_id id=''cost,$invoice_id''>"}]',
+	'','',0,''
+);
 
 insert into im_view_columns (column_id, view_id, group_id, column_name, column_render_tcl,
 extra_select, extra_where, sort_order, visible_for) values (3001,30,NULL,'Document #',
