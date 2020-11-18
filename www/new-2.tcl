@@ -101,23 +101,37 @@ if {"" == $payment_days} {
 # ---------------------------------------------------------------
 
 set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
-set invoice_currency [lindex [array get item_currency] 1]
-if {"" == $invoice_currency} { set invoice_currency $default_currency }
-
-
 foreach item_nr [array names item_currency] {
-    set item_cur $item_currency($item_nr)
-    if {"" eq $item_cur} { 
-	# Avoid stupid error with empty currency
-	set item_cur $invoice_currency
-	set item_currency($item_nr) $invoice_currency
-    }
-    if {$item_cur != $invoice_currency} {
-        ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
-        [_ intranet-invoices.Blurb_multiple_currencies]"
+    set cur $item_currency($item_nr)
+    set name $item_name($item_nr)
+    set units $item_units($item_nr)
+    ns_log Notice "intranet-invoices/new-2: nr=$item_nr, units=$units, cur=$cur, name=$name"
+
+    # Skip testing if the name or units was empty
+    if {"" eq [string trim $name]} { continue }
+    if {0 == $units || "" == $units} { continue }
+
+    # Write out error in case of no currency
+    if {"" eq $cur} {
+        ad_return_complaint 1 "<b>[lang::message::lookup "" intranet-invoices.Error_empty_currency "Empty currency in line %item_nr%"]:</b><br>
+        [lang::message::lookup "" intranet-invoices.Blurb_error_empty_currency "You have to select a currency"]"
         ad_script_abort
     }
+
+    # Check for uniqueness
+    set currency_hash($cur) $cur
 }
+
+set currency_list [array names currency_hash]
+if {[llength $currency_list] > 1} {
+    ad_return_complaint 1 "<b>[_ intranet-invoices.Error_multiple_currencies]:</b><br>
+	[_ intranet-invoices.Blurb_multiple_currencies]"
+    ad_script_abort
+}
+
+set invoice_currency [lindex $currency_list 0]
+if {"" == $invoice_currency} { set invoice_currency $default_currency }
+
 
 # ---------------------------------------------------------------
 # Defaults & Security
