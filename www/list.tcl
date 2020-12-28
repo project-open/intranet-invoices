@@ -530,9 +530,8 @@ db_foreach invoices_info_query $selection {
     }
 
     # ---- Set vars for "bulk payments"  ----
-    set new_payment_amount "<input size='8' name='new_payment_amount.$invoice_id' id='new_payment_amount.$invoice_id' amount='[string trim $invoice_amount_formatted]'"
-    append new_payment_amount " style='text-align:right;' onclick='javascript:setAmount(this)'/>" 
-    append new_payment_amount [im_currency_select "new_payment_currency.$invoice_id" $default_currency]
+    set new_payment_amount "<nobr><input size='8' class='invoice_list_new_payment' name='new_payment_amount.$invoice_id' id='new_payment_amount.$invoice_id' amount='[string trim $invoice_amount_formatted]' style='text-align:right;'/>" 
+    append new_payment_amount "[im_currency_select "new_payment_currency.$invoice_id" $default_currency]</nobr>"
 
     set new_payment_type_id "[im_payment_type_select new_payment_type_id.$invoice_id ""]<input type='hidden' name='new_payment_company_id.$invoice_id' value='$invoice_company_id' />"
 
