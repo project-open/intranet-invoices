@@ -85,6 +85,20 @@ function ajaxFunction() {
     xmlHttp2.open("GET","/intranet/users/ajax-company-contacts?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
     xmlHttp2.send(null);
 }
+
+window.addEventListener('load', function() {
+    var el = document.getElementById('customer_id');
+    if (!!el) {
+	el.addEventListener('change', function() { ajaxFunction(); });
+	el.addEventListener('keyup', function() { ajaxFunction(); });
+    }
+    var el = document.getElementById('provider_id');
+    if (!!el) {
+	el.addEventListener('change', function() { ajaxFunction(); });
+	el.addEventListener('keyup', function() { ajaxFunction(); });
+    }
+});
+
 </script>
 
 
