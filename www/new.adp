@@ -10,7 +10,6 @@
 
 <script type="text/javascript" <if @::__csp_nonce@ not nil>nonce="@::__csp_nonce;literal@"</if>>
 
-
 function ltrim(str, chars) {
 	chars = chars || "\\s";
 	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
@@ -84,6 +83,20 @@ function ajaxFunction() {
     xmlHttp2.open("GET","/intranet/users/ajax-company-contacts?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
     xmlHttp2.send(null);
 }
+
+window.addEventListener('load', function() {
+    var el = document.getElementById('customer_id');
+    if (!!el) {
+	el.addEventListener('change', function() { ajaxFunction(); });
+	el.addEventListener('keyup', function() { ajaxFunction(); });
+    }
+    var el = document.getElementById('provider_id');
+    if (!!el) {
+	el.addEventListener('change', function() { ajaxFunction(); });
+	el.addEventListener('keyup', function() { ajaxFunction(); });
+    }
+});
+
 </script>
 
 

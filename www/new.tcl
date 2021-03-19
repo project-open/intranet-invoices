@@ -388,8 +388,11 @@ if {"" != $cost_type_id} { set super_type_id $cost_type_id }
 set type_select [im_cost_type_select cost_type_id $cost_type_id $super_type_id "financial_doc"]
 if {0 && "" != $cost_type_id} { set type_select "<input type=hidden name=cost_type_id value=$cost_type_id>$cost_type" }
 
-set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} customer_id $customer_id "" "CustOrIntl"]
-set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} provider_id $provider_id "" "Provider"]
+# set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} customer_id $customer_id "" "CustOrIntl"]
+# set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} provider_id $provider_id "" "Provider"]
+set customer_select [im_company_select -tag_attributes {id "customer_id"} customer_id $customer_id "" "CustOrIntl"]
+set provider_select [im_company_select -tag_attributes {id "provider_id"} provider_id $provider_id "" "Provider"]
+
 set contact_select [im_company_contact_select company_contact_id $company_contact_id $company_id]
 
 # ad_return_complaint 1 "im_company_contact_select company_contact_id $company_contact_id $company_id - $contact_select"
