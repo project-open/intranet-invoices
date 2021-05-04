@@ -429,6 +429,23 @@ ad_proc -public im_invoices_finance_document_comparison_component {
 }
 
 
+
+ad_proc -public im_invoices_dependency_tree_component {
+    invoice_id
+} {
+    Returns a HTML portlet with a graph on how this financial
+    document relates to others.
+} {
+    set params [list \
+                    [list invoice_id $invoice_id] \
+    ]
+
+    set result [ad_parse_template -params $params "/packages/intranet-invoices/lib/dependency-tree"]
+    return [string trim $result]
+}
+
+
+
 ad_proc im_invoices_object_list_component { user_id invoice_id read write return_url } {
     Returns a HTML table containing a list of objects
     associated with a particular financial document.
