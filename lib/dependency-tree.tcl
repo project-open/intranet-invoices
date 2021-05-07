@@ -165,11 +165,22 @@ while {[llength $list] > 0 && $cnt < 10} {
     if {$id != $filter_invoice_id} {
         incr predecessor_num
         set url [export_vars -base $invoice_base_url {{invoice_id $id}}]
-        append predecessor_html "<tr>
-          <td><a href=$url>$name_hash($id)</a></td>
-          <td>$amount_hash($id)</td>
-          <td>[im_category_from_id $type_hash($id)]</td>
-          <td>[im_category_from_id $status_hash($id)]</td>
+	if {[info exists name_hash($id)]} {
+	    set name $name_hash($id)
+	    set amount $amount_hash($id)
+	    set type [im_category_from_id $type_hash($id)]
+	    set status [im_category_from_id $status_hash($id)]
+	} else {
+	    set name "Unknown #$id"
+	    set amount ""
+	    set type ""
+	    set status ""
+	}
+	append predecessor_html "<tr>
+          <td><a href=$url>$name</a></td>
+          <td>$amount</td>
+          <td>$type</td>
+          <td>$status</td>
           </tr>\n
         "
     }
@@ -206,11 +217,23 @@ while {[llength $list] > 0 && $cnt < 100} {
     if {$id != $filter_invoice_id} {
         incr successor_num
         set url [export_vars -base $invoice_base_url {{invoice_id $id}}]
-        append successor_html "<tr>
-          <td><a href=$url>$name_hash($id)</a></td>
-          <td>$amount_hash($id)</td>
-          <td>[im_category_from_id $type_hash($id)]</td>
-          <td>[im_category_from_id $status_hash($id)]</td>
+
+	if {[info exists name_hash($id)]} {
+	    set name $name_hash($id)
+	    set amount $amount_hash($id)
+	    set type [im_category_from_id $type_hash($id)]
+	    set status [im_category_from_id $status_hash($id)]
+	} else {
+	    set name "Unknown #$id"
+	    set amount ""
+	    set type ""
+	    set status ""
+	}
+	append successor_html "<tr>
+          <td><a href=$url>$name</a></td>
+          <td>$amount</td>
+          <td>$type</td>
+          <td>$status</td>
           </tr>\n
         "
     }
