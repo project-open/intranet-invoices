@@ -22,11 +22,11 @@
   <msg key="Cost">Cost</msg>
   <msg key="Cost_Center">Cost Center</msg>
   <msg key="cost_type_Data">%cost_type% Data</msg>
-  <msg key="cost_type_date">%cost_type% date:</msg>
+  <msg key="cost_type_date">%cost_type% date</msg>
   <msg key="cost_type_due_date">%cost_type% due date:</msg>
-  <msg key="cost_type_nr">%cost_type% nr.:</msg>
+  <msg key="cost_type_nr">%cost_type% no</msg>
   <msg key="cost_type_status">%cost_type% status</msg>
-  <msg key="cost_type_template">%cost_type% template:</msg>
+  <msg key="cost_type_template">%cost_type% template</msg>
   <msg key="cost_type_type">%cost_type% type</msg>
   <msg key="cost_type_type_1">%cost_type% type:</msg>
   <msg key="Costs">Costs</msg>
@@ -52,7 +52,7 @@
   <msg key="Edit_cost_type_1">Edit %cost_type</msg>
   <msg key="Effective_Date">Effective Date</msg>
   <msg key="Email">Email</msg>
-  <msg key="Error_Document_Nr_exists">Document Nr. not available anymore, please note and verify newly assigned number</msg>
+  <msg key="Error_Document_Nr_exists">Document no not available anymore, please note and verify newly assigned number</msg>
   <msg key="Error_multiple_currencies">Multiple Currencies Error</msg>
   <msg key="Export_Companies_CSV">Export Companies CSV</msg>
   <msg key="Export_Company_Cube">Export Companies Cube</msg>
@@ -161,10 +161,10 @@ Best regards,
   <msg key="Our_Ref">Our Ref.</msg>
   <msg key="Paid">Paid</msg>
   <msg key="Payment_date">Payment Date</msg>
-  <msg key="Payment_Method">Payment Method</msg>
+  <msg key="Payment_Method">%cost_type% payment method</msg>
   <msg key="Payment_Method_1">Payment Method:</msg>
   <msg key="Payment_Terms">Payment Terms:</msg>
-  <msg key="Payment_terms">Payment terms</msg>
+  <msg key="Payment_terms">%cost_type% payment terms</msg>
   <msg key="Payment_Type">Payment Type</msg>
   <msg key="Phone">Phone</msg>
   <msg key="Preview">Preview</msg>
