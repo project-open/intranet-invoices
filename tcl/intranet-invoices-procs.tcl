@@ -513,12 +513,14 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
         <tr>
           <td align=left colspan=2>
 	    <select name=action>
-	    <option value='set_invoiced'>[lang::message::lookup "" intranet-invoices.Set_to_invoiced "Set to invoiced"]</option>
-	    <option value='delete'>[_ intranet-core.Delete]</option>
-	    <option value='add_project'>[_ intranet-invoices.Add_a_Project]</option>
-            <input type=submit value='[_ intranet-core.Apply]'>
+	    <option value=\"set_invoiced\">[lang::message::lookup "" intranet-invoices.Set_to_invoiced "Set to invoiced"]</option>
+	    <option value=\"delete\">[_ intranet-core.Delete]</option>
+	    <option value=\"add_project\">[_ intranet-invoices.Add_a_Project]</option>
+	    </select>
+            <input type=submit value=\"[_ intranet-core.Apply]\">
           </td>
-        </tr>\n"
+        </tr>
+        "
     }
     append return_html "
       </table>

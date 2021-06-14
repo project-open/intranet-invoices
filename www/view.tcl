@@ -1196,7 +1196,7 @@ append subtotal_item_html "
 
 set payment_terms_html "
         <tr>
-	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Terms]</td>
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Terms]:</td>
           <td valign=top colspan=[expr {$colspan-1}] class=rowplain>
             [lang::message::lookup $locale intranet-invoices.lt_This_invoice_is_past_]
           </td>
@@ -1205,7 +1205,7 @@ set payment_terms_html "
 
 set payment_method_html "
         <tr>
-	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]</td>
+	  <td valign=top class=rowplain>[lang::message::lookup $locale intranet-invoices.Payment_Method_1]:</td>
           <td valign=top colspan=[expr {$colspan-1}] class=rowplain> $invoice_payment_method_desc</td>
         </tr>
 "
