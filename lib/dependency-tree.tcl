@@ -192,7 +192,7 @@ while {[llength $list] > 0 && $cnt < 10} {
     array set hash $predecessors
 
     foreach id [array names hash] {
-        set list [lappend $list $id]
+	lappend list $id
     }
 
 }
@@ -245,9 +245,7 @@ while {[llength $list] > 0 && $cnt < 100} {
     array set hash $successors
 
     foreach id [array names hash] {
-        ns_log Notice "dep: successors: id = $id"
 	lappend list $id
-        ns_log Notice "dep: successors: list = $list"
     }
 
 }
