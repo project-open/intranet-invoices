@@ -87,6 +87,9 @@ set user_locale [lang::user::locale]
 set locale $user_locale
 set page_title ""
 
+set my_user "undefined"
+catch { set my_user [im_exec whoami] }
+
 set gen_vars ""
 set blurb ""
 set notify_vars ""
@@ -212,12 +215,11 @@ set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "Tim
 # Check if ooffice is installed
 set err_msg ""
 set ooversion ""
-set status [util_memoize [list catch {set ooversion [im_exec ooffice --version]} err_msg] 3600]
+
+set cmd "export HOME=~$my_user; ooffice --version"
+set status [catch {set ooversion [im_exec bash -l -c $cmd]} err_msg]
 if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
-
-# ad_return_complaint 1 "status=$status, pdf_enabled_p=$pdf_enabled_p, ooversion=$ooversion, err_msg=$err_msg"
-
-
+# ad_return_complaint 1 "status=$status, pdf_enabled_p=$pdf_enabled_p, err_msg=<pre>$err_msg</pre>"
 
 # Show CC ?
 set show_cost_center_p [im_parameter -package_id [im_package_invoices_id] "ShowCostCenterP" "" 0]
@@ -1399,9 +1401,11 @@ if {"odt" eq $render_template_type} {
     if {$pdf_p} {
 	set result ""
 	set err_msg ""
+	set cmd "export HOME=~$my_user; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"
+	
 	set status [catch {
-	    ns_log Notice "intranet-invoice/view: im_exec bash -l -c \"export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip\""
-	    set result [im_exec bash -l -c "export HOME=~\$\{whoami\}; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"]
+	    ns_log Notice "intranet-invoice/view: im_exec $cmd"
+	    set result [im_exec bash -l -c $cmd]
 	} err_msg]
 	
 	ns_log Notice "intranet-invoice/view: result=$result"
@@ -1413,7 +1417,7 @@ if {"odt" eq $render_template_type} {
 	if {![file readable $odt_pdf]} { set readable_msg "File=$odt_pdf was not created.<br>Maybe you didn't install LibreOffice?" }
 	
 	if {0 != $status || "" ne $readable_msg} {
-	    ad_return_complaint 1 "<b>Error converting ODT to PDF</b>:<br><pre>$readable_msg<br>$err_msg</pre>"
+	    ad_return_complaint 1 "<b>Error converting ODT to PDF</b>:<br><pre>$readable_msg<br>$err_msg</pre><br>executing: <pre>$cmd</pre>"
 	    ad_script_abort
 	}
     }
