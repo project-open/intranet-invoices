@@ -167,6 +167,7 @@ switch $invoice_action {
 		ad_script_abort
 	    }
 	    db_dml update_status "update im_costs set cost_status_id = :invoice_status_id where cost_id = :cost_id"
+	    im_audit -object_id $cost_id
 	}
 	
     }
