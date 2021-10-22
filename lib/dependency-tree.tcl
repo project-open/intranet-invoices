@@ -24,7 +24,7 @@ set invoice_base_url "/intranet-invoices/view"
 # Main project
 # -------------------------------------------------------------
 
-set main_project_id [db_list pids "
+set main_project_ids [db_list pids "
 	select	main_p.project_id
 	from	acs_rels r,
 		im_projects p,
@@ -34,8 +34,7 @@ set main_project_id [db_list pids "
 		main_p.tree_sortkey = tree_root_key(p.tree_sortkey);
 "]
 
-# ad_return_complaint 1 $main_project_id
-
+lappend main_project_ids 0
 
 # -------------------------------------------------------------
 # Get info about all financial documents of the project
@@ -56,7 +55,7 @@ set costs_sql "
 		im_costs c
 		LEFT OUTER JOIN im_invoices i ON (c.cost_id = i.invoice_id)
 		LEFT OUTER JOIN im_invoice_items ii ON (c.cost_id = ii.invoice_id)
-	where	main_p.project_id = :main_project_id and
+	where	main_p.project_id in ([join $main_project_ids ","]) and
 		p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
 		c.project_id = p.project_id and
 		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102)
@@ -72,7 +71,7 @@ set costs_sql "
 		im_costs c
 		LEFT OUTER JOIN im_invoices i ON (c.cost_id = i.invoice_id)
 		LEFT OUTER JOIN im_invoice_items ii ON (c.cost_id = ii.invoice_id)
-	where	main_p.project_id = :main_project_id and
+	where	main_p.project_id in ([join $main_project_ids ","]) and
 		p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
 		r.object_id_one = p.project_id and
 		r.object_id_two = c.cost_id and
