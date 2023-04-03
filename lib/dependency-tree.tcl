@@ -170,14 +170,17 @@ while {[llength $list] > 0 && $cnt < 10} {
 	    set amount $amount_hash($id)
 	    set type [im_category_from_id $type_hash($id)]
 	    set status [im_category_from_id $status_hash($id)]
+	    set link "<a href=$url>$name</a>"
 	} else {
-	    set name "Unknown #$id"
+	    set url ""
+	    set name "Deleted #$id"
 	    set amount ""
 	    set type ""
 	    set status ""
+	    set link $name
 	}
 	append predecessor_html "<tr>
-          <td><a href=$url>$name</a></td>
+          <td>$link</td>
           <td>$amount</td>
           <td>$type</td>
           <td>$status</td>
