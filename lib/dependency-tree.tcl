@@ -3,7 +3,7 @@
 # Expected variables:
 # invoice_id
 
-# project_id set by portlet TCL
+# Try behaving like a page if not called as a portlet (may not work yet)
 if {![info exists invoice_id]} {
     ad_page_contract {} {invoice_id:integer ""}
 }
@@ -19,6 +19,13 @@ if {!$read_p} {
 }
 
 set invoice_base_url "/intranet-invoices/view"
+
+
+# Check if the calling page (invoices/view?invoice_id=123) has a locale set
+set locale [uplevel 2 {if {[info exists locale]} { set locale }}]
+if {"" eq $locale} { 
+    set locale [lang::user::locale]
+}
 
 # -------------------------------------------------------------
 # Main project
@@ -92,7 +99,7 @@ db_foreach costs $costs_sql {
     set name_hash($cost_id) $cost_name
     set type_hash($cost_id) $cost_type_id
     set status_hash($cost_id) $cost_status_id
-    set amount_hash($cost_id) "$cost_amount $cost_currency"
+    set amount_hash($cost_id) "[lc_numeric $cost_amount "%.2f" $locale] $cost_currency"
 
     if {"" ne $source_id} {
         set predecessors {}
@@ -255,36 +262,10 @@ while {[llength $list] > 0 && $cnt < 100} {
 
 
 # -------------------------------------------------------------
-# 
+# Output HTML
 # -------------------------------------------------------------
-
 
 if {"" eq $predecessor_html} { set predecessor_html "<tr><td colspan=99>No predecessors found</td></tr>" }
 if {"" eq $successor_html} { set successor_html "<tr><td colspan=99>No successors found</td></tr>" }
 
-
-set html "
-<table><tr valign=top>
-<td width='70%'>
-<table cellspaing=2 cellpadding=2>
-<tr>
-	<td class=rowtitle>Name</td>
-	<td class=rowtitle>Amount</td>
-	<td class=rowtitle>Type</td>
-	<td class=rowtitle>Status</td>
-</tr>
-<tr><td colspan=99><h1>Predecessors</h1></td></tr>
-$predecessor_html
-<tr><td colspan=99><h1>Successors</h1></td></tr>
-$successor_html
-</table>
-</td>
-<td width='30%'>
-	<p>This portlet shows predecessors (= financial documents from which this document was created)
-	and successors (= financial documents created based on this one).</p>
-</td>
-</td></table>
-"
-
-
-if {[expr $predecessor_num + $successor_num] < 1} { set html "" }
+set show_html_p [expr ($predecessor_num + $successor_num) > 0]
