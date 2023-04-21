@@ -50,7 +50,7 @@ lappend main_project_id 0
 
 set costs_sql "
     select	cost_id, item_id, cost_name, cost_nr, cost_type_id, cost_status_id, item_source_invoice_id,
-    		cost_amount, cost_currency,
+    		coalesce(cost_amount, 0.0) as cost_amount, cost_currency,
     		CASE WHEN item_source_invoice_id = cost_id THEN null ELSE item_source_invoice_id END as source_id
     from 	(
 	select	c.*,
@@ -69,7 +69,7 @@ set costs_sql "
 		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102)
     UNION
 	select	c.*,
-		c.amount as cost_amount,
+		coalesce(c.amount, 0.0) as cost_amount,
 		c.currency as cost_currency,
 		i.*,
 		ii.*

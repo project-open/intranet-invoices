@@ -1,6 +1,3 @@
-
-<h1>'@locale@'</h1>
-
 <if 1 eq @show_html_p@>
 <table>
   <tr valign=top>
