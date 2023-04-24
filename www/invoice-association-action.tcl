@@ -91,7 +91,7 @@ if {"delete" == $action} {
     im_audit -object_type "im_invoice" -object_id $invoice_id -action after_update
 
     ad_returnredirect $return_url
-    ad_abort_script
+    ad_script_abort
 }
 
 
@@ -111,7 +111,7 @@ if {"set_invoiced" == $action} {
     }
 
     ad_returnredirect $return_url
-    ad_abort_script
+    ad_script_abort
 }
 
 
