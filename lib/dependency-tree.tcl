@@ -3,7 +3,7 @@
 # Expected variables:
 # invoice_id
 
-# project_id set by portlet TCL
+# Try behaving like a page if not called as a portlet (may not work yet)
 if {![info exists invoice_id]} {
     ad_page_contract {} {invoice_id:integer ""}
 }
@@ -20,6 +20,13 @@ if {!$read_p} {
 
 set invoice_base_url "/intranet-invoices/view"
 
+
+# Check if the calling page (invoices/view?invoice_id=123) has a locale set
+set locale [uplevel 2 {if {[info exists locale]} { set locale }}]
+if {"" eq $locale} { 
+    set locale [lang::user::locale]
+}
+
 # -------------------------------------------------------------
 # Main project
 # -------------------------------------------------------------
@@ -33,7 +40,6 @@ set main_project_ids [db_list pids "
 		p.project_id = r.object_id_one and
 		main_p.tree_sortkey = tree_root_key(p.tree_sortkey);
 "]
-
 lappend main_project_ids 0
 
 # -------------------------------------------------------------
@@ -42,7 +48,7 @@ lappend main_project_ids 0
 
 set costs_sql "
     select	cost_id, item_id, cost_name, cost_nr, cost_type_id, cost_status_id, item_source_invoice_id,
-    		cost_amount, cost_currency,
+    		coalesce(cost_amount, 0.0) as cost_amount, cost_currency,
     		CASE WHEN item_source_invoice_id = cost_id THEN null ELSE item_source_invoice_id END as source_id
     from 	(
 	select	c.*,
@@ -61,7 +67,7 @@ set costs_sql "
 		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102)
     UNION
 	select	c.*,
-		c.amount as cost_amount,
+		coalesce(c.amount, 0.0) as cost_amount,
 		c.currency as cost_currency,
 		i.*,
 		ii.*
@@ -91,7 +97,7 @@ db_foreach costs $costs_sql {
     set name_hash($cost_id) $cost_name
     set type_hash($cost_id) $cost_type_id
     set status_hash($cost_id) $cost_status_id
-    set amount_hash($cost_id) "$cost_amount $cost_currency"
+    set amount_hash($cost_id) "[lc_numeric $cost_amount "%.2f" $locale] $cost_currency"
 
     if {"" ne $source_id} {
         set predecessors {}
@@ -169,14 +175,17 @@ while {[llength $list] > 0 && $cnt < 10} {
 	    set amount $amount_hash($id)
 	    set type [im_category_from_id $type_hash($id)]
 	    set status [im_category_from_id $status_hash($id)]
+	    set link "<a href=$url>$name</a>"
 	} else {
-	    set name "Unknown #$id"
+	    set url ""
+	    set name "Deleted #$id"
 	    set amount ""
 	    set type ""
 	    set status ""
+	    set link $name
 	}
 	append predecessor_html "<tr>
-          <td><a href=$url>$name</a></td>
+          <td>$link</td>
           <td>$amount</td>
           <td>$type</td>
           <td>$status</td>
@@ -251,36 +260,10 @@ while {[llength $list] > 0 && $cnt < 100} {
 
 
 # -------------------------------------------------------------
-# 
+# Output HTML
 # -------------------------------------------------------------
-
 
 if {"" eq $predecessor_html} { set predecessor_html "<tr><td colspan=99>No predecessors found</td></tr>" }
 if {"" eq $successor_html} { set successor_html "<tr><td colspan=99>No successors found</td></tr>" }
 
-
-set html "
-<table><tr valign=top>
-<td width='70%'>
-<table cellspaing=2 cellpadding=2>
-<tr>
-	<td class=rowtitle>Name</td>
-	<td class=rowtitle>Amount</td>
-	<td class=rowtitle>Type</td>
-	<td class=rowtitle>Status</td>
-</tr>
-<tr><td colspan=99><h1>Predecessors</h1></td></tr>
-$predecessor_html
-<tr><td colspan=99><h1>Successors</h1></td></tr>
-$successor_html
-</table>
-</td>
-<td width='30%'>
-	<p>This portlet shows predecessors (= financial documents from which this document was created)
-	and successors (= financial documents created based on this one).</p>
-</td>
-</td></table>
-"
-
-
-if {[expr $predecessor_num + $successor_num] < 1} { set html "" }
+set show_html_p [expr ($predecessor_num + $successor_num) > 0]

@@ -132,15 +132,8 @@ if { "" == $project_id || ![info exists project_id] } {
 }
 
 # ---------------------------------------------------------------
-
-# set customer_select [im_company_select customer_id $customer_id "" "CustOrIntl"]
-# set provider_select [im_company_select provider_id $provider_id "" "Provider"]
-# set customer_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} customer_id $customer_id "" "CustOrIntl"]
-# set provider_select [im_company_select -tag_attributes {onchange "ajaxFunction();" onkeyup "ajaxFunction();"} provider_id $provider_id "" "Provider"]
 set customer_select [im_company_select -tag_attributes {id "customer_id"} customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select -tag_attributes {id "provider_id"} provider_id $provider_id "" "Provider"]
-
-
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill

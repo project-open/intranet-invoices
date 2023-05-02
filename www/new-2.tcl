@@ -139,6 +139,7 @@ if {"" == $invoice_currency} { set invoice_currency $default_currency }
 
 
 set current_user_id [auth::require_login]
+set admin_p [im_user_is_admin_p $current_user_id]
 set user_id $current_user_id
 set write_p [im_cost_center_write_p $cost_center_id $cost_type_id $user_id]
 # if !$write_p || ![im_permission $user_id add_invoices] || "" == $cost_center_id
@@ -192,10 +193,25 @@ if {$duplicate_p} {
     }
 }
 
+
+# ---------------------------------------------------------------
+# Check if there is a workflow ongoing
+# ---------------------------------------------------------------
+
+set wf_case_p [db_string wf_case "select count(*) from wf_cases where object_id = :invoice_id"]
+if {$wf_case_p > 0 && !$admin_p} {
+    ad_return_complaint 1 "<b>[lang::message::lookup "" intranet-invoices.Ongoing_Workflow "Financial Document Controlled by Workflow"]:</b><br>
+        [lang::message::lookup "" intranet-invoices.intranet-invoices.Ongoing_Workflow_msg "
+                This financial document is controlled by a workflow, 
+                so normal users are not allowed to change it anymore.<br>
+                Please notify your system administrator if you think this is not correct.
+    "]"
+    ad_script_abort
+}   
+
 # ---------------------------------------------------------------
 # Check if there is a single project to which this document refers.
 # ---------------------------------------------------------------
-
 
 # Look for common super-projects for multi-project documents
 set select_project [im_invoices_unify_select_projects $select_project]

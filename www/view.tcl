@@ -228,9 +228,9 @@ set cost_center_installed_p [apm_package_installed_p "intranet-cost-center"]
 # Is there already a workflow controlling the lifecycle of the invoice?
 set wf_case_p [db_string wf_case "select count(*) from wf_cases where object_id = :invoice_id"]
 set wf_transition_key [db_string wf_transition "select transition_key from wf_tasks where task_id = :task_id" -default ""]
-if {"modify" eq $wf_transition_key} { set wf_case_p 0 }
-if {[im_user_is_admin_p $user_id]} { set wf_case_p 0 }
-
+if {"modify" eq $wf_transition_key} { set wf_case_p 0 }; # Transition corresponds to editing the object
+if {[im_user_is_admin_p $current_user_id]} { set wf_case_p 0 }; # Admins can always override WF
+if {[im_permission $current_user_id wf_reassign_tasks]} { set wf_case_p 0 }; # User can override tasks anyway...
 
 
 # ---------------------------------------------------------------

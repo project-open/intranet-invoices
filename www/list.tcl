@@ -18,6 +18,7 @@ ad_page_contract {
     @cvs-id index.tcl,v 3.24.2.9 2000/09/22 01:38:44 kevin Exp
 } {
     { order_by "Effective Date" }
+    { filter_project_id:integer 0 }
     { cost_status_id:integer "[im_cost_status_created]" } 
     { cost_type_id:integer 0 } 
     { company_id:integer 0 } 
@@ -79,7 +80,7 @@ set date_format [im_l10n_sql_date_format]
 set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
 set local_url "/intranet-invoices/list"
 set cost_status_created [im_cost_status_created]
-set cost_type [db_string get_cost_type "select category from im_categories where category_id=:cost_type_id" -default [_ intranet-invoices.Costs]]
+set cost_type [db_string get_cost_type "select category from im_categories where category_id = :cost_type_id" -default [_ intranet-invoices.Costs]]
 set letter [string toupper $letter]
 
 if {![im_permission $user_id view_invoices]} {
@@ -122,31 +123,47 @@ if {0 == $view_id} {
 }
 
 
+
+set extra_selects [list]
+set extra_froms [list]
+set extra_wheres [list]
+
 set column_sql "
-select	column_name,
-	column_render_tcl,
-	visible_for,
-	order_by_clause as column_order_by_clause
-from	im_view_columns
-where	view_id = :view_id
-	and group_id is null
-order by
-	sort_order"
+	select	column_name,
+		column_render_tcl,
+		visible_for,
+		extra_select,
+		extra_from,
+		extra_where,
+		order_by_clause
+	from	im_view_columns
+	where	view_id = :view_id
+		and group_id is null
+	order by
+		sort_order
+"
 
 # Get the main view
 set column_headers [list]
 set column_vars [list]
-set order_by_clause ""
 db_foreach column_list_sql $column_sql {
+    set admin_html ""
+    if {$user_is_admin_p} { 
+	set url [export_vars -base "/intranet/admin/views/new-column" {column_id return_url}]
+	set admin_html "<a href='$url'>[im_gif wrench ""]</a>" 
+    }
+
     if {"" == $visible_for || [eval $visible_for]} {
 	lappend column_headers "$column_name"
 	lappend column_vars "$column_render_tcl"
+	lappend column_headers_admin $admin_html
+	if {"" != $extra_select} { lappend extra_selects [eval "set a \"$extra_select\""] }
+	if {"" != $extra_from} { lappend extra_froms $extra_from }
+	if {"" != $extra_where} { lappend extra_wheres $extra_where }
+	if {"" != $order_by_clause && $order_by == $column_name} {
+	    set view_order_by_clause $order_by_clause
+	}
     }
-
-    if {$order_by eq $column_name} { 
-	set order_by_clause $column_order_by_clause
-    }
-
 }
 
 # ---------------------------------------------------------------
@@ -154,6 +171,17 @@ db_foreach column_list_sql $column_sql {
 # ---------------------------------------------------------------
 
 set criteria [list]
+
+if { $filter_project_id ne "" && $filter_project_id > 0 } {
+    lappend criteria "ci.project_id in (
+	select	sub_p.project_id
+	from	im_projects main_p,
+		im_projects sub_p
+	where	main_p.project_id = :filter_project_id and
+		sub_p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey)
+    )"
+}
+
 if { $cost_status_id ne "" && $cost_status_id > 0 } {
     lappend criteria "ci.cost_status_id in ([join [im_sub_categories $cost_status_id] ","])"
 }
@@ -172,6 +200,23 @@ if {"" != $start_date} {
 }
 if {"" != $end_date} {
     lappend criteria "ci.effective_date < :end_date::timestamptz"
+}
+
+
+
+set extra_select [join $extra_selects ",\n\t"]
+if { $extra_select ne "" } {
+    set extra_select ",\n\t$extra_select"
+}
+
+set extra_from [join $extra_froms ",\n\t"]
+if { $extra_from ne "" } {
+    set extra_from ",\n\t$extra_from"
+}
+
+set extra_where [join $extra_wheres "and\n\t"]
+if { $extra_where ne "" } {
+    set extra_where ",\n\t$extra_where"
 }
 
 
@@ -200,6 +245,7 @@ if {![im_permission $user_id view_invoices]} {
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
 set counter_reset_expression ""
+set order_by_clause ""
 
 # If filter is set to Customer or Provider Doc's and no order_by is providedwe order by creation date.
 # Before order_by was set to default (Document No). This way documents showed up grouped by document types. 
@@ -255,11 +301,6 @@ if { $where_clause ne "" } {
 
 set payment_amount ""
 set payment_currency ""
-
-set extra_select ""
-set extra_from ""
-set extra_where ""
-
 
 # -----------------------------------------------------------------
 # Main SQL
@@ -418,6 +459,12 @@ set filter_html "
 	    <td>[lang::message::lookup "" intranet-invoices.Company "Company"]</td>
 	    <td>
               [im_company_select -include_empty_p 1 -include_empty_name "All" company_id $company_id]
+            </td>
+	  </tr>
+	  <tr>
+	    <td>[_ intranet-core.Project]</td>
+	    <td>
+              [im_project_select -exclude_subprojects_p 1 -include_empty_p 1 filter_project_id $filter_project_id]
             </td>
 	  </tr>
 	  <tr>
