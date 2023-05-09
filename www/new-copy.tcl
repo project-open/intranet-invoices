@@ -82,6 +82,8 @@ set discount_enabled_p [im_parameter -package_id [im_package_invoices_id] "Enabl
 set surcharge_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceSurchargeFieldP" "" 0]
 set outline_number_enabled_p [im_column_exists im_invoice_items item_outline_number]
 
+set vat_type_id_enabled_p [im_parameter -package_id [im_package_invoices_id] "EnabledInvoiceVatTypeIdP" "" 0]
+
 # Should we show a "Material" field for invoice lines?
 set material_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemMaterialFieldP" "" 0]
 set project_type_enabled_p [im_parameter -package_id [im_package_invoices_id] "ShowInvoiceItemProjectTypeFieldP" "" 1]
@@ -134,6 +136,7 @@ if { "" == $project_id || ![info exists project_id] } {
 # ---------------------------------------------------------------
 set customer_select [im_company_select -tag_attributes {id "customer_id"} customer_id $customer_id "" "CustOrIntl"]
 set provider_select [im_company_select -tag_attributes {id "provider_id"} provider_id $provider_id "" "Provider"]
+set vat_type_select [im_category_select "Intranet VAT Type" vat_type_id $vat_type_id]
 
 # ---------------------------------------------------------------
 # Determine whether it's an Invoice or a Bill

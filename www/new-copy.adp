@@ -285,7 +285,14 @@ window.addEventListener('load', function() {
             <table border="0" cellspacing="1" cellpadding="0">
               <tr> 
                 <td>#intranet-invoices.VAT#&nbsp;</td>
-                <td><input type="text" name="vat" value='@vat@' size="4"> % &nbsp;</td>
+		<td>
+<if @vat_type_id_enabled_p@ gt 0>                                                                                                           
+                @vat_type_select;noquote@                                                                                                   
+</if>                                                                                                                                       
+<else>                                                                                                                                      
+                <input type="text" name="vat" value="@vat@" size="4"> % &nbsp;                                                              
+</else>
+		</td>
               </tr>
             </table>
           </td>
