@@ -8,18 +8,17 @@ if {![info exists invoice_id]} {
     ad_page_contract {} {invoice_id:integer ""}
 }
 
+set current_user_id [auth::require_login]
 set filter_invoice_id $invoice_id
+set default_currency [im_parameter -package_id [im_package_cost_id] "DefaultCurrency" "" "EUR"]
+set invoice_base_url "/intranet-invoices/view"
 # ad_return_complaint 1 "dependency-tree: invoice_id=$filter_invoice_id"
 
-set current_user_id [auth::require_login]
 im_invoice_permissions $current_user_id $filter_invoice_id view_p read_p write_p admin_p
 if {!$read_p} {
     ad_return_complaint 1 "You don't have read permissions to see this portlet"
     ad_script_abort
 }
-
-set invoice_base_url "/intranet-invoices/view"
-
 
 # Check if the calling page (invoices/view?invoice_id=123) has a locale set
 set locale [uplevel 2 {if {[info exists locale]} { set locale }}]
@@ -48,12 +47,13 @@ lappend main_project_ids 0
 
 set costs_sql "
     select	cost_id, item_id, cost_name, cost_nr, cost_type_id, cost_status_id, item_source_invoice_id,
-    		coalesce(cost_amount, 0.0) as cost_amount, cost_currency,
+    		coalesce(cost_amount, 0.0) as cost_amount, cost_currency, cost_amount_converted,
     		CASE WHEN item_source_invoice_id = cost_id THEN null ELSE item_source_invoice_id END as source_id
     from 	(
 	select	c.*,
 		c.amount as cost_amount,
 		c.currency as cost_currency,
+	        round(c.amount * im_exchange_rate(c.effective_date::date, c.currency, :default_currency)::numeric, 2) as cost_amount_converted,
 		i.*,
 		ii.*
 	from	im_projects p,
@@ -69,6 +69,7 @@ set costs_sql "
 	select	c.*,
 		coalesce(c.amount, 0.0) as cost_amount,
 		c.currency as cost_currency,
+	        round(c.amount * im_exchange_rate(c.effective_date::date, c.currency, :default_currency)::numeric, 2) as cost_amount_converted,
 		i.*,
 		ii.*
 	from	im_projects p,
@@ -97,7 +98,8 @@ db_foreach costs $costs_sql {
     set name_hash($cost_id) $cost_name
     set type_hash($cost_id) $cost_type_id
     set status_hash($cost_id) $cost_status_id
-    set amount_hash($cost_id) "[lc_numeric $cost_amount "%.2f" $locale] $cost_currency"
+    set amount_hash($cost_id) $cost_amount_converted
+    set amount_formatted_hash($cost_id) "[lc_numeric $cost_amount "%.2f" $locale] $cost_currency"
 
     if {"" ne $source_id} {
         set predecessors {}
@@ -172,7 +174,7 @@ while {[llength $list] > 0 && $cnt < 10} {
         set url [export_vars -base $invoice_base_url {{invoice_id $id}}]
 	if {[info exists name_hash($id)]} {
 	    set name $name_hash($id)
-	    set amount $amount_hash($id)
+	    set amount $amount_formatted_hash($id)
 	    set type [im_category_from_id $type_hash($id)]
 	    set status [im_category_from_id $status_hash($id)]
 	    set link "<a href=$url>$name</a>"
@@ -215,6 +217,7 @@ set list [list $filter_invoice_id]
 set cnt 0
 set successor_html ""
 set successor_num 0
+set successor_sum 0.0
 while {[llength $list] > 0 && $cnt < 100} {
     incr cnt
 
@@ -228,18 +231,23 @@ while {[llength $list] > 0 && $cnt < 100} {
 
 	if {[info exists name_hash($id)]} {
 	    set name $name_hash($id)
-	    set amount $amount_hash($id)
+	    set amount_formatted $amount_formatted_hash($id)
 	    set type [im_category_from_id $type_hash($id)]
 	    set status [im_category_from_id $status_hash($id)]
+
+	    set amount $amount_hash($id)
+	    if {"" eq $amount} { set amount 0.0 }
+	    set successor_sum [expr $successor_sum + $amount]
+
 	} else {
 	    set name "Unknown #$id"
-	    set amount ""
+	    set amount_formatted ""
 	    set type ""
 	    set status ""
 	}
 	append successor_html "<tr>
           <td><a href=$url>$name</a></td>
-          <td>$amount</td>
+          <td align=right>$amount_formatted</td>
           <td>$type</td>
           <td>$status</td>
           </tr>\n
@@ -256,6 +264,17 @@ while {[llength $list] > 0 && $cnt < 100} {
 	lappend list $id
     }
 
+}
+
+if {$successor_sum != 0} {
+    append successor_html "
+      <tr>
+          <td><b>[lang::message::lookup "" intranet-core.Sum "Sum"]:</b></td>
+          <td align=right><b>[lc_numeric $successor_sum "%.2f" $locale] $default_currency</b></td>
+          <td></td>
+          <td></td>
+      </tr>\n
+    "
 }
 
 
