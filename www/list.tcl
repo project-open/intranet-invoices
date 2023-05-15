@@ -29,7 +29,10 @@ ad_page_contract {
     { how_many "" }
     { view_name "invoice_list" }
     { letter:trim "" }
+    { format "html" }
 }
+
+
 
 # ---------------------------------------------------------------
 # Invoice List Page
@@ -480,6 +483,12 @@ set filter_html "
 	      <input type='textfield' name='end_date' id='end_date' value='$end_date' size='10'><input id=end_date_calendar style=\"height:20px; width:20px; background: url('/resources/acs-templating/calendar.gif');\" type=\"button\">
 	    </td>
 	  </tr>
+
+	  <tr>
+	    <td class=form-label>[lang::message::lookup "" intranet-reporting.Format "Format"]</td>
+	    <td class=form-widget>[im_report_output_format_select format "" $format]</td>
+	  </tr>
+
 	  <tr>
 	    <td></td>
 	    <td><input type=submit value='[_ intranet-invoices.Go]' name=submit></td>
@@ -495,6 +504,7 @@ set filter_html "
 set colspan [expr {[llength $column_headers] + 1}]
 
 set table_header_html ""
+set table_header_csv ""
 
 # Format the header names with links that modify the
 # sort order of the SQL query.
@@ -511,11 +521,15 @@ foreach col $column_headers {
     regsub -all "#" $col_key "hash_simbol" col_key
     set col_loc [lang::message::lookup ""  intranet-invoices.$col_key $col]
 
-    if {$order_by eq $col  || [regexp {input} $col match]} {
+    if {$order_by eq $col || [regexp {input} $col match]} {
 	append table_header_html "  <td class=rowtitle>$col_loc</td>\n"
     } else {
 	append table_header_html "  <td class=rowtitle><a href=\"${url}order_by=[ns_urlencode $col]\">$col_loc</a></td>\n"
     }
+
+    # Output for CSV format
+    set csv_cell_cleaned [im_cvs_output_findoc_clean_cell -value $col_loc]
+    append table_header_csv "$csv_cell_cleaned\t"
 }
 
 # Add input field 
@@ -595,8 +609,17 @@ db_foreach invoices_info_query $selection {
 	set cmd "append table_body_html $column_var"
 	eval $cmd
 	append table_body_html "</td>\n"
+
+	# For CSV export
+	set cmd "set csv_cell $column_var"
+	eval $cmd
+	set csv_cell_cleaned [im_cvs_output_findoc_clean_cell -value $csv_cell]
+	ns_log Notice "list.tcl: cleaned=$csv_cell_cleaned, org=$csv_cell"
+	append table_body_csv "$csv_cell_cleaned\t"
+	
     }
     append table_body_html "</tr>\n"
+    append table_body_csv "\n"
 
     # ----
 
@@ -667,6 +690,11 @@ set button_html "
   </td>
 </tr>"
 
+
+# ---------------------------------------------------------------
+# Navbars
+# ---------------------------------------------------------------
+
 set sub_navbar [im_costs_navbar "no_alpha" "/intranet-invoices/list" $next_page_url $previous_page_url [list invoice_status_id cost_type_id company_id start_idx order_by how_many view_name start_date end_date] $parent_menu_label ]
 
 set left_navbar_html "
@@ -692,3 +720,27 @@ if { "" != $new_document_menu } {
 }
 
 
+
+# ---------------------------------------------------------------
+# Handle CSV export
+# ---------------------------------------------------------------
+
+switch $format {
+    "csv" {
+	# Determine filename to write out
+	set report_name "${cost_type}_list"
+	set report_key [string tolower $report_name]
+	regsub -all {[^a-zA-z0-9_]} $report_key "_" report_key
+	regsub -all {_+} $report_key "_" report_key
+
+
+	# Return the report contents
+	set outputheaders [ns_conn outputheaders]
+	ns_set cput $outputheaders "Content-Disposition" "attachment; filename=${report_key}.csv"
+	doc_return 200 "application/csv" "$table_header_csv\n$table_body_csv"
+	ad_script_abort
+    }
+    default {
+	# just continue with the page to format output using template
+    }
+}
