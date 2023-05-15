@@ -146,6 +146,7 @@ set column_sql "
 # Get the main view
 set column_headers [list]
 set column_vars [list]
+set view_order_by_clause ""
 db_foreach column_list_sql $column_sql {
     set admin_html ""
     if {$user_is_admin_p} { 
@@ -245,7 +246,7 @@ if {![im_permission $user_id view_invoices]} {
 ns_log Notice "/intranet-invoices/index: company_where=$company_where"
 
 set counter_reset_expression ""
-set order_by_clause ""
+set order_by_clause $view_order_by_clause
 
 # If filter is set to Customer or Provider Doc's and no order_by is providedwe order by creation date.
 # Before order_by was set to default (Document No). This way documents showed up grouped by document types. 
