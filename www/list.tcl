@@ -493,7 +493,7 @@ set filter_html "
 	  </tr>
 
           <tr>
-              <td class=form-label>[lang::message::lookup "" intranet-reporting.NumberFormat "Number Format"]</td>
+              <td class=form-label>[lang::message::lookup "" intranet-reporting.NumberLocale "Number Locale"]</td>
               <td class=form-widget>
                   [im_report_number_locale_select number_locale $number_locale]
               </td>
