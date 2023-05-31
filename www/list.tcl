@@ -30,6 +30,7 @@ ad_page_contract {
     { view_name "invoice_list" }
     { letter:trim "" }
     { format "html" }
+    { number_locale "" }
 }
 
 
@@ -85,6 +86,8 @@ set local_url "/intranet-invoices/list"
 set cost_status_created [im_cost_status_created]
 set cost_type [db_string get_cost_type "select category from im_categories where category_id = :cost_type_id" -default [_ intranet-invoices.Costs]]
 set letter [string toupper $letter]
+set locale [lang::user::locale]
+if {"" == $number_locale} { set number_locale $locale  }
 
 if {![im_permission $user_id view_invoices]} {
     ad_return_complaint 1 "<li>You have insufficiente privileges to view this page"
@@ -488,6 +491,13 @@ set filter_html "
 	    <td class=form-label>[lang::message::lookup "" intranet-reporting.Format "Format"]</td>
 	    <td class=form-widget>[im_report_output_format_select format "" $format]</td>
 	  </tr>
+
+          <tr>
+              <td class=form-label>[lang::message::lookup "" intranet-reporting.NumberFormat "Number Format"]</td>
+              <td class=form-widget>
+                  [im_report_number_locale_select number_locale $number_locale]
+              </td>
+          </tr>
 
 	  <tr>
 	    <td></td>
