@@ -500,7 +500,7 @@ ad_proc im_invoices_object_list_component { user_id invoice_id read write return
 
     set return_url [im_url_with_query]
     set return_html "
-      <form action=invoice-association-action method=post>
+      <form action=/intranet-invoices/invoice-association-action method=post>
       [export_vars -form {invoice_id project_id return_url}]
       <table border=0 cellspacing=1 cellpadding=1>
         <tr>
