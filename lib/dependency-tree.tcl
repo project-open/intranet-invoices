@@ -278,6 +278,7 @@ while {[llength $list] > 0 && $cnt < 10000} {
 }
 
 # Display the successors per cost type
+set successor_html ""
 set type_ids [lsort [array names successor_html_hash]]
 foreach type_id $type_ids {
     
