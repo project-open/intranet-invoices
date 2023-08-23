@@ -162,7 +162,7 @@ set list [list $filter_invoice_id]
 set cnt 0
 set predecessor_html ""
 set predecessor_num 0
-while {[llength $list] > 0 && $cnt < 10} {
+while {[llength $list] > 0 && $cnt < 10000} {
     incr cnt
 
     set id [lindex $list 0]
@@ -213,12 +213,14 @@ while {[llength $list] > 0 && $cnt < 10} {
 # Show successors
 # -------------------------------------------------------------
 
+# Calculate successors recursively
 set list [list $filter_invoice_id]
 set cnt 0
-set successor_html ""
+array set successor_html_hash {}; # Hash with HTML per cost type
 set successor_num 0
 set successor_sum 0.0
-while {[llength $list] > 0 && $cnt < 100} {
+array set successor_sum_hash {}; # Hash with sum per cost type
+while {[llength $list] > 0 && $cnt < 10000} {
     incr cnt
 
     set id [lindex $list 0]
@@ -232,26 +234,36 @@ while {[llength $list] > 0 && $cnt < 100} {
 	if {[info exists name_hash($id)]} {
 	    set name $name_hash($id)
 	    set amount_formatted $amount_formatted_hash($id)
-	    set type [im_category_from_id $type_hash($id)]
+	    set type_id $type_hash($id)
+	    set type [im_category_from_id $type_id]
 	    set status [im_category_from_id $status_hash($id)]
 
+	    # Sum up amounts per cost type
 	    set amount $amount_hash($id)
 	    if {"" eq $amount} { set amount 0.0 }
-	    set successor_sum [expr $successor_sum + $amount]
-
+	    set successor_sum [expr $successor_sum + $amount]; # obsolete ToDo: remove
+	    set s 0.0
+	    if {[info exists successor_sum_hash($type_id)]} { set s $successor_sum_hash($type_id) }
+	    set successor_sum_hash($type_id) [expr $s + $amount]
 	} else {
 	    set name "Unknown #$id"
 	    set amount_formatted ""
 	    set type ""
 	    set status ""
 	}
-	append successor_html "<tr>
+
+	set line_html "<tr>
           <td><a href=$url>$name</a></td>
           <td align=right>$amount_formatted</td>
           <td>$type</td>
           <td>$status</td>
           </tr>\n
         "
+
+	set l ""
+	if {[info exists successor_html_hash($type_id)]} { set l $successor_html_hash($type_id) }
+	append l $line_html
+	set successor_html_hash($type_id) $l
     }
 
     set successors {}
@@ -263,10 +275,22 @@ while {[llength $list] > 0 && $cnt < 100} {
     foreach id [array names hash] {
 	lappend list $id
     }
-
 }
 
-if {$successor_sum != 0} {
+# Display the successors per cost type
+set type_ids [lsort [array names successor_html_hash]]
+foreach type_id $type_ids {
+    
+    # Add section header if there is more than one section
+    if {[llength $type_ids] > 1} {
+	append successor_html "<tr><td colspan=4><h4>[im_category_from_id $type_id]</h4></td></tr>\n"
+    }
+
+    # Add the HTML fragment for type_id calculated above
+    append successor_html $successor_html_hash($type_id)
+
+    # Add sum
+    set successor_sum $successor_sum_hash($type_id)
     append successor_html "
       <tr>
           <td><b>[lang::message::lookup "" intranet-core.Sum "Sum"]:</b></td>
