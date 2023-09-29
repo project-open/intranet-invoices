@@ -241,7 +241,7 @@ if {[im_permission $current_user_id wf_reassign_tasks]} { set wf_case_p 0 }; # U
 # Normally, the current values of the invoice should match
 # exactly the last registered audit version...
 if {[catch {
-    im_audit -object_type "im_invoice" -object_id $invoice_id -action before_update
+    im_audit -object_type "im_invoice" -object_id $invoice_id -action "view"
 } err_msg]} {
     ns_log Error "intranet-invoice/view: im_audit: Error action: 'before update' for invoice_id: $invoice_id"
 }
