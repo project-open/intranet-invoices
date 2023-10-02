@@ -27,6 +27,36 @@ if {"" eq $locale} {
 }
 
 # -------------------------------------------------------------
+# Sort a list of invoice_ids according to invoice name
+# -------------------------------------------------------------
+
+ad_proc im_invoice_dependency_tree_sort_invoices {
+    list
+    name_hash_list
+} {
+    Sort a list of invoice_ids according to invoice name
+    (or whatever array provided in 2nd argument)
+} {
+    array set name_hash $name_hash_list
+    # ad_return_complaint 1 $name_hash_list
+
+    set slist [list]
+    foreach l $list {
+	lappend slist [list $name_hash($l) $l]
+    }
+
+    set slist [lsort $slist]
+
+    set list [list]
+    foreach l $slist {
+	lappend list [lindex $l 1]
+    }
+    
+    return $list
+}
+
+
+# -------------------------------------------------------------
 # Main project
 # -------------------------------------------------------------
 
@@ -204,6 +234,7 @@ while {[llength $list] > 0 && $cnt < 10000} {
     foreach id [array names hash] {
 	lappend list $id
     }
+    set list [im_invoice_dependency_tree_sort_invoices $list [array get name_hash]]
 
 }
 
@@ -275,6 +306,7 @@ while {[llength $list] > 0 && $cnt < 10000} {
     foreach id [array names hash] {
 	lappend list $id
     }
+    set list [im_invoice_dependency_tree_sort_invoices $list [array get name_hash]]
 }
 
 # Display the successors per cost type
