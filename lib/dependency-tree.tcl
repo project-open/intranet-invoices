@@ -42,6 +42,7 @@ ad_proc im_invoice_dependency_tree_sort_invoices {
 
     set slist [list]
     foreach l $list {
+	if {![info exists name_hash($l)]} { set name_hash($l) "Deleted $l" }
 	lappend slist [list $name_hash($l) $l]
     }
 

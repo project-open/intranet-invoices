@@ -21,7 +21,7 @@
     </td>
     <td width='30%'>
 	<p>This portlet shows predecessors (= financial documents from which this document was created)
-	  and successors (= financial documents created based on this one).</p>
+	  and successors (= financial documents created based on this one) in this project.</p>
     </td>
   </td>
 </table>
