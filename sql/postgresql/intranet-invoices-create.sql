@@ -796,7 +796,7 @@ begin
 		'intranet-invoices',		-- package_name
 		'invoices_customers_new_invoice_from_quote',	-- label
 		'New Customer Invoice from Quote',		-- name
-		'/intranet-invoices/new-copy?target_cost_type_id=3700\&source_cost_type_id=3702',
+		'/intranet-invoices/new-copy?target_cost_type_id=3700&source_cost_type_id=3702',
 		320,				-- sort_order
 		v_invoices_new_menu,		-- parent_menu_id
 		null				-- visible_tcl
@@ -1074,7 +1074,7 @@ begin
                 'intranet-invoices',          -- package_name
                 'invoices_customers_new_invoice_from_delnote',        -- label
                 'New Customer Invoice from Delivery Note',    -- name
-                '/intranet-invoices/new-copy?target_cost_type_id=3700\&source_cost_type_id=3724',
+                '/intranet-invoices/new-copy?target_cost_type_id=3700&source_cost_type_id=3724',
                 325,                                            -- sort_order
                 v_invoices_customers,                           -- parent_menu_id
                 null                                            -- visible_tcl
@@ -1239,7 +1239,7 @@ begin
 		'intranet-invoices',		-- package_name
 		'invoices_customers_new_invoice_from_delnote',	-- label
 		'New Customer Invoice from Delivery Note',	-- name
-		'/intranet-invoices/new-copy?target_cost_type_id=3700\&source_cost_type_id=3724',
+		'/intranet-invoices/new-copy?target_cost_type_id=3700&source_cost_type_id=3724',
 		325,						-- sort_order
 		v_invoices_customers,				-- parent_menu_id
 		null						-- visible_tcl

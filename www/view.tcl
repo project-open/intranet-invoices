@@ -192,6 +192,7 @@ set show_leading_invoice_item_nr [im_parameter -package_id [im_package_invoices_
 set show_outline_number [im_column_exists im_invoice_items item_outline_number]
 set show_import_from_csv $show_outline_number
 set show_promote_to_timesheet_invoice_p [im_parameter -package_id [im_package_invoices_id] "ShowPromoteInvoiceToTimesheetInvoiceP" "" 0]
+set cancellation_invoice_enabled_p [db_string cancellation_p "select CASE WHEN 't' = (select enabled_p from im_categories where category_id = 3752) THEN 1 ELSE 0 END"]
 
 # Should we show the customer's PO number in the document?
 # This makes only sense in "customer documents", i.e. quotes, invoices and delivery notes
@@ -486,7 +487,7 @@ set query "
 		to_date(to_char(ci.effective_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') + ci.payment_days as calculated_due_date,
 		im_cost_center_name_from_id(ci.cost_center_id) as cost_center_name,
 		im_category_from_id(ci.cost_status_id) as cost_status,
-		im_category_from_id(ci.cost_type_id) as cost_type,
+		im_category_from_id(ci.cost_type_id) as cost_type_untranslated,
 		im_category_from_id(ci.template_id) as invoice_template,
 		(select object_type from acs_objects o where o.object_id = i.invoice_id) as object_type
 	from
@@ -572,9 +573,10 @@ if {"im_timesheet_invoice" eq $object_type} {
 # ---------------------------------------------------------------
 
 # ToDo: Isn't this included in the Internal company query above?
+set cost_type_mapped [string map {" " "_"} $cost_type_untranslated]
+set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type_untranslated]
+set cost_type $cost_type_l10n
 
-set cost_type_mapped [string map {" " "_"} $cost_type]
-set cost_type_l10n [lang::message::lookup $locale intranet-invoices.$cost_type_mapped $cost_type]
 
 # Fallback for empty office_id: Main Office
 if {"" == $invoice_office_id} {
@@ -1546,3 +1548,4 @@ if {$document_po_p} {
 if {"" != $err_mess} {
     set err_mess [lang::message::lookup "" $err_mess "Document Nr. not available anymore, please note and verify newly assigned number"]
 }
+

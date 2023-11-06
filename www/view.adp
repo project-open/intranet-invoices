@@ -135,8 +135,15 @@
 
   <if @document_invoice_p@ eq "1">
     		    <li>
-			<A HREF="/intranet-invoices/new-copy?target_cost_type_id=3700&amp;source_cost_type_id=3700&amp;source_invoice_id=<%=$invoice_id%>"><%= [lang::message::lookup "" intranet-invoices.Duplicate_Invoice "Duplicate Invoice"] %></a>
+			<A HREF="/intranet-invoices/new-copy?target_cost_type_id=3700&amp;source_cost_type_id=3700&amp;source_invoice_id=<%=$invoice_id%>"><%= [lang::message::lookup "" intranet-invoices.Create_Duplicate_Invoice "Create duplicate invoice"] %></a>
 		    </li>
+		    
+ 		    <if @cancellation_invoice_enabled_p@ eq "1">
+    		    <li>
+			<A HREF="/intranet-invoices/new-copy?target_cost_type_id=3752&amp;source_cost_type_id=3700&amp;source_invoice_id=<%=$invoice_id%>&amp;invert_quantities_p=1"><%= [lang::message::lookup "" intranet-invoices.Create_Cancellation_Invoice "Create cancellation invoice"] %></a>
+		    </li>
+		    </if>
+		    
   </if>
 </if>
 
@@ -145,14 +152,14 @@
   <if "adp" eq @invoice_template_type@>
 		    <li>
 			<% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $invoice_template_id} {send_to_user_as "html"} return_url}] %>
-			<a HREF="@url@"><%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_attachment "Send this %cost_type% as HTML attachment"] %></a>
+			<a HREF="@url@"><%= [lang::message::lookup "" intranet-invoices.Send_document_as_HTML_attachment "Send this %cost_type_l10n% as HTML attachment"] %></a>
 		    </li>
   </if>
 
   <if @pdf_enabled_p@>
 		    <li>
 			<% set url [export_vars -base "/intranet-invoices/view" {invoice_id {render_template_id $invoice_template_id} {send_to_user_as "pdf"} return_url}] %>
-			<a HREF="@url@"><%= [lang::message::lookup "" intranet-invoices.Send_document_as_PDF_attachment "Send this %cost_type% as PDF attachment"] %></a>
+			<a HREF="@url@"><%= [lang::message::lookup "" intranet-invoices.Send_document_as_PDF_attachment "Send this %cost_type_l10n% as PDF attachment"] %></a>
 		    </li>
   </if>
 </if>
@@ -221,7 +228,7 @@
 
 	<tr>
           <td class=rowodd>#intranet-invoices.cost_type_type_1#</td>
-          <td class=rowodd>@cost_type@</td>
+          <td class=rowodd>@cost_type_l10n@</td>
         </tr>
 
         <tr> 
@@ -235,7 +242,7 @@
           <td class=rowodd>@invoice_period_start_pretty@</td>
         </tr>
         <tr>
-          <td class=roweven><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_Start "Invoice Period End"] %></td>
+          <td class=roweven><%= [lang::message::lookup "" intranet-timesheet2-invoices.Invoicing_Period_End "Invoice Period End"] %></td>
           <td class=roweven>@invoice_period_end_pretty@</td>
         </tr>
 </if>

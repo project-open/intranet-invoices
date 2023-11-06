@@ -16,10 +16,11 @@ ad_page_contract {
     { source_invoice_id:integer,multiple "" }
     source_cost_type_id:integer,optional
     target_cost_type_id:integer
-    {customer_id:integer ""}
-    {provider_id:integer ""}
-    {project_id:integer ""}
-    {zero_quantities_p 0}
+    { customer_id:integer ""}
+    { provider_id:integer ""}
+    { project_id:integer ""}
+    { zero_quantities_p 0}
+    { invert_quantities_p 0}
     { blurb "Copy Financial Document" }
     { return_url "/intranet-invoice/"}
 }
@@ -58,7 +59,7 @@ foreach source_id $source_invoice_id {
 # we want to copy. So let's redirect and this page is going
 # to refer us back to this one.
 if {0 == [llength $source_invoice_id]} {
-    ad_returnredirect [export_vars -base new-copy-custselect { source_cost_type_id target_cost_type_id customer_id provider_id project_id zero_quantities_p blurb return_url}]
+    ad_returnredirect [export_vars -base new-copy-custselect { source_cost_type_id target_cost_type_id customer_id provider_id project_id zero_quantities_p invert_quantities_p blurb return_url}]
     ad_script_abort
 }
 
@@ -271,6 +272,7 @@ db_foreach invoice_items "" {
     
     # Special flag in order to create documents with empty amounts
     if {$zero_quantities_p} { set item_units "" }
+    if {$invert_quantities_p} { set item_units [expr -1.0 * $item_units] }
 
     set item_name [ns_quotehtml $item_name]
 
