@@ -1017,6 +1017,8 @@ db_foreach invoice_items {} {
     }
 
     set amount_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $amount+0] $rounding_precision] "" $locale]
+    # Fraber 2024-01-17: amount_formatted comes from the SQL non localized
+    set amount_formatted $amount_pretty
     set item_units_pretty [lc_numeric [expr $item_units+0] "" $locale]
     set price_per_unit_pretty [lc_numeric [im_numeric_add_trailing_zeros [expr $price_per_unit+0] $rounding_precision] "" $locale]
 
