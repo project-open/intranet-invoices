@@ -69,7 +69,11 @@ set invoice_or_quote_p [expr [im_category_is_a $cost_type_id [im_cost_type_invoi
 ns_log Notice "intranet-invoices/new-2: invoice_or_quote_p=$invoice_or_quote_p"
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr [im_category_is_a $cost_type_id [im_cost_type_invoice]] || [im_category_is_a $cost_type_id [im_cost_type_bill]]]
+set invoice_or_bill_p [expr \
+			   [im_category_is_a $cost_type_id [im_cost_type_invoice]] || \
+			   [im_category_is_a $cost_type_id [im_cost_type_bill]] || \
+			   [im_category_is_a $cost_type_id [im_cost_type_interco_bill]] \
+]
 ns_log Notice "intranet-invoices/new-2: invoice_or_bill_p=$invoice_or_bill_p"
 
 if {$invoice_or_quote_p} {

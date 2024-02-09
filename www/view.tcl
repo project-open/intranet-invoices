@@ -118,6 +118,7 @@ set cost_type_id [db_string cost_type_id "select cost_type_id from im_costs wher
 set document_quote_p [im_category_is_a $cost_type_id [im_cost_type_quote]]
 set document_invoice_p [im_category_is_a $cost_type_id [im_cost_type_invoice]]
 set document_bill_p [im_category_is_a $cost_type_id [im_cost_type_bill]]
+set document_interco_bill_p [im_category_is_a $cost_type_id [im_cost_type_interco_bill]]
 set document_po_p [im_category_is_a $cost_type_id [im_cost_type_po]]
 set document_delnote_p [im_category_is_a $cost_type_id [im_cost_type_delivery_note]]
 
@@ -259,7 +260,7 @@ set invoice_cost_type_id [im_cost_type_invoice]
 set bill_cost_type_id [im_cost_type_bill]
 
 # Invoices and Bills have a "Payment Terms" field.
-set invoice_or_bill_p [expr $document_invoice_p || $document_bill_p]
+set invoice_or_bill_p [expr $document_invoice_p || $document_bill_p | $document_interco_bill_p]
 
 # CostType for "Generate Invoice from Quote" or "Generate Bill from PO"
 set target_cost_type_id ""
@@ -1252,7 +1253,7 @@ set note_html "
 "
 
 set terms_html ""
-if {$document_invoice_p || $document_bill_p} {
+if {$document_invoice_p || $document_bill_p || $document_interco_bill_p} {
     set terms_html [concat $payment_terms_html $payment_method_html]
 }
 append terms_html "$canned_note_html $note_html"
