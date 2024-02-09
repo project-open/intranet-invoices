@@ -1345,6 +1345,10 @@ if {"odt" eq $render_template_type} {
     regsub -all "&lt;%" $odt_template_content "<%" odt_template_content
     regsub -all "%&gt;" $odt_template_content "%>" odt_template_content
 
+    # Special replacement in company_name
+    # ToDo: Should we also replace ampersand in other fields? Other special XML chars?
+    regsub -all "&" $company_name "&amp;" company_name
+
     # ------------------------------------------------
     # Rendering
     #
