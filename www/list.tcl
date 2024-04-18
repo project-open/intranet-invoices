@@ -344,31 +344,28 @@ from
         im_costs ci
 	LEFT OUTER JOIN im_projects pr on (ci.project_id = pr.project_id),
         im_companies c,
-        im_companies p,
-	(	select distinct
-			cc.cost_center_id,
-			ct.cost_type_id
+        im_companies p
+	$extra_from
+where
+	i.invoice_id = ci.cost_id
+ 	and ci.customer_id = c.company_id
+        and ci.provider_id = p.company_id
+	and (ci.cost_center_id is NULL or ci.cost_center_id in (
+		select distinct cc.cost_center_id
 		from	im_cost_centers cc,
 			im_cost_types ct,
 			acs_permissions p,
 			party_approved_member_map m,
 			acs_object_context_index c,
 			acs_privilege_descendant_map h
-		where
-			p.object_id = c.ancestor_id
+		where	p.object_id = c.ancestor_id
 			and h.descendant = ct.read_privilege
 			and c.object_id = cc.cost_center_id
 			and m.member_id = :user_id
 			and p.privilege = h.privilege
 			and p.grantee_id = m.party_id
-	) readable_ccs
-	$extra_from
-where
-	i.invoice_id = ci.cost_id
- 	and ci.customer_id = c.company_id
-        and ci.provider_id = p.company_id
-	and ci.cost_center_id = readable_ccs.cost_center_id
-	and ci.cost_type_id = readable_ccs.cost_type_id
+			and ct.cost_type_id = ci.cost_type_id
+	))
 	$company_where
         $where_clause
 	$extra_where
