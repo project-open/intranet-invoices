@@ -318,12 +318,12 @@ select	i.*,
 	ci.*,
 	(to_date(to_char(ci.effective_date, :date_format), :date_format) + ci.payment_days) as due_date_calculated,
         to_char(ci.effective_date, 'YYYY-MM-DD') as cost_effective_date,
-	(ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100)) as invoice_amount,
 	ci.currency as invoice_currency,
 	ci.paid_amount as payment_amount,
 	ci.paid_currency as payment_currency,
 	pr.project_nr,
 	to_char(ci.effective_date,  'YYYY-MM') as effective_month,
+	ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100) as invoice_amount,
 	to_char(ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100),  :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
@@ -556,19 +556,10 @@ set idx $start_idx
 
 db_foreach invoices_info_query $selection {
 
-    # Provide PRETTY 'payment amount' 
-    if { "" != $payment_amount} { 
-	if {[catch {
-	    set payment_amount_pretty [lc_numeric $payment_amount "%.2f" "en_US"]
-	} err_msg]} {
-	    global errorInfo
-	    ns_log Error $errorInfo
-	    set payment_amount_pretty ""
-	}
-    } else {
-	set payment_amount_pretty [lc_numeric 0 "%.2f" "en_US"]
-    } 
-
+    set invoice_amount_formatted [im_report_format_number [expr round(100.0 * ($invoice_amount+0)) / 100] $format $number_locale]
+    set payment_amount_pretty [im_report_format_number [expr round(100.0 * ($payment_amount+0)) / 100] $format $number_locale]
+    if {"" eq $payment_amount} { set payment_currency "" }
+    
     set url [im_maybe_prepend_http $url]
     if { $url eq "" } {
 	set url_string "&nbsp;"
