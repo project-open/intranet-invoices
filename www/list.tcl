@@ -324,7 +324,6 @@ select	i.*,
 	pr.project_nr,
 	to_char(ci.effective_date,  'YYYY-MM') as effective_month,
 	ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100) as invoice_amount,
-	to_char(ci.amount * (1 + coalesce(ci.vat, 0)/100 + coalesce(ci.tax, 0)/100),  :cur_format) as invoice_amount_formatted,
     	im_email_from_user_id(i.company_contact_id) as company_contact_email,
       	im_name_from_user_id(i.company_contact_id) as company_contact_name,
 	im_cost_center_code_from_id(ci.cost_center_id) as cost_center_code,
@@ -556,8 +555,9 @@ set idx $start_idx
 
 db_foreach invoices_info_query $selection {
 
-    set invoice_amount_formatted [im_report_format_number [expr round(100.0 * ($invoice_amount+0)) / 100] $format $number_locale]
-    set payment_amount_pretty [im_report_format_number [expr round(100.0 * ($payment_amount+0)) / 100] $format $number_locale]
+    set amount_formatted [im_report_format_number [expr round(100.0 * ($amount+0)) / 100.0] $format $number_locale]
+    set invoice_amount_formatted [im_report_format_number [expr round(100.0 * ($invoice_amount+0)) / 100.0] $format $number_locale]
+    set payment_amount_pretty [im_report_format_number [expr round(100.0 * ($payment_amount+0)) / 100.0] $format $number_locale]
     if {"" eq $payment_amount} { set payment_currency "" }
     
     set url [im_maybe_prepend_http $url]
