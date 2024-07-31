@@ -58,8 +58,15 @@ set redirect_package_url [parameter::get_from_package_key -package_key "intranet
 if {"" != $redirect_package_url} {
     set form_vars [ns_conn form]
     if {"" == $form_vars} { set form_vars [ns_set create] }
-    set var_list [ns_set array $form_vars]
-    set redirect_url [export_vars -base "$redirect_package_url/new" $var_list]
+    array set var_hash [ns_set array $form_vars]
+    set var_list [array names var_hash]
+
+    set redirect_url "$redirect_package_url/new?"
+    foreach var $var_list {
+	set val $var_hash($var)
+	set val_encoded [ad_urlencode $val]
+	if {$val_encoded ne ""} { append redirect_url "$var=$val_encoded&" }
+    }
     ad_returnredirect $redirect_url
 }
 

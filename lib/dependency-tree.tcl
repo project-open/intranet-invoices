@@ -95,7 +95,7 @@ set costs_sql "
 	where	main_p.project_id in ([join $main_project_ids ","]) and
 		p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
 		c.project_id = p.project_id and
-		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102)
+		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102) -- exclude 73102=Planning Cost
     UNION
 	select	c.*,
 		coalesce(c.amount, 0.0) as cost_amount,
@@ -113,7 +113,7 @@ set costs_sql "
 		p.tree_sortkey between main_p.tree_sortkey and tree_right(main_p.tree_sortkey) and
 		r.object_id_one = p.project_id and
 		r.object_id_two = c.cost_id and
-		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102)
+		c.cost_type_id not in (3714, 3718, 3720, 3722, 3726, 3736, 73102) -- exclude 73102=Planning Cost
     ) t 
     order by cost_type_id, cost_id, item_id
 "
