@@ -18,21 +18,25 @@ function ltrim(str, chars) {
 function ajaxFunction() {
     var xmlHttp1;
     var xmlHttp2;
+    var xmlHttp3;
     try {
 	// Firefox, Opera 8.0+, Safari
 	xmlHttp1=new XMLHttpRequest();
 	xmlHttp2=new XMLHttpRequest();
+	xmlHttp3=new XMLHttpRequest();
     }
     catch (e) {
 	// Internet Explorer
 	try {
 	    xmlHttp1=new ActiveXObject("Msxml2.XMLHTTP");
 	    xmlHttp2=new ActiveXObject("Msxml2.XMLHTTP");
+	    xmlHttp3=new ActiveXObject("Msxml2.XMLHTTP");
 	}
 	catch (e) {
 	    try {
 		xmlHttp1=new ActiveXObject("Microsoft.XMLHTTP");
 		xmlHttp2=new ActiveXObject("Microsoft.XMLHTTP");
+		xmlHttp3=new ActiveXObject("Microsoft.XMLHTTP");
 	    }
 	    catch (e) {
 		alert("Your browser does not support AJAX!");
@@ -76,12 +80,24 @@ function ajaxFunction() {
 	}
     }
 
+    xmlHttp3.onreadystatechange = function() {
+	if(xmlHttp3.readyState==4) {
+	    var res3 = xmlHttp3.responseText;
+	    var obj3 = JSON.parse(res3);
+	    var company = obj3.data[0];
+	    var defaultVat = company.default_vat;
+	    document.invoice.vat.value = defaultVat;
+	}
+    }
+    
     // get the company_id from the customer's drop-down
     var company_id = document.invoice.@ajax_company_widget@.value;
     xmlHttp1.open("GET","/intranet/offices/ajax-offices?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
     xmlHttp1.send(null);
     xmlHttp2.open("GET","/intranet/users/ajax-company-contacts?user_id=@user_id@&auto_login=@auto_login@&company_id="+company_id,true);
     xmlHttp2.send(null);
+    xmlHttp3.open("GET","/intranet-rest/im_company/"+company_id+"?format=json",true);
+    xmlHttp3.send(null);
 }
 
 window.addEventListener('load', function() {
