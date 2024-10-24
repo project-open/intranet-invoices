@@ -833,5 +833,19 @@ ad_proc -public im_invoice_item_permissions {
 
 
 # ---------------------------------------------------------------
-# Driver Function for Various Output formats
+#
 # ---------------------------------------------------------------
+
+ad_proc -public im_invoice_nuke {
+    invoice_id
+} {
+    Eliminate a financial document with invoice_items
+} {
+    db_list del_invoice_items "
+    	select	im_invoice_item__delete(ii.item_id)
+	from	im_invoice_items ii
+	where	ii.invoice_id = :invoice_id
+    "
+    db_string del_invoice "select im_invoice__delete(:invoice_id)"
+}
+
