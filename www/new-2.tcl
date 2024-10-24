@@ -576,6 +576,7 @@ if {!$invoice_exists_p} {
 
     # Start a new workflow case
     im_workflow_start_wf -object_id $invoice_id -object_type_id $cost_type_id -skip_first_transition_p 1
+    im_audit -object_id $invoice_id
 
 } else {
     # Audit the update
