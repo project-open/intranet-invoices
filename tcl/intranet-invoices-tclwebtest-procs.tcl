@@ -15,6 +15,7 @@ namespace eval im_invoice::twt {
 	{-cost_center_id 0}
 	{-predecessor_id 0}
 	{-effective_date "2024-01-01" }
+	{-project_id 0}
     } {
 	Create a new invoice 
     } {
@@ -39,6 +40,9 @@ namespace eval im_invoice::twt {
 			'item name', :invoice_id, 0, 1.0, 322, :amount, 'EUR', 47100, 47000
         )"]
 
+	if {0 != $project_id} {
+	    db_dml project_update "update im_costs set project_id = :project_id where cost_id = :invoice_id"
+	}
 	if {0 != $cost_center_id} {
 	    db_dml cf_update "update im_costs set cost_center_id = :cost_center_id where cost_id = :invoice_id"
 	}
