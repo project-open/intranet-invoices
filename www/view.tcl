@@ -214,11 +214,12 @@ set show_company_project_nr [expr {$show_company_project_nr && $company_project_
 # Which report to show for timesheet invoices as the detailed list of hours
 set timesheet_report_url [im_parameter -package_id [im_package_invoices_id] "TimesheetInvoiceReport" "" "/intranet-reporting/timesheet-invoice-hours.tcl"]
 
-# Check if ooffice is installed
+# Check if loffice is installed
+set loffice_cmd [parameter::get_from_package_key -package_key "intranet-core" -parameter "OpenOfficeCmd" -default "loffice"]
 set err_msg ""
 set ooversion ""
 
-set cmd "export HOME=~$my_user; ooffice --version"
+set cmd "export HOME=~$my_user; $loffice_cmd --version"
 set status [catch {set ooversion [im_exec bash -l -c $cmd]} err_msg]
 if {$status} { set pdf_enabled_p 0 } else { set pdf_enabled_p 1 }
 # ad_return_complaint 1 "status=$status, pdf_enabled_p=$pdf_enabled_p, err_msg=<pre>$err_msg</pre>"
@@ -1410,7 +1411,7 @@ if {"odt" eq $render_template_type} {
     if {$pdf_p} {
 	set result ""
 	set err_msg ""
-	set cmd "export HOME=~$my_user; ooffice --headless --convert-to pdf --outdir /tmp/ $odt_zip"
+	set cmd "export HOME=~$my_user; $loffice_cmd --headless --convert-to pdf --outdir /tmp/ $odt_zip"
 	
 	set status [catch {
 	    ns_log Notice "intranet-invoice/view: im_exec $cmd"
